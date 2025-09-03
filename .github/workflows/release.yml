@@ -1,0 +1,135 @@
+name: Release Workflow
+
+on:
+  push:
+    branches: [development, release-*]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE_NAME: "epam/statgpt-portal-frontend"
+
+jobs:
+  test:
+    uses: epam/ai-dial-ci/.github/workflows/node_test.yml@2.4.1
+    with:
+      bypass-checks: false
+      format-checks-enabled: true
+      format-checks-bypassed: false
+      style-checks-enabled: true
+      style-checks-bypassed: false
+      code-checks-enabled: true
+      code-checks-bypassed: false
+      ort-enabled: true
+      ort-bypassed: false
+      ort-version: "latest"
+      node-version: "22"
+      runs-on: '["ubuntu-24.04"]'
+
+  calculate_version:
+    runs-on: ubuntu-24.04
+    outputs:
+      next-version: ${{ steps.semantic_versioning.outputs.next-version }}
+      is-latest: ${{ steps.semantic_versioning.outputs.is-latest }}
+      latest-tag: ${{ steps.semantic_versioning.outputs.latest-tag }}
+    steps:
+      - uses: epam/ai-dial-ci/actions/semantic_versioning@2.4.1
+        id: semantic_versioning
+
+  release:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      packages: write
+      security-events: write
+    needs:
+      - calculate_version
+      - test
+
+    steps:
+      - name: Maximize build space
+        uses: AdityaGarg8/remove-unwanted-software@90e01b21170618765a73370fcc3abbd1684a7793 # v5
+        if: false # Maximize build space by removing unwanted software if set to true
+        with:
+          remove-android: "true"
+          remove-dotnet: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
+          remove-cached-tools: "true"
+          remove-large-packages: "true"
+
+      - uses: epam/ai-dial-ci/actions/generate_release_notes@2.4.1
+        with:
+          latest-tag: ${{ needs.calculate_version.outputs.latest-tag }}
+      
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          lfs: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - uses: epam/ai-dial-ci/actions/node_prepare@2.4.1
+        with:
+          node-version: "22"
+          clean-install: true
+          registry-url: "https://registry.npmjs.org"
+      
+      - name: Set version
+        shell: bash
+        run: |
+          npm version ${{ needs.calculate_version.outputs.next-version }} --no-git-tag-version || true # upstream branch may already be updated
+      
+      - uses: epam/ai-dial-ci/actions/build_docker@2.4.1
+        with:
+          ghcr-username: ${{ github.actor }}
+          ghcr-password: ${{ secrets.GITHUB_TOKEN }}
+          dockerhub-username: ${{ secrets.DOCKERHUB_LOGIN }}
+          dockerhub-password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image-name: ghcr.io/${{ env.IMAGE_NAME }}
+          image-tag: ${{ needs.calculate_version.outputs.next-version }}
+          push-enabled: true
+          trivy-enabled: true
+          bypass-checks: false
+          trivy-severity: "CRITICAL,HIGH"
+          trivy-severity-for-sarif: "CRITICAL,HIGH"
+          trivy-limit-severities-for-sarif: true
+          platforms: "linux/amd64"
+          image-extra-aliases: |
+            ${{ env.IMAGE_NAME }}:${{ needs.calculate_version.outputs.next-version }}
+            ${{ github.ref == 'refs/heads/development' && format('{0}:{1}', env.IMAGE_NAME, 'development') || ''}}
+            ${{ github.ref == 'refs/heads/development' && format('{0}/{1}:{2}', 'ghcr.io', env.IMAGE_NAME, 'development') || ''}}
+            ${{ startsWith(github.ref, 'refs/heads/release-') && needs.calculate_version.outputs.is-latest == 'true' && format('{0}:{1}', env.IMAGE_NAME, 'latest') || ''}}
+            ${{ startsWith(github.ref, 'refs/heads/release-') && needs.calculate_version.outputs.is-latest == 'true' && format('{0}/{1}:{2}', 'ghcr.io', env.IMAGE_NAME, 'latest') || ''}}
+      
+      - name: Publish packages to npmjs
+        shell: bash
+        run: |
+          #!/bin/bash
+          npm run build
+          PUBLISH_COMMAND="npm run publish"
+          ARGS=""
+          if [ "$IS_DEVELOPMENT_BRANCH" == "true" ]; then
+            ARGS+=" --development"
+          fi
+          if [ "$IS_RELEASE_BRANCH" == "true" ] && [ "$IS_LATEST" == "true" ]; then
+            ARGS+=" --tag latest"
+          fi
+          if [ -n "$ARGS" ]; then
+            PUBLISH_COMMAND+=" --"$ARGS
+          fi
+          $PUBLISH_COMMAND
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          IS_LATEST: ${{ needs.calculate_version.outputs.is-latest == 'true' }}
+          IS_DEVELOPMENT_BRANCH: ${{ github.ref == 'refs/heads/development' }}
+          IS_RELEASE_BRANCH: ${{ startsWith(github.ref, 'refs/heads/release-') }}
+      
+      - uses: epam/ai-dial-ci/actions/publish_tag_release@2.4.1
+        with:
+          tag-version: ${{ needs.calculate_version.outputs.next-version }}
+          changelog-file: "/tmp/my_changelog" # comes from generate_release_notes step
+          extra-commit-command: |
+            git add package.json package-lock.json
+            git commit -m '[skip ci] Update version' || true # upstream branch may already be updated
