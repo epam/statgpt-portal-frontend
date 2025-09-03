@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.next/
+coverage/
+.nyc_output/
+*.md
+/.nx/cache
+/.nx/workspace-data

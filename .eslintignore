@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.next/
+*.config.js
+rollup.config.js
+*.config.ts
+coverage/
+.nyc_output/
+package.json
