@@ -1,7 +1,5 @@
 import { FC, MouseEvent } from 'react';
 import { IconX } from '@tabler/icons-react';
-import { I18nKeys } from '@statgpt/locales/src/constants/i18n-keys';
-import { useI18n } from '@statgpt/locales/src/client';
 
 interface Props {
   title?: string;

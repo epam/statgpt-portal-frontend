@@ -2,10 +2,6 @@ import { PopUpState } from '@statgpt/ui-components/src/types/pop-up';
 import { render } from '@testing-library/react';
 import Popup from './Popup';
 
-jest.mock('@statgpt/locales/src/client', () => ({
-  useI18n: () => (key: string) => key,
-}));
-
 describe('Popup', () => {
   it('renders heading and children when open', () => {
     const { getByText } = render(

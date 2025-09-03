@@ -2,10 +2,6 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import CloseButton from './CloseButton';
 
-jest.mock('@statgpt/locales/src/client', () => ({
-  useI18n: () => (key: string) => key,
-}));
-
 describe('CloseButton', () => {
   it('renders button with icon', () => {
     const { getByRole } = render(<CloseButton />);
