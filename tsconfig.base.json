@@ -32,7 +32,7 @@
       "@statgpt/dial-toolkit/*": ["libs/dial-toolkit/*"],
       "@statgpt/sdmx-toolkit/*": ["libs/sdmx-toolkit/*"],
       "@statgpt/shared-toolkit/*": ["libs/shared-toolkit/*"],
-      "@statgpt/ui-components/*": ["libs/ui-components/*"],
+      "@statgpt/ui-components/*": ["libs/ui-components/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]
