@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
-    "build": "nx run-many -t bunx.jsonld",
+    "build": "nx run-many -t build",
     "test": "nx run-many -t test --runInBand",
     "lint": "nx run-many --target=lint --all",
     "lint:fix": "nx run-many --target=lint --all --fix",
