@@ -3,6 +3,7 @@ dist/
 .next/
 coverage/
 .nyc_output/
+.github
 *.md
 /.nx/cache
 /.nx/workspace-data
