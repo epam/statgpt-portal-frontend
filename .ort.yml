@@ -3,7 +3,17 @@ excludes:
   paths:
     - pattern: 'package-lock.json'
       reason: 'BUILD_TOOL_OF'
+    - pattern: "libs/shared-toolkit"
+      reason: "OTHER"
+      comment: "Internal Nx library, not published to NPM"
+    - pattern: "libs/dial-toolkit"
+      reason: "OTHER"
+      comment: "Internal Nx library, not published to NPM"
   scopes:
     - pattern: 'devDependencies'
-      reason: 'DEV_DEPENDENCY_OF'
+      reason: DEV_DEPENDENCY_OF
       comment: 'Packages for development only.'
+    - pattern: "@statgpt"
+      reason: "BUILD_DEPENDENCY_OF"
+      comment: "Nx internal libraries"
+

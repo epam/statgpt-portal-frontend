@@ -22,8 +22,7 @@ ENV NODE_ENV production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# TODO: correct
-# COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/statgpt-admin-frontend ./
+COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/placeholder-app ./
 COPY --from=builder --chown=nextjs:nodejs /app/package-lock.json ./
 
 RUN npm install
