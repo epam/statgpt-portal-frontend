@@ -1,0 +1,165 @@
+'use client';
+
+import DatasetIcon from '@statgpt/conversation-view/src/assets/icons/dataset.svg';
+import MetadataIcon from '@statgpt/conversation-view/src/assets/icons/metadata.svg';
+import {
+  IconClock,
+  IconArrowUpRight,
+  IconExternalLink,
+} from '@tabler/icons-react';
+import { getLastUpdatedTime } from '@statgpt/sdmx-toolkit/src/utils/annotations';
+import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { getDateFormattedValue } from '@statgpt/conversation-view/src/utils/date-format';
+import classNames from 'classnames';
+import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
+import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
+import { Data } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
+import {
+  getDataSetAttributes,
+  getDatasetDescription,
+  getDatasetNameItem,
+  getStructureAttributes,
+} from '@statgpt/conversation-view/src/utils/attachments/metadata';
+import { getStructureComponentsMap } from '@statgpt/sdmx-toolkit/src/utils/get-structure-components';
+import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
+import { MetadataSettings } from '@statgpt/conversation-view/src/models/metadata';
+import Metadata from '@statgpt/conversation-view/src/components/AdvancedView/Metadata/Metadata';
+import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+
+interface Props {
+  dataset?: Dataflow | null;
+  data?: Data;
+  structures?: StructuralData;
+  metadataSettings?: MetadataSettings;
+  locale: string;
+  isShowAgency?: boolean;
+  titles?: ConversationViewTitles;
+}
+
+const DatasetInfo: FC<Props> = ({
+  isShowAgency,
+  dataset,
+  data,
+  structures,
+  metadataSettings,
+  locale,
+  titles,
+}) => {
+  const [lastUpdatedDate, setLastUpdatedDate] = useState<string>('');
+  const [isOpenMetadata, setIsOpenMetadata] = useState<boolean>(false);
+
+  const datasetDescription = useMemo(
+    () =>
+      metadataSettings?.isMetadataDescription
+        ? getDatasetDescription(dataset, lastUpdatedDate, locale, titles)
+        : [],
+    [
+      dataset,
+      lastUpdatedDate,
+      locale,
+      metadataSettings?.isMetadataDescription,
+      titles,
+    ],
+  );
+  const datasetMetadata = useMemo(
+    () => [
+      ...(!metadataSettings?.isMetadataDescription
+        ? [getDatasetNameItem(dataset, locale, titles)]
+        : []),
+      ...getDataSetAttributes(
+        getStructureAttributes(data),
+        getStructureComponentsMap(structures),
+        locale,
+      ),
+    ],
+    [
+      data,
+      dataset,
+      locale,
+      metadataSettings?.isMetadataDescription,
+      structures,
+      titles,
+    ],
+  );
+
+  const openMetadata = useCallback(() => {
+    setIsOpenMetadata(true);
+  }, []);
+
+  const closeMetadata = useCallback(() => {
+    setIsOpenMetadata(false);
+  }, []);
+
+  useEffect(() => {
+    setLastUpdatedDate(
+      getDateFormattedValue(getLastUpdatedTime(dataset), locale),
+    );
+  }, [dataset, locale]);
+
+  return (
+    <div className={classNames('flex flex-col bg-white', 'dataset-info')}>
+      {!isShowAgency ? (
+        <>
+          <div className="flex gap-3 mb-3">
+            <p className="flex gap-1 items-center py-1 px-2 rounded-[20px] bg-accent-500 body-3">
+              <DatasetIcon className="w-4 h-4" />
+              {titles?.dataset ?? 'Dataset'}
+            </p>
+            <h5 className="flex items-center text-neutrals-700">
+              <IconClock className="w-4 h-4 mr-1" />
+              {titles?.lastUpdated ?? 'Last updated'}:
+              <span className="ml-1">{lastUpdatedDate}</span>
+            </h5>
+          </div>
+          <h3 className="flex items-center gap-2">
+            {getLocalizedName(dataset, locale)}
+            <IconButton
+              title={titles?.metadata ?? 'View details'}
+              buttonClassName="text-neutrals-1000 border-none w-5 h-5 p-0 shrink-0"
+              icon={<MetadataIcon />}
+              onClick={openMetadata}
+            />
+            <IconArrowUpRight className="cursor-pointer w-6 h-6 shrink-0" />
+          </h3>
+        </>
+      ) : (
+        <>
+          <h4 className="flex items-center gap-2">
+            <IconButton
+              title={titles?.metadata ?? 'View details'}
+              buttonClassName="text-neutrals-1000 border-none w-5 h-5 p-0 shrink-0"
+              icon={<MetadataIcon />}
+              onClick={openMetadata}
+            />
+            {dataset?.name}
+            <IconExternalLink className="text-primary cursor-pointer w-4 h-4 shrink-0" />
+          </h4>
+          <div className="flex mt-1 text-neutrals-800 body-3 divide-x divide-neutrals-500">
+            <p className="pr-2">
+              {titles?.lastUpdated ?? 'Agency'}:
+              <span className="text-neutrals-1000 pl-1">
+                {dataset?.agencyID}
+              </span>
+            </p>
+            <p className="pl-2">
+              {titles?.lastUpdated ?? 'Last updated'}:
+              <span className="text-neutrals-1000 pl-1">{lastUpdatedDate}</span>
+            </p>
+          </div>
+        </>
+      )}
+      {isOpenMetadata && (
+        <Metadata
+          titles={titles}
+          metadata={datasetMetadata}
+          metadataDescription={datasetDescription}
+          isOpenMetadata={isOpenMetadata}
+          onCloseMetadata={closeMetadata}
+        />
+      )}
+    </div>
+  );
+};
+
+export default DatasetInfo;

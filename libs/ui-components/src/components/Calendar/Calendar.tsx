@@ -42,9 +42,10 @@ export const Calendar: FC<Props> = ({
 
   const onReady = (_: any, __: any, fp: any) => {
     const customCalendarClass = `calendar__${calendarResolution === CalendarResolution.MONTH ? 'month' : 'day'}`;
-    fp.calendarContainer.classList.add(customCalendarClass);
-    fp.calendarContainer.classList.add(customCalendarClass);
-    fp.calendarContainer.classList.add(customCalendarClass);
+
+    if (fp.calendarContainer) {
+      fp.calendarContainer.classList.add(customCalendarClass);
+    }
   };
 
   const onOpen = (selectedDates: Date[], __: any, fp: any) => {

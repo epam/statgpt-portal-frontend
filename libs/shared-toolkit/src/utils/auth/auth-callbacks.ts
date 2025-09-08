@@ -135,6 +135,8 @@ async function refreshAccessToken(token: Token) {
       refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Fall back to old refresh token
     };
 
+    console.info('Generated refresh token', returnToken);
+
     NextClient.setIsRefreshTokenStart(token.userId, {
       isRefreshing: false,
       token: returnToken,
@@ -157,6 +159,16 @@ export const callbacks: Partial<
   CallbacksOptions<Profile & { job_title?: string }, Account>
 > = {
   jwt: async (options) => {
+    console.info('JQWT callback', options);
+    const timeLeft =
+      typeof options.token.accessTokenExpires === 'number' &&
+      options.token.accessTokenExpires - Date.now();
+    console.info(
+      'Current token',
+      options.token,
+      'time left (m)',
+      Number(timeLeft) / 1000 / 60,
+    );
     if (options.account) {
       return {
         ...options.token,
@@ -175,9 +187,6 @@ export const callbacks: Partial<
     }
 
     // Calculate remaining time until the access token expires
-    const timeLeft =
-      typeof options.token.accessTokenExpires === 'number' &&
-      options.token.accessTokenExpires - Date.now();
 
     if (timeLeft && timeLeft > REFRESH_TOKEN_THRESHOLD) {
       return {
@@ -197,6 +206,7 @@ export const callbacks: Partial<
     return true;
   },
   session: async (options) => {
+    console.info('Session callback', options);
     // Pass any token errors to the session
     if (options.token?.error) {
       if (options.session) {

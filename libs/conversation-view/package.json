@@ -1,0 +1,20 @@
+{
+  "name": "@statgpt/conversation-view",
+  "version": "0.0.1",
+  "private": true,
+  "peerDependencies": {
+    "react": "^19.1.0",
+    "classnames": "^2.5.1",
+    "@epam/ai-dial-shared": "^0.34.0",
+    "@tabler/icons-react": "^3.34.1"
+  },
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js"
+    }
+  },
+  "main": "index",
+  "browser": "index.js",
+  "module": "index.mjs"
+}

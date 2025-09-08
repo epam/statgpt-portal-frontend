@@ -21,7 +21,6 @@ export const DIAL_API_ROUTES = {
   SHARE_CONVERSATION_DETAILS: (invitationId: string) =>
     `/${VERSION}/invitations/${invitationId}`,
   SHARE_CONVERSATION_LIST: `${SHARE_RESOURCE}/list`,
-  SHARE_CONVERSATION_COPY: `${SHARE_RESOURCE}/copy`,
   SHARE_CONVERSATION_DISCARD: `${SHARE_RESOURCE}/discard`,
   SHARE_CONVERSATION_REVOKE: `${SHARE_RESOURCE}/revoke`,
 } as const;
