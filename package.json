@@ -93,9 +93,5 @@
     "vite-plugin-dts": "4.5.3",
     "vite-plugin-svgr": "^4.3.0",
     "vitest": "3.2.0"
-  },
-  "workspaces": [
-    "apps/*",
-    "libs/*"
-  ]
+  }
 }
