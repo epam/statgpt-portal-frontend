@@ -7,3 +7,9 @@ excludes:
     - pattern: 'devDependencies'
       reason: DEV_DEPENDENCY_OF
       comment: 'Packages for development only.'
+resolutions:
+  rule_violations:
+    - message: "No license information is available for dependency \
+        'NPM::jszip:3\\.10\\.1'\\."
+      reason: 'CANT_FIX_EXCEPTION'
+      comment: 'The dependency has MIT license in github repo'
