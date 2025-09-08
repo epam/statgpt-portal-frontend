@@ -7,7 +7,7 @@ excludes:
     - pattern: 'devDependencies'
       reason: 'DEV_DEPENDENCY_OF'
       comment: 'Packages for development only.'
-    - pattern: '@statgpt/dial-toolkit'
+    - pattern: '@statgpt/**'
       reason: 'DEV_DEPENDENCY_OF'
       comment: 'Packages for development only.'
 resolutions:
