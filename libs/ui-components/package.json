@@ -1,5 +1,6 @@
 {
   "name": "@statgpt/ui-components",
+  "version": "0.0.1",
   "private": true,
   "peerDependencies": {
     "react": "^19.1.0",

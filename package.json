@@ -10,8 +10,8 @@
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "typecheck": "nx run-many --target=typecheck --all",
-    "clean": "nx reset && rm -rf node_modules && yarn install",
     "graph": "nx graph",
+    "publish": "nx release",
     "affected:build": "nx affected --target=build",
     "affected:test": "nx affected --target=test",
     "affected:lint": "nx affected --target=lint"
