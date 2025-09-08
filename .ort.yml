@@ -7,9 +7,6 @@ excludes:
     - pattern: 'devDependencies'
       reason: DEV_DEPENDENCY_OF
       comment: 'Packages for development only.'
-    - pattern: '@statgpt/.*'
-      reason: BUILD_DEPENDENCY_OF
-      comment: 'Packages under the @statgpt scope used only for development.'
 resolutions:
   rule_violations:
     - message: "No license information is available for dependency \
