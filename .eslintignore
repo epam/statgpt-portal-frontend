@@ -6,4 +6,5 @@ rollup.config.js
 *.config.ts
 coverage/
 .nyc_output/
-package.json
+**/package.json
+test-setup.js
