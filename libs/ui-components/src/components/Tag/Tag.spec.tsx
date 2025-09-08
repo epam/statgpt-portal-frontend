@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
-import Tag from './Tag';
+import { Tag } from './Tag';
 
 describe('Tag', () => {
   it('renders with title', () => {

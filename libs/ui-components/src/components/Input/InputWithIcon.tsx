@@ -3,7 +3,7 @@
 import classNames from 'classnames';
 import { FC, ReactNode } from 'react';
 
-import Input, { InputProps } from './Input';
+import { Input, InputProps } from './Input';
 
 interface Props extends InputProps {
   iconAfterInput?: ReactNode;

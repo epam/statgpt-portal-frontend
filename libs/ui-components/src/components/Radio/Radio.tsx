@@ -10,7 +10,7 @@ interface Props {
   onChange?: (id: string, isChecked?: boolean) => void;
 }
 
-const Radio: FC<Props> = ({
+export const Radio: FC<Props> = ({
   label,
   id,
   checked,
@@ -69,5 +69,3 @@ const Radio: FC<Props> = ({
     </label>
   );
 };
-
-export default Radio;

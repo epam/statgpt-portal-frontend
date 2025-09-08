@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
-import IconButton from './IconButton';
+import { IconButton } from './IconButton';
 
 describe('IconButton', () => {
   it('renders with icon', () => {

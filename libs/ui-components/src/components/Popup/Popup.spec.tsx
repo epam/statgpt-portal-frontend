@@ -1,6 +1,6 @@
 import { PopUpState } from '@statgpt/ui-components/src/types/pop-up';
 import { render } from '@testing-library/react';
-import Popup from './Popup';
+import { Popup } from './Popup';
 
 describe('Popup', () => {
   it('renders heading and children when open', () => {

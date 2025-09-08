@@ -16,7 +16,7 @@ export interface InputProps {
   onKeyDown?: (value: KeyboardEvent<HTMLInputElement>) => void;
 }
 
-const Input: FC<InputProps> = ({
+export const Input: FC<InputProps> = ({
   value,
   inputId,
   placeholder = '',
@@ -48,5 +48,3 @@ const Input: FC<InputProps> = ({
     />
   );
 };
-
-export default Input;

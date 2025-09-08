@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import HighlightText from './HighlightText';
+import { HighlightText } from './HighlightText';
 
 describe('HighlightText', () => {
   it('renders plain text when no highlightText is provided', () => {

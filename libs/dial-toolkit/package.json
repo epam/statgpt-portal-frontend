@@ -1,6 +1,6 @@
 {
   "name": "@statgpt/dial-toolkit",
-  "private": true,
+  "version": "0.0.1",
   "exports": {
     ".": {
       "import": "./index.mjs",
