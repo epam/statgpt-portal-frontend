@@ -3,16 +3,17 @@ excludes:
   paths:
     - pattern: 'package-lock.json'
       reason: 'BUILD_TOOL_OF'
+    - pattern: "libs/shared-toolkit"
+      reason: "OTHER"
+      comment: "Internal Nx library, not published to NPM"
+    - pattern: "libs/dial-toolkit"
+      reason: "OTHER"
+      comment: "Internal Nx library, not published to NPM"
   scopes:
     - pattern: 'devDependencies'
       reason: DEV_DEPENDENCY_OF
       comment: 'Packages for development only.'
-  packages:
-    - id: "NPM::@statgpt/shared-toolkit"
-    - id: "NPM::@statgpt/dial-toolkit"
-resolutions:
-  rule_violations:
-    - message: "No license information is available for dependency \
-        'NPM::@statgpt:shared-toolkit:0\\.0\\.1'\\."
-      reason: 'CANT_FIX_EXCEPTION'
-      comment: 'The dependency has MIT license in github repo'
+    - pattern: "@statgpt"
+      reason: "BUILD_DEPENDENCY_OF"
+      comment: "Nx internal libraries"
+
