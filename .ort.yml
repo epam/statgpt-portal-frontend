@@ -10,30 +10,6 @@ excludes:
 resolutions:
   rule_violations:
     - message: "No license information is available for dependency \
-        'NPM::union:0\\.5\\.0'\\."
-      reason: 'CANT_FIX_EXCEPTION'
-      comment: 'The dependency has MIT license in github repo'
-    - message: "No license information is available for dependency \
-        'NPM::ansi-color:0\\.2\\.1'\\."
-      reason: 'CANT_FIX_EXCEPTION'
-      comment: 'No license'
-    - message: "No license information is available for dependency \
-        'NPM::process:0\\.10\\.1'\\."
-      reason: 'CANT_FIX_EXCEPTION'
-      comment: 'The dependency has MIT license in github repo'
-    - message: "No license information is available for dependency \
-        'NPM::only:0\\.0\\.2'\\."
-      reason: 'CANT_FIX_EXCEPTION'
-      comment: 'The dependency has MIT license in github repo'
-    - message: "No license information is available for dependency \
-        'NPM::rslog:1\\.2\\.3'\\."
-      reason: 'CANT_FIX_EXCEPTION'
-      comment: 'The dependency has MIT license in github repo'
-    - message: "No license information is available for dependency \
-        'NPM::terser-webpack-plugin:5\\.3\\.14'\\."
-      reason: 'CANT_FIX_EXCEPTION'
-      comment: 'The dependency has MIT license in github repo'
-    - message: "No license information is available for dependency \
-        'NPM::@vitest:ui:3\\.2\\.4'\\."
+        'NPM::@statgpt:shared-toolkit:0\\.0\\.1'\\."
       reason: 'CANT_FIX_EXCEPTION'
       comment: 'The dependency has MIT license in github repo'
