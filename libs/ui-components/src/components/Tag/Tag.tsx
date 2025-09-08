@@ -8,7 +8,7 @@ interface Props {
   onClick?: (text?: string) => void;
 }
 
-const Tag: FC<Props> = ({ title, text, onClick }) => {
+export const Tag: FC<Props> = ({ title, text, onClick }) => {
   return (
     <button
       type="button"
@@ -20,5 +20,3 @@ const Tag: FC<Props> = ({ title, text, onClick }) => {
     </button>
   );
 };
-
-export default Tag;

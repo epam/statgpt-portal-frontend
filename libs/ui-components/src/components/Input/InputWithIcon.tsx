@@ -11,7 +11,7 @@ interface Props extends InputProps {
   iconBeforeInput?: ReactNode;
 }
 
-const InputWithIcon: FC<Props> = ({
+export const InputWithIcon: FC<Props> = ({
   iconBeforeInput,
   iconAfterInput,
   containerClasses,
@@ -32,4 +32,3 @@ const InputWithIcon: FC<Props> = ({
     </div>
   );
 };
-export default InputWithIcon;

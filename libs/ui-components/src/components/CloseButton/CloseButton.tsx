@@ -9,7 +9,7 @@ interface Props {
   onClick?: (event?: MouseEvent<HTMLButtonElement>) => void;
 }
 
-const CloseButton: FC<Props> = ({
+export const CloseButton: FC<Props> = ({
   title,
   btnClassNames,
   iconWidth,
@@ -28,5 +28,3 @@ const CloseButton: FC<Props> = ({
     </button>
   );
 };
-
-export default CloseButton;

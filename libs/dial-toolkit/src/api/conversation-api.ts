@@ -23,6 +23,8 @@ import {
   ConversationData,
   CreateConversationRequest,
   GeneratedLinkResponse,
+  SharedConversationsRequest,
+  SharedConversationsResponse,
   UpdateConversationRequest,
 } from '@statgpt/dial-toolkit/src/models/conversation';
 import { ModelInfo } from '@statgpt/dial-toolkit/src/models/model';
@@ -146,15 +148,22 @@ export class ConversationApi {
 
   async generateConversationLink(
     conversationData?: ConversationData,
-    options?: {
-      jwt?: string;
-    },
   ): Promise<GeneratedLinkResponse> {
     return await this.client.postRequest<GeneratedLinkResponse>(
       DIAL_API_ROUTES.SHARE_CONVERSATION,
       {
         body: conversationData,
-        jwt: options?.jwt,
+      },
+    );
+  }
+
+  async getSharedConversations(
+    requestData?: SharedConversationsRequest,
+  ): Promise<SharedConversationsResponse> {
+    return await this.client.postRequest<SharedConversationsResponse>(
+      DIAL_API_ROUTES.SHARE_CONVERSATION_LIST,
+      {
+        body: requestData,
       },
     );
   }

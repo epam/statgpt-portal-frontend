@@ -16,7 +16,7 @@ import {
   useCallback,
 } from 'react';
 import { PopUpSize, PopUpState } from '@statgpt/ui-components/src/types/pop-up';
-import CloseButton from '@statgpt/ui-components/src/components/CloseButton/CloseButton';
+import { CloseButton } from '@statgpt/ui-components/src/components/CloseButton/CloseButton';
 
 interface Props extends FormHTMLAttributes<HTMLFormElement> {
   heading?: string | ReactNode;
@@ -111,12 +111,10 @@ const PopupView: FC<Props> = ({
   );
 };
 
-const Popup: FC<Props> = (props: Props) => {
+export const Popup: FC<Props> = (props: Props) => {
   if (props.state === PopUpState.Closed) {
     return null;
   }
 
   return <PopupView {...props} />;
 };
-
-export default Popup;

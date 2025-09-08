@@ -9,7 +9,7 @@ interface Props {
   onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
 }
 
-const IconButton: FC<Props> = ({
+export const IconButton: FC<Props> = ({
   icon,
   onClick,
   buttonClassName,
@@ -29,5 +29,3 @@ const IconButton: FC<Props> = ({
     </button>
   );
 };
-
-export default IconButton;

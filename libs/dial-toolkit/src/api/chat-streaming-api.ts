@@ -15,7 +15,6 @@ import { ModelInfo } from '@statgpt/dial-toolkit/src/models/model';
 import { handleStreamMessage } from '@statgpt/dial-toolkit/src/utils/chat-stream-api';
 import { sendRequest } from '@statgpt/dial-toolkit/src/utils/send-request';
 import { getHeaders } from '@statgpt/shared-toolkit/src/utils/headers';
-import { JWT } from 'next-auth/jwt';
 
 interface SSEOptions {
   signal?: AbortSignal;
@@ -165,7 +164,7 @@ export const streamChatResponse = async (
     model: ModelInfo;
     signal?: AbortSignal;
   },
-  token: JWT | null,
+  token?: string | null,
 ): Promise<void> => {
   const { onMessage, onToken, onComplete, onError, model, signal } = options;
   const requestBody: RequestStreamBody = { conversationId, messages, model };
@@ -179,6 +178,6 @@ export const streamChatResponse = async (
       onError,
       signal,
     },
-    token?.access_token as string,
+    token as string,
   );
 };

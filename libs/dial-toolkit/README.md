@@ -1,6 +1,6 @@
-# Dial Toolkit
+# DIAL Toolkit
 
-The Dial Toolkit provides utilities and helpers for working with DIAL APIs in the StatGPT ecosystem.
+The DIAL Toolkit provides utilities and helpers for working with DIAL APIs in the StatGPT ecosystem.
 
 ## Features
 

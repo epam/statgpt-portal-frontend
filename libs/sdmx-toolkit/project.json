@@ -10,7 +10,19 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/sdmx-toolkit"
+        "outputPath": "dist/libs/sdmx-toolkit",
+        "assets": [
+          {
+            "glob": "libs/sdmx-toolkit/README.md",
+            "input": ".",
+            "output": "."
+          },
+          {
+            "glob": "LICENSE",
+            "input": ".",
+            "output": "."
+          }
+        ]
       },
       "configurations": {
         "development": {

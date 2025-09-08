@@ -9,7 +9,7 @@ interface Props {
   onChange?: (id: string, isChecked?: boolean) => void;
 }
 
-const Checkbox: FC<Props> = ({
+export const Checkbox: FC<Props> = ({
   label,
   id,
   checked,
@@ -58,5 +58,3 @@ const Checkbox: FC<Props> = ({
     </label>
   );
 };
-
-export default Checkbox;

@@ -12,7 +12,7 @@ interface HighlightText {
   highlight?: boolean;
 }
 
-const HighlightText: FC<Props> = ({ text, highlightText }) => {
+export const HighlightText: FC<Props> = ({ text, highlightText }) => {
   const convertedText: HighlightText[] = useMemo(() => {
     const resultText: HighlightText[] = [];
 
@@ -69,5 +69,3 @@ const HighlightText: FC<Props> = ({ text, highlightText }) => {
     </>
   );
 };
-
-export default HighlightText;

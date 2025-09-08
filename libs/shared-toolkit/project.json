@@ -10,7 +10,19 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/shared-toolkit"
+        "outputPath": "dist/libs/shared-toolkit",
+        "assets": [
+          {
+            "glob": "libs/shared-toolkit/README.md",
+            "input": ".",
+            "output": "."
+          },
+          {
+            "glob": "LICENSE",
+            "input": ".",
+            "output": "."
+          }
+        ]
       },
       "configurations": {
         "development": {

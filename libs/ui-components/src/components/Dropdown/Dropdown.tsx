@@ -22,7 +22,7 @@ interface Props {
   onOptionSelect?: (key: string) => void;
 }
 
-const Dropdown: FC<Props> = ({
+export const Dropdown: FC<Props> = ({
   triggerButton,
   options,
   selectedOption,
@@ -94,5 +94,3 @@ const Dropdown: FC<Props> = ({
     </>
   );
 };
-
-export default Dropdown;

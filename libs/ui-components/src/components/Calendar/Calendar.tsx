@@ -13,7 +13,7 @@ interface Props {
   icon?: ReactNode;
 }
 
-const Calendar: FC<Props> = ({
+export const Calendar: FC<Props> = ({
   label,
   onChange,
   value,
@@ -128,5 +128,3 @@ const Calendar: FC<Props> = ({
     </div>
   );
 };
-
-export default Calendar;

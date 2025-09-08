@@ -9,7 +9,7 @@ interface Props {
   iconAfter?: ReactNode;
 }
 
-const Link: FC<Props> = ({
+export const Link: FC<Props> = ({
   url,
   title,
   linkClassName = '',
@@ -35,5 +35,3 @@ const Link: FC<Props> = ({
     </a>
   );
 };
-
-export default Link;

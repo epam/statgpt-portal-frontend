@@ -2,6 +2,10 @@ import { ConversationInfo } from '@epam/ai-dial-shared';
 import { Message } from '@statgpt/dial-toolkit/src/models/message';
 import { ModelInfo } from '@statgpt/dial-toolkit/src/models/model';
 import { InvitationType } from '@statgpt/dial-toolkit/src/types/invitation-type';
+import {
+  ResourceTypes,
+  ShareTarget,
+} from '@statgpt/dial-toolkit/src/constants/share-conversation';
 
 export interface CreateConversationRequest {
   name: string;
@@ -38,4 +42,18 @@ export interface ConversationData {
 
 export interface GeneratedLinkResponse {
   invitationLink: string;
+}
+
+export interface SharedConversationsRequest {
+  resourceTypes: ResourceTypes[];
+  with: ShareTarget;
+}
+
+export interface SharedConversationInfo extends ConversationInfo {
+  bucket: string;
+  url: string;
+}
+
+export interface SharedConversationsResponse {
+  resources: SharedConversationInfo[];
 }

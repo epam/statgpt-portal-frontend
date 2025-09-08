@@ -1,7 +1,7 @@
 import { FC, ReactNode, useEffect } from 'react';
 import classNames from 'classnames';
-import Loader from '@statgpt/ui-components/src/components/Loader/Loader';
-import CloseButton from '@statgpt/ui-components/src/components/CloseButton/CloseButton';
+import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
+import { CloseButton } from '@statgpt/ui-components/src/components/CloseButton/CloseButton';
 import { AlertDetails } from '@statgpt/ui-components/src/models/alert';
 import { AlertType } from '@statgpt/ui-components/src/constants/alert';
 
@@ -13,7 +13,7 @@ interface Props {
   closeButtonTitle?: string;
 }
 
-const Alert: FC<Props> = ({
+export const Alert: FC<Props> = ({
   alertDetails,
   successIcon,
   errorIcon,
@@ -70,5 +70,3 @@ const Alert: FC<Props> = ({
     </div>
   );
 };
-
-export default Alert;

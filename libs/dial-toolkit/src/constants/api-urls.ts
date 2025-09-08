@@ -3,6 +3,8 @@
  */
 const VERSION = 'v1';
 
+const SHARE_RESOURCE = `/${VERSION}/ops/resource/share`;
+
 export const DIAL_API_ROUTES = {
   VERSION: `/${VERSION}`,
   BUCKET: `/${VERSION}/bucket`,
@@ -13,5 +15,13 @@ export const DIAL_API_ROUTES = {
   MODELS: '/openai/models',
   CONFIGURATION: (modelId: string) =>
     `/${VERSION}/deployments/${modelId}/configuration`,
-  SHARE_CONVERSATION: `/${VERSION}/ops/resource/share/create`,
+  SHARE_CONVERSATION: `${SHARE_RESOURCE}/create`,
+  SHARE_CONVERSATION_ACCEPT: (invitationId: string) =>
+    `/${VERSION}/invitations/${invitationId}?accept=true`,
+  SHARE_CONVERSATION_DETAILS: (invitationId: string) =>
+    `/${VERSION}/invitations/${invitationId}`,
+  SHARE_CONVERSATION_LIST: `${SHARE_RESOURCE}/list`,
+  SHARE_CONVERSATION_COPY: `${SHARE_RESOURCE}/copy`,
+  SHARE_CONVERSATION_DISCARD: `${SHARE_RESOURCE}/discard`,
+  SHARE_CONVERSATION_REVOKE: `${SHARE_RESOURCE}/revoke`,
 } as const;

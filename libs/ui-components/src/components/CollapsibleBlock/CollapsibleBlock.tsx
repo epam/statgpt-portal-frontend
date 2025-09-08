@@ -8,7 +8,12 @@ interface Props {
   value?: string;
 }
 
-const CollapsibleBlock: FC<Props> = ({ title, icon, children, value }) => {
+export const CollapsibleBlock: FC<Props> = ({
+  title,
+  icon,
+  children,
+  value,
+}) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -31,5 +36,3 @@ const CollapsibleBlock: FC<Props> = ({ title, icon, children, value }) => {
     </div>
   );
 };
-
-export default CollapsibleBlock;

@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { FC, MouseEvent, ReactNode } from 'react';
-import Loader from '@statgpt/ui-components/src/components/Loader/Loader';
+import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
 
 interface Props {
   title?: string;
@@ -13,7 +13,7 @@ interface Props {
   onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
 }
 
-const Button: FC<Props> = ({
+export const Button: FC<Props> = ({
   buttonClassName,
   isLoading = false,
   title,
@@ -55,5 +55,3 @@ const Button: FC<Props> = ({
     </button>
   );
 };
-
-export default Button;

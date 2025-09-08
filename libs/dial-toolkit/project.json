@@ -10,7 +10,19 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/dial-toolkit"
+        "outputPath": "dist/libs/dial-toolkit",
+        "assets": [
+          {
+            "glob": "libs/dial-toolkit/README.md",
+            "input": ".",
+            "output": "."
+          },
+          {
+            "glob": "LICENSE",
+            "input": ".",
+            "output": "."
+          }
+        ]
       },
       "configurations": {
         "development": {
