@@ -1,0 +1,183 @@
+/**
+ * SSE (Server-Sent Events) client for handling streaming chat responses
+ *
+ * Provides a robust client for consuming server-sent events from chat APIs,
+ * with support for multiple message formats (OpenAI delta, direct content),
+ * error handling, and streaming lifecycle management.
+ */
+import { Message } from '@statgpt/dial-toolkit/src/models/message';
+import { API_ROUTES } from '@statgpt/shared-toolkit/src/constants/api-urls';
+import {
+  MessageStreamResponse,
+  RequestStreamBody,
+} from '@statgpt/dial-toolkit/src/models/chat-stream';
+import { ModelInfo } from '@statgpt/dial-toolkit/src/models/model';
+import { handleStreamMessage } from '@statgpt/dial-toolkit/src/utils/chat-stream-api';
+import { sendRequest } from '@statgpt/dial-toolkit/src/utils/send-request';
+import { getHeaders } from '@statgpt/shared-toolkit/src/utils/headers';
+
+interface SSEOptions {
+  signal?: AbortSignal;
+  onMessage?: (data: MessageStreamResponse) => void;
+  onError?: (error: Error) => void;
+  onComplete?: () => void;
+}
+
+export class ChatStreamSSEClient {
+  private decoder = new TextDecoder();
+
+  async streamChat(
+    url: string,
+    body: RequestStreamBody,
+    options: SSEOptions = {},
+    token?: string,
+  ): Promise<void> {
+    const { onMessage, onError, onComplete, signal } = options;
+
+    try {
+      const reader = await this.initializeStreamRequest(
+        url,
+        body,
+        signal,
+        token,
+      );
+      await this.processStreamData(reader, onMessage);
+      onComplete?.();
+    } catch (error) {
+      this.handleStreamError(error, onError);
+    }
+  }
+
+  private async initializeStreamRequest(
+    url: string,
+    body: RequestStreamBody,
+    signal?: AbortSignal,
+    jwt?: string,
+  ): Promise<ReadableStreamDefaultReader<Uint8Array>> {
+    const reqHeaders = getHeaders(void 0, {
+      jwt,
+    });
+    const response = await sendRequest(
+      url,
+      {
+        Accept: 'text/event-stream',
+        ...reqHeaders,
+      },
+      {
+        method: 'POST',
+        body,
+        signal,
+      },
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+
+    if (!response.body) {
+      throw new Error('No response body');
+    }
+
+    return response.body.getReader();
+  }
+
+  private async processStreamData(
+    reader: ReadableStreamDefaultReader<Uint8Array>,
+    onMessage?: (data: MessageStreamResponse) => void,
+  ): Promise<void> {
+    let buffer = '';
+
+    try {
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) {
+          if (buffer.trim()) {
+            this.parseSSEDataLine(buffer, onMessage);
+          }
+          break;
+        }
+
+        const chunk = this.decoder.decode(value, { stream: true });
+        buffer += chunk;
+
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          this.parseSSEDataLine(line, onMessage);
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  }
+
+  private handleStreamError(error: unknown, onError?: (error: Error) => void) {
+    const streamError =
+      error instanceof Error ? error : new Error(String(error));
+    onError?.(streamError);
+    throw streamError;
+  }
+
+  private parseSSEDataLine(
+    line: string,
+    onMessage?: (data: MessageStreamResponse) => void,
+  ) {
+    const trimmedLine = line.trim();
+
+    if (!trimmedLine || trimmedLine.startsWith(':')) {
+      return;
+    }
+
+    if (trimmedLine.startsWith('data: ')) {
+      const data = trimmedLine.slice(6);
+
+      if (data === '[DONE]') {
+        console.info('SSE: Stream completed');
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(data);
+        console.info(`SSE: Parsed data: ${parsed}`);
+        onMessage?.(parsed);
+      } catch (error) {
+        console.error(`Failed to parse SSE data: ${data} ${error}`);
+      }
+    }
+  }
+}
+
+export const chatStreamSSEClient = new ChatStreamSSEClient();
+
+export const streamChatResponse = async (
+  conversationId: string,
+  messages: Message[],
+  options: {
+    onMessage?: (data: MessageStreamResponse) => void;
+    onToken?: (token: string) => void;
+    onComplete?: () => void;
+    onError?: (error: Error) => void;
+    model: ModelInfo;
+    signal?: AbortSignal;
+  },
+  token?: string | null,
+): Promise<void> => {
+  const { onMessage, onToken, onComplete, onError, model, signal } = options;
+  const requestBody: RequestStreamBody = { conversationId, messages, model };
+
+  await chatStreamSSEClient.streamChat(
+    API_ROUTES.CHAT,
+    requestBody,
+    {
+      onMessage: (data) => handleStreamMessage(data, onMessage, onToken),
+      onComplete,
+      onError,
+      signal,
+    },
+    token as string,
+  );
+};

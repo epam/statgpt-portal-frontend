@@ -1,0 +1,34 @@
+@layer components {
+  .base-icon-button {
+    @apply flex flex-row items-center justify-center;
+    @apply border border-solid;
+
+    &:disabled {
+      @apply pointer-events-none;
+    }
+  }
+
+  .base-button {
+    @apply flex flex-row items-center justify-center;
+    @apply border border-solid;
+
+    &:disabled {
+      @apply pointer-events-none;
+    }
+  }
+
+  .text-button-primary {
+    @apply bg-primary text-white border-primary;
+    &:hover {
+      @apply text-primary;
+    }
+  }
+
+  .text-button-secondary {
+    @apply bg-transparent text-primary border-primary;
+  }
+
+  .text-button-tertiary {
+    @apply bg-transparent text-primary border-transparent;
+  }
+}
