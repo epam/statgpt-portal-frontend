@@ -51,6 +51,11 @@ async function refreshAccessToken(token: Token) {
     }
 
     const client = NextClient.getClient(token.providerId);
+    const allClients = NextClient.getClients();
+
+    console.info('All clients', allClients);
+    console.info('Selected client', client);
+
     if (!client) {
       console.error(
         `No client for provider: ${token.providerId}. Sub: ${displayedTokenSub}`,
@@ -82,6 +87,8 @@ async function refreshAccessToken(token: Token) {
         ) {
           return localToken.token;
         }
+
+        console.info('Set refreshing token start', token.userId, localToken);
 
         NextClient.setIsRefreshTokenStart(token.userId, localToken);
         break;

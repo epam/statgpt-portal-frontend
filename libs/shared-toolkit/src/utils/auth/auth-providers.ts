@@ -21,6 +21,8 @@ export const tokenConfig: TokenEndpointHandler = {
 
     NextClient.setClient(context.client, context.provider);
 
+    console.info(`Context for setting client for token`, context);
+
     if (context.provider.idToken) {
       tokens = await context.client.callback(
         context.provider.callbackUrl,
