@@ -7,6 +7,7 @@ import { DownloadTitles } from '@statgpt/download-panel/src/models/titles';
 
 interface Props {
   icon?: ReactNode;
+  chevronIcon?: ReactNode;
   title?: string;
   showChevronIcon?: boolean;
   downloadTitles?: DownloadTitles;
@@ -15,6 +16,7 @@ interface Props {
 
 export const DownloadType: FC<Props> = ({
   icon,
+  chevronIcon,
   title,
   showChevronIcon,
   downloadTitles,
@@ -44,6 +46,7 @@ export const DownloadType: FC<Props> = ({
         triggerButton={
           <DownloadTypeTrigger
             icon={icon}
+            chevronIcon={chevronIcon}
             title={title}
             showChevronIcon={showChevronIcon}
           />
