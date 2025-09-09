@@ -27,11 +27,11 @@
     "**/*.jsx",
     "**/*.ts",
     "**/*.tsx",
-    "../dist/placeholder-app/.next/types/**/*.ts",
-    "../placeholder-app/.next/types/**/*.ts",
+    "../dist/portals-example/.next/types/**/*.ts",
+    "../portals-example/.next/types/**/*.ts",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    "../../dist/apps/placeholder-app/.next/types/**/*.ts"
+    "../../dist/apps/portals-example/.next/types/**/*.ts"
   ],
   "exclude": ["node_modules", "jest.config.ts", "**/*.spec.ts", "**/*.test.ts"]
 }
