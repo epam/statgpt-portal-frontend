@@ -69,7 +69,7 @@
       }
     }
   },
-  "defaultProject": "placeholder-app",
+  "defaultProject": "portals-example",
   "plugins": [
     {
       "plugin": "@nx/eslint/plugin",
