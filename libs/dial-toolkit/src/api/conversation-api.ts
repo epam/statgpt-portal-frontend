@@ -24,8 +24,9 @@ import {
   CreateConversationRequest,
   GeneratedLinkResponse,
   SharedConversationsRequest,
-  SharedConversationsResponse,
+  SharedConversations,
   UpdateConversationRequest,
+  SharedConversationInfo,
 } from '@statgpt/dial-toolkit/src/models/conversation';
 import { ModelInfo } from '@statgpt/dial-toolkit/src/models/model';
 import { GridAttachmentContent } from '@statgpt/dial-toolkit/src/models/grid-attachment';
@@ -112,15 +113,15 @@ export class ConversationApi {
   async createConversation(
     data: CreateConversationRequest,
   ): Promise<ConversationInfo> {
-    const conversationId = generateConversationId(data);
-    const { name, folderId, model } = data;
+    const conversationId = data?.id || generateConversationId(data);
+    const { name, folderId, model, messages } = data;
 
     const conversationData: Conversation = {
       id: conversationId,
       name,
       folderId,
       model: model as ModelInfo,
-      messages: [],
+      messages: messages || [],
       selectedAddons: data.selectedAddons || [],
       prompt: data.prompt || '',
       temperature: data.temperature || 0.7,
@@ -159,13 +160,21 @@ export class ConversationApi {
 
   async getSharedConversations(
     requestData?: SharedConversationsRequest,
-  ): Promise<SharedConversationsResponse> {
-    return await this.client.postRequest<SharedConversationsResponse>(
+  ): Promise<SharedConversations> {
+    return await this.client.postRequest<SharedConversations>(
       DIAL_API_ROUTES.SHARE_CONVERSATION_LIST,
       {
         body: requestData,
       },
     );
+  }
+
+  async revokeSharedConversations(
+    sharedConversations?: SharedConversations,
+  ): Promise<void> {
+    await this.client.postRequest(DIAL_API_ROUTES.SHARE_CONVERSATION_REVOKE, {
+      body: sharedConversations,
+    });
   }
 
   async updateConversation(
@@ -189,10 +198,25 @@ export class ConversationApi {
     });
   }
 
-  async deleteConversation(id: string): Promise<void> {
-    await this.client.request(CONVERSATION_URL(id), {
-      method: 'DELETE',
-    });
+  async deleteConversation(conversation: ConversationInfo): Promise<void> {
+    if (conversation?.isShared) {
+      await this.client.postRequest(
+        DIAL_API_ROUTES.SHARE_CONVERSATION_DISCARD,
+        {
+          body: {
+            resources: [
+              {
+                url: (conversation as SharedConversationInfo)?.url,
+              },
+            ],
+          },
+        },
+      );
+    } else {
+      await this.client.request(CONVERSATION_URL(decodeURI(conversation?.id)), {
+        method: 'DELETE',
+      });
+    }
   }
 
   async streamChat(params: {

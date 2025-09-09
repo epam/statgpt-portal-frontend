@@ -11,6 +11,8 @@ export interface CreateConversationRequest {
   name: string;
   folderId: string;
   model?: ModelInfo;
+  messages?: Message[];
+  id?: string;
   prompt?: string;
   temperature?: number;
   selectedAddons?: string[];
@@ -54,6 +56,6 @@ export interface SharedConversationInfo extends ConversationInfo {
   url: string;
 }
 
-export interface SharedConversationsResponse {
+export interface SharedConversations {
   resources: SharedConversationInfo[];
 }

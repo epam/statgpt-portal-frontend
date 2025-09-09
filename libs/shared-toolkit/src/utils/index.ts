@@ -6,7 +6,6 @@ export * from './get-filtered-items';
 export * from './get-time-period';
 export * from './headers';
 export * from './parse-boolean';
-export * from './parse-locale';
 export * from './send-request';
 export * from './auth';
 export * from './query-filters';

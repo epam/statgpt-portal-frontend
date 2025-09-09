@@ -23,6 +23,12 @@ export const tokenConfig: TokenEndpointHandler = {
 
     console.info(`Context for setting client for token`, context);
 
+    console.info(`Context client callback exists`, !!context.client.callback);
+    console.info(
+      `Context client oauthCallback exists`,
+      !!context.client.oauthCallback,
+    );
+
     if (context.provider.idToken) {
       tokens = await context.client.callback(
         context.provider.callbackUrl,

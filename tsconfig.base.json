@@ -30,6 +30,9 @@
     ],
     "paths": {
       "@statgpt/dial-toolkit/*": ["libs/dial-toolkit/*"],
+      "@statgpt/download-panel/*": ["libs/download-panel/*"],
+      "@statgpt/conversation-list/*": ["libs/conversation-list/*"],
+      "@statgpt/conversation-view/*": ["libs/conversation-view/*"],
       "@statgpt/sdmx-toolkit/*": ["libs/sdmx-toolkit/*"],
       "@statgpt/shared-toolkit/*": ["libs/shared-toolkit/*"],
       "@statgpt/ui-components/*": ["libs/ui-components/*"]

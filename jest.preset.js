@@ -3,9 +3,6 @@ const nxPreset = require('@nx/jest/preset').default;
 module.exports = {
   ...nxPreset,
   moduleNameMapping: {
-    '^@statgpt/imf/(.*)$': '<rootDir>/../../apps/trusted-official-data/$1',
-    '^@statgpt/derzhstat/(.*)$':
-      '<rootDir>/../../apps/derzhstat-global-data-commons/$1',
     '^@/statgpt/ui-components/(.*)$': '<rootDir>/../../libs/ui-components/$1',
   },
   collectCoverageFrom: [
