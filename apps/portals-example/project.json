@@ -1,19 +1,19 @@
 {
-  "name": "placeholder-app",
+  "name": "portals-example",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
-  "sourceRoot": "apps/placeholder-app/src",
+  "sourceRoot": "apps/portals-example/src",
   "targets": {
     "build": {
       "executor": "@nx/next:build",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/apps/placeholder-app"
+        "outputPath": "dist/apps/portals-example"
       },
       "configurations": {
         "development": {
-          "outputPath": "apps/placeholder-app"
+          "outputPath": "apps/portals-example"
         },
         "production": {}
       }
@@ -22,16 +22,16 @@
       "executor": "@nx/next:server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "placeholder-app:build",
+        "buildTarget": "portals-example:build",
         "dev": true
       },
       "configurations": {
         "development": {
-          "buildTarget": "placeholder-app:build:development",
+          "buildTarget": "portals-example:build:development",
           "dev": true
         },
         "production": {
-          "buildTarget": "placeholder-app:build:production",
+          "buildTarget": "portals-example:build:production",
           "dev": false
         }
       }
@@ -39,14 +39,14 @@
     "export": {
       "executor": "@nx/next:export",
       "options": {
-        "buildTarget": "placeholder-app:build:production"
+        "buildTarget": "portals-example:build:production"
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/placeholder-app/jest.config.ts",
+        "jestConfig": "apps/portals-example/jest.config.ts",
         "passWithNoTests": true
       },
       "configurations": {
@@ -60,14 +60,14 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/placeholder-app/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["apps/portals-example/**/*.{ts,tsx,js,jsx}"]
       }
     },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --noEmit",
-        "cwd": "apps/placeholder-app"
+        "cwd": "apps/portals-example"
       }
     }
   },
