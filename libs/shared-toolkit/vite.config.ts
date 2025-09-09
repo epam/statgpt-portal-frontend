@@ -2,6 +2,7 @@
 import { defineConfig, UserConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 import * as path from 'path';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
@@ -15,6 +16,18 @@ export default defineConfig({
     dts({
       entryRoot: 'src',
       tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
+    }),
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'README.md',
+          dest: '',
+        },
+        {
+          src: '../../LICENSE',
+          dest: '',
+        },
+      ],
     }),
   ],
   build: {

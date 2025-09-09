@@ -10,6 +10,7 @@ import {
 } from '@statgpt/conversation-list/src/models/conversation-list';
 import { ShareConversationProps } from '@statgpt/conversation-view/src/models/share-conversation';
 import { getClearedConversationName } from '@statgpt/shared-toolkit/src/utils/conversation-name';
+import { sortConversationsByUpdatedAt } from '@statgpt/conversation-list/src/utils/conversations-grouping';
 
 interface Props {
   conversations: ConversationInfo[];
@@ -38,9 +39,11 @@ const ConversationsSearchResult: FC<Props> = ({
 
   useEffect(() => {
     setFilteredConversations(
-      conversations?.filter((conversation) =>
-        getClearedConversationName(conversation?.name)?.includes(
-          searchQuery || '',
+      sortConversationsByUpdatedAt(
+        conversations?.filter((conversation) =>
+          getClearedConversationName(conversation?.name)?.includes(
+            searchQuery || '',
+          ),
         ),
       ),
     );

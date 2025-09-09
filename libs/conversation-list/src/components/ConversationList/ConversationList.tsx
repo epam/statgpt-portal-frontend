@@ -212,7 +212,7 @@ const ConversationList: FC<Props> = ({
               <ConversationsSearchResult
                 locale={locale}
                 conversationStyles={conversationStyles}
-                conversations={conversations}
+                conversations={[...sharedConversations, ...conversations]}
                 searchQuery={searchQuery}
                 selectedConversationId={selectedConversationId}
                 handleConversationClick={handleConversationClick}

@@ -63,7 +63,7 @@ export const getConversationsGroupedByDate = (
   return groupedConversations;
 };
 
-export const sortConversationsGroupByUpdatedAt = (
+export const sortConversationsByUpdatedAt = (
   groupedConversations: ConversationInfo[],
 ): ConversationInfo[] => {
   return groupedConversations?.sort(

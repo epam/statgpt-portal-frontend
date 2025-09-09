@@ -39,6 +39,7 @@ interface Props {
   locale: string;
   titles: ConversationViewTitles;
   suggestionsList: FormSchemaButtonOption[];
+  welcomeText: string;
   titleIcon?: ReactNode;
   inputMessageStyles: InputMessageStyles;
   isBottomInputPosition?: boolean;
@@ -51,6 +52,7 @@ interface Props {
 
 const ConversationWelcome: FC<Props> = ({
   suggestionsList,
+  welcomeText,
   titleIcon,
   actions,
   titles,
@@ -150,7 +152,7 @@ const ConversationWelcome: FC<Props> = ({
           >
             {titleIcon}
             <h1 className="text-hues-800 sm:h2">
-              {titles?.welcomeTitle ?? 'How can I help you?'}
+              {welcomeText ?? titles?.welcomeTitle ?? 'How can I help you?'}
             </h1>
           </div>
           <InputForAsk

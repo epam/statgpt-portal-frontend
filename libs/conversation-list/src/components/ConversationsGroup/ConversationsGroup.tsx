@@ -5,7 +5,7 @@ import { FC, useCallback, useState } from 'react';
 import classNames from 'classnames';
 import {
   getLabelByGroup,
-  sortConversationsGroupByUpdatedAt,
+  sortConversationsByUpdatedAt,
 } from '@statgpt/conversation-list/src/utils/conversations-grouping';
 import ConversationItem from '@statgpt/conversation-list/src/components/ConversationItem/ConversationItem';
 import {
@@ -65,7 +65,7 @@ const ConversationsGroup: FC<Props> = ({
             'conversation-group-items',
           )}
         >
-          {sortConversationsGroupByUpdatedAt(groupedConversations).map(
+          {sortConversationsByUpdatedAt(groupedConversations).map(
             (conversation) => (
               <ConversationItem
                 locale={locale}

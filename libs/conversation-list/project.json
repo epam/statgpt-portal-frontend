@@ -9,19 +9,7 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/conversation-list",
-        "assets": [
-          {
-            "glob": "README.md",
-            "input": ".",
-            "output": "."
-          },
-          {
-            "glob": "LICENSE",
-            "input": ".",
-            "output": "."
-          }
-        ]
+        "outputPath": "dist/libs/conversation-list"
       },
       "configurations": {
         "development": {

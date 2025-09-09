@@ -1,7 +1,7 @@
 {
   "name": "@statgpt/conversation-view",
   "version": "0.0.1",
-  "private": true,
+  "license": "MIT",
   "peerDependencies": {
     "react": "^19.1.0",
     "classnames": "^2.5.1",

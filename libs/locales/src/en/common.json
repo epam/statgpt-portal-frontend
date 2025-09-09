@@ -1,0 +1,133 @@
+{
+  "app": {
+    "titleGlobal": "Global",
+    "title": "Official Stat Commons",
+    "footer": "Trusted Official Data. All rights reserved.",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "close": "Close",
+    "search": "Search",
+    "cancel": "Cancel"
+  },
+  "nav": {
+    "newChat": "New Chat",
+    "settings": "Settings"
+  },
+  "chat": {
+    "share": "Share",
+    "shareLinkTitle": "Share link to chat",
+    "shareLinkDescription": "Your name, special instructions, and any messages you add after sharing remain confidential.",
+    "createLink": "Create Link",
+    "copyLink": "Copy Link",
+    "duplicateChat": "Duplicate Chat",
+    "copied": "Copied",
+    "removeAccessToUsers": "Remove access to all users",
+    "exploreData": "Explore Data",
+    "chatName": "Chat name:",
+    "chatExpiration": "Link expiration date:",
+    "chatExpirationDays": "days",
+    "chatWarning": "This chat has not been shared with anyone yet."
+  },
+  "advancedView": {
+    "title": "Advanced view",
+    "dataset": "Dataset",
+    "agency": "Agency",
+    "lastUpdated": "Last Updated",
+    "openedInAdvancedView": "Opened in Advanced view",
+    "filters": "Filters",
+    "filter": "Filter",
+    "content": "Content",
+    "clearAll": "Clear All",
+    "clearAllFilters": "Clear all filters",
+    "resetSelectedValues": "Reset selected values",
+    "displayOrder": "Display order",
+    "list": "Flat List",
+    "hierarchy": "Hierarchy",
+    "settings": "Filters",
+    "applied": "Applied",
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "timeseries": "Timeseries",
+    "customPeriod": "Custom period",
+    "allPeriods": "All years",
+    "years": "{years} years",
+    "from": "From",
+    "to": "To",
+    "all": "All",
+    "metadata": "Metadata",
+    "observation": "Observation",
+    "noMetadata": "No metadata to preview",
+    "chartingNoData":  "No data"
+  },
+  "message": {
+    "streaming": "I'm on it! Please wait...",
+    "processingReview": "View Processing Steps"
+  },
+  "conversation": {
+    "delete": "Delete",
+    "export": "Export",
+    "noConversations": "No conversations found",
+    "deleteTitle": "Delete chat?",
+    "deleteConfirm": "Deleted data cannot be recovered.",
+    "clickNewChat": "Click \"New Chat\" above to start",
+    "allChats": "All Chats",
+    "shared": "Shared",
+    "chat": "Chat"
+  },
+  "attachments": {
+    "download": "Download",
+    "openUrl": "Open",
+    "dataGrid": "Data",
+    "chart": "Chart",
+    "limits": "Limited to",
+    "timeSeries": "Timeseries",
+    "chartInfo": "Predefined charts grouped by indicators for quick, clear data representation.",
+    "limitInfo_p1_part1": "The number of timeseries displayed in a single chart is",
+    "limitInfo_p1_part2": "limited to",
+    "limitInfo_p1_part3": "for better clarity and performance.",
+    "limitInfo_p2_part1": "To visualize specific timeseries",
+    "limitInfo_p2_part2": "filter",
+    "limitInfo_p2_part3": "your request, or",
+    "limitInfo_p2_part4": "refine",
+    "limitInfo_p2_part5": "it in the chat.",
+    "limitInfo_link": "Open Advanced Mode"
+  },
+  "time": {
+    "quarterly": "Q",
+    "monthly": "M"
+  },
+  "dateGroups": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "lastWeek": "Last 7 days",
+    "earlier": "Earlier"
+  },
+
+  "welcome": {
+    "title": "How can I help you?",
+    "askAnything": "Ask anything..."
+  },
+
+  "download": {
+    "download": "Download",
+    "downloadType": "Download type",
+    "dataset": "Dataset",
+    "dataFormat": "Data Format",
+    "metadata": "Metadata",
+    "all": "Included",
+    "none": "Not included",
+    "includeMetadata": "Include Metadata",
+    "fullDataset": "Full Dataset",
+    "partialDataset": "Data in table",
+    "attributes": "Attributes",
+    "id": "ID",
+    "idDescription":"File will include only the ID column.",
+    "name": "ID and Name",
+    "nameDescription":"File will include ID and Name in separate columns.",
+    "idName": "Combined ID and Name",
+    "idNameDescription":"File will include one column with ID and Name combined (ID:Name).",
+    "downloadPrepare": "Preparing file for download...",
+    "downloadSuccess": "File downloaded",
+    "downloadError": "File download error"
+  }
+}
