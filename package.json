@@ -1,6 +1,6 @@
 {
   "name": "statgpt-portal-frontend",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "license": "MIT",
   "scripts": {
     "build": "nx run-many -t build",
@@ -69,7 +69,6 @@
     "@typescript-eslint/parser": "^8.33.0",
     "@vitejs/plugin-react": "^4.4.1",
     "autoprefixer": "10.4.21",
-    "babel-jest": "^29.7.0",
     "eslint": "~8.57.1",
     "eslint-config-next": "15.3.2",
     "eslint-config-prettier": "10.1.5",
@@ -91,6 +90,7 @@
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
     "vite-plugin-dts": "4.5.3",
+    "vite-plugin-static-copy": "^3.1.2",
     "vite-plugin-svgr": "^4.3.0",
     "vitest": "3.2.0"
   }
