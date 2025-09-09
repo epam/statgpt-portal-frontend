@@ -9,6 +9,7 @@ export interface AttachmentsStyles {
   chartingStyles?: ChartingStyles;
   chartingIcons: Record<ChartingIcon, ReactNode>;
   downloadIcon?: ReactNode;
+  downloadChevronIcon?: ReactNode;
   openLinkTitle?: string;
   dataGridTitle?: string;
   downloadTitle?: string;

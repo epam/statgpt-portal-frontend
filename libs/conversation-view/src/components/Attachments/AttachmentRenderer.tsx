@@ -198,6 +198,7 @@ const AttachmentRenderer: FC<Props> = ({
                         <DownloadType
                           onDownloadTypeSelect={onDownloadTypeSelect}
                           icon={attachmentsStyles?.downloadIcon}
+                          chevronIcon={attachmentsStyles?.downloadChevronIcon}
                           title={attachmentsStyles?.downloadTitle || 'Download'}
                           showChevronIcon={attachmentsStyles?.showChevronIcon}
                           downloadTitles={attachmentsStyles?.downloadTitles}
