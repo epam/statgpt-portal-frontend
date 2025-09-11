@@ -23,7 +23,7 @@ import { sortPeriods } from '@statgpt/sdmx-toolkit/src/parsers/time-period-parse
 import { getDimRelatedStructures } from '@statgpt/conversation-view/src/utils/attachments/localized-value';
 import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
 import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { FrequencyDimension } from '@statgpt/sdmx-toolkit/src/constants/frequency-dimension';
+import { FREQUENCY_DIMENSION_ID } from '@statgpt/sdmx-toolkit/src/constants/frequency-dimension';
 import { Periods } from '@statgpt/sdmx-toolkit/src/types/periods';
 import {
   isMonthly,
@@ -99,9 +99,9 @@ export function buildUnit(
     timePeriods,
   );
   const dimensions = getDimensionsInfo(unit.rows, structures, locale);
-  const frequencyValue = dimensions?.find(
-    (dimension) => dimension?.id === FrequencyDimension,
-  )?.value;
+  const frequencyDimensionId = dimensions?.find((dimension) =>
+    FREQUENCY_DIMENSION_ID.includes(dimension?.id),
+  )?.id;
 
   return {
     rows: unit.rows,
@@ -109,7 +109,11 @@ export function buildUnit(
       unit.rows.length > MAX_LINES_PER_UNIT ? MAX_LINES_PER_UNIT : undefined,
     dimensions,
     config: buildChartConfig(
-      filterTimePeriodsByFrequency(timePeriods, frequencyValue),
+      filterTimePeriodsByFrequency(
+        timePeriods,
+        unit?.rows?.[0],
+        frequencyDimensionId,
+      ),
       series,
       styles,
     ),
@@ -118,16 +122,20 @@ export function buildUnit(
 
 function filterTimePeriodsByFrequency(
   timePeriods: string[],
-  frequencyValue?: string,
+  row: GridData,
+  frequencyDimensionId?: string,
 ) {
-  if (frequencyValue === Periods.MONTHLY) {
-    return timePeriods?.filter((period) => isMonthly(period));
-  }
-  if (frequencyValue === Periods.QUARTERLY) {
-    return timePeriods?.filter((period) => isQuarterly(period));
-  }
-  if (frequencyValue === Periods.ANNUAL) {
-    return timePeriods?.filter((period) => isYearly(period));
+  if (frequencyDimensionId) {
+    const frequencyTermId = row?.[frequencyDimensionId];
+    if (frequencyTermId === Periods.MONTHLY) {
+      return timePeriods?.filter((period) => isMonthly(period));
+    }
+    if (frequencyTermId === Periods.QUARTERLY) {
+      return timePeriods?.filter((period) => isQuarterly(period));
+    }
+    if (frequencyTermId === Periods.ANNUAL) {
+      return timePeriods?.filter((period) => isYearly(period));
+    }
   }
   return timePeriods;
 }

@@ -1,5 +1,5 @@
 export enum Periods {
-  ANNUAL = 'Annual',
-  QUARTERLY = 'Quarterly',
-  MONTHLY = 'Monthly',
+  ANNUAL = 'A',
+  QUARTERLY = 'Q',
+  MONTHLY = 'M',
 }

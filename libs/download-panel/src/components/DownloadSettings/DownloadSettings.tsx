@@ -67,7 +67,7 @@ const DownloadSettings: FC<Props> = ({
   const [selectedAttribute, setSelectedAttribute] =
     useState<DownloadSettingItem>(downloadAttributes[0]);
 
-  const [isMetadata, setIsMetadata] = useState<boolean>(false);
+  const [isMetadata, setIsMetadata] = useState<boolean>(true);
 
   const onDownloadClick = useCallback(() => {
     setIsShowDownloadAlert?.(true);

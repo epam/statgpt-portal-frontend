@@ -30,11 +30,11 @@ export const getSharedConversation = (
 ): SharedConversationInfo | undefined => {
   return sharedConversations?.find((sharedConversation) => {
     const currentConversationId = currentConversation?.id?.split('/')?.pop();
-    const sharedConversationName =
-      sharedConversation?.name?.split('/')?.pop() || '';
+    const sharedConversationId =
+      sharedConversation?.url?.split('/')?.pop() || '';
     return (
-      sharedConversationName === currentConversationId ||
-      decodeURI(sharedConversationName) === currentConversationId
+      sharedConversationId === currentConversationId ||
+      decodeURI(sharedConversationId) === currentConversationId
     );
   });
 };

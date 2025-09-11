@@ -146,12 +146,12 @@ const ConversationWelcome: FC<Props> = ({
         <div className="flex flex-col h-full items-center justify-center sm:px-4">
           <div
             className={classNames(
-              'flex items-center',
+              'flex items-center max-w-full sm-min:px-4',
               isBottomInputPosition ? 'mt-auto mb-8' : 'mb-6',
             )}
           >
             {titleIcon}
-            <h1 className="text-hues-800 sm:h2">
+            <h1 className="text-hues-800 text-center sm:h2">
               {welcomeText ?? titles?.welcomeTitle ?? 'How can I help you?'}
             </h1>
           </div>
@@ -166,7 +166,7 @@ const ConversationWelcome: FC<Props> = ({
             sendMessageIcon={inputMessageStyles.sendMessageIcon}
             onSendMessage={createConversation}
           />
-          <div className="sm:w-full sm:overflow-x-auto no-scrollbar">
+          <div className="max-w-full overflow-x-auto no-scrollbar">
             <div
               className={classNames(
                 'flex flex-wrap justify-center gap-2 sm:flex-nowrap',
