@@ -40,13 +40,11 @@ jobs:
 
   release:
     runs-on: ubuntu-24.04
+    needs: [test, calculate_version]
     permissions:
       contents: write
       packages: write
       security-events: write
-    needs:
-      - calculate_version
-      - test
 
     steps:
       - name: Maximize build space
@@ -64,32 +62,32 @@ jobs:
       - uses: epam/ai-dial-ci/actions/generate_release_notes@2.4.1
         with:
           latest-tag: ${{ needs.calculate_version.outputs.latest-tag }}
-      
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           lfs: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-      
+          token: ${{ secrets.ACTIONS_BOT_TOKEN }}
+
       - uses: epam/ai-dial-ci/actions/node_prepare@2.4.1
         with:
           node-version: "22"
           clean-install: true
           registry-url: "https://registry.npmjs.org"
-      
+
       - name: Set version
         shell: bash
         run: |
-          npm version ${{ needs.calculate_version.outputs.next-version }} --no-git-tag-version || true # upstream branch may already be updated
-      
-      - uses: epam/ai-dial-ci/actions/build_docker@2.4.1
+          npm version ${{ needs.calculate_version.outputs.next-version }} --no-git-tag-version || true # Upstream branch may already be updated
+
+      - uses: ./.github/actions/build_docker
         with:
           ghcr-username: ${{ github.actor }}
-          ghcr-password: ${{ secrets.GITHUB_TOKEN }}
+          ghcr-password: ${{ secrets.ACTIONS_BOT_TOKEN }}
           dockerhub-username: ${{ secrets.DOCKERHUB_LOGIN }}
           dockerhub-password: ${{ secrets.DOCKERHUB_TOKEN }}
           image-name: ghcr.io/${{ env.IMAGE_NAME }}
           image-tag: ${{ needs.calculate_version.outputs.next-version }}
-          push-enabled: true
+          push-enabled: false
           trivy-enabled: true
           bypass-checks: false
           trivy-severity: "CRITICAL,HIGH"
@@ -102,7 +100,7 @@ jobs:
             ${{ github.ref == 'refs/heads/development' && format('{0}/{1}:{2}', 'ghcr.io', env.IMAGE_NAME, 'development') || ''}}
             ${{ startsWith(github.ref, 'refs/heads/release-') && needs.calculate_version.outputs.is-latest == 'true' && format('{0}:{1}', env.IMAGE_NAME, 'latest') || ''}}
             ${{ startsWith(github.ref, 'refs/heads/release-') && needs.calculate_version.outputs.is-latest == 'true' && format('{0}/{1}:{2}', 'ghcr.io', env.IMAGE_NAME, 'latest') || ''}}
-      
+
       - name: Publish packages to npmjs
         shell: bash
         run: |
@@ -125,11 +123,13 @@ jobs:
           IS_LATEST: ${{ needs.calculate_version.outputs.is-latest == 'true' }}
           IS_DEVELOPMENT_BRANCH: ${{ github.ref == 'refs/heads/development' }}
           IS_RELEASE_BRANCH: ${{ startsWith(github.ref, 'refs/heads/release-') }}
-      
+
       - uses: epam/ai-dial-ci/actions/publish_tag_release@2.4.1
         with:
           tag-version: ${{ needs.calculate_version.outputs.next-version }}
-          changelog-file: "/tmp/my_changelog" # comes from generate_release_notes step
+          changelog-file: "/tmp/my_changelog" # Comes from generate_release_notes step
           extra-commit-command: |
+            git config --global user.name "statgpt-actions"
+            git config --global user.email "231008922+statgpt-actions@users.noreply.github.com"
             git add package.json package-lock.json
-            git commit -m '[skip ci] Update version' || true # upstream branch may already be updated
+            git commit -m '[skip ci] Update version' || true # Upstream branch may already be updated
