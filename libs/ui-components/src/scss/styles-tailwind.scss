@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import 'buttons.scss';
+@import 'links.scss';
+@import 'input.scss';
+@import 'loader.scss';
+@import 'text.scss';
+@import 'calendar.scss';
+@import 'grid.scss';
+
+@layer base {
+  body,
+  html {
+    @apply h-full w-full text-neutrals-1000 overflow-hidden;
+  }
+}

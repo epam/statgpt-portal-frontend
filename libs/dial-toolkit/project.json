@@ -21,6 +21,7 @@
         }
       }
     },
+
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
@@ -30,6 +31,9 @@
           "libs/dial-toolkit/package.json"
         ]
       }
+    },
+    "publish": {
+      "command": "node tools/publish-lib.mjs dial-toolkit --version={args.ver} --dry={args.dry} --tag={args.tag} --development={args.development}"
     }
   }
 }

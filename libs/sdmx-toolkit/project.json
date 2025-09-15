@@ -30,6 +30,9 @@
           "libs/sdmx-toolkit/package.json"
         ]
       }
+    },
+    "publish": {
+      "command": "node tools/publish-lib.mjs sdmx-toolkit --version={args.ver} --dry={args.dry} --tag={args.tag} --development={args.development}"
     }
   }
 }
