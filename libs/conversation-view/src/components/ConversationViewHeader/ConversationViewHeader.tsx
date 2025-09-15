@@ -9,6 +9,7 @@ interface Props {
   conversation: Conversation | null;
   locale?: string;
   isOpenedAdvancedView?: boolean;
+  isShowShareButton?: boolean;
   shareConversationProps?: ShareConversationProps;
 }
 
@@ -16,6 +17,7 @@ const ConversationViewHeader: FC<Props> = ({
   conversation,
   locale,
   isOpenedAdvancedView,
+  isShowShareButton,
   shareConversationProps,
 }) => {
   return (
@@ -36,7 +38,7 @@ const ConversationViewHeader: FC<Props> = ({
           {conversation?.name}
         </span>
 
-        {!isOpenedAdvancedView && (
+        {!isOpenedAdvancedView && isShowShareButton && (
           <div className="flex gap-x-2">
             <ShareConversation
               conversation={conversation}

@@ -30,4 +30,5 @@ export interface ShareConversationProps {
   shareDescription?: string;
   chatWarning?: string;
   chatName?: string;
+  baseUrl?: string;
 }

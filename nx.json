@@ -64,7 +64,7 @@
     },
     "@nx/next": {
       "application": {
-        "style": "tailwind",
+        "style": "css",
         "linter": "eslint"
       }
     }
@@ -72,21 +72,26 @@
   "defaultProject": "portals-example",
   "plugins": [
     {
+      "plugin": "@nx/next/plugin",
+      "options": {
+        "startTargetName": "start",
+        "buildTargetName": "next:build",
+        "devTargetName": "dev",
+        "serveStaticTargetName": "serve-static"
+      }
+    },
+    {
       "plugin": "@nx/eslint/plugin",
       "options": {
         "targetName": "lint"
       }
-    },
-    {
-      "plugin": "@nx/next/plugin",
-      "options": {
-        "startTargetName": "start",
-        "buildTargetName": "build",
-        "devTargetName": "dev",
-        "serveStaticTargetName": "serve-static",
-        "buildDepsTargetName": "build-deps",
-        "watchDepsTargetName": "watch-deps"
-      }
     }
-  ]
+  ],
+  "release": {
+    "projects": ["conversation-view", "conversation-list", "ui-components"],
+    "releaseTagPattern": "release/{version}",
+    "git": {
+      "commitMessage": "chore(release): {version}"
+    }
+  }
 }

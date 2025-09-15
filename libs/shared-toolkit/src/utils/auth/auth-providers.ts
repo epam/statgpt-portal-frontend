@@ -15,19 +15,8 @@ import NextClient from '@statgpt/shared-toolkit/src/utils/auth/nextauth-client';
 export const tokenConfig: TokenEndpointHandler = {
   request: async (context) => {
     let tokens;
-    console.info(
-      `Callback request: set client for provider: ${context.provider.id}`,
-    );
 
     NextClient.setClient(context.client, context.provider);
-
-    console.info(`Context for setting client for token`, context);
-
-    console.info(`Context client callback exists`, !!context.client.callback);
-    console.info(
-      `Context client oauthCallback exists`,
-      !!context.client.oauthCallback,
-    );
 
     if (context.provider.idToken) {
       tokens = await context.client.callback(
