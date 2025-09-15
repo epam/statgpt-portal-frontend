@@ -51,10 +51,6 @@ async function refreshAccessToken(token: Token) {
     }
 
     const client = NextClient.getClient(token.providerId);
-    const allClients = NextClient.getClients();
-
-    console.info('All clients', allClients);
-    console.info('Selected client', client);
 
     if (!client) {
       console.error(
@@ -75,11 +71,6 @@ async function refreshAccessToken(token: Token) {
           isRefreshing: true,
           token,
         };
-        console.info(
-          `Refreshing token: expires - ${new Date(Number(localToken.token?.accessTokenExpires))} now - ${new Date(
-            Date.now(),
-          )}, expires - threshold: ${new Date(Number(localToken.token?.accessTokenExpires) - REFRESH_TOKEN_THRESHOLD)}`,
-        );
         if (
           typeof localToken.token?.accessTokenExpires === 'number' &&
           Date.now() <
@@ -87,8 +78,6 @@ async function refreshAccessToken(token: Token) {
         ) {
           return localToken.token;
         }
-
-        console.info('Set refreshing token start', token.userId, localToken);
 
         NextClient.setIsRefreshTokenStart(token.userId, localToken);
         break;
@@ -135,8 +124,6 @@ async function refreshAccessToken(token: Token) {
       refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Fall back to old refresh token
     };
 
-    console.info('Generated refresh token', returnToken);
-
     NextClient.setIsRefreshTokenStart(token.userId, {
       isRefreshing: false,
       token: returnToken,
@@ -159,16 +146,10 @@ export const callbacks: Partial<
   CallbacksOptions<Profile & { job_title?: string }, Account>
 > = {
   jwt: async (options) => {
-    console.info('JQWT callback', options);
     const timeLeft =
       typeof options.token.accessTokenExpires === 'number' &&
       options.token.accessTokenExpires - Date.now();
-    console.info(
-      'Current token',
-      options.token,
-      'time left (m)',
-      Number(timeLeft) / 1000 / 60,
-    );
+
     if (options.account) {
       return {
         ...options.token,
@@ -206,7 +187,6 @@ export const callbacks: Partial<
     return true;
   },
   session: async (options) => {
-    console.info('Session callback', options);
     // Pass any token errors to the session
     if (options.token?.error) {
       if (options.session) {

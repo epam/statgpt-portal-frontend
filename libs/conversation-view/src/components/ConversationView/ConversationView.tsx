@@ -48,16 +48,12 @@ import { Button } from '@statgpt/ui-components/src/components/Button/Button';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
 import { MetadataSettings } from '@statgpt/conversation-view/src/models/metadata';
 import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
-import { ConversationDetails } from '@statgpt/conversation-view/src/models/conversation';
-import {
-  getConversationPath,
-  getRedirectConversationPath,
-} from '@statgpt/conversation-view/src/utils/get-conversation-path';
+import { getRedirectConversationPath } from '@statgpt/conversation-view/src/utils/get-conversation-path';
 import { generateConversation } from '@statgpt/conversation-view/src/utils/generate-conversation';
 import { cleanConversationNames } from '@statgpt/conversation-list/src/utils/conversation-mapping';
 
 interface Props {
-  conversationDetails: ConversationDetails;
+  conversationId: string;
   actions: ConversationViewActions;
   messageStyles?: MessageStyles;
   attachmentsStyles?: AttachmentsStyles;
@@ -76,7 +72,7 @@ interface Props {
 }
 
 const ConversationView: FC<Props> = ({
-  conversationDetails,
+  conversationId,
   actions,
   messageStyles,
   attachmentsStyles,
@@ -138,18 +134,15 @@ const ConversationView: FC<Props> = ({
   const saveConversation = useCallback(
     async (updatedConversation: Conversation) => {
       try {
-        await actions.updateConversation(
-          decodeURI(getConversationPath(conversationDetails)),
-          {
-            name: updatedConversation.name,
-            messages: updatedConversation.messages,
-          },
-        );
+        await actions.updateConversation(decodeURI(conversationId), {
+          name: updatedConversation.name,
+          messages: updatedConversation.messages,
+        });
       } catch (err) {
         console.error('Failed to save conversation:', err);
       }
     },
-    [actions, conversationDetails],
+    [actions, conversationId],
   );
 
   const addUserMessageToConversation = useCallback((userMessage: Message) => {
@@ -340,11 +333,7 @@ const ConversationView: FC<Props> = ({
       try {
         setIsLoading(true);
         const { bucket } = await actions.getBucket();
-        const conversationPath = getConversationPath(
-          conversationDetails,
-          bucket,
-        );
-        const data = await actions.getConversation(decodeURI(conversationPath));
+        const data = await actions.getConversation(decodeURI(conversationId));
         setConversation(data);
         setIsReadonlyConversation(
           isReadOnlyConversation(data) &&
@@ -360,11 +349,11 @@ const ConversationView: FC<Props> = ({
       }
     }
 
-    if (conversationDetails?.conversationId) {
+    if (conversationId) {
       fetchConversationById();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationDetails?.conversationId]);
+  }, [conversationId]);
 
   const messageServerActions = useMemo(
     () => ({
@@ -398,6 +387,7 @@ const ConversationView: FC<Props> = ({
           conversation={conversation}
           locale={locale}
           isOpenedAdvancedView={isOpenedAdvancedView}
+          isShowShareButton={!isReadonlyConversation}
           shareConversationProps={shareConversationProps}
         />
       )}

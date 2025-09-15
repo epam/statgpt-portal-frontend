@@ -9,7 +9,6 @@ export const getTokenRequest = async (
 ): Promise<GetTokenParams> => {
   const headersList = await headers;
   const cookiesList = await cookies;
-  console.info('Auth Options for requests', authOptions);
 
   return {
     req: {

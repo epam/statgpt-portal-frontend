@@ -43,6 +43,7 @@ const ShareConversationModal: FC<Props> = ({
   chatName,
   getSharedConversations,
   revokeSharedConversations,
+  baseUrl,
 }) => {
   const { id }: { id: string[] } = useParams();
 
@@ -55,14 +56,19 @@ const ShareConversationModal: FC<Props> = ({
     useState<boolean>();
 
   const conversationLink = useMemo(() => {
-    return `${window.location.origin}/${locale}${generatedLink}`;
-  }, [generatedLink, locale]);
+    const url = baseUrl || window.location.origin;
+    return `${url}/${locale}${generatedLink}`;
+  }, [baseUrl, generatedLink, locale]);
 
   useEffect(() => {
     const generateShareConversationLink = async () => {
       try {
         const generatedLinkResponse = await generateConversationLink?.(
-          getConversationData(conversation?.id || id?.join('/')),
+          getConversationData(
+            conversation
+              ? decodeURI(conversation?.id)
+              : decodeURI(`${id?.[0]}/${locale}/${id?.[1]}`),
+          ),
         );
         const sharedConversationsData = await getSharedConversations?.(
           getSharedConversationsRequest(ShareTarget.OTHERS),
@@ -85,7 +91,13 @@ const ShareConversationModal: FC<Props> = ({
     };
 
     generateShareConversationLink();
-  }, [conversation, generateConversationLink, getSharedConversations, id]);
+  }, [
+    conversation,
+    generateConversationLink,
+    getSharedConversations,
+    id,
+    locale,
+  ]);
 
   const onClose = useCallback((): void => {
     onCloseModal();

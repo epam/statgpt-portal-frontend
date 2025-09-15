@@ -29,8 +29,6 @@ export const handleStreamMessage = (
   onMessage?: (data: MessageStreamResponse) => void,
   onToken?: (token: string) => void,
 ) => {
-  console.info('Chat SSE message received:', data);
-
   onMessage?.(data);
 
   if (onToken) {

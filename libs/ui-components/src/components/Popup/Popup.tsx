@@ -83,7 +83,11 @@ const PopupView: FC<Props> = ({
                 'sm:w-full sm:max-w-full sm:px-4 sm:py-6',
               )}
               ref={refs.setFloating}
-              {...getFloatingProps()}
+              {...getFloatingProps({
+                onClick(event) {
+                  event.stopPropagation();
+                },
+              })}
             >
               {
                 <div className="flex flex-row justify-between py-3 px-6 items-center mb-2 modal-heading sm:p-0 sm:pb-2">
