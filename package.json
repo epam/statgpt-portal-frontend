@@ -1,11 +1,10 @@
 {
-  "name": "statgpt-portal",
-  "version": "0.1.20",
+  "name": "statgpt-portal-frontend",
+  "version": "0.1.0",
   "license": "MIT",
   "scripts": {
     "build": "nx run-many -t build",
-    "start:imf": "nx serve trusted-official-data",
-    "start:derzhstat": "nx serve derzhstat-global-data-commons --port=3000",
+    "start": "nx serve",
     "test": "nx run-many -t test --runInBand",
     "lint": "nx run-many --target=lint --all",
     "lint:fix": "nx run-many --target=lint --all --fix",
@@ -18,8 +17,7 @@
     "publish:dry": "nx run-many -t publish --output-style=static --dry",
     "affected:build": "nx affected --target=build",
     "affected:test": "nx affected --target=test",
-    "affected:lint": "nx affected --target=lint",
-    "postinstall": "node ./tools/patch-i18n.mjs"
+    "affected:lint": "nx affected --target=lint"
   },
   "private": true,
   "dependencies": {
