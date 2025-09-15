@@ -55,6 +55,9 @@
           "coverageReporters": ["text"]
         }
       }
+    },
+    "publish": {
+      "command": "node tools/publish-lib.mjs ui-components --version={args.ver} --dry={args.dry} --tag={args.tag} --development={args.development}"
     }
   },
   "tags": ["type:lib", "scope:ui"]

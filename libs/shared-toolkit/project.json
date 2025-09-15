@@ -30,6 +30,9 @@
           "libs/shared-toolkit/package.json"
         ]
       }
+    },
+    "publish": {
+      "command": "node tools/publish-lib.mjs shared-toolkit --version={args.ver} --dry={args.dry} --tag={args.tag} --development={args.development}"
     }
   }
 }

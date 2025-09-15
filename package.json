@@ -1,10 +1,11 @@
 {
-  "name": "statgpt-portal-frontend",
-  "version": "0.1.0",
+  "name": "statgpt-portal",
+  "version": "0.1.20",
   "license": "MIT",
   "scripts": {
     "build": "nx run-many -t build",
-    "start": "nx serve",
+    "start:imf": "nx serve trusted-official-data",
+    "start:derzhstat": "nx serve derzhstat-global-data-commons --port=3000",
     "test": "nx run-many -t test --runInBand",
     "lint": "nx run-many --target=lint --all",
     "lint:fix": "nx run-many --target=lint --all --fix",
@@ -12,10 +13,13 @@
     "format:write": "prettier --write .",
     "typecheck": "nx run-many --target=typecheck --all",
     "graph": "nx graph",
-    "publish": "nx release",
+    "build:styles": "tailwindcss -m -i ./libs/ui-components/src/scss/styles-tailwind.scss -o ./dist/libs/ui-components/index.css",
+    "publish": "nx run-many -t publish",
+    "publish:dry": "nx run-many -t publish --output-style=static --dry",
     "affected:build": "nx affected --target=build",
     "affected:test": "nx affected --target=test",
-    "affected:lint": "nx affected --target=lint"
+    "affected:lint": "nx affected --target=lint",
+    "postinstall": "node ./tools/patch-i18n.mjs"
   },
   "private": true,
   "dependencies": {
@@ -86,6 +90,7 @@
     "postcss": "8.5.4",
     "prettier": "^3.5.3",
     "sass": "^1.89.0",
+    "shelljs": "^0.10.0",
     "tailwindcss": "3.4.17",
     "ts-jest": "^29.3.4",
     "ts-node": "10.9.2",
