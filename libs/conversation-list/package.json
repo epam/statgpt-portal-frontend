@@ -1,5 +1,5 @@
 {
-  "name": "@statgpt/conversation-list",
+  "name": "@dev-statgpt/conversation-list",
   "version": "0.1.0",
   "license": "MIT",
   "peerDependencies": {

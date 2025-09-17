@@ -1,5 +1,5 @@
 {
-  "name": "@statgpt/sdmx-toolkit",
+  "name": "@dev-statgpt/sdmx-toolkit",
   "version": "0.1.0",
   "license": "MIT",
   "exports": {
