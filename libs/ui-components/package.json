@@ -12,5 +12,15 @@
     "@nx/jest": "21.1.2",
     "@testing-library/jest-dom": "^6.6.3",
     "vite-plugin-static-copy": "^3.1.2"
-  }
+  },
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js"
+    },
+    "./index.css": "./index.css"
+  },
+  "main": "index",
+  "browser": "index.js",
+  "module": "index.mjs"
 }
