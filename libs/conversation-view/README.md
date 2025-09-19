@@ -1,30 +1,80 @@
 # Conversation View
 
-The Conversation View library provides advanced React components and utilities for displaying, managing, and interacting with conversations and their data in StatGPT projects.
+This is StatGpt portals library, provides reusable React components, context, and utilities 
+for managing and displaying advanced conversation views within the StatGPT portals. 
+It includes logic for representing conversations, chating, handling stream-messages, showing attachments, advanced UI and welcome-page.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/mit)
+[![React](https://img.shields.io/badge/React-19+-61dafb.svg)](https://reactjs.org/)
+[![Typescript](https://img.shields.io/badge/Typescript-5+-61dafb.svg)](https://www.typescriptlang.org/)
+
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Styling & Customization](#styling--customization)
+- [Localization](#localization)
+- [Contributing](#contributing)
+- [Security](#security)
+- [License](#license)
 
 ## Features
 
-- Main conversation view component with support for advanced and standard modes
-- Integration with attachments, datasets, and file downloads
-- Customizable titles, actions, and styles
-- Support for localization and formatting
-- Advanced filtering, metadata, and sharing options
-- Designed for extensibility and integration with StatGPT data sources
+- Base conversation view component
+- Advanced UI components for displaying conversation views
+- Context and utilities for managing chat state
+- Support for streaming messages
+- Handling and displaying attachments
+- Welcome page integration with suggested prompts
+- Customizable styles and icons
+
+## Installation
+
+```bash
+npm install @dev-statgpt/conversation-view
+```
 
 ## Usage
 
 ```tsx
-import ConversationView from '@statgpt/conversation-view';
+import { ConversationView } from '@dev-statgpt/conversation-view';
 
 // Example usage
 <ConversationView
-  bucketId="bucket-id"
-  conversationId="conversation-id"
-  token={token}
+  conversation={conversation}
+  actions={conversationViewActions}
+  locale={locale}
+  titles={conversationViewTitles}
+  messageStyles={messageStyles}
+  attachmentsStyles={attachmentsStyles}
+  ...
 />
 ```
 
 
+## Styling & Customization
+
+You can customize the conversation view and it's components by using the `...Styles` (ex.  `messageStyles`) prop. This allows you to override icons & default styles with your own CSS styles.
+
+## Localization
+
+The component supports localization of used chat-model through the `locale` prop. You can also provide translations for various UI elements using the `titles` prop.
+
 ## Contributing
 
-Contributions are welcome! Please open issues or submit pull requests for improvements and bug fixes.
+We welcome contributions! Please see our [Contributing Guide](../../CONTRIBUTING.md) for details on:
+
+- Code style guidelines
+- Testing requirements
+- Pull request process
+
+
+## Security
+
+If you discover a security vulnerability, please refer to our [Security Policy](../../SECURITY.md).
+
+## License
+
+[MIT](./LICENSE) - see the [LICENSE](../../LICENSE) file for details.

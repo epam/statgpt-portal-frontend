@@ -1,7 +1,6 @@
 import {
   GetAttachmentContent,
   GetBucket,
-  GetConversation,
   GetDatasetData,
   GetDatasetDetails,
   UpdateConversation,
@@ -12,6 +11,8 @@ import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
 import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { DownloadDatasetAction } from '@statgpt/download-panel/src/types/actions';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { GetConversation } from '@statgpt/share-conversation/src/models/share-conversation';
 import { ConversationInfo } from '@epam/ai-dial-shared';
 
 export interface AttachmentsActions {

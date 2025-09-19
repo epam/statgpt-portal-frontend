@@ -5,11 +5,15 @@ import {
   SharedConversationsRequest,
   SharedConversations,
 } from '@statgpt/dial-toolkit/src/models/conversation';
+import { Conversation } from '@epam/ai-dial-shared';
+
+export type GetConversation = (conversationId: string) => Promise<Conversation>;
 
 export interface ShareConversationProps {
   shareButtonClass?: string;
   shareIcon?: ReactNode;
   modalDividers?: boolean;
+  getConversation?: GetConversation;
   generateConversationLink?: (
     conversationData?: ConversationData,
   ) => Promise<GeneratedLinkResponse>;
@@ -31,4 +35,5 @@ export interface ShareConversationProps {
   chatWarning?: string;
   chatName?: string;
   baseUrl?: string;
+  id?: string[];
 }

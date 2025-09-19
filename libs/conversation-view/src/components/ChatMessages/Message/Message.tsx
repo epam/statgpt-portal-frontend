@@ -61,6 +61,7 @@ interface Props {
   metadataSettings?: MetadataSettings;
   expandStagesIcon?: ReactNode;
   titles?: ConversationViewTitles;
+  onAdvancedViewOpen?: () => void;
 }
 
 const Message: FC<Props> = ({
@@ -76,6 +77,7 @@ const Message: FC<Props> = ({
   locale,
   metadataSettings,
   expandStagesIcon,
+  onAdvancedViewOpen,
 }) => {
   const [attachmentsDataQueries, setAttachmentsDataQueries] = useState<
     DataQuery[] | undefined
@@ -212,6 +214,7 @@ const Message: FC<Props> = ({
         attachments={
           isDataSetAttachments ? dataSetAttachments : baseGridAttachments
         }
+        onAdvancedViewOpen={onAdvancedViewOpen}
         isDataSetAttachments={isDataSetAttachments}
         datasets={datasets}
         messageStyles={messageStyles}
@@ -245,6 +248,7 @@ const Message: FC<Props> = ({
       locale,
       dimensions,
       onSelectDataset,
+      onAdvancedViewOpen,
     ],
   );
 

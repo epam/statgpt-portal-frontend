@@ -30,7 +30,7 @@ export interface ConversationListResponse {
   hasMore?: boolean;
 }
 
-interface ConversationResource {
+export interface ConversationResource {
   url: string;
 }
 

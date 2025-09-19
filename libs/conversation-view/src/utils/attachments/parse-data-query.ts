@@ -1,4 +1,7 @@
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
+import {
+  DataQuery,
+  JsonDataQuery,
+} from '@statgpt/shared-toolkit/src/models/data-query';
 import { isJsonAttachment } from './attachment-parser';
 import { Attachment } from '@epam/ai-dial-shared';
 
@@ -15,7 +18,7 @@ export function getDataQueries(
 
   return jsonAttachments?.map((json) => ({
     title: json?.title,
-    ...extractJsonFromAttachment(json?.data),
+    ...getDataQueryFromJson(extractJsonFromAttachment(json?.data)),
   }));
 }
 
@@ -28,4 +31,22 @@ function extractJsonFromAttachment(mdContent?: string) {
     }
   }
   return null;
+}
+
+function getDataQueryFromJson(jsonDataQuery: JsonDataQuery): DataQuery {
+  return {
+    ...jsonDataQuery,
+    filters: jsonDataQuery?.filters?.map((filter) => ({
+      ...filter,
+      componentCode: filter?.component_code || filter?.componentCode,
+    })),
+    metadata: {
+      countryDimension:
+        jsonDataQuery?.metadata?.country_dimension ||
+        jsonDataQuery?.metadata?.countryDimension,
+      indicatorDimensions:
+        jsonDataQuery?.metadata?.indicator_dimensions ||
+        jsonDataQuery?.metadata?.indicatorDimensions,
+    },
+  };
 }
