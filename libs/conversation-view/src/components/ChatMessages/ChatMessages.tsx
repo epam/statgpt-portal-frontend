@@ -8,7 +8,7 @@
 
 'use client';
 
-import { FC, ReactNode, useEffect, useRef } from 'react';
+import { FC, ReactNode, useEffect, useRef, useState } from 'react';
 import { Role } from '@epam/ai-dial-shared';
 
 import { Message as MessageType } from '@statgpt/dial-toolkit/src/models/message';
@@ -23,6 +23,7 @@ import {
   getLastMessageWithAttachmentIndex,
   getPreviousMessageWithAttachment,
 } from '../../utils/messages';
+import { useAdvancedView } from '../../context/AdvancedViewContext';
 
 interface Props {
   messages: MessageType[];
@@ -44,9 +45,11 @@ const ChatMessages: FC<Props> = ({
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { isOpenedAdvancedView } = useAdvancedView();
+  const [scrollPosition, setScrollPosition] = useState<number | null>(null);
 
   useEffect(() => {
-    const container = containerRef.current;
+    const container = containerRef.current?.parentElement;
     const target = messagesEndRef.current;
 
     if (container && target) {
@@ -58,6 +61,22 @@ const ChatMessages: FC<Props> = ({
     }
   }, [messages, isStreaming]);
 
+  useEffect(() => {
+    if (!isOpenedAdvancedView && scrollPosition !== null) {
+      setTimeout(() => {
+        containerRef?.current?.parentElement?.scrollTo({
+          top: scrollPosition,
+          behavior: 'smooth',
+        });
+      });
+    }
+  }, [isOpenedAdvancedView, scrollPosition]);
+
+  const onAdvancedViewOpen = () => {
+    const scrollTop = containerRef.current?.parentElement?.scrollTop || null;
+    setScrollPosition(scrollTop);
+  };
+
   return (
     <div ref={containerRef} className="h-full w-full">
       <div className="flex flex-col gap-y-6 max-w-full">
@@ -66,6 +85,7 @@ const ChatMessages: FC<Props> = ({
             key={message.id || index}
             message={message}
             previousMessage={getPreviousMessageWithAttachment(messages, index)}
+            onAdvancedViewOpen={onAdvancedViewOpen}
             isStreaming={
               isStreaming &&
               index === messages.length - 1 &&

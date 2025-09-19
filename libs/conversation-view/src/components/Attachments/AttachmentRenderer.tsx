@@ -72,6 +72,7 @@ interface Props {
   filters?: DatasetQueryFilters;
   titles?: ConversationViewTitles;
   selectDataset?: (datasetUrn?: string) => void;
+  onAdvancedViewOpen?: () => void;
 }
 
 const AttachmentRenderer: FC<Props> = ({
@@ -93,6 +94,7 @@ const AttachmentRenderer: FC<Props> = ({
   dimensions,
   filters,
   selectDataset,
+  onAdvancedViewOpen,
 }) => {
   const [selectedAttachmentIndex, setSelectedAttachmentIndex] =
     useState<number>(0);
@@ -118,6 +120,7 @@ const AttachmentRenderer: FC<Props> = ({
   };
 
   const onOpenAdvancedView = useCallback(() => {
+    onAdvancedViewOpen?.();
     setIsOpenedAdvancedView(true);
     actions.updateCurrentDataQuery(currentDataQuery);
     actions.updateDataQueries(dataQueries);
@@ -128,6 +131,7 @@ const AttachmentRenderer: FC<Props> = ({
     dataQueries,
     datasets,
     setIsOpenedAdvancedView,
+    onAdvancedViewOpen,
   ]);
 
   useEffect(() => {

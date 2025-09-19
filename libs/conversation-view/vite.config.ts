@@ -19,10 +19,7 @@ export default defineConfig({
       entryRoot: 'src',
       tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
     }),
-    svgr({
-      include: '**/*.svg',
-      svgrOptions: { exportType: 'default' },
-    }),
+    svgr(),
     viteStaticCopy({
       targets: [
         {

@@ -22,8 +22,6 @@ export type GetDatasetData = (
   filters: DatasetQueryFilters,
 ) => Promise<DataMessage | null>;
 
-export type GetConversation = (conversationId: string) => Promise<Conversation>;
-
 export type CreateConversation = (
   conversation: Conversation,
   locale: string,

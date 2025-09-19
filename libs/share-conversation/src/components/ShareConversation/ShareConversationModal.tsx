@@ -1,5 +1,4 @@
 import { IconCheck, IconCopy } from '@tabler/icons-react';
-// import { useParams } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -7,6 +6,7 @@ import { ShareConversationProps } from '../../models/share-conversation';
 import {
   getConversationData,
   getConversationLink,
+  getConversationResources,
   getSharedConversation,
 } from '../../utils/shared-conversations';
 import { Button } from '@statgpt/ui-components/src/components/Button/Button';
@@ -30,6 +30,7 @@ const ShareConversationModal: FC<Props> = ({
   locale,
   onCloseModal,
   modalDividers,
+  getConversation,
   generateConversationLink,
   chatExpiration,
   chatExpirationDays,
@@ -44,9 +45,8 @@ const ShareConversationModal: FC<Props> = ({
   getSharedConversations,
   revokeSharedConversations,
   baseUrl,
+  id,
 }) => {
-  // const { id }: { id: string[] } = useParams();
-
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
   const [sharedConversation, setSharedConversation] =
     useState<SharedConversationInfo>();
@@ -63,8 +63,17 @@ const ShareConversationModal: FC<Props> = ({
   useEffect(() => {
     const generateShareConversationLink = async () => {
       try {
+        const conversationKey = conversation
+          ? decodeURI(conversation?.id)
+          : decodeURI(`${id?.[0]}/${locale}/${id?.[1]}`);
+        const conversationDetails = await getConversation?.(
+          decodeURI(conversationKey),
+        );
         const generatedLinkResponse = await generateConversationLink?.(
-          getConversationData(decodeURI(conversation?.id as any)),
+          getConversationData(
+            conversationKey,
+            getConversationResources(conversationDetails),
+          ),
         );
         const sharedConversationsData = await getSharedConversations?.(
           getSharedConversationsRequest(ShareTarget.OTHERS),
@@ -87,7 +96,14 @@ const ShareConversationModal: FC<Props> = ({
     };
 
     generateShareConversationLink();
-  }, [conversation, generateConversationLink, getSharedConversations, locale]);
+  }, [
+    conversation,
+    generateConversationLink,
+    getConversation,
+    getSharedConversations,
+    id,
+    locale,
+  ]);
 
   const onClose = useCallback((): void => {
     onCloseModal();

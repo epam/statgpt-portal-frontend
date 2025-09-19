@@ -1,6 +1,6 @@
 {
   "name": "@dev-statgpt/conversation-list",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "MIT",
   "dependencies": {
     "@tabler/icons-react": "^3.34.1",

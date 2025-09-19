@@ -21,7 +21,6 @@ import {
   useMemo,
   useState,
 } from 'react';
-// import { useRouter } from 'next/navigation';
 import { IconCopy } from '@tabler/icons-react';
 
 import ChatMessages from '../ChatMessages/ChatMessages';
@@ -70,6 +69,7 @@ interface Props {
   token?: string | null;
   setConversation: Dispatch<SetStateAction<Conversation | null>>;
   setConversations: (conversations: ConversationInfo[]) => void;
+  openUrl: (url: string) => void;
 }
 
 export const ConversationView: FC<Props> = ({
@@ -90,8 +90,8 @@ export const ConversationView: FC<Props> = ({
   titles,
   setConversation,
   setConversations,
+  openUrl,
 }) => {
-  // const router = useRouter();
   const [conversationSignal, setConversationSignal] =
     useState<AbortController | null>(null);
   const [isReadonlyConversation, setIsReadonlyConversation] = useState(false);
@@ -112,18 +112,24 @@ export const ConversationView: FC<Props> = ({
 
       const conversationsData = await actions.getConversations(locale);
       setConversations(cleanConversationNames(conversationsData));
-
-      // router.push(
-      //   getRedirectConversationPath(
-      //     newConversation,
-      //     locale,
-      //     conversationsRoute,
-      //   ),
-      // );
+      openUrl(
+        getRedirectConversationPath(
+          newConversation,
+          locale,
+          conversationsRoute,
+        ),
+      );
     } catch (err) {
       console.error('Failed to save conversation:', err);
     }
-  }, [actions, conversation, locale, setConversations]);
+  }, [
+    actions,
+    conversation,
+    conversationsRoute,
+    locale,
+    openUrl,
+    setConversations,
+  ]);
 
   const saveConversation = useCallback(
     async (updatedConversation: Conversation) => {
