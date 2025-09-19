@@ -6,7 +6,7 @@
  * role assignments, and error message handling during real-time chat.
  */
 import { Role, Stage } from '@epam/ai-dial-shared';
-import { Message } from '@statgpt/dial-toolkit/src/models/message';
+import { Message } from '../models/message';
 
 const mergeStages = (sourceStages: Stage[], newStages: Stage[]) => {
   const sourceStagesReducer = sourceStages?.reduce(

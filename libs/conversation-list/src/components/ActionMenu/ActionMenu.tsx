@@ -1,19 +1,20 @@
+/* eslint-disable @nx/enforce-module-boundaries */
 'use client';
 
 import { IconDotsVertical } from '@tabler/icons-react';
 import { FC, ReactNode, useCallback, useMemo, useState } from 'react';
 import { ConversationInfo, Conversation } from '@epam/ai-dial-shared';
 
-import ConversationDelete from '@statgpt/conversation-list/src/components/ConversationDelete/ConversationDelete';
-import { getZippedFile } from '@statgpt/conversation-list/src/utils/compress-zip';
-import { triggerDownload } from '@statgpt/conversation-list/src/utils/download';
-import ShareConversationModal from '@statgpt/conversation-view/src/components/ShareConversation/ShareConversationModal';
-import { ShareConversationProps } from '@statgpt/conversation-view/src/models/share-conversation';
-import { ConversationStyles } from '@statgpt/conversation-list/src/models/conversation-list';
+import ConversationDelete from '../ConversationDelete/ConversationDelete';
+import { getZippedFile } from '../../utils/compress-zip';
+import { triggerDownload } from '../../utils/download';
+import ShareConversationModal from '@statgpt/share-conversation/src/components/ShareConversation/ShareConversationModal';
+import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
+import { ConversationStyles } from '../../models/conversation-list';
 import { Dropdown } from '@statgpt/ui-components/src/components/Dropdown/Dropdown';
 import { DropdownItem } from '@statgpt/ui-components/src/models/dropdown-item';
 import { PopUpState } from '@statgpt/ui-components/src/types/pop-up';
-import { ActionMenuItem } from '@statgpt/conversation-list/src/types/action-menu-item';
+import { ActionMenuItem } from '../../types/action-menu-item';
 
 interface Props {
   conversation: ConversationInfo;
@@ -26,7 +27,7 @@ interface Props {
   locale: string;
 }
 
-const ActionMenu: FC<Props> = ({
+export const ActionMenu: FC<Props> = ({
   conversation,
   conversationStyles,
   shareConversationProps,
@@ -146,5 +147,3 @@ const ActionTrigger: FC = () => {
     </div>
   );
 };
-
-export default ActionMenu;

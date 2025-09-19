@@ -1,9 +1,9 @@
-import { ShareConversationProps } from '@statgpt/conversation-view/src/models/share-conversation';
-import { PopUpState } from '@statgpt/ui-components/src/types/pop-up';
+import { ShareConversationProps } from '../../models/share-conversation';
 import { FC, useCallback, useState } from 'react';
 import ShareConversationModal from './ShareConversationModal';
 import { ConversationInfo } from '@epam/ai-dial-shared';
 import { Button } from '@statgpt/ui-components/src/components/Button/Button';
+import { PopUpState } from '@statgpt/ui-components/src/types/pop-up';
 
 interface Props extends ShareConversationProps {
   conversation?: ConversationInfo | null;

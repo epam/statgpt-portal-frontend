@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Radio } from '@statgpt/ui-components/src/components/Radio/Radio';
 import { IconCircleFilled } from '@tabler/icons-react';
 import { CollapsibleBlock } from '@statgpt/ui-components/src/components/CollapsibleBlock/CollapsibleBlock';
-import { DownloadSettingItem } from '@statgpt/download-panel/src/models/download-settings-item';
+import { DownloadSettingItem } from '../../models/download-settings-item';
 
 interface Props {
   title: string;

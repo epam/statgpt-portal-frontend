@@ -1,3 +1,5 @@
+'use client';
+
 import { FC, useCallback, useEffect, useState } from 'react';
 import { IconSearch } from '@tabler/icons-react';
 import { InputWithIcon } from '@statgpt/ui-components/src/components/Input/InputWithIcon';
@@ -6,18 +8,16 @@ import {
   FilterTreeNodeProps,
   FilterValue,
   FilterValuesProps,
-} from '@statgpt/conversation-view/src/models/filters';
-import {
-  TimeRange,
-  TimeRangeOptions,
-} from '@statgpt/shared-toolkit/src/models/time-range';
+} from '../../../../../models/filters';
+import { TimeRangeOptions } from '@statgpt/shared-toolkit/src/models/time-range';
+import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
 import TimePeriodFacet from './TimePeriodFacet';
 import { CalendarResolution } from '@statgpt/shared-toolkit/src/types/calendar';
 import FilterValues from './FilterValues';
-import { FilterDisplayMode } from '@statgpt/conversation-view/src/constants/filter-display-mode';
-import { getFilteredItemsWithParents } from '@statgpt/shared-toolkit/src/utils/get-filtered-items';
+import { FilterDisplayMode } from '../../../../../constants/filter-display-mode';
+import { getFilteredItemsWithParents } from '@statgpt/sdmx-toolkit/src/utils/get-filtered-items';
 import classNames from 'classnames';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ConversationViewTitles } from '../../../../../models/titles';
 
 interface Props {
   selectedFilter?: Filter;

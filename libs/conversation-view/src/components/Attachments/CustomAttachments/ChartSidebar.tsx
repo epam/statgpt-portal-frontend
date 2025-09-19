@@ -1,7 +1,7 @@
 'use client';
 
 import { FC } from 'react';
-import { DimensionInfo } from '@statgpt/conversation-view/src/models/charting';
+import { DimensionInfo } from '../../../models/charting';
 
 interface Props {
   dimensionsInfo: DimensionInfo[];

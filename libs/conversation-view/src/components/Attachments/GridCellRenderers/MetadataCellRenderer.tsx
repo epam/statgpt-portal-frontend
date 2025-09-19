@@ -2,9 +2,9 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { ICellRendererParams } from 'ag-grid-community';
-import MetadataIcon from '@statgpt/conversation-view/src/assets/icons/metadata.svg';
+import MetadataIcon from '../../../assets/icons/metadata.svg';
 import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
-import Metadata from '@statgpt/conversation-view/src/components/AdvancedView/Metadata/Metadata';
+import Metadata from '../../AdvancedView/Metadata/Metadata';
 import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
 import { Data } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
 import { getStructureComponentsMap } from '@statgpt/sdmx-toolkit/src/utils/get-structure-components';
@@ -14,12 +14,12 @@ import {
   getDimensionsFromParams,
   getMetadataDescriptionItems,
   getStructureComponentsValues,
-} from '@statgpt/conversation-view/src/utils/attachments/metadata';
-import { MetadataSettings } from '@statgpt/conversation-view/src/models/metadata';
+} from '../../../utils/attachments/metadata';
+import { MetadataSettings } from '../../../models/metadata';
 import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
 import { TimeSeries } from '@statgpt/sdmx-toolkit/src/models/data/time-series';
-import { getDimensionGroupAttributes } from '@statgpt/conversation-view/src/utils/attachments/group-attributes';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { getDimensionGroupAttributes } from '../../../utils/attachments/group-attributes';
+import { ConversationViewTitles } from '../../../models/titles';
 
 interface MetadataCellRendererParams extends ICellRendererParams {
   attributesData: Data;

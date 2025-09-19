@@ -7,7 +7,7 @@ import {
   useHover,
   useInteractions,
 } from '@floating-ui/react';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ConversationViewTitles } from '../../../models/titles';
 
 interface Props {
   limitAmount: number;

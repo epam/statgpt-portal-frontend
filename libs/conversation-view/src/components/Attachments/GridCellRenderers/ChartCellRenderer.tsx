@@ -1,13 +1,13 @@
-import SingleLineChart from '@statgpt/conversation-view/src/components/Attachments/SingleLineChart';
-import { MetadataSettings } from '@statgpt/conversation-view/src/models/metadata';
+import SingleLineChart from '../SingleLineChart';
+import { MetadataSettings } from '../../../models/metadata';
 import { Data } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
 import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
 import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
-import ChartIcon from '@statgpt/conversation-view/src/assets/icons/chart.svg';
+import ChartIcon from '../../../assets/icons/chart.svg';
 import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
 import { ICellRendererParams } from 'ag-grid-community';
 import { useCallback, useState } from 'react';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ConversationViewTitles } from '../../../models/titles';
 
 interface ChartCellRendererParams extends ICellRendererParams {
   attributesData: Data;

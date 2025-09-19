@@ -1,4 +1,4 @@
-import { MessageStreamResponse } from '@statgpt/dial-toolkit/src/models/chat-stream';
+import { MessageStreamResponse } from '../models/chat-stream';
 
 const extractTokenFromResponse = (
   data: MessageStreamResponse,

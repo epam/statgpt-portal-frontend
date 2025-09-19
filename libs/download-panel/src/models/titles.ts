@@ -1,9 +1,6 @@
 export interface DownloadTitles {
   partialDataset: string;
   fullDataset: string;
-  downloadSuccess: string;
-  downloadError: string;
-  downloadPrepare: string;
   download: string;
   includeMetadata: string;
   metadata: string;

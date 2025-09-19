@@ -1,11 +1,8 @@
 import { ConversationInfo } from '@epam/ai-dial-shared';
-import { Message } from '@statgpt/dial-toolkit/src/models/message';
-import { ModelInfo } from '@statgpt/dial-toolkit/src/models/model';
-import { InvitationType } from '@statgpt/dial-toolkit/src/types/invitation-type';
-import {
-  ResourceTypes,
-  ShareTarget,
-} from '@statgpt/dial-toolkit/src/constants/share-conversation';
+import { Message } from './message';
+import { ModelInfo } from './model';
+import { InvitationType } from '../types/invitation-type';
+import { ResourceTypes, ShareTarget } from '../constants/share-conversation';
 
 export interface CreateConversationRequest {
   name: string;
@@ -54,6 +51,7 @@ export interface SharedConversationsRequest {
 export interface SharedConversationInfo extends ConversationInfo {
   bucket: string;
   url: string;
+  parentPath?: string;
 }
 
 export interface SharedConversations {

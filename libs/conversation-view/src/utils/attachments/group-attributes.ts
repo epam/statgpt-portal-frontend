@@ -9,7 +9,7 @@ import { Codelist } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/c
 import { ElementBase } from '@statgpt/sdmx-toolkit/src/models/structural-metadata-base';
 import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
 import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
-import { StructureComponentValue } from '@statgpt/conversation-view/src/models/structure-component';
+import { StructureComponentValue } from '../../models/structure-component';
 
 const getDimensionsSeriesById = (
   data: Data,

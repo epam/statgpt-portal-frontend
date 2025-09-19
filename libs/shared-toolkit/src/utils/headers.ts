@@ -3,8 +3,8 @@ import {
   API_KEY_HEADER,
   X_CONVERSATION_ID_HEADER,
   CONTENT_TYPE_HEADER,
-} from '@statgpt/shared-toolkit/src/constants/headers';
-import { ApiHeaders } from '@statgpt/shared-toolkit/src/models/api';
+} from '../constants/headers';
+import { ApiHeaders } from '../models/api';
 
 export const getHeaders = (
   apiKey?: string,

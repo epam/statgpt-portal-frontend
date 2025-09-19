@@ -1,4 +1,4 @@
-import { Annotations } from '@statgpt/sdmx-toolkit/src/types/annotations';
+import { Annotations } from '../../types/annotations';
 import { getLastUpdatedTime } from '../annotations';
 
 describe('getLastUpdatedTime', () => {

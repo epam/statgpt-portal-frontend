@@ -1,7 +1,0 @@
-@layer components {
-  .two-lines {
-    @apply block first-line:overflow-hidden text-ellipsis;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-  }
-}

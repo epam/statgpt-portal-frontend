@@ -1,3 +1,4 @@
+/* eslint-disable @nx/enforce-module-boundaries */
 'use client';
 
 import { FC, useEffect, useRef } from 'react';
@@ -6,10 +7,10 @@ import { ConversationInfo } from '@epam/ai-dial-shared';
 import {
   ConversationListActions,
   ConversationStyles,
-} from '@statgpt/conversation-list/src/models/conversation-list';
+} from '../../models/conversation-list';
 import { HighlightText } from '@statgpt/ui-components/src/components/HighlightText/HighlightText';
-import ActionMenu from '@statgpt/conversation-list/src/components/ActionMenu/ActionMenu';
-import { ShareConversationProps } from '@statgpt/conversation-view/src/models/share-conversation';
+import { ActionMenu } from '../ActionMenu/ActionMenu';
+import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { getClearedConversationName } from '@statgpt/shared-toolkit/src/utils/conversation-name';
 
 interface Props {

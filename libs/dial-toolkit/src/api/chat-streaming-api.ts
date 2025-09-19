@@ -5,15 +5,15 @@
  * with support for multiple message formats (OpenAI delta, direct content),
  * error handling, and streaming lifecycle management.
  */
-import { Message } from '@statgpt/dial-toolkit/src/models/message';
+import { Message } from '../models/message';
 import { API_ROUTES } from '@statgpt/shared-toolkit/src/constants/api-urls';
 import {
   MessageStreamResponse,
   RequestStreamBody,
-} from '@statgpt/dial-toolkit/src/models/chat-stream';
-import { ModelInfo } from '@statgpt/dial-toolkit/src/models/model';
-import { handleStreamMessage } from '@statgpt/dial-toolkit/src/utils/chat-stream-api';
-import { sendRequest } from '@statgpt/dial-toolkit/src/utils/send-request';
+} from '../models/chat-stream';
+import { ModelInfo } from '../models/model';
+import { handleStreamMessage } from '../utils/chat-stream-api';
+import { sendRequest } from '../utils/send-request';
 import { getHeaders } from '@statgpt/shared-toolkit/src/utils/headers';
 
 interface SSEOptions {
@@ -89,7 +89,6 @@ export class ChatStreamSSEClient {
     let buffer = '';
 
     try {
-      // eslint-disable-next-line no-constant-condition
       while (true) {
         const { done, value } = await reader.read();
 

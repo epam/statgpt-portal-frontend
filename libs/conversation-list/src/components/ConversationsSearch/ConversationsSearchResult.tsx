@@ -1,16 +1,17 @@
+/* eslint-disable @nx/enforce-module-boundaries */
 'use client';
 
 import { ConversationInfo } from '@epam/ai-dial-shared';
 import { FC, useEffect, useState } from 'react';
 
-import ConversationItem from '@statgpt/conversation-list/src/components/ConversationItem/ConversationItem';
+import ConversationItem from '../ConversationItem/ConversationItem';
 import {
   ConversationListActions,
   ConversationStyles,
-} from '@statgpt/conversation-list/src/models/conversation-list';
-import { ShareConversationProps } from '@statgpt/conversation-view/src/models/share-conversation';
+} from '../../models/conversation-list';
+import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { getClearedConversationName } from '@statgpt/shared-toolkit/src/utils/conversation-name';
-import { sortConversationsByUpdatedAt } from '@statgpt/conversation-list/src/utils/conversations-grouping';
+import { sortConversationsByUpdatedAt } from '../../utils/conversations-grouping';
 
 interface Props {
   conversations: ConversationInfo[];

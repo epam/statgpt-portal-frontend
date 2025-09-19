@@ -1,12 +1,12 @@
 import {
   Concept,
   ConceptScheme,
-} from '@statgpt/sdmx-toolkit/src/models/structural-metadata/concept-scheme';
+} from '../models/structural-metadata/concept-scheme';
 import {
   getArtifactByUrnWithWildCard,
   SINGLE_WILDCARD_SYMBOL,
-} from '@statgpt/sdmx-toolkit/src/utils/wildcards';
-import { getChildParsedUrn } from '@statgpt/sdmx-toolkit/src/utils/urn';
+} from './wildcards';
+import { getChildParsedUrn } from './urn';
 
 export const getConcept = (
   conceptIdentity: string,

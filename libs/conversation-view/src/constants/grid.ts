@@ -1,9 +1,9 @@
 import { ColDef } from 'ag-grid-community';
 import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { MetadataSettings } from '@statgpt/conversation-view/src/models/metadata';
+import { MetadataSettings } from '../models/metadata';
 import { Data } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
-import ChartCellRenderer from '@statgpt/conversation-view/src/components/Attachments/GridCellRenderers/ChartCellRenderer';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import ChartCellRenderer from '../components/Attachments/GridCellRenderers/ChartCellRenderer';
+import { ConversationViewTitles } from '../models/titles';
 
 export const GRID_HEADER_HEIGHT = 32;
 export const GRID_ROW_HEIGHT = 32;

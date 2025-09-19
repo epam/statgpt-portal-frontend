@@ -13,7 +13,7 @@ export const transformMessagesForApi = (
     };
 
     if (
-      msg.role === Role.Assistant &&
+      (msg.role === Role.Assistant || msg.role === Role.System) &&
       msg.custom_content != null &&
       (msg.custom_content.state != null ||
         msg.custom_content.attachments != null ||

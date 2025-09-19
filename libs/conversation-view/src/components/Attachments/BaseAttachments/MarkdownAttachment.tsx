@@ -2,7 +2,7 @@
 
 import { Attachment } from '@epam/ai-dial-shared';
 import { FC } from 'react';
-import { prepareMarkdownContent } from '@statgpt/conversation-view/src/utils/attachments/markdown-validator';
+import { prepareMarkdownContent } from '../../../utils/attachments/markdown-validator';
 
 interface Props {
   attachment: Attachment;

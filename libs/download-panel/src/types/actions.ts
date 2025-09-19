@@ -1,4 +1,3 @@
-import { DownloadData } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
 import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
 import {
   FileColumnsAttribute,
@@ -11,5 +10,6 @@ export type DownloadDatasetAction = (
   language: string,
   attribute: FileColumnsAttribute,
   filters: DatasetQueryFilters,
+  filename: string,
   isMetadata?: boolean,
-) => Promise<DownloadData>;
+) => void;

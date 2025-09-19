@@ -1,9 +1,9 @@
 import { Attachment } from '@epam/ai-dial-shared';
-import { AttachmentsStyles } from '@statgpt/conversation-view/src/models/attachments-styles';
-import { GridData } from '@statgpt/conversation-view/src/types/data-grid/grid-data';
+import { AttachmentsStyles } from './attachments-styles';
+import { GridData } from '../types/data-grid/grid-data';
 import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
 import { ColDef } from 'ag-grid-community';
-import { ChartingData } from '@statgpt/conversation-view/src/models/charting';
+import { ChartingData } from './charting';
 import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
 
 export interface CustomGridAttachment extends Attachment {

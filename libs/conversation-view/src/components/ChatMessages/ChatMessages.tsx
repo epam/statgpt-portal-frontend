@@ -12,20 +12,23 @@ import { FC, ReactNode, useEffect, useRef } from 'react';
 import { Role } from '@epam/ai-dial-shared';
 
 import { Message as MessageType } from '@statgpt/dial-toolkit/src/models/message';
-import Message from '@statgpt/conversation-view/src/components/ChatMessages/Message/Message';
-import { MessageStyles } from '@statgpt/conversation-view/src/models/message';
-import { AttachmentsActions } from '@statgpt/conversation-view/src/models/actions';
-import { AttachmentsStyles } from '@statgpt/conversation-view/src/models/attachments-styles';
+import Message from './Message/Message';
+import { MessageStyles } from '../../models/message';
+import { AttachmentsActions } from '../../models/actions';
+import { AttachmentsStyles } from '../../models/attachments-styles';
 import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
-import { MetadataSettings } from '@statgpt/conversation-view/src/models/metadata';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { MetadataSettings } from '../../models/metadata';
+import { ConversationViewTitles } from '../../models/titles';
+import {
+  getLastMessageWithAttachmentIndex,
+  getPreviousMessageWithAttachment,
+} from '../../utils/messages';
 
 interface Props {
   messages: MessageType[];
   isStreaming?: boolean;
   actions: AttachmentsActions;
   messageStyles?: MessageStyles;
-  showAdvancedView?: boolean;
   attachmentsStyles?: AttachmentsStyles;
   formattingSettings?: FormatNumbersType;
   locale: string;
@@ -62,10 +65,14 @@ const ChatMessages: FC<Props> = ({
           <Message
             key={message.id || index}
             message={message}
+            previousMessage={getPreviousMessageWithAttachment(messages, index)}
             isStreaming={
               isStreaming &&
               index === messages.length - 1 &&
               message.role === Role.Assistant
+            }
+            showAdvancedView={
+              index === getLastMessageWithAttachmentIndex(messages)
             }
             {...props}
           />

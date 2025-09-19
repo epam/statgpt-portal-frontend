@@ -1,7 +1,4 @@
-import {
-  Series,
-  SeriesObservations,
-} from '@statgpt/sdmx-toolkit/src/types/series';
+import { Series, SeriesObservations } from '../../types/series';
 
 export interface DataSet {
   annotations?: number[];

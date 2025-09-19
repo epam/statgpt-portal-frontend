@@ -4,7 +4,7 @@ import { FC } from 'react';
 import classNames from 'classnames';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { useAdvancedView } from '@statgpt/conversation-view/src/context/AdvancedViewContext';
+import { useAdvancedView } from '../../context/AdvancedViewContext';
 
 interface Props {
   content: string;

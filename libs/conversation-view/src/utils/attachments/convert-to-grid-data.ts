@@ -4,7 +4,7 @@ import {
   RowData,
   SchemaField,
 } from '@statgpt/dial-toolkit/src/models/grid-attachment';
-import { DEFAULT_GRID_COLUMN_WITH } from '@statgpt/conversation-view/src/constants/grid';
+import { DEFAULT_GRID_COLUMN_WITH } from '../../constants/grid';
 
 const SPECIAL_COLUMNS = ['index', 'value'];
 export const convertToGridData = (

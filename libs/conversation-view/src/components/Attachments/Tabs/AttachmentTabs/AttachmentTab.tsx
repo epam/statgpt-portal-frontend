@@ -6,12 +6,12 @@ import {
   isCustomGridAttachment,
   isMarkdownAttachment,
   isUrlAttachment,
-} from '@statgpt/conversation-view/src/utils/attachments/attachment-parser';
+} from '../../../../utils/attachments/attachment-parser';
 import { Attachment } from '@epam/ai-dial-shared';
-import ChartIcon from '@statgpt/conversation-view/src/assets/icons/chart.svg';
-import CodeIcon from '@statgpt/conversation-view/src/assets/icons/code.svg';
-import ColumnsIcon from '@statgpt/conversation-view/src/assets/icons/columns.svg';
-import QueryIcon from '@statgpt/conversation-view/src/assets/icons/query.svg';
+import ChartIcon from '../../../../assets/icons/chart.svg';
+import CodeIcon from '../../../../assets/icons/code.svg';
+import ColumnsIcon from '../../../../assets/icons/columns.svg';
+import QueryIcon from '../../../../assets/icons/query.svg';
 import classNames from 'classnames';
 import { FC, ReactNode, useCallback } from 'react';
 

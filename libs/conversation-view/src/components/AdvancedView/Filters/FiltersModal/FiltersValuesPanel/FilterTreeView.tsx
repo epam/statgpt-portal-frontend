@@ -1,10 +1,12 @@
+'use client';
+
 import { FC, ReactNode, useEffect, useState } from 'react';
 import {
   FilterTreeNodeProps,
   FilterValue,
-} from '@statgpt/conversation-view/src/models/filters';
+} from '../../../../../models/filters';
 import FilterTreeNode from './FilterTreeNode';
-import { getFilterValuesTree } from '@statgpt/conversation-view/src/utils/filters';
+import { getFilterValuesTree } from '../../../../../utils/filters';
 
 interface Props {
   filterValues?: FilterValue[];

@@ -1,9 +1,9 @@
-import { ConceptScheme } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/concept-scheme';
-import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { getConcept } from '@statgpt/sdmx-toolkit/src/utils/get-concept';
-import { getKeyFromUrn } from '@statgpt/sdmx-toolkit/src/utils/urn';
-import { getArtifactByUrnWithWildCard } from '@statgpt/sdmx-toolkit/src/utils/wildcards';
-import { Codelist } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/codelist';
+import { ConceptScheme } from '../models/structural-metadata/concept-scheme';
+import { Dimension } from '../models/structural-metadata/data-structure';
+import { getConcept } from './get-concept';
+import { getKeyFromUrn } from './urn';
+import { getArtifactByUrnWithWildCard } from './wildcards';
+import { Codelist } from '../models/structural-metadata/codelist';
 
 export const findCodelistByDimension = (
   codeLists: Codelist[] = [],

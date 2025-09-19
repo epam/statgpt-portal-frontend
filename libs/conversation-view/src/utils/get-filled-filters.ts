@@ -1,4 +1,4 @@
-import { Filter } from '@statgpt/conversation-view/src/models/filters';
+import { Filter } from '../models/filters';
 import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
 import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
 import { Locale } from '@statgpt/shared-toolkit/src/types/locale';

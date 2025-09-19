@@ -1,6 +1,6 @@
 import { compare } from 'compare-versions';
-import { CommonArtefactProperty } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/common-artefact-properties';
-import { splitUrn } from '@statgpt/sdmx-toolkit/src/utils/urn';
+import { CommonArtefactProperty } from '../models/structural-metadata/common-artefact-properties';
+import { splitUrn } from './urn';
 
 export const SINGLE_WILDCARD_SYMBOL = '+';
 

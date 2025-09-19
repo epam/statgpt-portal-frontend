@@ -2,17 +2,95 @@
 @tailwind components;
 @tailwind utilities;
 
-@import 'buttons.scss';
-@import 'links.scss';
-@import 'input.scss';
-@import 'loader.scss';
-@import 'text.scss';
-@import 'calendar.scss';
-@import 'grid.scss';
+body,
+html {
+  @apply h-full w-full text-neutrals-1000 overflow-hidden;
+}
 
-@layer base {
-  body,
-  html {
-    @apply h-full w-full text-neutrals-1000 overflow-hidden;
+.base-icon-button {
+  @apply flex flex-row items-center justify-center;
+  @apply border border-solid;
+
+  &:disabled {
+    @apply pointer-events-none;
+  }
+}
+
+.base-button {
+  @apply flex flex-row items-center justify-center;
+  @apply border border-solid;
+
+  &:disabled {
+    @apply pointer-events-none;
+  }
+}
+
+.text-button-primary {
+  @apply bg-primary text-white border-primary;
+  &:hover {
+    @apply text-primary;
+  }
+}
+
+.text-button-secondary {
+  @apply bg-transparent text-primary border-primary;
+}
+
+.text-button-tertiary {
+  @apply bg-transparent text-primary border-transparent;
+}
+
+.loader {
+  animation: spin 1s infinite linear;
+
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  &::before {
+    content: '';
+    @apply block;
+  }
+}
+
+.two-lines {
+  @apply block first-line:overflow-hidden text-ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.base-link {
+  @apply text-primary;
+  &:hover {
+    @apply underline;
+  }
+}
+
+input {
+  -moz-appearance: textfield; /* Firefox */
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+.padding-0 {
+  @apply p-0 !important;
+}
+
+.flatpickr-input {
+  @apply text-neutrals-1000;
+  @apply border-b-2 border-solid border-b-primary;
+  @apply w-full h-[40px] py-[8px] px-[6px];
+
+  &:focus-visible {
+    @apply outline-none;
+  }
+
+  &:hover,
+  &:active {
+    @apply border-neutrals-1000;
   }
 }

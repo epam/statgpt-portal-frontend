@@ -12,14 +12,10 @@ import {
   getHeaders,
   sanitizeHeaders,
 } from '@statgpt/shared-toolkit/src/utils/headers';
-import { sendRequest } from '@statgpt/dial-toolkit/src/utils/send-request';
+import { sendRequest } from '../utils/send-request';
 import { ApiHeaders } from '@statgpt/shared-toolkit/src/models/api';
-import { DialApiConfig } from '@statgpt/dial-toolkit/src/models/dial-config';
-import { getErrorMessage } from '@statgpt/dial-toolkit/src/utils/get-error-message';
-import { cookies, headers } from 'next/headers';
-
-import { getUserToken } from '@statgpt/shared-toolkit/src/utils/auth/auth-request';
-import { getIsEnableAuthToggle } from '@statgpt/shared-toolkit/src/utils/auth/get-auth-toggle';
+import { DialApiConfig } from '../models/dial-config';
+import { getErrorMessage } from '../utils/get-error-message';
 
 export class DialApiClient {
   public readonly config: DialApiConfig;
@@ -34,17 +30,27 @@ export class DialApiClient {
     });
   }
 
-  async getRequest<T>(endpoint: string, options?: RequestOptions): Promise<T> {
-    return this.request(endpoint, { ...options, method: 'GET' });
+  async getRequest<T>(
+    endpoint: string,
+    token: string,
+    options?: RequestOptions,
+  ): Promise<T> {
+    return this.request(endpoint, token, { ...options, method: 'GET' });
   }
 
-  async postRequest<T>(endpoint: string, options?: RequestOptions): Promise<T> {
-    return this.request(endpoint, { ...options, method: 'POST' });
+  async postRequest<T>(
+    endpoint: string,
+    token: string,
+    options?: RequestOptions,
+  ): Promise<T> {
+    return this.request(endpoint, token, { ...options, method: 'POST' });
   }
 
-  async requestBlob(endpoint: string, options: RequestOptions): Promise<Blob> {
-    const token = await this.getToken();
-
+  async requestBlob(
+    endpoint: string,
+    token: string,
+    options: RequestOptions,
+  ): Promise<Blob> {
     const url = `${this.config.host}${endpoint}`;
     const reqHeaders = {
       ...getHeaders(this.config.apiKey, {
@@ -68,9 +74,11 @@ export class DialApiClient {
     }
   }
 
-  async request<T>(endpoint: string, options: RequestOptions): Promise<T> {
-    const token = await this.getToken();
-
+  async request<T>(
+    endpoint: string,
+    token: string,
+    options: RequestOptions,
+  ): Promise<T> {
     const startTime = Date.now();
 
     const url = `${this.config.host}${endpoint}`;
@@ -134,22 +142,11 @@ export class DialApiClient {
     }
   }
 
-  async getToken(): Promise<string | undefined> {
-    const token = await getUserToken(
-      getIsEnableAuthToggle(),
-      headers(),
-      cookies(),
-    );
-
-    return (token?.access_token as string) || void 0;
-  }
-
   async stream(
     endpoint: string,
+    token: string,
     options: RequestOptions,
   ): Promise<ReadableStream> {
-    const token = await this.getToken();
-
     const url = `${this.config.host}${endpoint}`;
     const reqHeaders = getHeaders(
       this.config.apiKey,

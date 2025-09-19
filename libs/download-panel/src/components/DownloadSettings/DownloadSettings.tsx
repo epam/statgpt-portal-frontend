@@ -3,30 +3,27 @@ import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
 import { PopUpSize } from '@statgpt/ui-components/src/types/pop-up';
 import { Button } from '@statgpt/ui-components/src/components/Button/Button';
 import { Popup } from '@statgpt/ui-components/src/components/Popup/Popup';
-import { generateDownloadedFile } from '@statgpt/download-panel/src/utils/generate-downloaded-document';
-import ToggleActiveIcon from '@statgpt/download-panel/src/assets/icons/toggle-active.svg';
-import ToggleInactiveIcon from '@statgpt/download-panel/src/assets/icons/toggle-inactive.svg';
+import ToggleActiveIcon from '../../assets/icons/toggle-active.svg';
+import ToggleInactiveIcon from '../../assets/icons/toggle-inactive.svg';
 import { CollapsibleBlock } from '@statgpt/ui-components/src/components/CollapsibleBlock/CollapsibleBlock';
 import {
   FileColumnsAttribute,
   SdmxDataFormat,
 } from '@statgpt/sdmx-toolkit/src/types/files';
-import { DownloadActions } from '@statgpt/download-panel/src/models/actions';
-import { DownloadSettingItem } from '@statgpt/download-panel/src/models/download-settings-item';
+import { DownloadActions } from '../../models/actions';
+import { DownloadSettingItem } from '../../models/download-settings-item';
 import {
   DOWNLOAD_ATTRIBUTES,
   DOWNLOAD_DATA_FORMATS,
-} from '@statgpt/download-panel/src/constants/download-options';
+} from '../../constants/download-options';
 import { DownloadType } from '@statgpt/sdmx-toolkit/src/types/files';
-import { DownloadData } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
 import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
-import DownloadOptionBlock from '@statgpt/download-panel/src/components/DownloadOptionBlock/DownloadOptionBlock';
+import DownloadOptionBlock from '../DownloadOptionBlock/DownloadOptionBlock';
 import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
 import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
-import { getDownloadFilters } from '@statgpt/download-panel/src/utils/get-filter';
+import { getDownloadFilters } from '../../utils/get-filter';
 import { AlertDetails } from '@statgpt/ui-components/src/models/alert';
-import { AlertType } from '@statgpt/ui-components/src/constants/alert';
-import { DownloadTitles } from '@statgpt/download-panel/src/models/titles';
+import { DownloadTitles } from '../../models/titles';
 
 interface Props {
   actions: DownloadActions;
@@ -56,8 +53,6 @@ const DownloadSettings: FC<Props> = ({
   filters,
   urn,
   titles,
-  setIsShowDownloadAlert,
-  setDownloadAlertDetails,
 }) => {
   const downloadAttributes = DOWNLOAD_ATTRIBUTES(titles);
 
@@ -70,7 +65,6 @@ const DownloadSettings: FC<Props> = ({
   const [isMetadata, setIsMetadata] = useState<boolean>(true);
 
   const onDownloadClick = useCallback(() => {
-    setIsShowDownloadAlert?.(true);
     const downloadFilters = getDownloadFilters(
       type,
       dataQuery,
@@ -82,39 +76,18 @@ const DownloadSettings: FC<Props> = ({
     const dataFormat = selectedDataFormat.value as SdmxDataFormat;
     const fileName = `${datasetName}.${dataFormat}`;
 
-    setDownloadAlertDetails?.({
-      type: AlertType.IN_PROGRESS,
-      title: titles?.downloadPrepare || 'Preparing file for download...',
-      text: fileName,
-    });
+    actions.downloadDataSet(
+      urnValue,
+      dataFormat,
+      locale,
+      attribute,
+      downloadFilters,
+      fileName,
+      isMetadata,
+    );
 
-    actions
-      .downloadDataSet(
-        urnValue,
-        dataFormat,
-        locale,
-        attribute,
-        downloadFilters,
-        isMetadata,
-      )
-      .then(({ data }: DownloadData) => {
-        generateDownloadedFile(data, datasetName, dataFormat);
-        setDownloadAlertDetails?.({
-          type: AlertType.SUCCESS,
-          title: titles?.downloadSuccess || 'File downloaded',
-          text: fileName,
-        });
-      })
-      .catch(() => {
-        setDownloadAlertDetails?.({
-          type: AlertType.ERROR,
-          title: titles?.downloadError || 'File download error',
-          text: fileName,
-        });
-      });
     onCloseModal();
   }, [
-    setIsShowDownloadAlert,
     type,
     dataQuery,
     dimensions,
@@ -122,8 +95,6 @@ const DownloadSettings: FC<Props> = ({
     urn,
     selectedAttribute.value,
     selectedDataFormat.value,
-    setDownloadAlertDetails,
-    titles,
     actions,
     locale,
     isMetadata,

@@ -1,7 +1,7 @@
 import {
   getTimeQueryFilter,
   getTimeSeriesFilterKey,
-} from '@statgpt/shared-toolkit/src/utils/query-filters';
+} from '@statgpt/sdmx-toolkit/src/utils/query-filters';
 import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
 import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
 import { DownloadType } from '@statgpt/sdmx-toolkit/src/types/files';

@@ -1,14 +1,14 @@
 'use client';
 
-import DatasetIcon from '@statgpt/conversation-view/src/assets/icons/dataset.svg';
-import Explore from '@statgpt/conversation-view/src/assets/icons/explore.svg';
+import DatasetIcon from '../../assets/icons/dataset.svg';
+import Explore from '../../assets/icons/explore.svg';
 import { Button } from '@statgpt/ui-components/src/components/Button/Button';
 
 import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
 import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
 import classNames from 'classnames';
 import { FC, useState } from 'react';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ConversationViewTitles } from '../../models/titles';
 interface Props {
   datasets?: Dataflow[];
   locale: string;

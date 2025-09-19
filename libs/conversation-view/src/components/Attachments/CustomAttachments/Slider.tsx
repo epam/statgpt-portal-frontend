@@ -1,7 +1,7 @@
 'use client';
 
 import { FC, ReactNode } from 'react';
-import { ChartingIcon } from '@statgpt/conversation-view/src/types/charting-icon';
+import { ChartingIcon } from '../../../types/charting-icon';
 import classNames from 'classnames';
 
 const MAX_SLIDER_WIDTH = 200;

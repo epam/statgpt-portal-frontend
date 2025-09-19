@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { GetDatasetDetails } from '@statgpt/conversation-view/src/types/actions';
+import { GetDatasetDetails } from '../types/actions';
 import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
 import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
 import { SdmxReferences } from '@statgpt/sdmx-toolkit/src/types/references';

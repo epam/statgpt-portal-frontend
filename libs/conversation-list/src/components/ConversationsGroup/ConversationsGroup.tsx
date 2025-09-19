@@ -1,3 +1,4 @@
+/* eslint-disable @nx/enforce-module-boundaries */
 'use client';
 
 import { ConversationInfo } from '@epam/ai-dial-shared';
@@ -6,14 +7,14 @@ import classNames from 'classnames';
 import {
   getLabelByGroup,
   sortConversationsByUpdatedAt,
-} from '@statgpt/conversation-list/src/utils/conversations-grouping';
-import ConversationItem from '@statgpt/conversation-list/src/components/ConversationItem/ConversationItem';
+} from '../../utils/conversations-grouping';
+import ConversationItem from '../ConversationItem/ConversationItem';
 import {
   ConversationListActions,
   ConversationStyles,
-} from '@statgpt/conversation-list/src/models/conversation-list';
+} from '../../models/conversation-list';
 import { IconCaretRightFilled } from '@tabler/icons-react';
-import { ShareConversationProps } from '@statgpt/conversation-view/src/models/share-conversation';
+import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 
 interface Props {
   groupLabel: string;

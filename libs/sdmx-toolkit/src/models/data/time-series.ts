@@ -1,4 +1,4 @@
-import { DimensionGroupAttribute } from '@statgpt/sdmx-toolkit/src/models/dimension-group';
+import { DimensionGroupAttribute } from '../dimension-group';
 
 export interface TimeSeries {
   name: string; // TODO: review/refactor - use only parsedTimeSeriesValue

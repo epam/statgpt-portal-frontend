@@ -7,7 +7,7 @@ import {
   isMonthly,
   isQuarterly,
 } from '@statgpt/sdmx-toolkit/src/parsers/time-period-parser/define-period';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ConversationViewTitles } from '../../models/titles';
 
 export const getPickerOptions = (
   minDate: Date,

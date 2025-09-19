@@ -4,23 +4,23 @@ import {
   getDimensions,
   getTimePeriods,
 } from '@statgpt/sdmx-toolkit/src/utils/get-dimensions';
-import { getRowsData } from '@statgpt/conversation-view/src/utils/attachments/data-grid/rows-data';
+import { getRowsData } from '../data-grid/rows-data';
 import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
-import { ChartingStyles } from '@statgpt/conversation-view/src/models/attachments-styles';
-import { GridData } from '@statgpt/conversation-view/src/types/data-grid/grid-data';
-import { buildChartConfig } from '@statgpt/conversation-view/src/utils/attachments/charting/chart-config-building';
+import { ChartingStyles } from '../../../models/attachments-styles';
+import { GridData } from '../../../types/data-grid/grid-data';
+import { buildChartConfig } from './chart-config-building';
 import {
   ChartingData,
   ChartUnit,
   ChartUnitRows,
   DimensionInfo,
-} from '@statgpt/conversation-view/src/models/charting';
-import { buildSerieKeyTitle } from '@statgpt/conversation-view/src/utils/attachments/charting/serie-title';
-import { buildSortedNonRegionDimensionsList } from '@statgpt/conversation-view/src/utils/attachments/charting/sort-dimensions';
-import { splitForUnits } from '@statgpt/conversation-view/src/utils/attachments/charting/split-for-units';
-import { getDimensionsUniquenessByValues } from '@statgpt/conversation-view/src/utils/attachments/charting/data-uniqueness';
+} from '../../../models/charting';
+import { buildSerieKeyTitle } from './serie-title';
+import { buildSortedNonRegionDimensionsList } from './sort-dimensions';
+import { splitForUnits } from './split-for-units';
+import { getDimensionsUniquenessByValues } from './data-uniqueness';
 import { sortPeriods } from '@statgpt/sdmx-toolkit/src/parsers/time-period-parser/period-sorting';
-import { getDimRelatedStructures } from '@statgpt/conversation-view/src/utils/attachments/localized-value';
+import { getDimRelatedStructures } from '../localized-value';
 import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
 import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
 import { FREQUENCY_DIMENSION_ID } from '@statgpt/sdmx-toolkit/src/constants/frequency-dimension';
@@ -150,11 +150,11 @@ function buildChartSeries(
   return rows.map((row) => {
     return {
       name:
-        dataQuery?.metadata.countryDimension == null
+        dataQuery?.metadata?.countryDimension == null
           ? ''
           : buildSerieKeyTitle(
               row,
-              [dataQuery?.metadata.countryDimension],
+              [dataQuery?.metadata?.countryDimension],
               structures,
               locale,
             ),

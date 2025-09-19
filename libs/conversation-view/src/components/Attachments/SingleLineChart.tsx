@@ -3,10 +3,10 @@
 import { FC, useCallback, useEffect, useState } from 'react';
 import { PopUpSize, PopUpState } from '@statgpt/ui-components/src/types/pop-up';
 import { Popup } from '@statgpt/ui-components/src/components/Popup/Popup';
-import { ChartUnit } from '@statgpt/conversation-view/src/models/charting';
+import { ChartUnit } from '../../models/charting';
 import ReactECharts from 'echarts-for-react';
-import ChartSidebar from '@statgpt/conversation-view/src/components/Attachments/CustomAttachments/ChartSidebar';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import ChartSidebar from './CustomAttachments/ChartSidebar';
+import { ConversationViewTitles } from '../../models/titles';
 
 interface Props {
   chart: ChartUnit;

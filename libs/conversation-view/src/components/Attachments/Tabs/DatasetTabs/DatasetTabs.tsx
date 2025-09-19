@@ -8,6 +8,7 @@ import { generateShortUrn } from '@statgpt/sdmx-toolkit/src/utils/urn';
 import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
 import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
 import DatasetTab from './DatasetTab';
+import { useAdvancedView } from '../../../../context/AdvancedViewContext';
 
 interface Props {
   datasets?: Dataflow[];
@@ -26,6 +27,7 @@ const DatasetTabs: FC<Props> = ({
   selectDataset,
   onOpenAdvancedView,
 }) => {
+  const { isOpenedAdvancedView } = useAdvancedView();
   const [selectedDatasetId, setSelectedDatasetId] = useState<string>();
 
   useEffect(() => {
@@ -62,7 +64,9 @@ const DatasetTabs: FC<Props> = ({
     <div
       className={classNames(
         'dataset-tabs flex justify-between items-center w-full',
-        isHideAdvancedViewButton && 'hide-advance-button',
+        isHideAdvancedViewButton &&
+          isOpenedAdvancedView &&
+          'hide-advance-button',
       )}
     >
       <div className="flex items-center w-full flex-wrap gap-4 sm:w-[calc(100%-30px)]">

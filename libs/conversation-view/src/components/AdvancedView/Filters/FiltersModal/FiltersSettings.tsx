@@ -1,18 +1,18 @@
+'use client';
+
 import { FC, useCallback } from 'react';
 import {
   Filter,
   FiltersModalProps,
   FilterTreeNodeProps,
-} from '@statgpt/conversation-view/src/models/filters';
+} from '../../../../models/filters';
 import FiltersFacetsList from './FiltersFacets/FiltersFacetsList';
 import FiltersValuesPanel from './FiltersValuesPanel/FiltersValuesPanel';
-import {
-  TimeRange,
-  TimeRangeOptions,
-} from '@statgpt/shared-toolkit/src/models/time-range';
+import { TimeRangeOptions } from '@statgpt/shared-toolkit/src/models/time-range';
+import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
 import classNames from 'classnames';
 import { useIsMobile } from '@statgpt/ui-components/src/hooks/isMobile';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ConversationViewTitles } from '../../../../models/titles';
 
 interface Props {
   filtersList: Filter[];

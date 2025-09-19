@@ -1,16 +1,16 @@
+'use client';
+
 import { FC } from 'react';
 import {
   Filter,
   FilterTreeNodeProps,
   FilterValuesProps,
-} from '@statgpt/conversation-view/src/models/filters';
+} from '../../../../../models/filters';
 import FiltersFacetItem from './FiltersFacetItem';
 import classNames from 'classnames';
-import {
-  TimeRange,
-  TimeRangeOptions,
-} from '@statgpt/shared-toolkit/src/models/time-range';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { TimeRangeOptions } from '@statgpt/shared-toolkit/src/models/time-range';
+import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
+import { ConversationViewTitles } from '../../../../../models/titles';
 
 interface Props {
   filtersList: Filter[];

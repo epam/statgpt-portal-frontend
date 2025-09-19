@@ -1,8 +1,5 @@
-import {
-  DimensionValue,
-  StructureAttribute,
-} from '@statgpt/sdmx-toolkit/src/models/data/structure';
-import { AttributeIndexValue } from '@statgpt/sdmx-toolkit/src/types/attribute-index-value';
+import { DimensionValue, StructureAttribute } from '../models/data/structure';
+import { AttributeIndexValue } from '../types/attribute-index-value';
 
 export const getAttributeValueFromDataQueryResponse = (
   attribute: StructureAttribute,

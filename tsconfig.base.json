@@ -35,6 +35,7 @@
       "@statgpt/download-panel/*": ["libs/download-panel/*"],
       "@statgpt/sdmx-toolkit/*": ["libs/sdmx-toolkit/*"],
       "@statgpt/shared-toolkit/*": ["libs/shared-toolkit/*"],
+      "@statgpt/share-conversation/*": ["libs/share-conversation/*"],
       "@statgpt/ui-components/*": ["libs/ui-components/*"]
     }
   },

@@ -20,7 +20,7 @@ export function isUrlAttachment(attachment: Attachment): boolean {
 
 export function isJsonAttachment(attachment: Attachment): boolean {
   return (
-    attachment.type === AttachmentType.MARKDOWN &&
+    attachment.type === AttachmentType.JSON &&
     attachment.title != null &&
     attachment.title?.startsWith('Query (JSON)')
   );

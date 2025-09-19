@@ -15,8 +15,8 @@ import {
   ReactNode,
   useCallback,
 } from 'react';
-import { PopUpSize, PopUpState } from '@statgpt/ui-components/src/types/pop-up';
-import { CloseButton } from '@statgpt/ui-components/src/components/CloseButton/CloseButton';
+import { PopUpSize, PopUpState } from '../../types/pop-up';
+import { CloseButton } from '../CloseButton/CloseButton';
 
 interface Props extends FormHTMLAttributes<HTMLFormElement> {
   heading?: string | ReactNode;

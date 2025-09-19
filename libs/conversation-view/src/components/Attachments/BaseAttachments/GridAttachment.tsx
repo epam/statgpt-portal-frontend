@@ -3,16 +3,13 @@
 import { Attachment } from '@epam/ai-dial-shared';
 import { FC, useEffect, useMemo, useState } from 'react';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
-import { convertToGridData } from '@statgpt/conversation-view/src/utils/attachments/convert-to-grid-data';
+import { convertToGridData } from '../../../utils/attachments/convert-to-grid-data';
 import type { ColDef } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
-import { AttachmentsActions } from '@statgpt/conversation-view/src/models/actions';
-import { GridData } from '@statgpt/conversation-view/src/types/data-grid/grid-data';
-import {
-  GRID_HEADER_HEIGHT,
-  GRID_ROW_HEIGHT,
-} from '@statgpt/conversation-view/src/constants/grid';
-import { getGridHeight } from '@statgpt/conversation-view/src/utils/attachments/data-grid/grid-height';
+import { AttachmentsActions } from '../../../models/actions';
+import { GridData } from '../../../types/data-grid/grid-data';
+import { GRID_HEADER_HEIGHT, GRID_ROW_HEIGHT } from '../../../constants/grid';
+import { getGridHeight } from '../../../utils/attachments/data-grid/grid-height';
 
 interface Props {
   attachment: Attachment;

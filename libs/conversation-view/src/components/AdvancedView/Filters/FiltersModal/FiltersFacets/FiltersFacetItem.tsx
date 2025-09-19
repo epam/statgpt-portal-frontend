@@ -1,28 +1,28 @@
+'use client';
+
 import { FC, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useIsMobile } from '@statgpt/ui-components/src/hooks/isMobile';
-import ChevronSolidDownIcon from '@statgpt/conversation-view/src/assets/icons/chevron-solid-down.svg';
+import ChevronSolidDownIcon from '../../../../../assets/icons/chevron-solid-down.svg';
 
 import {
   Filter,
   FilterTreeNodeProps,
   FilterValuesProps,
-} from '@statgpt/conversation-view/src/models/filters';
+} from '../../../../../models/filters';
 import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
-import ClearIcon from '@statgpt/conversation-view/src/assets/icons/clear.svg';
-import SettingsListIcon from '@statgpt/conversation-view/src/assets/icons/settings-list.svg';
-import { getDateString } from '@statgpt/conversation-view/src/utils/attachments/time-period';
+import ClearIcon from '../../../../../assets/icons/clear.svg';
+import SettingsListIcon from '../../../../../assets/icons/settings-list.svg';
+import { getDateString } from '../../../../../utils/attachments/time-period';
 import {
   getFilterDisplaySettings,
   getSelectedDimensionValues,
-} from '@statgpt/conversation-view/src/utils/filters';
+} from '../../../../../utils/filters';
 import { Dropdown } from '@statgpt/ui-components/src/components/Dropdown/Dropdown';
-import {
-  TimeRange,
-  TimeRangeOptions,
-} from '@statgpt/shared-toolkit/src/models/time-range';
+import { TimeRangeOptions } from '@statgpt/shared-toolkit/src/models/time-range';
+import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
 import FiltersValuesPanel from '../FiltersValuesPanel/FiltersValuesPanel';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ConversationViewTitles } from '../../../../../models/titles';
 
 interface Props {
   filter: Filter;

@@ -1,18 +1,18 @@
 import { DataMessage } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
 import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
 import { getParsedResponse } from '@statgpt/sdmx-toolkit/src/parsers/request-parser/data-response-parser';
-import { getConvertedData } from '@statgpt/conversation-view/src/utils/attachments/data-grid/get-converted-data';
+import { getConvertedData } from './get-converted-data';
 import { TimeSeries } from '@statgpt/sdmx-toolkit/src/models/data/time-series';
-import { GridData } from '@statgpt/conversation-view/src/types/data-grid/grid-data';
+import { GridData } from '../../../types/data-grid/grid-data';
 import {
   getDimensions,
   getTimePeriods,
 } from '@statgpt/sdmx-toolkit/src/utils/get-dimensions';
 import { sortPeriods } from '@statgpt/sdmx-toolkit/src/parsers/time-period-parser/period-sorting';
-import { buildSingleLineUnit } from '@statgpt/conversation-view/src/utils/attachments/charting/chart-data';
+import { buildSingleLineUnit } from '../charting/chart-data';
 import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
-import { ChartingStyles } from '@statgpt/conversation-view/src/models/attachments-styles';
-import { CHART_COLUMN_ID } from '@statgpt/conversation-view/src/constants/grid';
+import { ChartingStyles } from '../../../models/attachments-styles';
+import { CHART_COLUMN_ID } from '../../../constants/grid';
 
 export function getRowsData(
   data: DataMessage,

@@ -3,7 +3,17 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/download-panel/src",
   "projectType": "library",
-  "tags": ["scope:shared", "type:ui"],
-  "// targets": "to see all targets run: nx show project download --web",
-  "targets": {}
+  "tags": [],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/download-panel/**/*.{ts,tsx,js,jsx}",
+          "libs/download-panel/package.json"
+        ]
+      }
+    }
+  }
 }

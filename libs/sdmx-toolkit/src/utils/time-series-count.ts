@@ -1,5 +1,5 @@
-import { Annotation } from '@statgpt/sdmx-toolkit/src/models/structural-metadata-base';
-import { Annotations } from '@statgpt/sdmx-toolkit/src/types/annotations';
+import { Annotation } from '../models/structural-metadata-base';
+import { Annotations } from '../types/annotations';
 
 export const getTimeSeriesCount = (
   annotations: Annotation[] | undefined,

@@ -1,4 +1,4 @@
-import { DownloadDatasetAction } from '@statgpt/download-panel/src/types/actions';
+import { DownloadDatasetAction } from '../types/actions';
 
 export interface DownloadActions {
   downloadDataSet: DownloadDatasetAction;

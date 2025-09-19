@@ -1,4 +1,4 @@
-import { CommonArtefactProperty } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/common-artefact-properties';
+import { CommonArtefactProperty } from '../models/structural-metadata/common-artefact-properties';
 
 export const getLocalizedName = <T extends CommonArtefactProperty>(
   item: T | undefined | null,

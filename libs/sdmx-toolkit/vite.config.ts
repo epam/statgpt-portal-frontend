@@ -39,7 +39,9 @@ export default defineConfig({
     lib: {
       entry: 'src/index.ts',
       name: 'sdmx-toolkit',
-      fileName: 'index',
+      fileName: (format) => {
+        return format === 'es' ? 'index.mjs' : 'index.cjs';
+      },
       // Change this to the formats you want to support.
       // Don't forget to update your package.json as well.
       formats: ['es', 'cjs'],

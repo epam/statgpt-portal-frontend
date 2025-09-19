@@ -1,7 +1,7 @@
-import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { StructureItemBase } from '@statgpt/sdmx-toolkit/src/models/data/structure';
-import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
-import { Codelist } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/codelist';
+import { Dimension } from '../models/structural-metadata/data-structure';
+import { StructureItemBase } from '../models/data/structure';
+import { getLocalizedName } from './get-localized-name';
+import { Codelist } from '../models/structural-metadata/codelist';
 
 export const getAvailableCodes = (
   dimension?: Dimension,

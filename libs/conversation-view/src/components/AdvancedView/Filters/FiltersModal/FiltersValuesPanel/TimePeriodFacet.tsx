@@ -1,19 +1,19 @@
+'use client';
+
 import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import { CalendarResolution } from '@statgpt/shared-toolkit/src/types/calendar';
-import {
-  TimeRange,
-  TimeRangeOptions,
-} from '@statgpt/shared-toolkit/src/models/time-range';
+import { TimeRangeOptions } from '@statgpt/shared-toolkit/src/models/time-range';
+import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
 import {
   correctTimeZone,
   getPickerOptions,
   getRangedTimePeriod,
-} from '@statgpt/conversation-view/src/utils/attachments/time-period';
+} from '../../../../../utils/attachments/time-period';
 import { Calendar } from '@statgpt/ui-components/src/components/Calendar/Calendar';
 import { Radio } from '@statgpt/ui-components/src/components/Radio/Radio';
 import { CUSTOM_PERIOD } from '@statgpt/shared-toolkit/src/constants/calendar';
 import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ConversationViewTitles } from '../../../../../models/titles';
 
 interface Props {
   initialTimeRange: TimeRange;

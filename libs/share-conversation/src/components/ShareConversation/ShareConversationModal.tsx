@@ -1,14 +1,14 @@
 import { IconCheck, IconCopy } from '@tabler/icons-react';
-import { useParams } from 'next/navigation';
+// import { useParams } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { ShareConversationProps } from '@statgpt/conversation-view/src/models/share-conversation';
+import { ShareConversationProps } from '../../models/share-conversation';
 import {
   getConversationData,
   getConversationLink,
   getSharedConversation,
-} from '@statgpt/conversation-view/src/utils/share-conversation';
+} from '../../utils/shared-conversations';
 import { Button } from '@statgpt/ui-components/src/components/Button/Button';
 import { InputWithIcon } from '@statgpt/ui-components/src/components/Input/InputWithIcon';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
@@ -45,7 +45,7 @@ const ShareConversationModal: FC<Props> = ({
   revokeSharedConversations,
   baseUrl,
 }) => {
-  const { id }: { id: string[] } = useParams();
+  // const { id }: { id: string[] } = useParams();
 
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
   const [sharedConversation, setSharedConversation] =
@@ -64,11 +64,7 @@ const ShareConversationModal: FC<Props> = ({
     const generateShareConversationLink = async () => {
       try {
         const generatedLinkResponse = await generateConversationLink?.(
-          getConversationData(
-            conversation
-              ? decodeURI(conversation?.id)
-              : decodeURI(`${id?.[0]}/${locale}/${id?.[1]}`),
-          ),
+          getConversationData(decodeURI(conversation?.id as any)),
         );
         const sharedConversationsData = await getSharedConversations?.(
           getSharedConversationsRequest(ShareTarget.OTHERS),
@@ -91,13 +87,7 @@ const ShareConversationModal: FC<Props> = ({
     };
 
     generateShareConversationLink();
-  }, [
-    conversation,
-    generateConversationLink,
-    getSharedConversations,
-    id,
-    locale,
-  ]);
+  }, [conversation, generateConversationLink, getSharedConversations, locale]);
 
   const onClose = useCallback((): void => {
     onCloseModal();

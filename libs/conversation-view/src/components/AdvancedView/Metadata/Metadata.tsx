@@ -4,10 +4,10 @@ import { FC, useCallback, useEffect, useState } from 'react';
 
 import { PopUpSize, PopUpState } from '@statgpt/ui-components/src/types/pop-up';
 import { Popup } from '@statgpt/ui-components/src/components/Popup/Popup';
-import { StructureComponentValue } from '@statgpt/conversation-view/src/models/structure-component';
-import MetadataDescriptionItem from '@statgpt/conversation-view/src/components/AdvancedView/Metadata/MetadataDescriptionItem';
-import MetadataItem from '@statgpt/conversation-view/src/components/AdvancedView/Metadata/MetadataItem';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { StructureComponentValue } from '../../../models/structure-component';
+import MetadataDescriptionItem from './MetadataDescriptionItem';
+import MetadataItem from './MetadataItem';
+import { ConversationViewTitles } from '../../../models/titles';
 
 interface Props {
   metadata?: StructureComponentValue[];

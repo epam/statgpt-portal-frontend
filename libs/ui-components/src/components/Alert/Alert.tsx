@@ -1,9 +1,9 @@
 import { FC, ReactNode, useEffect } from 'react';
 import classNames from 'classnames';
-import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
-import { CloseButton } from '@statgpt/ui-components/src/components/CloseButton/CloseButton';
-import { AlertDetails } from '@statgpt/ui-components/src/models/alert';
-import { AlertType } from '@statgpt/ui-components/src/constants/alert';
+import { Loader } from '../Loader/Loader';
+import { CloseButton } from '../CloseButton/CloseButton';
+import { AlertDetails } from '../../models/alert';
+import { AlertType } from '../../constants/alert';
 
 interface Props {
   alertDetails?: AlertDetails;

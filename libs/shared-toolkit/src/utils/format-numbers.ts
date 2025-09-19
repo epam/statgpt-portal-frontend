@@ -1,5 +1,5 @@
-import { defaultFormatNumbers } from '@statgpt/shared-toolkit/src/constants/format-numbers-default';
-import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
+import { defaultFormatNumbers } from '../constants/format-numbers-default';
+import { FormatNumbersType } from '../models/format-numbers-type';
 
 // fixing JS math errors
 const roundNumber = (num: number, length: number): string => {

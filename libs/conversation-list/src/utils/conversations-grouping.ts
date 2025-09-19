@@ -1,8 +1,8 @@
 import { cloneDeep } from 'lodash';
 import { ConversationInfo } from '@epam/ai-dial-shared';
-import { GroupedConversations } from '@statgpt/conversation-list/src/models/conversation-list';
-import { ConversationGroups } from '@statgpt/conversation-list/src/types/conversation-groups';
-import { ConversationListTitles } from '@statgpt/conversation-list/src/models/titles';
+import { GroupedConversations } from '../models/conversation-list';
+import { ConversationGroups } from '../types/conversation-groups';
+import { ConversationListTitles } from '../models/titles';
 
 const INITIAL_CONVERSATIONS_GROUPS: GroupedConversations = {
   [ConversationGroups.TODAY]: [],

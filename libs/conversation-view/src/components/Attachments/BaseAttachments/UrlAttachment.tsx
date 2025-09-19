@@ -2,10 +2,10 @@
 
 import { Attachment } from '@epam/ai-dial-shared';
 import { FC } from 'react';
-import { sanitizeUrl } from '@statgpt/conversation-view/src/utils/attachments/attachment-utils';
+import { sanitizeUrl } from '../../../utils/attachments/attachment-utils';
 import { Button } from '@statgpt/ui-components/src/components/Button/Button';
 import { Link } from '@statgpt/ui-components/src/components/Link/Link';
-import LinkIcon from '@statgpt/conversation-view/src/assets/icons/link.svg';
+import LinkIcon from '../../../assets/icons/link.svg';
 
 interface Props {
   attachment: Attachment;

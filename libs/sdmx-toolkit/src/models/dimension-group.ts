@@ -1,7 +1,4 @@
-import {
-  DimensionValue,
-  StructureAttribute,
-} from '@statgpt/sdmx-toolkit/src/models/data/structure';
+import { DimensionValue, StructureAttribute } from './data/structure';
 
 export interface DimensionGroup {
   values: number[];

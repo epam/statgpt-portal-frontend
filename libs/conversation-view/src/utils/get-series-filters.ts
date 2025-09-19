@@ -1,6 +1,6 @@
 import { SeriesFilterOperator } from '@statgpt/sdmx-toolkit/src/types/logical-operator-type';
 import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
-import { Filter } from '@statgpt/conversation-view/src/models/filters';
+import { Filter } from '../models/filters';
 import { SeriesFilterDto } from '@statgpt/sdmx-toolkit/src/models/series-filter';
 import { GET_v3_FILTER_AND } from '@statgpt/sdmx-toolkit/src/constants/filter-operators';
 
@@ -40,8 +40,8 @@ export const getTimeSeriesFilterDto = (
 ): SeriesFilterDto[] => {
   if (
     timeRange == null ||
-    !!timeRange.startPeriod == null ||
-    !!timeRange.endPeriod == null
+    timeRange.startPeriod == null ||
+    timeRange.endPeriod == null
   ) {
     return [];
   }

@@ -5,11 +5,7 @@ import {
   DimensionType,
 } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
 import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import {
-  Filter,
-  FilterTreeNodeProps,
-  FilterValue,
-} from '@statgpt/conversation-view/src/models/filters';
+import { Filter, FilterTreeNodeProps, FilterValue } from '../models/filters';
 import { StructureItemBase } from '@statgpt/sdmx-toolkit/src/models/data/structure';
 import {
   DataQuery,
@@ -19,14 +15,13 @@ import {
   TREE_NODE_ARROW_SIZE,
   TREE_NODE_PADDING,
 } from '@statgpt/ui-components/src/constants/tree-view';
-import { FilterDisplayMode } from '@statgpt/conversation-view/src/constants/filter-display-mode';
+import { FilterDisplayMode } from '../constants/filter-display-mode';
 import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
 import { getAnnotationPeriod } from '@statgpt/sdmx-toolkit/src/utils/constraint';
-import { getMergedTimeRange } from '@statgpt/conversation-view/src/utils/attachments/time-period';
+import { getMergedTimeRange } from './attachments/time-period';
 import { findCodelistByDimension } from '@statgpt/sdmx-toolkit/src/utils/find-codelist-by-dimension';
-import { GET_v3_FILTER_AND } from '@statgpt/sdmx-toolkit/src/constants/filter-operators';
 import { getTimePeriod } from '@statgpt/shared-toolkit/src/utils/get-time-period';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ConversationViewTitles } from '../models/titles';
 
 export const getDatasetFilters = (
   dimensions?: Dimension[],
@@ -168,9 +163,9 @@ export const getFiltersPreselectedByDataQuery = (
 
     if (filterFromAttachment) {
       if (filter.isTimeDimension) {
-        const periods: string[] = filterFromAttachment.values
-          .split(GET_v3_FILTER_AND)
-          .filter((p) => !!p);
+        const periods: string[] = filterFromAttachment.values.filter(
+          (p) => !!p,
+        );
 
         const constraintsTimeRange = getAnnotationPeriod(
           constraints?.[0]?.annotations,
@@ -194,11 +189,8 @@ export const getFiltersPreselectedByDataQuery = (
           timeRange,
         };
       } else {
-        const values: string[] =
-          filterFromAttachment.values.split(GET_v3_FILTER_AND);
-
         const newValues = filter?.dimensionValues?.map((val) => {
-          if (values.includes(val.id)) {
+          if (filterFromAttachment?.values?.includes(val.id)) {
             return { ...val, isSelectedValue: true };
           }
 
@@ -212,28 +204,6 @@ export const getFiltersPreselectedByDataQuery = (
 
     return { ...filter, dimensionValues };
   });
-
-export const getFiltersWithSelectedItems = (
-  filters: Filter[],
-  selectedFilters: Filter[],
-) => {
-  return filters?.map((filter) => {
-    const selectedFilter = selectedFilters?.find(
-      (selectedFilter) => selectedFilter.id === filter.id,
-    );
-    return {
-      ...filter,
-      dimensionValues: filter?.dimensionValues?.map((value) => ({
-        ...value,
-        isSelectedValue: selectedFilter
-          ? selectedFilter?.dimensionValues?.find((val) => val.id === value.id)
-              ?.isSelectedValue || value?.isSelectedValue
-          : value?.isSelectedValue,
-      })),
-      timeRange: selectedFilter?.timeRange || filter?.timeRange,
-    };
-  });
-};
 
 export const updateFiltersWithDisabledOption = (filters: Filter[]) => {
   return filters?.map((filter) => ({

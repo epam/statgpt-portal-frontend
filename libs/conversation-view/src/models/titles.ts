@@ -44,4 +44,6 @@ export interface ConversationViewTitles {
   limitLinkInfoP2_4?: string;
   limitLinkInfoP2_5?: string;
   limitLinkInfoLink?: string;
+  queryUpdatedManually?: string;
+  setTo?: string;
 }

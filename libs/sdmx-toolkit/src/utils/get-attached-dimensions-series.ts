@@ -1,6 +1,6 @@
-import { DataMessage } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
-import { DimensionGroup } from '@statgpt/sdmx-toolkit/src/models/dimension-group';
-import { SeriesObservations } from '@statgpt/sdmx-toolkit/src/types/series';
+import { DataMessage } from '../models/data/data-message';
+import { DimensionGroup } from '../models/dimension-group';
+import { SeriesObservations } from '../types/series';
 
 export const getAttachedDimensionsSeriesByTsId = (
   dataMessage: DataMessage | undefined,

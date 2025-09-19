@@ -1,6 +1,6 @@
 import { ConversationInfo, Conversation } from '@epam/ai-dial-shared';
 import { ReactNode } from 'react';
-import { ActionMenuItem } from '@statgpt/conversation-list/src/types/action-menu-item';
+import { ActionMenuItem } from '../types/action-menu-item';
 import { ConversationListTitles } from './titles';
 import {
   SharedConversationsRequest,
