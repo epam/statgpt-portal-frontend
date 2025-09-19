@@ -1,11 +1,11 @@
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { Codelist } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/codelist';
-import { getDimensions } from '@statgpt/sdmx-toolkit/src/utils/get-dimensions';
-import { DSDComponentConceptBase } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { ElementBase } from '@statgpt/sdmx-toolkit/src/models/structural-metadata-base';
-import { getConcept } from '@statgpt/sdmx-toolkit/src/utils/get-concept';
-import { getArtifactByUrnWithWildCard } from '@statgpt/sdmx-toolkit/src/utils/wildcards';
-import { getConvertedMetaAttributes } from '@statgpt/sdmx-toolkit/src/utils/get-converted-meta-attributes';
+import { StructuralData } from '../models/structural-metadata';
+import { Codelist } from '../models/structural-metadata/codelist';
+import { getDimensions } from './get-dimensions';
+import { DSDComponentConceptBase } from '../models/structural-metadata/data-structure';
+import { ElementBase } from '../models/structural-metadata-base';
+import { getConcept } from './get-concept';
+import { getArtifactByUrnWithWildCard } from './wildcards';
+import { getConvertedMetaAttributes } from './get-converted-meta-attributes';
 
 export const getStructureComponentsMap = (
   data?: StructuralData,

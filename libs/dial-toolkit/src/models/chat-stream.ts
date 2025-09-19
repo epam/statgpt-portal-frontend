@@ -1,5 +1,5 @@
 import { Role, Message } from '@epam/ai-dial-shared';
-import { ModelInfo } from '@statgpt/dial-toolkit/src/models/model';
+import { ModelInfo } from './model';
 
 export interface RequestStreamBody {
   conversationId: string;

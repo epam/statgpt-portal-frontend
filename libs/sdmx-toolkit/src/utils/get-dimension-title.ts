@@ -1,8 +1,8 @@
-import { ConceptScheme } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/concept-scheme';
-import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { getConcept } from '@statgpt/sdmx-toolkit/src/utils/get-concept';
-import { getKeyFromUrn } from '@statgpt/sdmx-toolkit/src/utils/urn';
-import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
+import { ConceptScheme } from '../models/structural-metadata/concept-scheme';
+import { Dimension } from '../models/structural-metadata/data-structure';
+import { getConcept } from './get-concept';
+import { getKeyFromUrn } from './urn';
+import { getLocalizedName } from './get-localized-name';
 
 export const getDimensionTitle = (
   conceptSchemes: ConceptScheme[] = [],

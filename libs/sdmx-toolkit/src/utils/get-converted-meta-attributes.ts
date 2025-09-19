@@ -2,7 +2,7 @@ import {
   DataStructure,
   DSDComponentConceptBase,
   MetadataStructure,
-} from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
+} from '../models/structural-metadata/data-structure';
 
 export const getConvertedMetaAttributes = (
   metadataStructure?: MetadataStructure,

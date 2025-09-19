@@ -1,6 +1,5 @@
-import { Filter } from '@statgpt/conversation-view/src/models/filters';
-import { getSelectedFilterValues } from '@statgpt/conversation-view/src/utils/filters';
-import { GET_v3_FILTER_OR } from '@statgpt/sdmx-toolkit/src/constants/filter-operators';
+import { Filter } from '../models/filters';
+import { getSelectedFilterValues } from './filters';
 import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
 import {
   Dimension,
@@ -15,26 +14,16 @@ import {
   getQueryTimePeriodFilters,
   getTimeRangeFromAttachment,
   getTimeSeriesFilterKey,
-} from '@statgpt/shared-toolkit/src/utils/query-filters';
+} from '@statgpt/sdmx-toolkit/src/utils/query-filters';
 
 export const getQueryTimeSeriesFilters = (filters: Filter[]): QueryFilter[] =>
   filters.map(
     (filter): QueryFilter => ({
       componentCode: filter.id || '',
       operator: QueryFilterType.IN,
-      values:
-        filter.dimensionValues?.map((v) => v.id).join(GET_v3_FILTER_OR) || '',
+      values: filter.dimensionValues?.map((v) => v.id) || [],
     }),
   );
-
-export const getUpdatedQueryTimeSeriesFilters = (
-  queryFilters: QueryFilter[],
-): QueryFilter[] => {
-  return queryFilters?.map((queryFilter) => ({
-    ...queryFilter,
-    values: queryFilter.values?.split(',')?.join(GET_v3_FILTER_OR),
-  }));
-};
 
 export const getTimeQueryFilterFromAttachment = (
   dataQuery: DataQuery,
@@ -67,4 +56,34 @@ export const getQueryFilters = (
       timePeriodFilter?.id,
     ),
   };
+};
+
+export const setDataQueryFilters = (filters: Filter[]): QueryFilter[] => {
+  return filters
+    ?.filter(
+      (filter) =>
+        filter.timeRange ||
+        filter.dimensionValues?.some((value) => value.isSelectedValue),
+    )
+    .map((filter) => {
+      if (filter?.isTimeDimension) {
+        return {
+          componentCode: filter?.id as string,
+          operator: QueryFilterType.BETWEEN,
+          values: [
+            filter?.timeRange?.startPeriod?.getFullYear?.()?.toString?.() || '',
+            filter?.timeRange?.endPeriod?.getFullYear?.().toString?.() || '',
+          ],
+        };
+      }
+
+      return {
+        componentCode: filter?.id as string,
+        operator: QueryFilterType.IN,
+        values:
+          filter?.dimensionValues
+            ?.filter((value) => value.isSelectedValue)
+            ?.map((value) => value.id) || [],
+      };
+    });
 };

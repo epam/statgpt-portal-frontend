@@ -1,7 +1,7 @@
 'use client';
 
-import DatasetIcon from '@statgpt/conversation-view/src/assets/icons/dataset.svg';
-import MetadataIcon from '@statgpt/conversation-view/src/assets/icons/metadata.svg';
+import DatasetIcon from '../../assets/icons/dataset.svg';
+import MetadataIcon from '../../assets/icons/metadata.svg';
 import {
   IconClock,
   IconArrowUpRight,
@@ -10,7 +10,7 @@ import {
 import { getLastUpdatedTime } from '@statgpt/sdmx-toolkit/src/utils/annotations';
 import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { getDateFormattedValue } from '@statgpt/conversation-view/src/utils/date-format';
+import { getDateFormattedValue } from '../../utils/date-format';
 import classNames from 'classnames';
 import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
 import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
@@ -20,12 +20,13 @@ import {
   getDatasetDescription,
   getDatasetNameItem,
   getStructureAttributes,
-} from '@statgpt/conversation-view/src/utils/attachments/metadata';
+} from '../../utils/attachments/metadata';
 import { getStructureComponentsMap } from '@statgpt/sdmx-toolkit/src/utils/get-structure-components';
 import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { MetadataSettings } from '@statgpt/conversation-view/src/models/metadata';
-import Metadata from '@statgpt/conversation-view/src/components/AdvancedView/Metadata/Metadata';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { MetadataSettings } from '../../models/metadata';
+import Metadata from './Metadata/Metadata';
+import { ConversationViewTitles } from '../../models/titles';
+import { StructureComponentValue } from '../../models/structure-component';
 
 interface Props {
   dataset?: Dataflow | null;
@@ -35,6 +36,9 @@ interface Props {
   locale: string;
   isShowAgency?: boolean;
   titles?: ConversationViewTitles;
+  getDatasetUpdatedTime?: (
+    attributes: StructureComponentValue[],
+  ) => string | null;
 }
 
 const DatasetInfo: FC<Props> = ({
@@ -45,6 +49,7 @@ const DatasetInfo: FC<Props> = ({
   metadataSettings,
   locale,
   titles,
+  getDatasetUpdatedTime,
 }) => {
   const [lastUpdatedDate, setLastUpdatedDate] = useState<string>('');
   const [isOpenMetadata, setIsOpenMetadata] = useState<boolean>(false);
@@ -92,10 +97,13 @@ const DatasetInfo: FC<Props> = ({
   }, []);
 
   useEffect(() => {
-    setLastUpdatedDate(
-      getDateFormattedValue(getLastUpdatedTime(dataset), locale),
-    );
-  }, [dataset, locale]);
+    const overridenValue =
+      getDatasetUpdatedTime && getDatasetUpdatedTime(datasetMetadata);
+    const updatedTime =
+      overridenValue ||
+      getDateFormattedValue(getLastUpdatedTime(dataset), locale);
+    setLastUpdatedDate(updatedTime);
+  }, [dataset, locale, datasetMetadata, getDatasetUpdatedTime]);
 
   return (
     <div className={classNames('flex flex-col bg-white', 'dataset-info')}>

@@ -2,10 +2,10 @@
 
 import { Button } from '@statgpt/ui-components/src/components/Button/Button';
 import { FC } from 'react';
-import { FiltersModalProps } from '@statgpt/conversation-view/src/models/filters';
+import { FiltersModalProps } from '../../../../models/filters';
 import classNames from 'classnames';
-import ClearIcon from '@statgpt/conversation-view/src/assets/icons/clear.svg';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import ClearIcon from '../../../../assets/icons/clear.svg';
+import { ConversationViewTitles } from '../../../../models/titles';
 
 interface Props {
   modalProps?: FiltersModalProps;

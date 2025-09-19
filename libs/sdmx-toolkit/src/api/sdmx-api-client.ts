@@ -1,5 +1,5 @@
 import { sendRequest } from '@statgpt/shared-toolkit/src/utils/send-request';
-import { SdmxApiConfig } from '@statgpt/sdmx-toolkit/src/api/sdmx-config';
+import { SdmxApiConfig } from './sdmx-config';
 import { ApiHeaders } from '@statgpt/shared-toolkit/src/models/api';
 import { RequestOptions } from '@statgpt/shared-toolkit/src/models/request-options';
 import { LogData } from '@statgpt/shared-toolkit/src/models/log-data';
@@ -26,6 +26,65 @@ export class SdmxApiClient {
 
   async postRequest<T>(endpoint: string, options?: RequestOptions): Promise<T> {
     return this.request(endpoint, { ...options, method: 'POST' });
+  }
+
+  async streamRequest(
+    endpoint: string,
+    options: RequestOptions,
+    filename: string,
+  ): Promise<Response> {
+    const url = `${this.config.apiUrl}/${endpoint}`;
+
+    const headers = {
+      ...getHeaders(void 0, {
+        jwt: this.config.jwt,
+      }),
+      ...options.headers,
+    };
+
+    if (this.config.apiKey != null) {
+      headers['Ocp-Apim-Subscription-Key'] = this.config.apiKey;
+    }
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          const response = await sendRequest(url, headers, options);
+          if (!response.ok) {
+            const errorBody = await response.text();
+            console.error(
+              `Fetch failed! Status: ${response.status}, Body: ${errorBody}`,
+            );
+            throw new Error(`Fetch failed with status ${response.status}`);
+          }
+
+          const reader = response.body?.getReader();
+          if (!reader) throw new Error('Failed to create stream reader');
+          const utf8Bom = new Uint8Array([0xef, 0xbb, 0xbf]);
+          controller.enqueue(utf8Bom);
+
+          const pump = async (): Promise<void> => {
+            const { done, value } = await reader.read();
+            if (done) {
+              controller.close();
+            } else {
+              controller.enqueue(value);
+              await pump();
+            }
+          };
+
+          pump();
+        } catch (err) {
+          controller.error(err);
+        }
+      },
+    });
+
+    const responseHeaders = new Headers({
+      'Content-Disposition': `attachment; filename=${encodeURIComponent(filename)}`,
+    });
+
+    return new Response(stream, { headers: responseHeaders });
   }
 
   async request<T>(endpoint: string, options: RequestOptions): Promise<T> {

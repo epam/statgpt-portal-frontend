@@ -1,4 +1,4 @@
-import { PopUpState } from '@statgpt/ui-components/src/types/pop-up';
+import { PopUpState } from '../../types/pop-up';
 import { render } from '@testing-library/react';
 import { Popup } from './Popup';
 

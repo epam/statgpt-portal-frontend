@@ -4,7 +4,7 @@ import {
   FormSchemaButtonOption,
   DialSchemaProperties,
 } from '@epam/ai-dial-shared';
-import InputForAsk from '@statgpt/conversation-view/src/components/InputForAsk/InputForAsk';
+import InputForAsk from '../InputForAsk/InputForAsk';
 import { Tag } from '@statgpt/ui-components/src/components/Tag/Tag';
 import { FC, ReactNode, useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
@@ -14,13 +14,13 @@ import {
   SharedConversationsRequest,
   SharedConversations,
 } from '@statgpt/dial-toolkit/src/models/conversation';
-import { getCreateConversationRequest } from '@statgpt/conversation-list/src/utils/conversation-request';
-import { InputMessageStyles } from '@statgpt/conversation-view/src/models/message';
-import { cleanConversationNames } from '@statgpt/conversation-list/src/utils/conversation-mapping';
+import { getCreateConversationRequest } from '../../utils/conversation-request';
+import { InputMessageStyles } from '../../models/message';
+import { cleanConversationNames } from '@statgpt/shared-toolkit/src/utils/conversation-mapping';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ConversationViewTitles } from '../../models/titles';
 import { ShareTarget } from '@statgpt/dial-toolkit/src/constants/share-conversation';
-import { updateConversationsWithSharedOption } from '@statgpt/conversation-list/src/utils/shared-conversations';
+import { transformSharedConversations } from '@statgpt/conversation-list/src/utils/shared-conversations';
 import { getSharedConversationsRequest } from '@statgpt/dial-toolkit/src/utils/shared-conversations-request';
 
 interface ConversationListActions {
@@ -50,7 +50,7 @@ interface Props {
   setSharedConversations: (sharedConversations: ConversationInfo[]) => void;
 }
 
-const ConversationWelcome: FC<Props> = ({
+export const ConversationWelcome: FC<Props> = ({
   suggestionsList,
   welcomeText,
   titleIcon,
@@ -106,10 +106,7 @@ const ConversationWelcome: FC<Props> = ({
         setConversations(cleanConversationNames(conversationsData));
         setSharedConversations(
           cleanConversationNames(
-            updateConversationsWithSharedOption(
-              sharedConversationsData,
-              locale,
-            ),
+            transformSharedConversations(sharedConversationsData, locale),
           ),
         );
         handleConversationClick(newConversation.folderId, newConversation.id);
@@ -190,5 +187,3 @@ const ConversationWelcome: FC<Props> = ({
     </>
   );
 };
-
-export default ConversationWelcome;

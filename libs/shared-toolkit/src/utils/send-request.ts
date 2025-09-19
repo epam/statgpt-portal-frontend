@@ -1,4 +1,4 @@
-import { RequestOptions } from '@statgpt/shared-toolkit/src/models/request-options';
+import { RequestOptions } from '../models/request-options';
 
 export const sendRequest = async (
   url: string,

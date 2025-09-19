@@ -3,8 +3,8 @@
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
-import ChevronSolidDownIcon from '@statgpt/conversation-view/src/assets/icons/chevron-solid-down.svg';
-import { StructureComponentValue } from '@statgpt/conversation-view/src/models/structure-component';
+import ChevronSolidDownIcon from '../../../assets/icons/chevron-solid-down.svg';
+import { StructureComponentValue } from '../../../models/structure-component';
 
 const MetadataItem: FC<StructureComponentValue> = ({
   title,

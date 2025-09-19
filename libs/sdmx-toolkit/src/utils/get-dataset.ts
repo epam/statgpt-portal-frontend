@@ -1,6 +1,6 @@
-import { DATASET_DATA_URL } from '@statgpt/sdmx-toolkit/src/constants/dataset-data-url';
-import { splitUrn } from '@statgpt/sdmx-toolkit/src/utils/urn';
-import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
+import { DATASET_DATA_URL } from '../constants/dataset-data-url';
+import { splitUrn } from './urn';
+import { DatasetQueryFilters } from '../models/dataset-query-filters';
 
 export const generateDatasetDataRequest = (
   urn: string,
@@ -9,7 +9,9 @@ export const generateDatasetDataRequest = (
 ): string => {
   const { filterKey, timeFilter } = filters;
   const { agency, id, version } = splitUrn(urn);
-  const params = [timeFilter, queryParams].filter((val) => !!val).join('&');
+  const params = [encodeURIComponent(timeFilter || ''), queryParams]
+    .filter((val) => !!val)
+    .join('&');
 
   const url = `${DATASET_DATA_URL}/${agency}/${id}/${version}`;
   const urlWithParams = `${url}/${filterKey || '*'}?${params}`;

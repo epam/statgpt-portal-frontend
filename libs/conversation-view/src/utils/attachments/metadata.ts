@@ -2,16 +2,16 @@ import { ICellRendererParams, ColDef } from 'ag-grid-community';
 import { ElementBase } from '@statgpt/sdmx-toolkit/src/models/structural-metadata-base';
 import { Codelist } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/codelist';
 import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
-import { StructureComponentValue } from '@statgpt/conversation-view/src/models/structure-component';
+import { StructureComponentValue } from '../../models/structure-component';
 import { getDimensionTitle } from '@statgpt/sdmx-toolkit/src/utils/get-dimension-title';
 import { getDimensions } from '@statgpt/sdmx-toolkit/src/utils/get-dimensions';
 import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { GridData } from '@statgpt/conversation-view/src/types/data-grid/grid-data';
+import { GridData } from '../../types/data-grid/grid-data';
 import { TimeSeries } from '@statgpt/sdmx-toolkit/src/models/data/time-series';
 import { Data } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
 import { StructureAttribute } from '@statgpt/sdmx-toolkit/src/models/data/structure';
 import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ConversationViewTitles } from '../../models/titles';
 
 export const getObsAttributesFromParams = (params: ICellRendererParams) =>
   params?.data[params?.colDef?.field || 0]?.obsAttributes;

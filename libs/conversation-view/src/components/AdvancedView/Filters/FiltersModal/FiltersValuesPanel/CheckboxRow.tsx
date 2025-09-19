@@ -1,4 +1,6 @@
-import { FilterValue } from '@statgpt/conversation-view/src/models/filters';
+'use client';
+
+import { FilterValue } from '../../../../../models/filters';
 import { Checkbox } from '@statgpt/ui-components/src/components/Checkbox/Checkbox';
 import { FC, ReactNode } from 'react';
 

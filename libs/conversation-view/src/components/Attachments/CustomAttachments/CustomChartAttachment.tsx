@@ -1,16 +1,16 @@
 'use client';
 
-import { CustomChartAttachmentType } from '@statgpt/conversation-view/src/models/attachments';
+import { CustomChartAttachmentType } from '../../../models/attachments';
 import { FC, ReactNode, useCallback, useEffect, useState } from 'react';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
 import ReactECharts from 'echarts-for-react';
-import { ChartUnit } from '@statgpt/conversation-view/src/models/charting';
-import { ChartingIcon } from '@statgpt/conversation-view/src/types/charting-icon';
-import ChartSidebar from '@statgpt/conversation-view/src/components/Attachments/CustomAttachments/ChartSidebar';
-import Slider from '@statgpt/conversation-view/src/components/Attachments/CustomAttachments/Slider';
-import ChartLimitationInfo from '@statgpt/conversation-view/src/components/Attachments/CustomAttachments/ChartLimitationInfo';
+import { ChartUnit } from '../../../models/charting';
+import { ChartingIcon } from '../../../types/charting-icon';
+import ChartSidebar from './ChartSidebar';
+import Slider from './Slider';
+import ChartLimitationInfo from './ChartLimitationInfo';
 import classNames from 'classnames';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ConversationViewTitles } from '../../../models/titles';
 
 interface Props {
   attachment: CustomChartAttachmentType;

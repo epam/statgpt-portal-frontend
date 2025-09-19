@@ -12,54 +12,54 @@
 import { Conversation, ConversationInfo, Role } from '@epam/ai-dial-shared';
 import classNames from 'classnames';
 import {
+  Dispatch,
   FC,
   ReactNode,
+  SetStateAction,
   useCallback,
   useEffect,
   useMemo,
   useState,
 } from 'react';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import { IconCopy } from '@tabler/icons-react';
 
-import ChatMessages from '@statgpt/conversation-view/src/components/ChatMessages/ChatMessages';
-import ConversationViewHeader from '@statgpt/conversation-view/src/components/ConversationViewHeader/ConversationViewHeader';
-import InputForAsk from '@statgpt/conversation-view/src/components/InputForAsk/InputForAsk';
-import { useAdvancedView } from '@statgpt/conversation-view/src/context/AdvancedViewContext';
-import { ConversationViewActions } from '@statgpt/conversation-view/src/models/actions';
-import { AttachmentsStyles } from '@statgpt/conversation-view/src/models/attachments-styles';
-import {
-  InputMessageStyles,
-  MessageStyles,
-} from '@statgpt/conversation-view/src/models/message';
-import { ShareConversationProps } from '@statgpt/conversation-view/src/models/share-conversation';
-import { extractPartialMessageData } from '@statgpt/conversation-view/src/utils/extract-partial-message';
+import ChatMessages from '../ChatMessages/ChatMessages';
+import ConversationViewHeader from '../ConversationViewHeader/ConversationViewHeader';
+import InputForAsk from '../InputForAsk/InputForAsk';
+import { useAdvancedView } from '../../context/AdvancedViewContext';
+import { ConversationViewActions } from '../../models/actions';
+import { AttachmentsStyles } from '../../models/attachments-styles';
+import { InputMessageStyles, MessageStyles } from '../../models/message';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
+import { extractPartialMessageData } from '../../utils/extract-partial-message';
 import {
   isConversationIdExternal,
   isReadOnlyConversation,
-} from '@statgpt/conversation-view/src/utils/is-read-only-conversation';
-import { transformMessagesForApi } from '@statgpt/conversation-view/src/utils/transform-message-api';
-import { validateAndPrepareMessage } from '@statgpt/conversation-view/src/utils/validate-message';
+} from '../../utils/is-read-only-conversation';
+import { transformMessagesForApi } from '../../utils/transform-message-api';
+import { validateAndPrepareMessage } from '../../utils/validate-message';
 import { streamChatResponse } from '@statgpt/dial-toolkit/src/api/chat-streaming-api';
 import { Message } from '@statgpt/dial-toolkit/src/models/message';
 import { mergeMessages } from '@statgpt/dial-toolkit/src/utils/merge-messages';
 import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
 import { Button } from '@statgpt/ui-components/src/components/Button/Button';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
-import { MetadataSettings } from '@statgpt/conversation-view/src/models/metadata';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
-import { getRedirectConversationPath } from '@statgpt/conversation-view/src/utils/get-conversation-path';
-import { generateConversation } from '@statgpt/conversation-view/src/utils/generate-conversation';
-import { cleanConversationNames } from '@statgpt/conversation-list/src/utils/conversation-mapping';
+import { MetadataSettings } from '../../models/metadata';
+import { ConversationViewTitles } from '../../models/titles';
+import { getRedirectConversationPath } from '../../utils/get-conversation-path';
+import { generateConversation } from '../../utils/generate-conversation';
+import { cleanConversationNames } from '@statgpt/shared-toolkit/src/utils/conversation-mapping';
 
 interface Props {
-  conversationId: string;
+  conversationKey: string;
+  conversation: Conversation | null;
   actions: ConversationViewActions;
   messageStyles?: MessageStyles;
   attachmentsStyles?: AttachmentsStyles;
   inputMessageStyles: InputMessageStyles;
   shareConversationProps?: ShareConversationProps;
-  showAdvancedView?: boolean;
   showConversationHeaderAdvancedView?: boolean;
   formattingSettings?: FormatNumbersType;
   metadataSettings?: MetadataSettings;
@@ -68,17 +68,18 @@ interface Props {
   locale: string;
   conversationsRoute?: string;
   token?: string | null;
+  setConversation: Dispatch<SetStateAction<Conversation | null>>;
   setConversations: (conversations: ConversationInfo[]) => void;
 }
 
-const ConversationView: FC<Props> = ({
-  conversationId,
+export const ConversationView: FC<Props> = ({
+  conversationKey,
+  conversation,
   actions,
   messageStyles,
   attachmentsStyles,
   inputMessageStyles,
   shareConversationProps,
-  showAdvancedView = false,
   showConversationHeaderAdvancedView = true,
   formattingSettings,
   metadataSettings,
@@ -87,10 +88,10 @@ const ConversationView: FC<Props> = ({
   conversationsRoute,
   token,
   titles,
+  setConversation,
   setConversations,
 }) => {
-  const router = useRouter();
-  const [conversation, setConversation] = useState<Conversation | null>(null);
+  // const router = useRouter();
   const [conversationSignal, setConversationSignal] =
     useState<AbortController | null>(null);
   const [isReadonlyConversation, setIsReadonlyConversation] = useState(false);
@@ -112,29 +113,22 @@ const ConversationView: FC<Props> = ({
       const conversationsData = await actions.getConversations(locale);
       setConversations(cleanConversationNames(conversationsData));
 
-      router.push(
-        getRedirectConversationPath(
-          newConversation,
-          locale,
-          conversationsRoute,
-        ),
-      );
+      // router.push(
+      //   getRedirectConversationPath(
+      //     newConversation,
+      //     locale,
+      //     conversationsRoute,
+      //   ),
+      // );
     } catch (err) {
       console.error('Failed to save conversation:', err);
     }
-  }, [
-    actions,
-    conversation,
-    conversationsRoute,
-    locale,
-    router,
-    setConversations,
-  ]);
+  }, [actions, conversation, locale, setConversations]);
 
   const saveConversation = useCallback(
     async (updatedConversation: Conversation) => {
       try {
-        await actions.updateConversation(decodeURI(conversationId), {
+        await actions.updateConversation(decodeURI(conversationKey), {
           name: updatedConversation.name,
           messages: updatedConversation.messages,
         });
@@ -142,19 +136,22 @@ const ConversationView: FC<Props> = ({
         console.error('Failed to save conversation:', err);
       }
     },
-    [actions, conversationId],
+    [actions, conversationKey],
   );
 
-  const addUserMessageToConversation = useCallback((userMessage: Message) => {
-    setConversation((prev) =>
-      prev
-        ? {
-            ...prev,
-            messages: [...(prev?.messages || []), userMessage],
-          }
-        : null,
-    );
-  }, []);
+  const addUserMessageToConversation = useCallback(
+    (userMessage: Message) => {
+      setConversation((prev) =>
+        prev
+          ? {
+              ...prev,
+              messages: [...(prev?.messages || []), userMessage],
+            }
+          : null,
+      );
+    },
+    [setConversation],
+  );
 
   const initializeAssistantMessage = useCallback(() => {
     const assistantMessage: Message = {
@@ -173,7 +170,7 @@ const ConversationView: FC<Props> = ({
         : null,
     );
     return assistantMessage;
-  }, []);
+  }, [setConversation]);
 
   const updateAssistantMessage = useCallback(
     (assistantMessage: Message, partialMessage: Partial<Message>) => {
@@ -197,7 +194,7 @@ const ConversationView: FC<Props> = ({
 
       return updatedMessage;
     },
-    [],
+    [setConversation],
   );
 
   const handleStreamingResponse = useCallback(
@@ -276,7 +273,7 @@ const ConversationView: FC<Props> = ({
           : null,
       );
     },
-    [],
+    [setConversation],
   );
 
   const onStopStreaming = useCallback(() => {
@@ -333,7 +330,7 @@ const ConversationView: FC<Props> = ({
       try {
         setIsLoading(true);
         const { bucket } = await actions.getBucket();
-        const data = await actions.getConversation(decodeURI(conversationId));
+        const data = await actions.getConversation(decodeURI(conversationKey));
         setConversation(data);
         setIsReadonlyConversation(
           isReadOnlyConversation(data) &&
@@ -349,11 +346,11 @@ const ConversationView: FC<Props> = ({
       }
     }
 
-    if (conversationId) {
+    if (conversationKey) {
       fetchConversationById();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationId]);
+  }, [conversationKey]);
 
   const messageServerActions = useMemo(
     () => ({
@@ -403,7 +400,6 @@ const ConversationView: FC<Props> = ({
           isStreaming={isStreaming}
           messageStyles={messageStyles}
           attachmentsStyles={attachmentsStyles}
-          showAdvancedView={showAdvancedView}
           formattingSettings={formattingSettings}
           metadataSettings={metadataSettings}
           expandStagesIcon={expandStagesIcon}
@@ -439,5 +435,3 @@ const ConversationView: FC<Props> = ({
     </div>
   );
 };
-
-export default ConversationView;

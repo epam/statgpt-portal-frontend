@@ -5,10 +5,21 @@
   "exports": {
     ".": {
       "import": "./index.mjs",
-      "require": "./index.js"
+      "require": "./index.cjs",
+      "types": "./index.d.ts"
     }
   },
-  "main": "index",
-  "browser": "index.js",
-  "module": "index.mjs"
+  "main": "./index.cjs",
+  "browser": "./index.mjs",
+  "module": "./index.mjs",
+  "types": "./index.d.ts",
+  "dependencies": {
+    "@dev-statgpt/shared-toolkit": "0.1.0",
+    "@epam/ai-dial-shared": "^0.34.0",
+    "@nx/vite": "21.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "vite": "^6.3.5",
+    "vite-plugin-dts": "4.5.3",
+    "vite-plugin-static-copy": "^3.1.2"
+  }
 }

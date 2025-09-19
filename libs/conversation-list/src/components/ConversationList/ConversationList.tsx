@@ -6,7 +6,7 @@
  * conversation CRUD operations, and locale-aware navigation. Integrates
  * with the backend API for persistent conversation storage.
  */
-
+/* eslint-disable @nx/enforce-module-boundaries */
 'use client';
 
 import classNames from 'classnames';
@@ -19,26 +19,26 @@ import {
   useState,
 } from 'react';
 
-import ConversationsGroup from '@statgpt/conversation-list/src/components/ConversationsGroup/ConversationsGroup';
-import ConversationsSearchField from '@statgpt/conversation-list/src/components/ConversationsSearch/ConversationsSearchField';
-import ConversationsSearchResult from '@statgpt/conversation-list/src/components/ConversationsSearch/ConversationsSearchResult';
-import NoConversations from '@statgpt/conversation-list/src/components/NoConversations/NoConversations';
+import ConversationsGroup from '../ConversationsGroup/ConversationsGroup';
+import ConversationsSearchField from '../ConversationsSearch/ConversationsSearchField';
+import ConversationsSearchResult from '../ConversationsSearch/ConversationsSearchResult';
+import NoConversations from '../NoConversations/NoConversations';
 import {
   ConversationListActions,
   ConversationStyles,
   GroupedConversations,
-} from '@statgpt/conversation-list/src/models/conversation-list';
-import { cleanConversationNames } from '@statgpt/conversation-list/src/utils/conversation-mapping';
-import { getConversationsGroupedByDate } from '@statgpt/conversation-list/src/utils/conversations-grouping';
-import { ShareConversationProps } from '@statgpt/conversation-view/src/models/share-conversation';
+} from '../../models/conversation-list';
+import { cleanConversationNames } from '@statgpt/shared-toolkit/src/utils/conversation-mapping';
+import { getConversationsGroupedByDate } from '../../utils/conversations-grouping';
+import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { ConversationInfo } from '@epam/ai-dial-shared';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
 import { ShareTarget } from '@statgpt/dial-toolkit/src/constants/share-conversation';
 import { getSharedConversationsRequest } from '@statgpt/dial-toolkit/src/utils/shared-conversations-request';
 import {
   getSharedConversationsGroup,
-  updateConversationsWithSharedOption,
-} from '@statgpt/conversation-list/src/utils/shared-conversations';
+  transformSharedConversations,
+} from '../../utils/shared-conversations';
 
 interface Props {
   selectedConversationId?: string;
@@ -56,7 +56,7 @@ interface Props {
   handleSelectedConversationRemove: () => void;
 }
 
-const ConversationList: FC<Props> = ({
+export const ConversationList: FC<Props> = ({
   handleConversationClick,
   selectedConversationId,
   actions,
@@ -101,10 +101,7 @@ const ConversationList: FC<Props> = ({
         setConversations(cleanConversationNames(conversationsData));
         setSharedConversations(
           cleanConversationNames(
-            updateConversationsWithSharedOption(
-              sharedConversationsData,
-              locale,
-            ),
+            transformSharedConversations(sharedConversationsData, locale),
           ),
         );
       } catch (err) {
@@ -135,10 +132,7 @@ const ConversationList: FC<Props> = ({
         setConversations(cleanConversationNames(conversationsData));
         setSharedConversations(
           cleanConversationNames(
-            updateConversationsWithSharedOption(
-              sharedConversationsData,
-              locale,
-            ),
+            transformSharedConversations(sharedConversationsData, locale),
           ),
         );
         if (selectedConversationId === conversation?.id) {
@@ -250,5 +244,3 @@ const ConversationList: FC<Props> = ({
     </>
   );
 };
-
-export default ConversationList;

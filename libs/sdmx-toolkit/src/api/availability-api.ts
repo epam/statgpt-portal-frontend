@@ -1,11 +1,8 @@
-import { SeriesFilterDto } from '@statgpt/sdmx-toolkit/src/models/series-filter';
-import { StructuralMetaData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { splitUrn } from '@statgpt/sdmx-toolkit/src/utils/urn';
-import { SdmxApiClient } from '@statgpt/sdmx-toolkit/src/api/sdmx-api-client';
-import {
-  SdmxReferences,
-  SdmxAvailabilityMode,
-} from '@statgpt/sdmx-toolkit/src/types/references';
+import { SeriesFilterDto } from '../models/series-filter';
+import { StructuralMetaData } from '../models/structural-metadata';
+import { splitUrn } from '../utils/urn';
+import { SdmxApiClient } from './sdmx-api-client';
+import { SdmxReferences, SdmxAvailabilityMode } from '../types/references';
 
 const AVAILABILITY_URL = (agency = '', id = '', version = '') =>
   `sdmx/3.0/availability/dataflow/${agency}/${id}/${version}`;

@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/ui-components/src",
   "projectType": "library",
+  "tags": ["type:lib", "scope:ui"],
   "targets": {
     "build": {
       "executor": "@nx/vite:build",
@@ -59,6 +60,5 @@
     "publish": {
       "command": "node tools/publish-lib.mjs ui-components --version={args.ver} --dry={args.dry} --tag={args.tag} --development={args.development}"
     }
-  },
-  "tags": ["type:lib", "scope:ui"]
+  }
 }

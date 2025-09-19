@@ -1,14 +1,23 @@
 {
   "name": "@dev-statgpt/shared-toolkit",
   "version": "0.1.0",
-  "license": "MIT",
+  "main": "./index.cjs",
+  "module": "./index.mjs",
+  "types": "./index.d.ts",
+  "type": "module",
   "exports": {
     ".": {
+      "require": "./index.cjs",
       "import": "./index.mjs",
-      "require": "./index.js"
+      "types": "./index.d.ts"
     }
   },
-  "main": "index",
-  "browser": "index.js",
-  "module": "index.mjs"
+  "dependencies": {
+    "@nx/vite": "21.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "vite": "^6.3.5",
+    "vite-plugin-dts": "4.5.3",
+    "vite-plugin-static-copy": "^3.1.2",
+    "@epam/ai-dial-shared": "^0.34.0"
+  }
 }

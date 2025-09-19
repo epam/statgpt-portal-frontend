@@ -1,10 +1,7 @@
 'use client';
 
 import FilterSettings from './FiltersModal/FiltersSettings';
-import {
-  Filter,
-  FiltersProps,
-} from '@statgpt/conversation-view/src/models/filters';
+import { Filter, FiltersProps } from '../../../models/filters';
 import {
   getDatasetFilters,
   getFiltersAfterClear,
@@ -15,10 +12,13 @@ import {
   updateFiltersWithDisabledOption,
   updateFiltersWithDisplayMode,
   updateFiltersWithSelectedItem,
-} from '@statgpt/conversation-view/src/utils/filters';
-import { getFilledFilters } from '@statgpt/conversation-view/src/utils/get-filled-filters';
-import { getSeriesFilterDto } from '@statgpt/conversation-view/src/utils/get-series-filters';
-import { getQueryFilters } from '@statgpt/conversation-view/src/utils/query-filters';
+} from '../../../utils/filters';
+import { getFilledFilters } from '../../../utils/get-filled-filters';
+import { getSeriesFilterDto } from '../../../utils/get-series-filters';
+import {
+  getQueryFilters,
+  setDataQueryFilters,
+} from '../../../utils/query-filters';
 import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
 import {
   getAnnotationPeriod,
@@ -30,9 +30,17 @@ import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
 import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
 import { Popup } from '@statgpt/ui-components/src/components/Popup/Popup';
 import { PopUpSize, PopUpState } from '@statgpt/ui-components/src/types/pop-up';
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  FC,
+  startTransition,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import ModalFooter from './FiltersModal/ModalFooter';
 import FilterButton from './FilterButton/FilterButton';
+import { updateMessagesWithSystemMessage } from '../../../utils/system-message';
 
 const Filters: FC<FiltersProps> = ({
   actions,
@@ -47,6 +55,10 @@ const Filters: FC<FiltersProps> = ({
   locale,
   timeRangeOptions,
   titles,
+  conversationKey,
+  conversation,
+  setConversation,
+  updateConversation,
 }) => {
   const [modalState, setModalState] = useState(PopUpState.Closed);
   const [modalFilters, setModalFilters] = useState<Filter[]>([]);
@@ -218,6 +230,35 @@ const Filters: FC<FiltersProps> = ({
     }
   }, [appliedFilters, modalState]);
 
+  const addSystemMessage = useCallback(
+    async (filters: Filter[]) => {
+      const updatedConversationWithSystemMessage = conversation
+        ? {
+            ...conversation,
+            messages: updateMessagesWithSystemMessage(
+              conversation?.messages,
+              setDataQueryFilters(filters),
+              attachmentsDataQuery,
+            ),
+          }
+        : null;
+
+      setConversation?.(updatedConversationWithSystemMessage);
+
+      await updateConversation(decodeURI(conversationKey), {
+        name: updatedConversationWithSystemMessage?.name,
+        messages: updatedConversationWithSystemMessage?.messages || [],
+      });
+    },
+    [
+      attachmentsDataQuery,
+      conversation,
+      conversationKey,
+      setConversation,
+      updateConversation,
+    ],
+  );
+
   const onSelectDisplayMode = useCallback(
     (filterId?: string, displayMode?: string) => {
       setModalFilters((prevFilters) =>
@@ -314,11 +355,16 @@ const Filters: FC<FiltersProps> = ({
 
     setAppliedFilters(modalFilters);
     setModalState(PopUpState.Closed);
+
+    startTransition(() => {
+      addSystemMessage(modalFilters);
+    });
   }, [
+    getFiltersChangeParams,
     modalFilters,
     onFiltersChange,
-    getFiltersChangeParams,
     shouldPreselectFromDataQuery,
+    addSystemMessage,
   ]);
 
   return (

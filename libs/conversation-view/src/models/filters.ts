@@ -1,15 +1,15 @@
-import { ReactNode } from 'react';
+import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { UpdateConversation } from '../types/actions';
 import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
 import {
   StructuralData,
   StructuralMetaData,
 } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
 import { StructureItemBase } from '@statgpt/sdmx-toolkit/src/models/data/structure';
+import { Conversation } from '@epam/ai-dial-shared';
 import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
-import {
-  TimeRange,
-  TimeRangeOptions,
-} from '@statgpt/shared-toolkit/src/models/time-range';
+import { TimeRangeOptions } from '@statgpt/shared-toolkit/src/models/time-range';
+import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
 import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
 import { SeriesFilterDto } from '@statgpt/sdmx-toolkit/src/models/series-filter';
 import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
@@ -80,4 +80,8 @@ export interface FiltersProps {
   locale?: string;
   timeRangeOptions?: TimeRangeOptions[];
   titles?: ConversationViewTitles;
+  conversationKey: string;
+  conversation?: Conversation | null;
+  setConversation?: Dispatch<SetStateAction<Conversation | null>>;
+  updateConversation: UpdateConversation;
 }

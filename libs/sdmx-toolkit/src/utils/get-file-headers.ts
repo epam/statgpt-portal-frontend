@@ -1,4 +1,4 @@
-import { SdmxDataFormat } from '@statgpt/sdmx-toolkit/src/types/files';
+import { SdmxDataFormat } from '../types/files';
 
 export const getRequestAcceptHeader = (
   format: string,

@@ -1,21 +1,23 @@
 'use client';
 
-import DataDetails from '@statgpt/conversation-view/src/components/AdvancedView/DataDetails';
-import DatasetInfo from '@statgpt/conversation-view/src/components/AdvancedView/DatasetInfo';
-import Header from '@statgpt/conversation-view/src/components/AdvancedView/Header';
-import { FiltersProps } from '@statgpt/conversation-view/src/models/filters';
-import { AttachmentsProps } from '@statgpt/conversation-view/src/models/attachments';
-import { ShareConversationProps } from '@statgpt/conversation-view/src/models/share-conversation';
-import { MetadataSettings } from '@statgpt/conversation-view/src/models/metadata';
+import DataDetails from './DataDetails';
+import DatasetInfo from './DatasetInfo';
+import Header from './Header';
+import { FiltersProps } from '../../models/filters';
+import { AttachmentsProps } from '../../models/attachments';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
+import { MetadataSettings } from '../../models/metadata';
 import { FC, useCallback, useState } from 'react';
-import { AttachmentsActions } from '@statgpt/conversation-view/src/models/actions';
+import { AttachmentsActions } from '../../models/actions';
 import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
-import { useAttachmentsData } from '@statgpt/conversation-view/src/context/AttachmentsData';
-import { AdvanceViewStyles } from '@statgpt/conversation-view/src/models/advance-view-styles';
+import { useAttachmentsData } from '../../context/AttachmentsData';
+import { AdvanceViewStyles } from '../../models/advance-view-styles';
 import classNames from 'classnames';
-import DatasetTabs from '@statgpt/conversation-view/src/components/Attachments/Tabs/DatasetTabs/DatasetTabs';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import DatasetTabs from '../Attachments/Tabs/DatasetTabs/DatasetTabs';
+import { ConversationViewTitles } from '../../models/titles';
+import { StructureComponentValue } from '../../models/structure-component';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -27,9 +29,12 @@ interface Props {
   locale: string;
   titles?: ConversationViewTitles;
   advanceViewStyles?: AdvanceViewStyles;
+  getDatasetUpdatedTime?: (
+    attributes: StructureComponentValue[],
+  ) => string | null;
 }
 
-const AdvancedView: FC<Props> = ({
+export const AdvancedView: FC<Props> = ({
   attachmentsProps,
   actions,
   titles,
@@ -38,6 +43,7 @@ const AdvancedView: FC<Props> = ({
   formattingSettings,
   locale,
   advanceViewStyles,
+  getDatasetUpdatedTime,
   ...props
 }) => {
   const {
@@ -106,6 +112,7 @@ const AdvancedView: FC<Props> = ({
                 data={dataMessage?.data}
                 structures={structures}
                 metadataSettings={metadataSettings}
+                getDatasetUpdatedTime={getDatasetUpdatedTime}
               />
               <div
                 className={classNames(
@@ -140,5 +147,3 @@ const AdvancedView: FC<Props> = ({
     </div>
   );
 };
-
-export default AdvancedView;

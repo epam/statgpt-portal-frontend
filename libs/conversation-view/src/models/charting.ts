@@ -1,4 +1,4 @@
-import { GridData } from '@statgpt/conversation-view/src/types/data-grid/grid-data';
+import { GridData } from '../types/data-grid/grid-data';
 import { EChartsOption } from 'echarts-for-react';
 
 export interface ChartUnitRows {

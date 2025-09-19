@@ -2,8 +2,8 @@ import {
   FileColumnsAttribute,
   SdmxDataFormat,
 } from '@statgpt/sdmx-toolkit/src/types/files';
-import { DownloadSettingItem } from '@statgpt/download-panel/src/models/download-settings-item';
-import { DownloadTitles } from '@statgpt/download-panel/src/models/titles';
+import { DownloadSettingItem } from '../models/download-settings-item';
+import { DownloadTitles } from '../models/titles';
 
 export const DOWNLOAD_DATA_FORMATS: DownloadSettingItem[] = [
   { value: SdmxDataFormat.JSON, title: 'SDMX-JSON' },

@@ -1,7 +1,4 @@
-import {
-  ArtifactChildUrnParsed,
-  SplittedUrn,
-} from '@statgpt/sdmx-toolkit/src/models/splitted-urn';
+import { ArtifactChildUrnParsed, SplittedUrn } from '../models/splitted-urn';
 
 export const getKeyFromUrn = (urn?: string | null): string | undefined => {
   if (urn != null) {

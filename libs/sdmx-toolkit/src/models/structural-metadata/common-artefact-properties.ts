@@ -1,8 +1,4 @@
-import {
-  Annotation,
-  ElementBase,
-  Link,
-} from '@statgpt/sdmx-toolkit/src/models/structural-metadata-base';
+import { Annotation, ElementBase, Link } from '../structural-metadata-base';
 
 export interface CommonArtefactProperty extends ElementBase {
   agencyID?: string;

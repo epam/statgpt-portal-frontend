@@ -1,9 +1,9 @@
-import { ChartingStyles } from '@statgpt/conversation-view/src/models/attachments-styles';
+import { ChartingStyles } from '../../../models/attachments-styles';
 import { EChartsOption } from 'echarts-for-react/src/types';
 import {
   DEFAULT_LABEL_COLOR,
   DEFAULT_TICK_COLOR,
-} from '@statgpt/conversation-view/src/constants/charting-default-colors';
+} from '../../../constants/charting-default-colors';
 
 export function buildChartConfig(
   timePeriods: string[],

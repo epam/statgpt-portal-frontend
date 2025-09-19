@@ -3,7 +3,7 @@ import { Dropdown } from '@statgpt/ui-components/src/components/Dropdown/Dropdow
 import { DropdownItem } from '@statgpt/ui-components/src/models/dropdown-item';
 import { DownloadType as DownloadTypeOptions } from '@statgpt/sdmx-toolkit/src/types/files';
 import { DownloadTypeTrigger } from './DownloadTypeTrigger';
-import { DownloadTitles } from '@statgpt/download-panel/src/models/titles';
+import { DownloadTitles } from '../../models/titles';
 
 interface Props {
   icon?: ReactNode;

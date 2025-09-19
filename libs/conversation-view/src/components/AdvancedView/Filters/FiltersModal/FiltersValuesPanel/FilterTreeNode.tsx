@@ -1,12 +1,14 @@
+'use client';
+
 import { FC, ReactNode, useEffect, useState } from 'react';
-import { FilterTreeNodeProps } from '@statgpt/conversation-view/src/models/filters';
-import ChevronSolidDownIcon from '@statgpt/conversation-view/src/assets/icons/chevron-solid-down.svg';
-import ChevronSolidRightIcon from '@statgpt/conversation-view/src/assets/icons/chevron-solid-right.svg';
+import { FilterTreeNodeProps } from '../../../../../models/filters';
+import ChevronSolidDownIcon from '../../../../../assets/icons/chevron-solid-down.svg';
+import ChevronSolidRightIcon from '../../../../../assets/icons/chevron-solid-right.svg';
 import { Checkbox } from '@statgpt/ui-components/src/components/Checkbox/Checkbox';
 import {
   getFilterNodesBySelection,
   getFilterTreeNodePadding,
-} from '@statgpt/conversation-view/src/utils/filters';
+} from '../../../../../utils/filters';
 
 interface Props {
   node: FilterTreeNodeProps;

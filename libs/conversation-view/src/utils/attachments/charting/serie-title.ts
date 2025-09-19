@@ -1,9 +1,9 @@
-import { GridData } from '@statgpt/conversation-view/src/types/data-grid/grid-data';
+import { GridData } from '../../../types/data-grid/grid-data';
 import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
 import {
   getDimRelatedStructures,
   getDimValueLocalizedName,
-} from '@statgpt/conversation-view/src/utils/attachments/localized-value';
+} from '../localized-value';
 import { getDimensions } from '@statgpt/sdmx-toolkit/src/utils/get-dimensions';
 
 export function buildSerieKeyTitle(

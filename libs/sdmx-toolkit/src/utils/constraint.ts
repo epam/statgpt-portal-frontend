@@ -1,15 +1,12 @@
 import {
   DataConstraints,
   MemberSelectionValue,
-} from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
-import { Annotation } from '@statgpt/sdmx-toolkit/src/models/structural-metadata-base';
+} from '../models/structural-metadata/constraints';
+import { Annotation } from '../models/structural-metadata-base';
 import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
-import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
-import {
-  Code,
-  Codelist,
-} from '@statgpt/sdmx-toolkit/src/models/structural-metadata/codelist';
-import { getFilteredItemsWithParents } from '@statgpt/shared-toolkit/src/utils/get-filtered-items';
+import { getLocalizedName } from './get-localized-name';
+import { Code, Codelist } from '../models/structural-metadata/codelist';
+import { getFilteredItemsWithParents } from './get-filtered-items';
 
 export const TIME_PERIOD_END = 'time_period_end';
 export const TIME_PERIOD_START = 'time_period_start';

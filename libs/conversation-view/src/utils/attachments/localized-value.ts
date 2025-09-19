@@ -9,7 +9,7 @@ import {
 import { Codelist } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/codelist';
 import { getConcept } from '@statgpt/sdmx-toolkit/src/utils/get-concept';
 import { getArtifactByUrnWithWildCard } from '@statgpt/sdmx-toolkit/src/utils/wildcards';
-import { GridData } from '@statgpt/conversation-view/src/types/data-grid/grid-data';
+import { GridData } from '../../types/data-grid/grid-data';
 import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
 
 export function getDimRelatedStructures(

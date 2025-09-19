@@ -1,4 +1,4 @@
-import { AlertType } from '@statgpt/ui-components/src/constants/alert';
+import { AlertType } from '../constants/alert';
 
 export interface AlertDetails {
   title?: string;

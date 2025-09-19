@@ -1,7 +1,7 @@
 'use client';
 
 import { FC } from 'react';
-import { ConversationListTitles } from '@statgpt/conversation-list/src/models/titles';
+import { ConversationListTitles } from '../../models/titles';
 
 interface Props {
   titles?: ConversationListTitles;

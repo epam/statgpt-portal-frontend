@@ -7,11 +7,11 @@ import {
   isSemiAnnually,
   isWeekly,
   isYearly,
-} from '@statgpt/sdmx-toolkit/src/parsers/time-period-parser/define-period';
+} from './define-period';
 import {
   getWeeklyPeriodEndDate,
   getWeeklyPeriodStartDate,
-} from '@statgpt/sdmx-toolkit/src/utils/weekly-periods.utils';
+} from '../../utils/weekly-periods.utils';
 
 export function getParsedStartPeriodDate(date: string): Date | undefined {
   if (isYearly(date)) {

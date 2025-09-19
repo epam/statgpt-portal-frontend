@@ -1,8 +1,9 @@
+/* eslint-disable @nx/enforce-module-boundaries */
 'use client';
 
-import FileAttachment from '@statgpt/conversation-view/src/components/Attachments/BaseAttachments/FileAttachment';
-import MarkdownAttachment from '@statgpt/conversation-view/src/components/Attachments/BaseAttachments/MarkdownAttachment';
-import UrlAttachment from '@statgpt/conversation-view/src/components/Attachments/BaseAttachments/UrlAttachment';
+import FileAttachment from './BaseAttachments/FileAttachment';
+import MarkdownAttachment from './BaseAttachments/MarkdownAttachment';
+import UrlAttachment from './BaseAttachments/UrlAttachment';
 import {
   isCustomChartAttachment,
   isCustomGridAttachment,
@@ -10,25 +11,29 @@ import {
   isGridAttachment,
   isMarkdownAttachment,
   isUrlAttachment,
-} from '@statgpt/conversation-view/src/utils/attachments/attachment-parser';
+} from '../../utils/attachments/attachment-parser';
 import { Attachment } from '@epam/ai-dial-shared';
 import {
   CustomChartAttachmentType,
   CustomGridAttachment,
-} from '@statgpt/conversation-view/src/models/attachments';
+} from '../../models/attachments';
 import { FC, useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import AttachmentTabs from './Tabs/AttachmentTabs/AttachmentTabs';
-import GridAttachment from '@statgpt/conversation-view/src/components/Attachments/BaseAttachments/GridAttachment';
-import { useAdvancedView } from '@statgpt/conversation-view/src/context/AdvancedViewContext';
-import AttachmentCollapsed from '@statgpt/conversation-view/src/components/Attachments/AttachmentCollapsed';
-import { MessageStyles } from '@statgpt/conversation-view/src/models/message';
-import { AttachmentsActions } from '@statgpt/conversation-view/src/models/actions';
+import AttachmentDetails from './AttachmentDetails/AttachmentDetails';
+import GridAttachment from './BaseAttachments/GridAttachment';
+import { useAdvancedView } from '../../context/AdvancedViewContext';
+import AttachmentCollapsed from './AttachmentCollapsed';
+import { MessageStyles } from '../../models/message';
+import { AttachmentsActions } from '../../models/actions';
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
-import CustomDataGridAttachment from '@statgpt/conversation-view/src/components/Attachments/CustomAttachments/CustomGridAttachment';
-import { AttachmentsStyles } from '@statgpt/conversation-view/src/models/attachments-styles';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
-import CustomChartAttachment from '@statgpt/conversation-view/src/components/Attachments/CustomAttachments/CustomChartAttachment';
+import CustomDataGridAttachment from './CustomAttachments/CustomGridAttachment';
+import { AttachmentsStyles } from '../../models/attachments-styles';
+import {
+  DataQuery,
+  QueryFilterDetails,
+} from '@statgpt/shared-toolkit/src/models/data-query';
+import CustomChartAttachment from './CustomAttachments/CustomChartAttachment';
 import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
 import { PopUpState } from '@statgpt/ui-components/src/types/pop-up';
 import { DownloadType as DownloadTypeOptions } from '@statgpt/sdmx-toolkit/src/types/files';
@@ -37,10 +42,10 @@ import DownloadSettings from '@statgpt/download-panel/src/components/DownloadSet
 import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
 import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
-import DatasetTabs from '@statgpt/conversation-view/src/components/Attachments/Tabs/DatasetTabs/DatasetTabs';
 import { Alert } from '@statgpt/ui-components/src/components/Alert/Alert';
 import { AlertDetails } from '@statgpt/ui-components/src/models/alert';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ConversationViewTitles } from '../../models/titles';
+import DatasetTabs from './Tabs/DatasetTabs/DatasetTabs';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -52,11 +57,13 @@ interface Props {
   )[];
   actions: AttachmentsActions;
   messageStyles?: MessageStyles;
+  isSystemAttachments?: boolean;
   isShowAttachments?: boolean;
   showAdvancedView?: boolean;
   attachmentsStyles?: AttachmentsStyles;
   currentDataQuery?: DataQuery;
   dataQueries?: DataQuery[];
+  queryFiltersDetails?: QueryFilterDetails[];
   datasets?: Dataflow[];
   isDataLoading?: boolean;
   isDataSetAttachments: boolean;
@@ -73,10 +80,12 @@ const AttachmentRenderer: FC<Props> = ({
   titles,
   messageStyles,
   attachmentsStyles,
+  isSystemAttachments,
   isShowAttachments,
   showAdvancedView,
   currentDataQuery,
   dataQueries,
+  queryFiltersDetails,
   datasets,
   isDataLoading,
   isDataSetAttachments,
@@ -155,13 +164,23 @@ const AttachmentRenderer: FC<Props> = ({
         <div
           className={classNames(
             `space-y-3 max-w-full max-h-full h-full`,
-            !isOpenedAdvancedView && 'pt-5',
+            !isOpenedAdvancedView && !isSystemAttachments ? 'pt-5' : 'pt-0',
           )}
         >
           {!isOpenedAdvancedView && showLoading ? (
             <Loader />
           ) : (
             <>
+              {isSystemAttachments && !isOpenedAdvancedView && (
+                <AttachmentDetails
+                  titles={{
+                    queryUpdatedManuallyTitle: titles?.queryUpdatedManually,
+                    setToTitle: titles?.setTo,
+                  }}
+                  queryFiltersDetails={queryFiltersDetails}
+                  isLoading={isDataLoading}
+                />
+              )}
               {!isOpenedAdvancedView &&
                 datasets?.length != null &&
                 datasets?.length > 0 && (

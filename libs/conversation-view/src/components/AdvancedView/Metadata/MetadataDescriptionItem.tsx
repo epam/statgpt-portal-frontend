@@ -1,7 +1,7 @@
 'use client';
 
 import { FC, useCallback } from 'react';
-import { StructureComponentValue } from '@statgpt/conversation-view/src/models/structure-component';
+import { StructureComponentValue } from '../../../models/structure-component';
 
 const MetadataDescriptionItem: FC<StructureComponentValue> = ({
   title,

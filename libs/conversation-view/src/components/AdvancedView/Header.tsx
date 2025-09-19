@@ -1,10 +1,13 @@
-import { useAdvancedView } from '@statgpt/conversation-view/src/context/AdvancedViewContext';
+/* eslint-disable @nx/enforce-module-boundaries */
+'use client';
+
+import { useAdvancedView } from '../../context/AdvancedViewContext';
 import { FC } from 'react';
 import classNames from 'classnames';
-import ShareConversation from '@statgpt/conversation-view/src/components/ShareConversation/ShareConversation';
+import ShareConversation from '@statgpt/share-conversation/src/components/ShareConversation/ShareConversation';
 import { CloseButton } from '@statgpt/ui-components/src/components/CloseButton/CloseButton';
-import { ShareConversationProps } from '@statgpt/conversation-view/src/models/share-conversation';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
+import { ConversationViewTitles } from '../../models/titles';
 
 interface Props {
   isShowShare?: boolean;

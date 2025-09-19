@@ -1,3 +1,5 @@
+'use client';
+
 import React, { FC, ReactNode } from 'react';
 import classNames from 'classnames';
 import { FixedSizeList as OriginalList } from 'react-window';
@@ -6,7 +8,7 @@ const List = OriginalList as unknown as React.ComponentType<any>;
 import {
   FilterTreeNodeProps,
   FilterValue,
-} from '@statgpt/conversation-view/src/models/filters';
+} from '../../../../../models/filters';
 import FilterTreeView from './FilterTreeView';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import CheckboxRow from './CheckboxRow';

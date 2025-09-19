@@ -1,11 +1,11 @@
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
+import { StructuralData } from '../models/structural-metadata';
 import {
   Dimension,
   DimensionList,
   DimensionType,
-} from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { DataMessage } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
-import { StructureItemBase } from '@statgpt/sdmx-toolkit/src/models/data/structure';
+} from '../models/structural-metadata/data-structure';
+import { DataMessage } from '../models/data/data-message';
+import { StructureItemBase } from '../models/data/structure';
 
 export function getDimensions(
   structures: StructuralData,

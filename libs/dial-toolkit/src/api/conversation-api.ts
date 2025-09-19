@@ -9,15 +9,15 @@
 
 import { Conversation, Entity as DialEntity } from '@epam/ai-dial-shared';
 
-import { Message } from '@statgpt/dial-toolkit/src/models/message';
-import { DialApiClient } from '@statgpt/dial-toolkit/src/api/dial-api-client';
-import { isError } from '@statgpt/dial-toolkit/src/utils/is-error';
+import { Message } from '../models/message';
+import { DialApiClient } from './dial-api-client';
+import { isError } from '../utils/is-error';
 import {
   generateConversationId,
   parseConversationName,
-} from '@statgpt/dial-toolkit/src/utils/parse-conversation-name';
-import { encodeApiUrl } from '@statgpt/dial-toolkit/src/utils/url';
-import { DIAL_API_ROUTES } from '@statgpt/dial-toolkit/src/constants/api-urls';
+} from '../utils/parse-conversation-name';
+import { encodeApiUrl } from '../utils/url';
+import { DIAL_API_ROUTES } from '../constants/api-urls';
 import { ConversationInfo } from '@epam/ai-dial-shared';
 import {
   ConversationData,
@@ -27,9 +27,9 @@ import {
   SharedConversations,
   UpdateConversationRequest,
   SharedConversationInfo,
-} from '@statgpt/dial-toolkit/src/models/conversation';
-import { ModelInfo } from '@statgpt/dial-toolkit/src/models/model';
-import { GridAttachmentContent } from '@statgpt/dial-toolkit/src/models/grid-attachment';
+} from '../models/conversation';
+import { ModelInfo } from '../models/model';
+import { GridAttachmentContent } from '../models/grid-attachment';
 
 const CONVERSATION_URL = (id: string) =>
   `/v1/conversations/${encodeApiUrl(id)}`;
@@ -42,6 +42,7 @@ export class ConversationApi {
   constructor(private client: DialApiClient) {}
 
   async getConversations(
+    token: string,
     bucket?: string,
     locale?: string,
   ): Promise<ConversationInfo[]> {
@@ -52,7 +53,7 @@ export class ConversationApi {
       const response = await this.client
         .getRequest<{
           items: Entity[];
-        }>(endpoint + '/?limit=1000&recursive=false')
+        }>(endpoint + '/?limit=1000&recursive=false', token)
         .then((res) => res.items || []);
 
       return response.map((item) => {
@@ -75,9 +76,15 @@ export class ConversationApi {
     }
   }
 
-  async getConversation(id: string): Promise<Conversation | null> {
+  async getConversation(
+    id: string,
+    token: string,
+  ): Promise<Conversation | null> {
     try {
-      return await this.client.getRequest<Conversation>(CONVERSATION_URL(id));
+      return await this.client.getRequest<Conversation>(
+        CONVERSATION_URL(id),
+        token,
+      );
     } catch (error) {
       if (isError(error)) {
         return null;
@@ -86,10 +93,13 @@ export class ConversationApi {
     }
   }
 
-  async getFile(filePath: string): Promise<GridAttachmentContent | null> {
+  async getFile(
+    filePath: string,
+    token: string,
+  ): Promise<GridAttachmentContent | null> {
     try {
       const endpoint = `${DIAL_API_ROUTES.VERSION}/${encodeApiUrl(filePath)}`;
-      return await this.client.getRequest(endpoint);
+      return await this.client.getRequest(endpoint, token);
     } catch (error) {
       if (isError(error)) {
         return null;
@@ -98,10 +108,10 @@ export class ConversationApi {
     }
   }
 
-  async getFileBlob(filePath: string): Promise<Blob | null> {
+  async getFileBlob(filePath: string, token: string): Promise<Blob | null> {
     try {
       const endpoint = `${DIAL_API_ROUTES.VERSION}/${encodeApiUrl(filePath)}`;
-      return await this.client.requestBlob(endpoint, { method: 'GET' });
+      return await this.client.requestBlob(endpoint, token, { method: 'GET' });
     } catch (error) {
       if (isError(error)) {
         return null;
@@ -112,6 +122,7 @@ export class ConversationApi {
 
   async createConversation(
     data: CreateConversationRequest,
+    token: string,
   ): Promise<ConversationInfo> {
     const conversationId = data?.id || generateConversationId(data);
     const { name, folderId, model, messages } = data;
@@ -131,6 +142,7 @@ export class ConversationApi {
 
     await this.client.request<ConversationInfo>(
       CONVERSATION_URL(conversationId),
+      token,
       {
         method: 'PUT',
         body: conversationData,
@@ -148,10 +160,12 @@ export class ConversationApi {
   }
 
   async generateConversationLink(
+    token: string,
     conversationData?: ConversationData,
   ): Promise<GeneratedLinkResponse> {
     return await this.client.postRequest<GeneratedLinkResponse>(
       DIAL_API_ROUTES.SHARE_CONVERSATION,
+      token,
       {
         body: conversationData,
       },
@@ -159,10 +173,12 @@ export class ConversationApi {
   }
 
   async getSharedConversations(
+    token: string,
     requestData?: SharedConversationsRequest,
   ): Promise<SharedConversations> {
     return await this.client.postRequest<SharedConversations>(
       DIAL_API_ROUTES.SHARE_CONVERSATION_LIST,
+      token,
       {
         body: requestData,
       },
@@ -170,18 +186,24 @@ export class ConversationApi {
   }
 
   async revokeSharedConversations(
+    token: string,
     sharedConversations?: SharedConversations,
   ): Promise<void> {
-    await this.client.postRequest(DIAL_API_ROUTES.SHARE_CONVERSATION_REVOKE, {
-      body: sharedConversations,
-    });
+    await this.client.postRequest(
+      DIAL_API_ROUTES.SHARE_CONVERSATION_REVOKE,
+      token,
+      {
+        body: sharedConversations,
+      },
+    );
   }
 
   async updateConversation(
     id: string,
     data: UpdateConversationRequest,
+    token: string,
   ): Promise<ConversationInfo> {
-    const existingConversation = await this.getConversation(id);
+    const existingConversation = await this.getConversation(id, token);
     if (!existingConversation) {
       throw new Error(`Conversation with id ${id} not found`);
     }
@@ -192,16 +214,24 @@ export class ConversationApi {
       updatedAt: Date.now(),
     };
 
-    return await this.client.request<ConversationInfo>(CONVERSATION_URL(id), {
-      method: 'PUT',
-      body: updatedConversation,
-    });
+    return await this.client.request<ConversationInfo>(
+      CONVERSATION_URL(id),
+      token,
+      {
+        method: 'PUT',
+        body: updatedConversation,
+      },
+    );
   }
 
-  async deleteConversation(conversation: ConversationInfo): Promise<void> {
+  async deleteConversation(
+    conversation: ConversationInfo,
+    token: string,
+  ): Promise<void> {
     if (conversation?.isShared) {
       await this.client.postRequest(
         DIAL_API_ROUTES.SHARE_CONVERSATION_DISCARD,
+        token,
         {
           body: {
             resources: [
@@ -213,17 +243,24 @@ export class ConversationApi {
         },
       );
     } else {
-      await this.client.request(CONVERSATION_URL(decodeURI(conversation?.id)), {
-        method: 'DELETE',
-      });
+      await this.client.request(
+        CONVERSATION_URL(decodeURI(conversation?.id)),
+        token,
+        {
+          method: 'DELETE',
+        },
+      );
     }
   }
 
-  async streamChat(params: {
-    conversationId: string;
-    messages: Message[];
-    model: ModelInfo;
-  }): Promise<ReadableStream> {
+  async streamChat(
+    params: {
+      conversationId: string;
+      messages: Message[];
+      model: ModelInfo;
+    },
+    token: string,
+  ): Promise<ReadableStream> {
     const modelId = params.model.id;
     const encodedModelId = encodeURIComponent(modelId);
     const endpoint = `${DIAL_API_ROUTES.CHAT(encodedModelId)}?api-version=${this.client.config.version}`;
@@ -235,7 +272,7 @@ export class ConversationApi {
       max_tokens: 4096,
     };
 
-    return await this.client.stream(endpoint, {
+    return await this.client.stream(endpoint, token, {
       method: 'POST',
       body,
       chatReference: params.conversationId,

@@ -5,7 +5,7 @@ import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-meta
 import {
   CustomChartAttachmentType,
   CustomGridAttachment,
-} from '@statgpt/conversation-view/src/models/attachments';
+} from '../models/attachments';
 import { AttachmentType } from '@statgpt/dial-toolkit/src/types/attachment-type';
 import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
 import { StructureItemBase } from '@statgpt/sdmx-toolkit/src/models/data/structure';
@@ -18,20 +18,17 @@ import {
   getConstraints,
   GetDatasetData,
   GetDatasetDetails,
-} from '@statgpt/conversation-view/src/types/actions';
-import { buildGridData } from '@statgpt/conversation-view/src/utils/attachments/data-grid/data-grid';
+} from '../types/actions';
+import { buildGridData } from '../utils/attachments/data-grid/data-grid';
 import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
-import { getTimeSeriesFilterKey } from '@statgpt/shared-toolkit/src/utils/query-filters';
-import {
-  getTimeQueryFilterFromAttachment,
-  getUpdatedQueryTimeSeriesFilters,
-} from '@statgpt/conversation-view/src/utils/query-filters';
-import { buildChartData } from '@statgpt/conversation-view/src/utils/attachments/charting/chart-data';
-import { ChartingStyles } from '@statgpt/conversation-view/src/models/attachments-styles';
-import { MetadataSettings } from '@statgpt/conversation-view/src/models/metadata';
+import { getTimeSeriesFilterKey } from '@statgpt/sdmx-toolkit/src/utils/query-filters';
+import { getTimeQueryFilterFromAttachment } from '../utils/query-filters';
+import { buildChartData } from '../utils/attachments/charting/chart-data';
+import { ChartingStyles } from '../models/attachments-styles';
+import { MetadataSettings } from '../models/metadata';
 import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
 import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ConversationViewTitles } from '../models/titles';
 
 export function useAttachmentsData(
   actions: {
@@ -94,7 +91,7 @@ export function useAttachmentsData(
                 ? null
                 : getTimeSeriesFilterKey(
                     dimensions?.dimensions,
-                    getUpdatedQueryTimeSeriesFilters(dataQuery.filters),
+                    dataQuery.filters,
                   );
 
             const timeFilter = getTimeQueryFilterFromAttachment(

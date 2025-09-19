@@ -1,13 +1,13 @@
 'use client';
 
-import { CustomGridAttachment } from '@statgpt/conversation-view/src/models/attachments';
+import { CustomGridAttachment } from '../../../models/attachments';
 import { FC, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
 import type { ColDef } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
-import { GridData } from '@statgpt/conversation-view/src/types/data-grid/grid-data';
-import { getGridHeight } from '@statgpt/conversation-view/src/utils/attachments/data-grid/grid-height';
+import { GridData } from '../../../types/data-grid/grid-data';
+import { getGridHeight } from '../../../utils/attachments/data-grid/grid-height';
 import {
   CHART_CELL_RENDER,
   CHART_COLUMN_ID,
@@ -15,10 +15,10 @@ import {
   GRID_ROW_HEIGHT,
   METADATA_CELL_RENDER,
   OBSERVATION_VALUE_CELL_RENDER,
-} from '@statgpt/conversation-view/src/constants/grid';
-import MetadataCellRenderer from '@statgpt/conversation-view/src/components/Attachments/GridCellRenderers/MetadataCellRenderer';
-import ObservationValueCellRenderer from '@statgpt/conversation-view/src/components/Attachments/GridCellRenderers/ObservationValueCellRenderer';
-import ChartCellRenderer from '@statgpt/conversation-view/src/components/Attachments/GridCellRenderers/ChartCellRenderer';
+} from '../../../constants/grid';
+import MetadataCellRenderer from '../GridCellRenderers/MetadataCellRenderer';
+import ObservationValueCellRenderer from '../GridCellRenderers/ObservationValueCellRenderer';
+import ChartCellRenderer from '../GridCellRenderers/ChartCellRenderer';
 
 interface Props {
   attachment: CustomGridAttachment;

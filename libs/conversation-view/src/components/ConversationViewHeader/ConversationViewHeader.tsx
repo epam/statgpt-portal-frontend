@@ -1,9 +1,10 @@
+/* eslint-disable @nx/enforce-module-boundaries */
 import { Conversation } from '@epam/ai-dial-shared';
 import classNames from 'classnames';
 import { FC } from 'react';
 
-import ShareConversation from '@statgpt/conversation-view/src/components/ShareConversation/ShareConversation';
-import { ShareConversationProps } from '@statgpt/conversation-view/src/models/share-conversation';
+import ShareConversation from '@statgpt/share-conversation/src/components/ShareConversation/ShareConversation';
+import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 
 interface Props {
   conversation: Conversation | null;

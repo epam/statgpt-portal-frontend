@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { FC, MouseEvent, ReactNode } from 'react';
-import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
+import { Loader } from '../Loader/Loader';
 
 interface Props {
   title?: string;

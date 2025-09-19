@@ -1,7 +1,7 @@
 import {
   getParsedEndPeriodDate,
   getParsedStartPeriodDate,
-} from '@statgpt/sdmx-toolkit/src/parsers/time-period-parser/time-period';
+} from './time-period';
 
 const YEAR_BOUNDARY_VALUE = 1;
 

@@ -1,4 +1,4 @@
-import { RepresentationTextType } from '@statgpt/sdmx-toolkit/src/types/representation-text-type';
+import { RepresentationTextType } from '../../types/representation-text-type';
 
 export interface Representation {
   enumeration?: string;

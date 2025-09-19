@@ -10,7 +10,7 @@ import {
   useInteractions,
 } from '@floating-ui/react';
 import classNames from 'classnames';
-import { DropdownItem } from '@statgpt/ui-components/src/models/dropdown-item';
+import { DropdownItem } from '../../models/dropdown-item';
 
 interface Props {
   triggerButton: ReactNode;

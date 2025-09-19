@@ -1,7 +1,7 @@
-import { GridData } from '@statgpt/conversation-view/src/types/data-grid/grid-data';
+import { GridData } from '../../../types/data-grid/grid-data';
 import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { ChartUnitRows } from '@statgpt/conversation-view/src/models/charting';
-import { getDimValue } from '@statgpt/conversation-view/src/utils/attachments/localized-value';
+import { ChartUnitRows } from '../../../models/charting';
+import { getDimValue } from '../localized-value';
 
 export function splitForUnits(
   rows: GridData[],

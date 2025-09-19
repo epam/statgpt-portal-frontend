@@ -2,7 +2,7 @@
 
 import { FC, useCallback, useMemo, useState } from 'react';
 import { ICellRendererParams } from 'ag-grid-community';
-import Metadata from '@statgpt/conversation-view/src/components/AdvancedView/Metadata/Metadata';
+import Metadata from '../../AdvancedView/Metadata/Metadata';
 import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
 import {
   getDatasetNameItem,
@@ -12,10 +12,10 @@ import {
   getObservationItem,
   getStructureComponentsValues,
   getTimeDimensionItem,
-} from '@statgpt/conversation-view/src/utils/attachments/metadata';
-import { MetadataSettings } from '@statgpt/conversation-view/src/models/metadata';
+} from '../../../utils/attachments/metadata';
+import { MetadataSettings } from '../../../models/metadata';
 import { getStructureComponentsMap } from '@statgpt/sdmx-toolkit/src/utils/get-structure-components';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import { ConversationViewTitles } from '../../../models/titles';
 
 interface ObservationValueCellRendererParams extends ICellRendererParams {
   dataSetData: StructuralData;

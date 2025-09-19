@@ -1,5 +1,6 @@
+/* eslint-disable @nx/enforce-module-boundaries */
 import { ReactNode } from 'react';
-import { ChartingIcon } from '@statgpt/conversation-view/src/types/charting-icon';
+import { ChartingIcon } from '../types/charting-icon';
 import { DownloadTitles } from '@statgpt/download-panel/src/models/titles';
 
 export interface AttachmentsStyles {

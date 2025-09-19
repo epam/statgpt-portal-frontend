@@ -1,3 +1,5 @@
+'use client';
+
 import Flatpickr, { OptionsType } from 'react-flatpickr';
 import { useEffect, useRef, FC, ReactNode } from 'react';
 import { CalendarResolution } from '@statgpt/shared-toolkit/src/types/calendar';

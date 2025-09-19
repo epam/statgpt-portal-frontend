@@ -1,5 +1,5 @@
-import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
-import { Annotations } from '@statgpt/sdmx-toolkit/src/types/annotations';
+import { Dataflow } from '../models/structural-metadata/dataflow';
+import { Annotations } from '../types/annotations';
 
 export function getLastUpdatedTime(
   dataset: Dataflow | null | undefined,

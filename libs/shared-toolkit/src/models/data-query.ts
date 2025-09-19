@@ -1,6 +1,7 @@
-import { QueryFilterType } from '@statgpt/shared-toolkit/src/types/query-filter-type';
+import { QueryFilterType } from '../types/query-filter-type';
 
 export interface DataQuery {
+  title?: string;
   urn: string;
   metadata: {
     countryDimension: string;
@@ -12,5 +13,11 @@ export interface DataQuery {
 export interface QueryFilter {
   componentCode: string;
   operator: QueryFilterType;
-  values: string;
+  values: string[];
+}
+
+export interface QueryFilterDetails {
+  id: string;
+  title?: string;
+  valuesTitles?: string[];
 }

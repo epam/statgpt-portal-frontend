@@ -1,9 +1,9 @@
 'use client';
 
 import { FC, useMemo } from 'react';
-import { FilterButtonProps } from '@statgpt/conversation-view/src/models/filters';
+import { FilterButtonProps } from '../../../../models/filters';
 import { PopUpState } from '@statgpt/ui-components/src/types/pop-up';
-import FilterIcon from '@statgpt/conversation-view/src/assets/icons/filter.svg';
+import FilterIcon from '../../../../assets/icons/filter.svg';
 import { Button } from '@statgpt/ui-components/src/components/Button/Button';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
 

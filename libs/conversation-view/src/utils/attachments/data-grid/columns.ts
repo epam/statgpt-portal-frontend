@@ -1,6 +1,6 @@
 import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
 import { DataMessage } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
-import { ObsColGetter } from '@statgpt/conversation-view/src/types/data-grid/obs-col-getter';
+import { ObsColGetter } from '../../../types/data-grid/obs-col-getter';
 import {
   ColDef,
   ValueFormatterParams,
@@ -17,7 +17,7 @@ import { defaultFormatNumbers } from '@statgpt/shared-toolkit/src/constants/form
 import {
   getDimRelatedStructures,
   getDimValueLocalizedName,
-} from '@statgpt/conversation-view/src/utils/attachments/localized-value';
+} from '../localized-value';
 import { sortPeriods } from '@statgpt/sdmx-toolkit/src/parsers/time-period-parser/period-sorting';
 import {
   CELL_PADDING_0,
@@ -25,10 +25,10 @@ import {
   getChartColumn,
   getMetaDataColumn,
   OBSERVATION_VALUE_CELL_RENDER,
-} from '@statgpt/conversation-view/src/constants/grid';
-import { MetadataSettings } from '@statgpt/conversation-view/src/models/metadata';
-import { localizeTimePeriod } from '@statgpt/conversation-view/src/utils/attachments/time-period';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+} from '../../../constants/grid';
+import { MetadataSettings } from '../../../models/metadata';
+import { localizeTimePeriod } from '../time-period';
+import { ConversationViewTitles } from '../../../models/titles';
 
 export function getColumns(
   structures: StructuralData,

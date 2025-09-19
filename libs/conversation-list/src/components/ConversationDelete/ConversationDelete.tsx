@@ -4,7 +4,7 @@ import { Button } from '@statgpt/ui-components/src/components/Button/Button';
 import { Popup } from '@statgpt/ui-components/src/components/Popup/Popup';
 import { PopUpSize } from '@statgpt/ui-components/src/types/pop-up';
 import { FC } from 'react';
-import { ConversationListTitles } from '@statgpt/conversation-list/src/models/titles';
+import { ConversationListTitles } from '../../models/titles';
 
 interface Props {
   disableModalDividers?: boolean;

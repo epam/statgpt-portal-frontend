@@ -1,12 +1,9 @@
-import {
-  GET_v3_FILTER_AND,
-  GET_v3_FILTER_OR,
-} from '@statgpt/sdmx-toolkit/src/constants/filter-operators';
+import { GET_v3_FILTER_OR } from '../constants/filter-operators';
 import {
   Dimension,
   DimensionType,
-} from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { SeriesFilterOperator } from '@statgpt/sdmx-toolkit/src/types/logical-operator-type';
+} from '../models/structural-metadata/data-structure';
+import { SeriesFilterOperator } from '../types/logical-operator-type';
 import {
   DataQuery,
   QueryFilter,
@@ -28,7 +25,7 @@ export const getTimeSeriesFilterKey = (
     const filter = filters.find((f) => f.componentCode === dimension.id);
 
     if (filter != null && filter.values?.length > 0) {
-      timeSeriesKeyValues.push(filter.values);
+      timeSeriesKeyValues.push(filter.values?.join(GET_v3_FILTER_OR));
     } else {
       timeSeriesKeyValues.push('*');
     }
@@ -92,9 +89,7 @@ export const getTimeRangeFromAttachment = (
   if (!filterFromAttachment || !filterFromAttachment.values) {
     return null;
   }
-  const periods: string[] = filterFromAttachment.values
-    .split(GET_v3_FILTER_AND)
-    .filter((p) => !!p);
+  const periods: string[] = filterFromAttachment.values?.filter((p) => !!p);
 
   if (!periods.length) {
     return null;

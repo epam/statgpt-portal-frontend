@@ -1,9 +1,6 @@
-import { CommonArtefactProperty } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/common-artefact-properties';
-import {
-  Annotation,
-  Link,
-} from '@statgpt/sdmx-toolkit/src/models/structural-metadata-base';
-import { Representation } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/representation';
+import { CommonArtefactProperty } from './common-artefact-properties';
+import { Annotation, Link } from '../structural-metadata-base';
+import { Representation } from './representation';
 
 export interface DataStructure extends CommonArtefactProperty {
   dataStructureComponents?: DataStructureComponents;

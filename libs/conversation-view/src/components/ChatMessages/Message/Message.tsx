@@ -20,29 +20,37 @@ import {
   useState,
 } from 'react';
 
-import AttachmentRenderer from '@statgpt/conversation-view/src/components/Attachments/AttachmentRenderer';
-import MessageContent from '@statgpt/conversation-view/src/components/ChatMessages/MessageContent';
-import { useAttachmentsData } from '@statgpt/conversation-view/src/context/AttachmentsData';
-import { useDatasets } from '@statgpt/conversation-view/src/context/Datasets';
-import { useAdvancedView } from '@statgpt/conversation-view/src/context/AdvancedViewContext';
-import { AttachmentsActions } from '@statgpt/conversation-view/src/models/actions';
-import { AttachmentsStyles } from '@statgpt/conversation-view/src/models/attachments-styles';
-import { MessageStyles } from '@statgpt/conversation-view/src/models/message';
+import AttachmentRenderer from '../../Attachments/AttachmentRenderer';
+import MessageContent from '../MessageContent';
+import { useAttachmentsData } from '../../../context/AttachmentsData';
+import { useDatasets } from '../../../context/Datasets';
+import { useAdvancedView } from '../../../context/AdvancedViewContext';
+import { AttachmentsActions } from '../../../models/actions';
+import { AttachmentsStyles } from '../../../models/attachments-styles';
+import { MessageStyles } from '../../../models/message';
 import {
   isGridAttachment,
   parseMessageAttachments,
-} from '@statgpt/conversation-view/src/utils/attachments/attachment-parser';
-import { getDataQueries } from '@statgpt/conversation-view/src/utils/attachments/parse-data-query';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
+} from '../../../utils/attachments/attachment-parser';
+import { getDataQueries } from '../../../utils/attachments/parse-data-query';
+import {
+  DataQuery,
+  QueryFilterDetails,
+} from '@statgpt/shared-toolkit/src/models/data-query';
 import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
 import { Message as MessageType } from '@statgpt/dial-toolkit/src/models/message';
-import { MetadataSettings } from '@statgpt/conversation-view/src/models/metadata';
+import { MetadataSettings } from '../../../models/metadata';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
-import MessageStages from '@statgpt/conversation-view/src/components/ChatMessages/MessageStages/MessageStages';
-import { ConversationViewTitles } from '@statgpt/conversation-view/src/models/titles';
+import MessageStages from '../MessageStages/MessageStages';
+import { ConversationViewTitles } from '../../../models/titles';
+import {
+  getQueryFiltersDetails,
+  getUpdatedQueryFiltersDetails,
+} from '../../../utils/query-filters-details';
 
 interface Props {
   message: MessageType;
+  previousMessage?: MessageType;
   isStreaming?: boolean;
   actions: AttachmentsActions;
   messageStyles?: MessageStyles;
@@ -57,6 +65,7 @@ interface Props {
 
 const Message: FC<Props> = ({
   message,
+  previousMessage,
   titles,
   actions,
   isStreaming = false,
@@ -74,14 +83,18 @@ const Message: FC<Props> = ({
   const [currentAttachmentDataQuery, setCurrentAttachmentDataQuery] = useState<
     DataQuery | undefined
   >(attachmentsDataQueries?.[0]);
+  const [queryFiltersDetails, setQueryFiltersDetails] = useState<
+    QueryFilterDetails[]
+  >([]);
   const [baseGridAttachments, setBaseGridAttachments] = useState<Attachment[]>(
     [],
   );
   const [isDataSetAttachments, setIsDataSetAttachments] =
     useState<boolean>(false);
   const isUser = message.role === Role.User;
+  const isSystem = message.role === Role.System;
   const { datasets } = useDatasets(actions?.getDataSet, attachmentsDataQueries);
-  const { dataSetAttachments, dimensions, isLoadingGridData } =
+  const { dataSetAttachments, dimensions, isLoadingGridData, structures } =
     useAttachmentsData(
       actions,
       locale,
@@ -121,6 +134,51 @@ const Message: FC<Props> = ({
     );
   }, [attachmentsDataQueries]);
 
+  useEffect(() => {
+    if (message?.role === Role.System && previousMessage) {
+      const previousMessageAttachments =
+        parseMessageAttachments(previousMessage);
+      const previousMessageDataQuery = getDataQueries(
+        previousMessageAttachments,
+      )?.find(
+        (previousQuery) =>
+          previousQuery?.urn === currentAttachmentDataQuery?.urn,
+      );
+
+      if (
+        currentAttachmentDataQuery &&
+        previousMessageDataQuery &&
+        structures
+      ) {
+        setQueryFiltersDetails(
+          getUpdatedQueryFiltersDetails(
+            getQueryFiltersDetails(
+              previousMessageDataQuery?.filters,
+              dimensions,
+              structures?.conceptSchemes || [],
+              structures?.codelists || [],
+              locale,
+            ),
+            getQueryFiltersDetails(
+              currentAttachmentDataQuery?.filters,
+              dimensions,
+              structures?.conceptSchemes || [],
+              structures?.codelists || [],
+              locale,
+            ),
+          ),
+        );
+      }
+    }
+  }, [
+    currentAttachmentDataQuery,
+    dimensions,
+    locale,
+    message?.role,
+    previousMessage,
+    structures,
+  ]);
+
   const getMessageIcon = useCallback(() => {
     if (
       !isUser &&
@@ -159,9 +217,11 @@ const Message: FC<Props> = ({
         messageStyles={messageStyles}
         attachmentsStyles={attachmentsStyles}
         showAdvancedView={showAdvancedView}
+        isSystemAttachments={isSystem}
         isDataLoading={isLoadingGridData}
         currentDataQuery={currentAttachmentDataQuery}
         dataQueries={attachmentsDataQueries}
+        queryFiltersDetails={queryFiltersDetails}
         locale={locale}
         dimensions={dimensions}
         selectDataset={onSelectDataset}
@@ -177,9 +237,11 @@ const Message: FC<Props> = ({
       messageStyles,
       attachmentsStyles,
       showAdvancedView,
+      isSystem,
       isLoadingGridData,
       currentAttachmentDataQuery,
       attachmentsDataQueries,
+      queryFiltersDetails,
       locale,
       dimensions,
       onSelectDataset,
@@ -193,7 +255,12 @@ const Message: FC<Props> = ({
         isUser ? 'justify-end' : 'justify-start',
       )}
     >
-      <div className="flex items-start max-w-full">
+      <div
+        className={classNames(
+          'flex items-start max-w-full',
+          isSystem && 'w-full',
+        )}
+      >
         <div className="mr-2 relative">
           {getMessageIcon()}
           {isStreaming && <Loader />}
@@ -216,7 +283,7 @@ const Message: FC<Props> = ({
               )}
             <MessageContent content={message.content} />
           </div>
-          {attachmentRendererMemoized}
+          {!(isSystem && isOpenedAdvancedView) && attachmentRendererMemoized}
         </div>
       </div>
     </div>

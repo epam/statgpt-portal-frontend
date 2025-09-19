@@ -7,9 +7,10 @@ import {
   UpdateConversation,
   getConstraints,
   CreateConversation,
-} from '@statgpt/conversation-view/src/types/actions';
+} from '../types/actions';
 import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
 import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import { DownloadDatasetAction } from '@statgpt/download-panel/src/types/actions';
 import { ConversationInfo } from '@epam/ai-dial-shared';
 

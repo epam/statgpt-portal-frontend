@@ -1,19 +1,14 @@
-import { SdmxApiClient } from '@statgpt/sdmx-toolkit/src/api/sdmx-api-client';
-import { StructuralMetaData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { splitUrn } from '@statgpt/sdmx-toolkit/src/utils/urn';
-import {
-  DataMessage,
-  DownloadData,
-} from '@statgpt/sdmx-toolkit/src/models/data/data-message';
-import { getRequestAcceptHeader } from '@statgpt/sdmx-toolkit/src/utils/get-file-headers';
-import { SdmxReferences } from '@statgpt/sdmx-toolkit/src/types/references';
-import { SdmxDetails } from '@statgpt/sdmx-toolkit/src/types/details';
-import { generateDatasetDataRequest } from '@statgpt/sdmx-toolkit/src/utils/get-dataset';
-import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
-import {
-  FileColumnsAttribute,
-  SdmxDataFormat,
-} from '@statgpt/sdmx-toolkit/src/types/files';
+import { SdmxApiClient } from './sdmx-api-client';
+import { StructuralMetaData } from '../models/structural-metadata';
+import { splitUrn } from '../utils/urn';
+import { DataMessage } from '../models/data/data-message';
+import { getRequestAcceptHeader } from '../utils/get-file-headers';
+import { SdmxReferences } from '../types/references';
+import { SdmxDetails } from '../types/details';
+import { ALL_ATTRIBUTES } from '../constants/attributes';
+import { generateDatasetDataRequest } from '../utils/get-dataset';
+import { DatasetQueryFilters } from '../models/dataset-query-filters';
+import { FileColumnsAttribute, SdmxDataFormat } from '../types/files';
 
 const DATASET_URL = (
   agency = '',
@@ -43,6 +38,7 @@ export class DatasetApi {
     const queryParams = new URLSearchParams({
       includeHistory: 'false',
       limit: '10000',
+      attributes: ALL_ATTRIBUTES,
       dimensionAtObservation: 'TIME_PERIOD', // TODO: use time dimensions
       detail: SdmxDetails.FULL,
     }).toString();
@@ -59,8 +55,9 @@ export class DatasetApi {
     language: string,
     columnAttribute: FileColumnsAttribute,
     filters: DatasetQueryFilters,
+    filename: string,
     isMetadata = false,
-  ): Promise<DownloadData> {
+  ) {
     const queryParams = new URLSearchParams({
       format: dataFormat,
       compress: 'false',
@@ -69,12 +66,16 @@ export class DatasetApi {
 
     const urlWithParams = generateDatasetDataRequest(urn, queryParams, filters);
 
-    return await this.client.request<DownloadData>(urlWithParams, {
-      method: 'GET',
-      headers: {
-        Accept: getRequestAcceptHeader(dataFormat, columnAttribute),
-        'Accept-language': language,
+    return this.client.streamRequest(
+      urlWithParams,
+      {
+        method: 'GET',
+        headers: {
+          Accept: getRequestAcceptHeader(dataFormat, columnAttribute),
+          'Accept-language': language,
+        },
       },
-    });
+      filename,
+    );
   }
 }

@@ -1,8 +1,8 @@
 import { FC, ReactNode, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Stage } from '@epam/ai-dial-shared';
-import { StageStatus } from '@statgpt/conversation-view/src/constants/message-stages';
-import MessageStage from '@statgpt/conversation-view/src/components/ChatMessages/MessageStages/MessageStage';
+import { StageStatus } from '../../../constants/message-stages';
+import MessageStage from './MessageStage';
 
 interface Props {
   stages?: Stage[];

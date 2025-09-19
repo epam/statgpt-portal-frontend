@@ -4,7 +4,7 @@ import {
   TimeSeriesValue,
 } from '@statgpt/sdmx-toolkit/src/models/data/time-series';
 import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { GridData } from '@statgpt/conversation-view/src/types/data-grid/grid-data';
+import { GridData } from '../../../types/data-grid/grid-data';
 
 export function getConvertedData(
   timeSeries: TimeSeries[],

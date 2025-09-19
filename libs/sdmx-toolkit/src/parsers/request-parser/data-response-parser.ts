@@ -1,21 +1,21 @@
-import { DataMessage } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
+import { DataMessage } from '../../models/data/data-message';
 import {
   TimeSeries,
   TimeSeriesObservation,
   TimeSeriesValue,
-} from '@statgpt/sdmx-toolkit/src/models/data/time-series';
-import { SeriesDeclaration } from '@statgpt/sdmx-toolkit/src/models/data/dataset';
-import { AttributeIndexValue } from '@statgpt/sdmx-toolkit/src/types/attribute-index-value';
-import { getAttachedDimensionsSeriesByTsId } from '@statgpt/sdmx-toolkit/src/utils/get-attached-dimensions-series';
-import { DimensionGroupAttribute } from '@statgpt/sdmx-toolkit/src/models/dimension-group';
-import { getAttributeValueFromDataQueryResponse } from '@statgpt/sdmx-toolkit/src/utils/get-attributes-value';
+} from '../../models/data/time-series';
+import { SeriesDeclaration } from '../../models/data/dataset';
+import { AttributeIndexValue } from '../../types/attribute-index-value';
+import { getAttachedDimensionsSeriesByTsId } from '../../utils/get-attached-dimensions-series';
+import { DimensionGroupAttribute } from '../../models/dimension-group';
+import { getAttributeValueFromDataQueryResponse } from '../../utils/get-attributes-value';
 import {
   DimensionValue,
   Structure,
   StructureAttribute,
   StructureContent,
   StructureItemBase,
-} from '@statgpt/sdmx-toolkit/src/models/data/structure';
+} from '../../models/data/structure';
 
 export const OBSERVATION_KEY = 'Observation';
 
