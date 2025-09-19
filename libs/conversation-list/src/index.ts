@@ -1,3 +1,5 @@
+import './styles/styles.scss';
+
 export * from './models/titles';
 export * from './types/action-menu-item';
 export { ConversationList } from './components/ConversationList/ConversationList';
