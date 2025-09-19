@@ -6,6 +6,7 @@ export {
 } from './context/AdvancedViewContext';
 export * from './models/titles';
 export * from './models/attachments-styles';
+export * from './models/structure-component';
 export * from './types/charting-icon';
 export { ConversationWelcome } from './components/ConversationWelcome/ConversationWelcome';
 export { AdvancedView } from './components/AdvancedView/AdvancedView';
