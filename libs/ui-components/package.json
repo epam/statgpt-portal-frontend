@@ -1,6 +1,6 @@
 {
   "name": "@dev-statgpt/ui-components",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "dependencies": {
     "react-flatpickr": "^4.0.11",
@@ -16,11 +16,13 @@
   "exports": {
     ".": {
       "import": "./index.mjs",
-      "require": "./index.js"
+      "require": "./index.js",
+      "types": "./index.d.ts"
     },
     "./index.css": "./index.css"
   },
   "main": "index",
   "browser": "index.js",
-  "module": "index.mjs"
+  "module": "index.mjs",
+  "types": "./index.d.ts"
 }

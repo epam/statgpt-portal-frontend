@@ -1,6 +1,6 @@
 {
   "name": "@dev-statgpt/conversation-view",
-  "version": "0.1.0",
+ "version": "0.1.1",
   "license": "MIT",
   "dependencies": {
     "react": "^19.1.0",
