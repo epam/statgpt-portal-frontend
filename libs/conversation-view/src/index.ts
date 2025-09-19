@@ -1,4 +1,4 @@
-import './styles/styles.scss';
+import './scss/styles.scss';
 
 export {
   AdvancedViewProvider,
