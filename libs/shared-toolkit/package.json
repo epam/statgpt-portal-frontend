@@ -14,11 +14,6 @@
   "module": "./index.mjs",
   "types": "./index.d.ts",
   "dependencies": {
-    "@nx/vite": "21.1.2",
-    "@vitejs/plugin-react": "^4.4.1",
-    "vite": "^6.3.5",
-    "vite-plugin-dts": "4.5.3",
-    "vite-plugin-static-copy": "^3.1.2",
     "@epam/ai-dial-shared": "^0.34.0"
   }
 }

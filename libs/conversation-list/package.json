@@ -11,8 +11,7 @@
     "@dev-statgpt/shared-toolkit": "^0.1.2",
     "@dev-statgpt/dial-toolkit": "^0.1.2",
     "jszip": "3.10.1",
-    "lodash": "^4.17.21",
-    "vite-plugin-static-copy": "^3.1.2"
+    "lodash": "^4.17.21"
   },
   "exports": {
     ".": {
