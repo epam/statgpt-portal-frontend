@@ -3,6 +3,8 @@ excludes:
   paths:
     - pattern: 'package-lock.json'
       reason: 'BUILD_TOOL_OF'
+    - pattern: 'libs/**/package.json'
+      reason: 'BUILD_TOOL_OF'
   scopes:
     - pattern: 'devDependencies'
       reason: 'DEV_DEPENDENCY_OF'
@@ -13,9 +15,3 @@ license_choices:
       choice: 'MIT'
     - given: 'GPL-3.0-or-later OR MIT'
       choice: 'MIT'
-resolutions:
-  rule_violations:
-    - message: "No license information is available for dependency \
-        'NPM::jszip:3\\.10\\.1'\\."
-      reason: 'CANT_FIX_EXCEPTION'
-      comment: 'The dependency has MIT license in github repo'
