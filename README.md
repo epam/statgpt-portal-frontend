@@ -1,7 +1,7 @@
 # StatGPT Portal Frontend
 
 Frontend codebase for StatGPT portals.
-StatGPT is an SDMX-driven platform for statistical organizations allowing to query,
+StatGPT is an SDMX-driven platform for statistical organizations allowing to query, 
 transform, analyze, visualize, and interpret statistical data using natural language interface.
 This repository providing reusable libraries and application example for building StatGPT Portals.
 The application features a conversational interface powered by the DIAL API, optimized for working with SDMX data.
@@ -24,9 +24,8 @@ The application features a conversational interface powered by the DIAL API, opt
   - [🏗️ Building Libraries](#-building-libraries)
 - [🏗️ Project Structure](#-project-structure)
 - [🧑‍💻 Development](#-development)
-  - [🛠️ Prerequisites](#-prerequisites)
-  - [🧩 Development Setup](#-development-setup)
-  - [🛠️ Environment Variables](#-environment-variables)
+  - [🛠️ Prerequisites](#prerequisites)
+  - [🧩 Development Setup](#development-setup)
 - [🎨 Styling](#-styling)
 - [📚 Libraries](#-libraries)
 - [🧪 Testing](#-testing)
@@ -112,32 +111,48 @@ libs/
 
 ## 🧑‍💻 Development
 
-### 🛠️ Prerequisites
+### Prerequisites
 
-...existing code...
+- Node.js >= 22.19.0
+- npm >= 11.0.0
+- Git
 
-### 🧩 Development Setup
+### Development Setup
 
-...existing code...
+1. **Fork and Clone**
+   ```bash
+   git clone https://github.com/epam/statgpt-portal-frontend.git
+   cd statgpt-portal-frontend
+   ```
 
-### 🛠️ Environment Variables
+2. **Install Dependencies**
+   ```bash
+   npm install
+   ```
+   
+3. **Set up environment variables**. 
+    
+   Create a `.env` file in the application directory:
 
-Create a `.env.local` file in the application directory:
+    ```env
+    # DIAL API Configuration
+    DIAL_API_URL=https://your-dial-api-endpoint.com
+    DIAL_API_VERSION=your-dial-api-version
+    DIAL_API_KEY=your-api-key
+    DEFAULT_MODEL="ADD_VALUE_HERE"
+   
+    # SDMX API Configuration
+    SDMX_API_URL=https://your-sdmx-api-endpoint.com
+    ```
 
-```env
-# DIAL API Configuration
-DIAL_API_HOST=https://your-dial-api-endpoint.com
-DIAL_API_VERSION=your-dial-api-version
-DIAL_API_KEY=your-api-key
+4. **Start Development Environment**
 
-# Authentication (if enabled)
-NEXTAUTH_SECRET=your-secret-key
-NEXTAUTH_URL=http://localhost:4200
+   ```bash
+   # Start Vite dev server
+   npm run start
+   ```
 
-# NextAuth.js Providers (example for GitHub)
-GITHUB_ID=your-github-client-id
-GITHUB_SECRET=your-github-client-secret
-```
+    Once the server is up and running, open http://localhost:4200 in your browser to view the application.
 
 ## 🎨 Styling
 
@@ -225,3 +240,5 @@ If you discover a security vulnerability, please refer to our [Security Policy](
 <p align="center">
   Made by <a href="https://www.epam.com">EPAM Systems</a>
 </p>
+
+`
