@@ -1,0 +1,30 @@
+name: "🚀 Feature request"
+description: Suggest an idea for this project
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting an idea to improve StatGPT.
+        Please fill in as much of the following form as you're able.
+  - type: input
+    attributes:
+      label: Library name and version
+      description: Library name and version
+      placeholder: conversation-list 0.1.0
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What is the problem this feature will solve?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What is the feature you are proposing to solve the problem?
+      description: Describe the requests. If you already have something in mind... PRs are welcome!
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What alternatives have you considered?

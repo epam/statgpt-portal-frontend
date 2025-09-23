@@ -1,0 +1,204 @@
+'use client';
+
+import { FC, useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
+import { useIsMobile } from '@statgpt/ui-components/src/hooks/isMobile';
+import ChevronSolidDownIcon from '../../../../../assets/icons/chevron-solid-down.svg';
+
+import {
+  Filter,
+  FilterTreeNodeProps,
+  FilterValuesProps,
+} from '../../../../../models/filters';
+import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
+import ClearIcon from '../../../../../assets/icons/clear.svg';
+import SettingsListIcon from '../../../../../assets/icons/settings-list.svg';
+import { getDateString } from '../../../../../utils/attachments/time-period';
+import {
+  getFilterDisplaySettings,
+  getSelectedDimensionValues,
+} from '../../../../../utils/filters';
+import { Dropdown } from '@statgpt/ui-components/src/components/Dropdown/Dropdown';
+import { TimeRangeOptions } from '@statgpt/shared-toolkit/src/models/time-range';
+import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
+import FiltersValuesPanel from '../FiltersValuesPanel/FiltersValuesPanel';
+import { ConversationViewTitles } from '../../../../../models/titles';
+
+interface Props {
+  filter: Filter;
+  locale?: string;
+  hideFacetCounterByDefault?: boolean;
+  onSelectFilter: (filterId?: string) => void;
+  onSelectDisplayMode?: (filterId?: string, displayMode?: string) => void;
+  onDeleteFilter?: (filterId?: string) => void;
+  filterValuesProps?: FilterValuesProps;
+  isDisableValues?: boolean;
+  initialTimeRange?: TimeRange;
+  timeRangeOptions?: TimeRangeOptions[];
+  titles?: ConversationViewTitles;
+  onTimePeriodChange: (timeRange: TimeRange | null) => void;
+  selectFilterValue: (id: string, isSelectedValue?: boolean) => void;
+  selectHierarchicalNodes: (nodes?: FilterTreeNodeProps[]) => void;
+  expandHierarchicalValue: (value?: FilterTreeNodeProps) => void;
+}
+
+const FiltersFacetItem: FC<Props> = ({
+  filter,
+  onSelectFilter,
+  onSelectDisplayMode,
+  onDeleteFilter,
+  locale,
+  titles,
+  hideFacetCounterByDefault,
+  filterValuesProps,
+  isDisableValues,
+  initialTimeRange,
+  timeRangeOptions,
+  onTimePeriodChange,
+  selectFilterValue,
+  selectHierarchicalNodes,
+  expandHierarchicalValue,
+}) => {
+  const isMobile = useIsMobile();
+
+  const [selectedValuesLength, setSelectedValuesLength] = useState<number>(0);
+  const [isSelected, setIsSelected] = useState(false);
+  const isTimeDimension = filter?.isTimeDimension && filter?.timeRange;
+  const timePeriodValue = useMemo(() => {
+    return filter?.timeRange?.startPeriod && filter?.timeRange?.endPeriod
+      ? `${getDateString(filter?.timeRange?.startPeriod, locale)} -
+              ${getDateString(filter?.timeRange?.endPeriod, locale)}`
+      : '';
+  }, [locale, filter?.timeRange]);
+
+  useEffect(() => {
+    setSelectedValuesLength(
+      getSelectedDimensionValues(filter?.dimensionValues)?.length,
+    );
+  }, [filter?.dimensionValues]);
+
+  const onSelectFilterDisplayMode = (filterDisplayMode: string) => {
+    onSelectDisplayMode?.(filter?.id, filterDisplayMode);
+  };
+
+  const showSelectedValuesCounter = hideFacetCounterByDefault
+    ? selectedValuesLength > 0
+    : true;
+
+  useEffect(() => {
+    if (!filter.isSelectedFilter) {
+      setIsSelected(false);
+    }
+  }, [filter.isSelectedFilter]);
+
+  const onFilterClick = () => {
+    if (isMobile) {
+      setIsSelected((prev) => !prev);
+    }
+    onSelectFilter(filter?.id);
+  };
+
+  return (
+    <div className="flex flex-col">
+      <div
+        className={classNames(
+          'flex justify-between items-center p-2 hover:bg-hues-100 py-2 sm:py-4 sm:hover:bg-white',
+          'filters-facet-item cursor-pointer',
+          filter?.isSelectedFilter && !isMobile && 'bg-hues-100',
+          filter?.isDisabled &&
+            'cursor-default pointer-events-none opacity-[0.7]',
+        )}
+        onClick={onFilterClick}
+      >
+        <h3
+          className="w-full truncate flex-1 min-w-0 sm:flex sm:items-center"
+          title={filter?.title}
+        >
+          <span className="truncate">{filter?.title}</span>
+          {isMobile && (
+            <ChevronSolidDownIcon
+              className={classNames(
+                'chevron-icon w-6 h-6 shrink-0',
+                isSelected && 'rotate-180',
+              )}
+            />
+          )}
+        </h3>
+
+        <div className="flex gap-2 items-center text-neutrals-800">
+          {isTimeDimension && (
+            <span className="filters-facet-item-counter border-none">
+              {timePeriodValue}
+            </span>
+          )}
+
+          {!isTimeDimension && showSelectedValuesCounter && (
+            <span
+              className={classNames(
+                'px-2 text-center',
+                'filters-facet-item-counter',
+              )}
+            >
+              {selectedValuesLength
+                ? `${selectedValuesLength}/${filter?.dimensionValues?.length || 0}`
+                : titles?.all || 'All'}
+            </span>
+          )}
+
+          {isTimeDimension ? null : (
+            <div className="flex items-center gap-2 filters-facet-item-settings">
+              <Dropdown
+                triggerButton={
+                  <IconButton
+                    buttonClassName={classNames(
+                      'text-button-tertiary w-4 h-4 border-0 p-0',
+                      'filters-facet-item-icon',
+                    )}
+                    icon={<SettingsListIcon />}
+                    title={titles?.displayOrder || 'Display Order'}
+                    disabled={!filter?.isHierarchical}
+                  />
+                }
+                options={getFilterDisplaySettings(titles)}
+                selectedOption={filter?.displayMode}
+                disabled={!filter?.isHierarchical}
+                onOptionSelect={onSelectFilterDisplayMode}
+              />
+              {selectedValuesLength > 0 && (
+                <IconButton
+                  buttonClassName={classNames(
+                    'text-button-tertiary w-4 h-4 border-0 p-0',
+                    'filters-facet-item-icon',
+                  )}
+                  icon={<ClearIcon />}
+                  title={titles?.reset || 'Reset'}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteFilter?.(filter?.id);
+                  }}
+                />
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+      {isSelected && (
+        <FiltersValuesPanel
+          titles={titles}
+          selectedFilter={filter}
+          locale={locale}
+          isDisableValues={isDisableValues}
+          initialTimeRange={initialTimeRange}
+          timeRangeOptions={timeRangeOptions}
+          selectFilterValue={selectFilterValue}
+          selectHierarchicalNodes={selectHierarchicalNodes}
+          expandHierarchicalValue={expandHierarchicalValue}
+          onTimePeriodChange={onTimePeriodChange}
+          filterValuesProps={filterValuesProps}
+        />
+      )}
+    </div>
+  );
+};
+
+export default FiltersFacetItem;

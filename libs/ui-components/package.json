@@ -1,0 +1,28 @@
+{
+  "name": "@dev-statgpt/ui-components",
+  "version": "0.1.2",
+  "license": "MIT",
+  "dependencies": {
+    "react-flatpickr": "^4.0.11",
+    "react": "19.1.0",
+    "classnames": "^2.5.1",
+    "@dev-statgpt/shared-toolkit": "0.1.0",
+    "@tabler/icons-react": "^3.34.1",
+    "@floating-ui/react": "^0.27.14",
+    "@nx/jest": "21.1.2",
+    "@testing-library/jest-dom": "^6.6.3",
+    "vite-plugin-static-copy": "^3.1.2"
+  },
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js",
+      "types": "./index.d.ts"
+    },
+    "./index.css": "./index.css"
+  },
+  "main": "index",
+  "browser": "index.js",
+  "module": "index.mjs",
+  "types": "./index.d.ts"
+}

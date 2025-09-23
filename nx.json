@@ -1,0 +1,110 @@
+{
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@nx/workspace/tasks-runners/default",
+      "options": {}
+    }
+  },
+  "targetDependencies": {
+    "build": [
+      {
+        "target": "build",
+        "projects": "dependencies"
+      }
+    ]
+  },
+  "generators": {
+    "@nx/react": {
+      "application": {
+        "style": "css",
+        "linter": "eslint",
+        "babel": true
+      },
+      "component": {
+        "style": "css"
+      },
+      "library": {
+        "style": "css",
+        "linter": "eslint"
+      }
+    }
+  },
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "sharedGlobals": [
+      "{workspaceRoot}/workspace.json",
+      "{workspaceRoot}/tsconfig.base.json",
+      "{workspaceRoot}/tslint.json",
+      "{workspaceRoot}/nx.json",
+      "{workspaceRoot}/babel.config.json"
+    ],
+    "production": [
+      "default",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/jest.config.[jt]s",
+      "!{projectRoot}/src/test-setup.[jt]s",
+      "!{projectRoot}/eslint.config.mjs"
+    ]
+  },
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"],
+      "cache": true
+    },
+    "@nx/eslint:lint": {
+      "cache": true,
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/tools/eslint-rules/**/*",
+        "{workspaceRoot}/eslint.config.mjs"
+      ]
+    },
+    "@nx/jest:jest": {
+      "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
+      "cache": true,
+      "options": {
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "dist/libs/{projectName}"
+      }
+    },
+    "@nx/vite:test": {
+      "cache": true,
+      "inputs": ["default", "^production"]
+    },
+    "@nx/vite:build": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    }
+  },
+  "parallel": 1,
+  "release": {
+    "projects": ["conversation-view", "conversation-list", "ui-components"],
+    "releaseTagPattern": "release/{version}",
+    "git": {
+      "commit": false,
+      "stageChanges": false,
+      "tag": false
+    },
+    "changelog": {
+      "projectChangelogs": false,
+      "workspaceChangelog": false
+    }
+  },
+  "defaultProject": "portals-example",
+  "useLegacyCache": true
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@dev-statgpt/sdmx-toolkit",
+  "version": "0.1.2",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.cjs",
+      "types": "./index.d.ts"
+    }
+  },
+  "main": "./index.cjs",
+  "browser": "./index.mjs",
+  "module": "./index.mjs",
+  "types": "./index.d.ts",
+  "dependencies": {
+    "@dev-statgpt/dial-toolkit": "0.1.0",
+    "@dev-statgpt/shared-toolkit": "0.1.0",
+    "@nx/vite": "21.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "compare-versions": "^6.1.1",
+    "vite": "^6.3.5",
+    "vite-plugin-dts": "4.5.3",
+    "vite-plugin-static-copy": "^3.1.2"
+  }
+}

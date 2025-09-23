@@ -1,0 +1,149 @@
+/* eslint-disable @nx/enforce-module-boundaries */
+'use client';
+
+import { IconDotsVertical } from '@tabler/icons-react';
+import { FC, ReactNode, useCallback, useMemo, useState } from 'react';
+import { ConversationInfo, Conversation } from '@epam/ai-dial-shared';
+
+import ConversationDelete from '../ConversationDelete/ConversationDelete';
+import { getZippedFile } from '../../utils/compress-zip';
+import { triggerDownload } from '../../utils/download';
+import ShareConversationModal from '@statgpt/share-conversation/src/components/ShareConversation/ShareConversationModal';
+import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
+import { ConversationStyles } from '../../models/conversation-list';
+import { Dropdown } from '@statgpt/ui-components/src/components/Dropdown/Dropdown';
+import { DropdownItem } from '@statgpt/ui-components/src/models/dropdown-item';
+import { PopUpState } from '@statgpt/ui-components/src/types/pop-up';
+import { ActionMenuItem } from '../../types/action-menu-item';
+
+interface Props {
+  conversation: ConversationInfo;
+  conversationStyles: ConversationStyles;
+  shareConversationProps?: ShareConversationProps;
+  onConversationDelete: (conversation: ConversationInfo) => void;
+  getConversation: (conversationId: string) => Promise<Conversation>;
+  getFileBlob: (path: string) => Promise<Blob>;
+  triggerButton?: ReactNode;
+  locale: string;
+}
+
+export const ActionMenu: FC<Props> = ({
+  conversation,
+  conversationStyles,
+  shareConversationProps,
+  onConversationDelete,
+  getConversation,
+  getFileBlob,
+  triggerButton,
+  locale,
+}) => {
+  const items: DropdownItem[] = useMemo(() => {
+    return [
+      ...(!conversation.isShared
+        ? [
+            {
+              key: ActionMenuItem.SHARE,
+              title: conversationStyles?.titles?.share ?? 'Share',
+              icon: conversationStyles.actionsIcons?.[ActionMenuItem.SHARE],
+            },
+          ]
+        : []),
+      {
+        key: ActionMenuItem.EXPORT,
+        title: conversationStyles?.titles?.export ?? 'Export',
+        icon: conversationStyles.actionsIcons?.[ActionMenuItem.EXPORT],
+      },
+      {
+        key: ActionMenuItem.DELETE,
+        title: conversationStyles?.titles?.delete ?? 'Delete',
+        icon: conversationStyles.actionsIcons?.[ActionMenuItem.DELETE],
+      },
+    ];
+  }, [
+    conversation.isShared,
+    conversationStyles.titles,
+    conversationStyles.actionsIcons,
+  ]);
+
+  const [deleteModalState, setDeleteModalState] = useState(PopUpState.Closed);
+  const [shareModalState, setShareModalState] = useState(PopUpState.Closed);
+
+  const onCloseDeleteModal = useCallback((): void => {
+    setDeleteModalState(PopUpState.Closed);
+  }, [setDeleteModalState]);
+
+  const onCloseShareModal = useCallback((): void => {
+    setShareModalState(PopUpState.Closed);
+  }, [setShareModalState]);
+
+  const deleteConversation = useCallback(() => {
+    onConversationDelete(conversation);
+    onCloseDeleteModal();
+  }, [conversation, onConversationDelete, onCloseDeleteModal]);
+
+  const onOptionSelect = (key: string) => {
+    if (key === ActionMenuItem.DELETE) {
+      setDeleteModalState(PopUpState.Opened);
+    }
+
+    if (key === ActionMenuItem.SHARE) {
+      setShareModalState(PopUpState.Opened);
+    }
+
+    if (key === ActionMenuItem.EXPORT) {
+      getConversation(decodeURI(conversation.id)).then((conversation) => {
+        getZippedFile(conversation, getFileBlob).then((result) => {
+          triggerDownload(
+            `data:application/zip;base64,${result}`,
+            `chat_with_attachments_${new Date().toLocaleDateString()}.dial`,
+          );
+        });
+      });
+    }
+  };
+
+  return (
+    <>
+      <Dropdown
+        containerClassName="transition-opacity ml-3 group-hover:opacity-100"
+        triggerButton={triggerButton ?? <ActionTrigger />}
+        options={items}
+        openedClassName="action-menu-opened"
+        onOptionSelect={onOptionSelect}
+      />
+
+      {deleteModalState === PopUpState.Opened && (
+        <ConversationDelete
+          titles={conversationStyles.titles}
+          locale={locale}
+          disableModalDividers={conversationStyles.disableModalDividers}
+          isSmallButton={conversationStyles.isSmallModalButton}
+          deleteConversation={deleteConversation}
+          onCloseModal={onCloseDeleteModal}
+        />
+      )}
+
+      {shareModalState === PopUpState.Opened && (
+        <ShareConversationModal
+          conversation={conversation}
+          locale={locale}
+          onCloseModal={onCloseShareModal}
+          {...shareConversationProps}
+        />
+      )}
+    </>
+  );
+};
+
+const ActionTrigger: FC = () => {
+  return (
+    <div className="cursor-pointer flex items-center justify-center w-[24px]">
+      <IconDotsVertical
+        width={20}
+        height={20}
+        stroke={2}
+        className="text-primary"
+      />
+    </div>
+  );
+};

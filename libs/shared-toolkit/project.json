@@ -1,0 +1,38 @@
+{
+  "name": "shared-toolkit",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared-toolkit/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/libs/shared-toolkit"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/shared-toolkit/**/*.{ts,tsx,js,jsx}",
+          "libs/shared-toolkit/package.json"
+        ]
+      }
+    },
+    "publish": {
+      "command": "node tools/publish-lib.mjs shared-toolkit --version={args.ver} --dry={args.dry} --tag={args.tag} --development={args.development}"
+    }
+  }
+}
