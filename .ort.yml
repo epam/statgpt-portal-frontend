@@ -3,7 +3,7 @@ excludes:
   paths:
     - pattern: 'package-lock.json'
       reason: 'BUILD_TOOL_OF'
-    - pattern: 'libs/ui-components/package.json'
+    - pattern: 'libs/ui-components/**'
       reason: 'BUILD_TOOL_OF'
       comment: 'This specific package.json is excluded to avoid conflicts.'
   scopes:
