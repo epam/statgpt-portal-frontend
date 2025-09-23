@@ -3,10 +3,9 @@ excludes:
   paths:
     - pattern: 'package-lock.json'
       reason: 'BUILD_TOOL_OF'
-  packages:
-    - id: "NPM:@dev-statgpt/conversation-list:0.1.2"
-    - id: "NPM:@dev-statgpt/conversation-view:0.1.2"
-    - id: "NPM:@dev-statgpt/ui-components:0.1.2"
+    - pattern: 'libs/conversation-view/package.json'
+      reason: 'BUILD_TOOL_OF'
+      comment: 'This specific package.json is excluded to avoid conflicts.'
   scopes:
     - pattern: 'devDependencies'
       reason: 'DEV_DEPENDENCY_OF'
