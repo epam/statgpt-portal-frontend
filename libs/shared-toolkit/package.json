@@ -1,6 +1,7 @@
 {
   "name": "@dev-statgpt/shared-toolkit",
   "version": "0.1.2",
+  "license": "MIT",
   "exports": {
     ".": {
       "import": "./index.mjs",
