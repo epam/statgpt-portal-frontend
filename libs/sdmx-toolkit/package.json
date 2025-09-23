@@ -14,8 +14,8 @@
   "module": "./index.mjs",
   "types": "./index.d.ts",
   "dependencies": {
-    "@dev-statgpt/dial-toolkit": "0.1.0",
-    "@dev-statgpt/shared-toolkit": "0.1.0",
+    "@dev-statgpt/dial-toolkit": "^0.1.2",
+    "@dev-statgpt/shared-toolkit": "^0.1.2",
     "@nx/vite": "21.1.2",
     "@vitejs/plugin-react": "^4.4.1",
     "compare-versions": "^6.1.1",

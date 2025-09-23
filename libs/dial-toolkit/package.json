@@ -14,7 +14,7 @@
   "module": "./index.mjs",
   "types": "./index.d.ts",
   "dependencies": {
-    "@dev-statgpt/shared-toolkit": "0.1.0",
+    "@dev-statgpt/shared-toolkit": "^0.1.2",
     "@epam/ai-dial-shared": "^0.34.0",
     "@nx/vite": "21.1.2",
     "@vitejs/plugin-react": "^4.4.1",
