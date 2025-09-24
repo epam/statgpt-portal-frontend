@@ -14,8 +14,8 @@
   "module": "./index.mjs",
   "types": "./index.d.ts",
   "dependencies": {
-    "@dev-statgpt/dial-toolkit": "^0.1.2",
-    "@dev-statgpt/shared-toolkit": "^0.1.2",
+    "@dev-statgpt/dial-toolkit": "*",
+    "@dev-statgpt/shared-toolkit": "*",
     "compare-versions": "^6.1.1"
   }
 }
