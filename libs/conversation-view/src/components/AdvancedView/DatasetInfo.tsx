@@ -124,7 +124,7 @@ const DatasetInfo: FC<Props> = ({
             {getLocalizedName(dataset, locale)}
             <IconButton
               title={titles?.metadata ?? 'View details'}
-              buttonClassName="text-neutrals-1000 border-none w-5 h-5 p-0 shrink-0"
+              buttonClassName="!text-neutrals-1000 !border-none !w-5 !h-5 !p-0 shrink-0"
               icon={<MetadataIcon />}
               onClick={openMetadata}
             />
@@ -136,7 +136,7 @@ const DatasetInfo: FC<Props> = ({
           <h4 className="flex items-center gap-2">
             <IconButton
               title={titles?.metadata ?? 'View details'}
-              buttonClassName="text-neutrals-1000 border-none w-5 h-5 p-0 shrink-0"
+               buttonClassName="!text-neutrals-1000 !border-none !w-5 !h-5 !p-0 shrink-0"
               icon={<MetadataIcon />}
               onClick={openMetadata}
             />
