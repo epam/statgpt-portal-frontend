@@ -19,7 +19,6 @@
     "@dev-statgpt/dial-toolkit": "*",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
-    "@dev-statgpt/conversation-list": "*",
     "flatpickr": "4.6.13",
     "react-flatpickr": "^4.0.11",
     "date-fns": "^4.1.0",
