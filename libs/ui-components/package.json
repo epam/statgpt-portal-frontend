@@ -1,6 +1,6 @@
 {
   "name": "@dev-statgpt/ui-components",
-  "version": "0.1.2",
+  "version": "0.0.1",
   "license": "MIT",
   "dependencies": {
     "react-flatpickr": "^4.0.11",
