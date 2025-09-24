@@ -13,3 +13,9 @@ license_choices:
       choice: 'MIT'
     - given: 'GPL-3.0-or-later OR MIT'
       choice: 'MIT'
+resolutions:
+  rule_violations:
+    - message: "No license information is available for dependency \
+        'NPM:@dev-statgpt:shared-toolkit:0\\.1\\.2'\\."
+      reason: 'CANT_FIX_EXCEPTION'
+      comment: 'The dependency has MIT license in github repo'
