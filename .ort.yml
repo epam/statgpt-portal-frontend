@@ -16,6 +16,6 @@ license_choices:
 resolutions:
   rule_violations:
     - message: "No license information is available for dependency \
-        'NPM::jszip:3\\.10\\.1'\\."
+        'NPM:@dev-statgpt:shared-toolkit:0\\.1\\.2'\\."
       reason: 'CANT_FIX_EXCEPTION'
       comment: 'The dependency has MIT license in github repo'

@@ -93,7 +93,6 @@
   },
   "parallel": 1,
   "release": {
-    "projects": ["conversation-view", "conversation-list", "ui-components"],
     "releaseTagPattern": "release/{version}",
     "git": {
       "commit": false,

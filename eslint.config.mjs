@@ -107,9 +107,7 @@ export default defineConfig([
         {
           ignoredDependencies: [
             'vite-plugin-svgr',
-            '@emotion/cache',
-            '@emotion/serialize',
-            '@emotion/utils',
+            'vite-plugin-static-copy',
             '@nx/vite',
             'vite',
             '@vitejs/plugin-react',

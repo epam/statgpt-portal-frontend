@@ -1,6 +1,6 @@
 # StatGPT Portal Frontend Example
 
-A React and Nx based web StatGPT application.
+A React and Nx based web StatGPT application. 
 
 It's a reference application demonstrating how to build custom portals using the shared libraries provided in this repository. It serves as an example for constructing your own portal solutions based on our architecture.
 
@@ -42,7 +42,7 @@ It's a reference application demonstrating how to build custom portals using the
 ### Start
 
 ```bash
-npm install
+npm install 
 mpn run start
 ```
 
@@ -67,11 +67,29 @@ mpn run start
    npm install
    ```
 
-3. **Start Development Environment**
+3. **Set up environment variables**.
+
+   Create a `.env` file in the application directory:
+
+    ```env
+    # DIAL API Configuration
+    DIAL_API_URL=https://your-dial-api-endpoint.com
+    DIAL_API_VERSION=your-dial-api-version
+    DIAL_API_KEY=your-api-key
+    DEFAULT_MODEL="ADD_VALUE_HERE"
+   
+    # SDMX API Configuration
+    SDMX_API_URL=https://your-sdmx-api-endpoint.com
+    ```
+
+4. **Start Development Environment**
    ```bash
    # Start Vite dev server
    npm run start
    ```
+
+   Once the server is up and running, open http://localhost:4200 in your browser to view the application.
+
 
 ## 🎨 Theming & Customization
 
