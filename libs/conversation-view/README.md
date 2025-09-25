@@ -64,7 +64,7 @@ The component supports localization of used chat-model through the `locale` prop
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](../../CONTRIBUTING.md) for details on:
+We welcome contributions! Please see our [Contributing Guide](https://github.com/epam/statgpt-portal-frontend/blob/development/CONTRIBUTING.md) for details on:
 
 - Code style guidelines
 - Testing requirements
@@ -73,8 +73,8 @@ We welcome contributions! Please see our [Contributing Guide](../../CONTRIBUTING
 
 ## Security
 
-If you discover a security vulnerability, please refer to our [Security Policy](../../SECURITY.md).
+If you discover a security vulnerability, please refer to our [Security Policy](https://github.com/epam/statgpt-portal-frontend/blob/development/SECURITY.md).
 
 ## License
 
-[MIT](./LICENSE) - see the [LICENSE](../../LICENSE) file for details.
+[MIT](https://github.com/epam/statgpt-portal-frontend/blob/development/LICENSE) - see the [LICENSE](https://github.com/epam/statgpt-portal-frontend/blob/development/LICENSE) file for details.
