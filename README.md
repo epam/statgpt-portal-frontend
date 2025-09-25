@@ -200,11 +200,11 @@ The project uses Jest for testing:
 
 ```bash
 # Run all tests
-yarn test
+npm run test
 
 # Run tests for specific app/lib
-yarn nx test portals-example
-yarn nx test dial-toolkit
+npm run nx test portals-example
+npm run nx test dial-toolkit
 ```
 
 ## 🔗 Related Resources
