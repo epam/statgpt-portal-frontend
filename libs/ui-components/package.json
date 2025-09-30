@@ -1,12 +1,12 @@
 {
-  "name": "@dev-statgpt/ui-components",
+  "name": "@epam/statgpt-ui-components",
   "version": "0.0.1",
   "license": "MIT",
   "dependencies": {
     "react-flatpickr": "^4.0.11",
     "react": "19.1.0",
     "classnames": "^2.5.1",
-    "@dev-statgpt/shared-toolkit": "*",
+    "@epam/statgpt-shared-toolkit": "*",
     "@tabler/icons-react": "^3.34.1",
     "@floating-ui/react": "^0.27.14"
   },

@@ -1,5 +1,5 @@
 {
-  "name": "@dev-statgpt/sdmx-toolkit",
+  "name": "@epam/statgpt-sdmx-toolkit",
   "version": "0.0.1",
   "license": "MIT",
   "exports": {
@@ -14,8 +14,8 @@
   "module": "./index.mjs",
   "types": "./index.d.ts",
   "dependencies": {
-    "@dev-statgpt/dial-toolkit": "*",
-    "@dev-statgpt/shared-toolkit": "*",
+    "@epam/statgpt-dial-toolkit": "*",
+    "@epam/statgpt-shared-toolkit": "*",
     "compare-versions": "^6.1.1"
   }
 }

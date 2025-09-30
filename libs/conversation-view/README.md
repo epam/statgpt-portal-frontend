@@ -33,13 +33,13 @@ It includes logic for representing conversations, chating, handling stream-messa
 ## Installation
 
 ```bash
-npm install @dev-statgpt/conversation-view
+npm install @epam/statgpt-conversation-view
 ```
 
 ## Usage
 
 ```tsx
-import { ConversationView } from '@dev-statgpt/conversation-view';
+import { ConversationView } from '@epam/statgpt-conversation-view';
 
 // Example usage
 <ConversationView

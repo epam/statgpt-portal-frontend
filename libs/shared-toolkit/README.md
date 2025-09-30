@@ -28,13 +28,13 @@ It promotes code reuse and consistency throughout the project.
 ## Installation
 
 ```bash
-npm install @dev-statgpt/shared-toolkit
+npm install @epam/statgpt-shared-toolkit
 ```
 
 ## Usage
 
 ```typescript
-import { getConversationNavPath } from '@dev-statgpt/shared-toolkit';
+import { getConversationNavPath } from '@epam/statgpt-shared-toolkit';
 
 const navPath = getConversationNavPath(folderId, conversationKey);
 ```

@@ -31,13 +31,13 @@ provides utilities and helpers for working with DIAL Api in the StatGPT ecosyste
 ## Installation
 
 ```bash
-npm install @dev-statgpt/dial-toolkit
+npm install @epam/statgpt-dial-toolkit
 ```
 
 ## Usage
 
 ```typescript
-import { DialApiClient, ConversationApi } from '@dev-statgpt/dial-toolkit';
+import { DialApiClient, ConversationApi } from '@epam/statgpt-dial-toolkit';
 
 const config = {
   host: yuor_dial_api_host,

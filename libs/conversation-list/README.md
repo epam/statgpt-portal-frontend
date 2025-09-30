@@ -29,13 +29,13 @@ This is StatGpt portals library, provides reusable React components and utilitie
 ## Installation
 
 ```bash
-npm install @dev-statgpt/conversation-list
+npm install @epam/statgpt-conversation-list
 ```
 
 ## Usage
 
 ```tsx
-import { ConversationList } from '@dev-statgpt/conversation-list';
+import { ConversationList } from '@epam/statgpt-conversation-list';
 
 // Example usage
 <ConversationList

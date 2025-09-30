@@ -15,7 +15,7 @@ import minimist from 'minimist';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const PREFIX = '@dev-statgpt/';
+const PREFIX = '@epam/';
 
 const __filename = fileURLToPath(import.meta.url);
 
