@@ -32,13 +32,13 @@ user interface across the application.
 ## Installation
 
 ```bash
-npm install @dev-statgpt/ui-components
+npm install @epam/statgpt-ui-components
 ```
 
 ## Usage
 
 ```tsx
-import { Button } from '@dev-statgpt/ui-components';
+import { Button } from '@epam/statgpt-ui-components';
 
 // Example usage
 <Button

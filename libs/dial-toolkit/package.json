@@ -1,5 +1,5 @@
 {
-  "name": "@dev-statgpt/dial-toolkit",
+  "name": "@epam/statgpt-dial-toolkit",
   "version": "0.0.1",
   "license": "MIT",
   "exports": {
@@ -14,7 +14,7 @@
   "module": "./index.mjs",
   "types": "./index.d.ts",
   "dependencies": {
-    "@dev-statgpt/shared-toolkit": "*",
+    "@epam/statgpt-shared-toolkit": "*",
     "@epam/ai-dial-shared": "^0.34.0"
   }
 }

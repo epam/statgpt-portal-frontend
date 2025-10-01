@@ -32,13 +32,13 @@ and utilities and helpers for working with SDMX Api standard.
 ## Installation
 
 ```bash
-npm install @dev-statgpt/sdmx-toolkit
+npm install @epam/statgpt-sdmx-toolkit
 ```
 
 ## Usage
 
 ```typescript
-import { DatasetApi, SdmxApiClient, } from '@dev-statgpt/sdmx-toolkit';
+import { DatasetApi, SdmxApiClient, } from '@epam/statgpt-sdmx-toolkit';
 
 const sdmxApiClient = new SdmxApiClient({
   apiUrl:  apiUrl,

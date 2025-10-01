@@ -1,5 +1,5 @@
 {
-  "name": "@dev-statgpt/shared-toolkit",
+  "name": "@epam/statgpt-shared-toolkit",
   "version": "0.0.1",
   "license": "MIT",
   "exports": {
