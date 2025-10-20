@@ -71,8 +71,8 @@ export const setDataQueryFilters = (filters: Filter[]): QueryFilter[] => {
           componentCode: filter?.id as string,
           operator: QueryFilterType.BETWEEN,
           values: [
-            filter?.timeRange?.startPeriod?.getFullYear?.()?.toString?.() || '',
-            filter?.timeRange?.endPeriod?.getFullYear?.().toString?.() || '',
+            formatDate(filter?.timeRange?.startPeriod || undefined) || '',
+            formatDate(filter?.timeRange?.endPeriod || undefined) || '',
           ],
         };
       }
@@ -86,4 +86,12 @@ export const setDataQueryFilters = (filters: Filter[]): QueryFilter[] => {
             ?.map((value) => value.id) || [],
       };
     });
+};
+
+const formatDate = (date?: Date): string => {
+  if (!date) return '';
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${month}-${day}-${year}`;
 };

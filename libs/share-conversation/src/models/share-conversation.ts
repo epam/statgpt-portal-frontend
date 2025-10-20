@@ -36,4 +36,6 @@ export interface ShareConversationProps {
   chatName?: string;
   baseUrl?: string;
   id?: string[];
+  clientSharedPage?: string;
+  clientSharedProp?: string;
 }

@@ -36,7 +36,8 @@
       "@statgpt/sdmx-toolkit/*": ["libs/sdmx-toolkit/*"],
       "@statgpt/shared-toolkit/*": ["libs/shared-toolkit/*"],
       "@statgpt/share-conversation/*": ["libs/share-conversation/*"],
-      "@statgpt/ui-components/*": ["libs/ui-components/*"]
+      "@statgpt/ui-components/*": ["libs/ui-components/*"],
+      "@statgpt/user-info/*": ["libs/user-info/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

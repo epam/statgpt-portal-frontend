@@ -92,6 +92,7 @@ const ConversationItem: FC<Props> = ({
         onConversationDelete={actions.deleteConversation}
         getConversation={actions.getConversation}
         getFileBlob={actions.getFileBlob}
+        renameConversation={actions.renameConversation}
         shareConversationProps={shareConversationProps}
       />
     </div>

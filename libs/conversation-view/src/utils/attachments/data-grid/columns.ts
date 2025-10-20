@@ -3,6 +3,7 @@ import { DataMessage } from '@statgpt/sdmx-toolkit/src/models/data/data-message'
 import { ObsColGetter } from '../../../types/data-grid/obs-col-getter';
 import {
   ColDef,
+  ITooltipParams,
   ValueFormatterParams,
   ValueGetterParams,
 } from 'ag-grid-community';
@@ -10,6 +11,7 @@ import {
   getDimensions,
   getTimePeriods,
 } from '@statgpt/sdmx-toolkit/src/utils/get-dimensions';
+import { getAdditionalColumns } from '@statgpt/sdmx-toolkit/src/utils/get-periods';
 import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
 import { formatNumberBySign } from '@statgpt/shared-toolkit/src/utils/format-numbers';
 import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
@@ -24,11 +26,15 @@ import {
   DEFAULT_GRID_COLUMN_WITH,
   getChartColumn,
   getMetaDataColumn,
+  GRID_COLUMN_FLEX,
   OBSERVATION_VALUE_CELL_RENDER,
 } from '../../../constants/grid';
 import { MetadataSettings } from '../../../models/metadata';
 import { localizeTimePeriod } from '../time-period';
 import { ConversationViewTitles } from '../../../models/titles';
+import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
+import { TimeRange } from '@statgpt/shared-toolkit/src';
+import { PutOnboardingFile } from '../../../types/actions';
 
 export function getColumns(
   structures: StructuralData,
@@ -37,8 +43,20 @@ export function getColumns(
   formattingSettings?: FormatNumbersType,
   metadataSettings?: MetadataSettings,
   titles?: ConversationViewTitles,
+  action?: PutOnboardingFile,
+  constraints?: DataConstraints[],
+  selectedTimePeriod?: TimeRange,
 ): ColDef[] {
   const dimColumns = getDimensionsColumns(structures, locale);
+
+  const columns =
+    selectedTimePeriod?.startPeriod && selectedTimePeriod.endPeriod
+      ? getAdditionalColumns(
+          constraints as DataConstraints[],
+          selectedTimePeriod,
+        )
+      : [];
+
   const timeColumns = getTimeseriesColumns(
     structures,
     data,
@@ -46,12 +64,20 @@ export function getColumns(
     formattingSettings,
     metadataSettings,
     titles,
+    columns,
   );
   return [
-    getMetaDataColumn(structures, data?.data, locale, metadataSettings, titles),
+    getMetaDataColumn(
+      structures,
+      data?.data,
+      locale,
+      metadataSettings,
+      titles,
+      action,
+    ),
     ...dimColumns,
     ...timeColumns,
-    getChartColumn(structures, data?.data, locale, void 0, titles),
+    getChartColumn(structures, data?.data, locale, void 0, titles, action),
   ];
 }
 
@@ -89,11 +115,12 @@ export function getDimensionsColumns(
       field: dim.id,
       colId: dim.id,
       valueGetter,
+      ...GRID_COLUMN_FLEX,
+      tooltipValueGetter: (p: ITooltipParams) => p.value,
     };
   });
 }
 
-//TODO: support availability based building of time columns
 export function getTimeseriesColumns(
   structures: StructuralData,
   data: DataMessage,
@@ -101,8 +128,9 @@ export function getTimeseriesColumns(
   formattingSettings?: FormatNumbersType,
   metadataSettings?: MetadataSettings,
   titles?: ConversationViewTitles,
+  columns?: string[],
 ): ColDef[] {
-  const timePeriods = getTimePeriods(data);
+  const timePeriods = columns?.length ? columns : getTimePeriods(data);
   const obsColGetter: ObsColGetter = (columnId, column) =>
     getDEObservationColumn(
       columnId,

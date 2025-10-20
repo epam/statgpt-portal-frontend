@@ -6,6 +6,8 @@ import {
   UpdateConversation,
   getConstraints,
   CreateConversation,
+  RateResponse,
+  PutOnboardingFile,
 } from '../types/actions';
 import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
 import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
@@ -17,6 +19,7 @@ import { ConversationInfo } from '@epam/ai-dial-shared';
 
 export interface AttachmentsActions {
   getFile: GetAttachmentContent;
+  putOnboardingFile: PutOnboardingFile;
   getDataSet: GetDatasetDetails;
   getDataSetData: GetDatasetData;
   getConstraints: getConstraints;
@@ -31,6 +34,7 @@ export type ConversationViewActions = AttachmentsActions & {
   getBucket: GetBucket;
   updateConversation: UpdateConversation;
   createConversation: CreateConversation;
+  rateResponse: RateResponse;
 };
 
 export type AdvancedViewActions = AttachmentsActions;

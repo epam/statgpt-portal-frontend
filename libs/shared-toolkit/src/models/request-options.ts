@@ -5,4 +5,5 @@ export interface RequestOptions {
   jwt?: string;
   chatReference?: string;
   signal?: AbortSignal;
+  isFormData?: boolean;
 }

@@ -1,6 +1,7 @@
 import { ConversationInfo } from '@epam/ai-dial-shared';
 import { Message } from './message';
 import { ModelInfo } from './model';
+import { CustomFields } from './chat-stream';
 import { InvitationType } from '../types/invitation-type';
 import { ResourceTypes, ShareTarget } from '../constants/share-conversation';
 
@@ -13,6 +14,7 @@ export interface CreateConversationRequest {
   prompt?: string;
   temperature?: number;
   selectedAddons?: string[];
+  custom_fields?: CustomFields;
 }
 
 export interface UpdateConversationRequest {

@@ -15,4 +15,7 @@ export interface ConversationListTitles {
   lastWeek?: string;
   earlier?: string;
   yesterday?: string;
+  rename?: string;
+  renameTitle?: string;
+  save?: string;
 }

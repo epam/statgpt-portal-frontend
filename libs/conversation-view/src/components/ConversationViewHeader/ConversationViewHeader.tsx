@@ -5,13 +5,19 @@ import { FC } from 'react';
 
 import ShareConversation from '@statgpt/share-conversation/src/components/ShareConversation/ShareConversation';
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
+import { UserInfo } from '../../../../user-info/src/models/user-info';
+import User from '../../../../user-info/src/components/User/User';
 
 interface Props {
   conversation: Conversation | null;
   locale?: string;
   isOpenedAdvancedView?: boolean;
   isShowShareButton?: boolean;
+  isShowUserInfo?: boolean;
+  userInfo?: UserInfo;
+  signOutTitle?: string;
   shareConversationProps?: ShareConversationProps;
+  signOutAction?: () => void;
 }
 
 const ConversationViewHeader: FC<Props> = ({
@@ -19,7 +25,11 @@ const ConversationViewHeader: FC<Props> = ({
   locale,
   isOpenedAdvancedView,
   isShowShareButton,
+  isShowUserInfo,
+  userInfo,
+  signOutTitle,
   shareConversationProps,
+  signOutAction,
 }) => {
   return (
     <>
@@ -38,16 +48,24 @@ const ConversationViewHeader: FC<Props> = ({
         >
           {conversation?.name}
         </span>
-
-        {!isOpenedAdvancedView && isShowShareButton && (
-          <div className="flex gap-x-2">
-            <ShareConversation
-              conversation={conversation}
-              locale={locale}
-              {...shareConversationProps}
+        <div className="flex gap-4">
+          {!isOpenedAdvancedView && isShowShareButton && (
+            <div className="flex gap-x-2">
+              <ShareConversation
+                conversation={conversation}
+                locale={locale}
+                {...shareConversationProps}
+              />
+            </div>
+          )}
+          {isShowUserInfo && (
+            <User
+              userInfo={userInfo || null}
+              signOutAction={signOutAction}
+              title={signOutTitle}
             />
-          </div>
-        )}
+          )}
+        </div>
       </header>
     </>
   );

@@ -4,8 +4,8 @@ import { Button } from '@statgpt/ui-components/src/components/Button/Button';
 import { FC } from 'react';
 import { FiltersModalProps } from '../../../../models/filters';
 import classNames from 'classnames';
-import ClearIcon from '../../../../assets/icons/clear.svg';
 import { ConversationViewTitles } from '../../../../models/titles';
+import { useIsMobile } from '@statgpt/ui-components/src/hooks/isMobile';
 
 interface Props {
   modalProps?: FiltersModalProps;
@@ -13,6 +13,7 @@ interface Props {
   onClearAllFilters: () => void;
   onClose: () => void;
   titles?: ConversationViewTitles;
+  applyDisabled?: boolean;
 }
 const ModalFooter: FC<Props> = ({
   modalProps,
@@ -20,20 +21,21 @@ const ModalFooter: FC<Props> = ({
   onClearAllFilters,
   onClose,
   titles,
+  applyDisabled,
 }) => {
+  const isMobile = useIsMobile();
   return (
     <div
       className={classNames(
         'flex py-4 px-6',
         modalProps?.isShowCancelButton
           ? 'justify-between'
-          : 'gap-x-8 flex-row-reverse justify-end sm:flex-col-reverse sm:gap-y-5 items-center',
+          : 'gap-x-8 flex-row-reverse justify-end sm:flex-col-reverse sm:gap-y-4 items-center',
+        'modal-footer-wrapper',
       )}
     >
       <Button
-        iconBefore={
-          modalProps?.isShowClearIcon ? <ClearIcon className="w-5 h-5" /> : null
-        }
+        iconBefore={isMobile ? modalProps?.resetIcon : undefined}
         buttonClassName="text-button-tertiary p-0"
         title={
           modalProps?.isShowClearIcon
@@ -41,6 +43,7 @@ const ModalFooter: FC<Props> = ({
             : (titles?.clearAll ?? 'Clear All')
         }
         onClick={() => onClearAllFilters()}
+        isSmallButton={isMobile}
       />
       <div className="flex items-center gap-x-3">
         {modalProps?.isShowCancelButton ? (
@@ -48,12 +51,15 @@ const ModalFooter: FC<Props> = ({
             buttonClassName="text-button-tertiary sm:h8"
             title={titles?.cancel ?? 'Cancel'}
             onClick={onClose}
+            isSmallButton={isMobile}
           />
         ) : null}
         <Button
           buttonClassName={'advanced-view-filters-modal-apply-button'}
           title={titles?.apply ?? 'Apply'}
           onClick={onApply}
+          isSmallButton={isMobile}
+          disabled={applyDisabled}
         />
       </div>
     </div>

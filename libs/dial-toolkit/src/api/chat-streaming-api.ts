@@ -8,6 +8,7 @@
 import { Message } from '../models/message';
 import { API_ROUTES } from '@statgpt/shared-toolkit/src/constants/api-urls';
 import {
+  CustomFields,
   MessageStreamResponse,
   RequestStreamBody,
 } from '../models/chat-stream';
@@ -164,9 +165,15 @@ export const streamChatResponse = async (
     signal?: AbortSignal;
   },
   token?: string | null,
+  custom_fields?: CustomFields,
 ): Promise<void> => {
   const { onMessage, onToken, onComplete, onError, model, signal } = options;
-  const requestBody: RequestStreamBody = { conversationId, messages, model };
+  const requestBody: RequestStreamBody = {
+    conversationId,
+    messages,
+    model,
+    custom_fields,
+  };
 
   await chatStreamSSEClient.streamChat(
     API_ROUTES.CHAT,

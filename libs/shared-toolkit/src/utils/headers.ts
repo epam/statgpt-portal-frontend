@@ -47,3 +47,9 @@ export const sanitizeHeaders = (
 
   return sanitized;
 };
+
+export const getMultipartHeaders = (
+  boundary: string,
+): Record<string, string> => ({
+  'Content-Type': `multipart/form-data; boundary=${boundary}`,
+});

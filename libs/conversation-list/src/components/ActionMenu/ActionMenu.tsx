@@ -15,6 +15,8 @@ import { Dropdown } from '@statgpt/ui-components/src/components/Dropdown/Dropdow
 import { DropdownItem } from '@statgpt/ui-components/src/models/dropdown-item';
 import { PopUpState } from '@statgpt/ui-components/src/types/pop-up';
 import { ActionMenuItem } from '../../types/action-menu-item';
+import ConversationRename from '../ConversationRename/ConversationRename';
+import { ONBOARDING_MODEL_POSTFIX } from '@statgpt/share-conversation/src/constants/share-conversation';
 
 interface Props {
   conversation: ConversationInfo;
@@ -23,6 +25,7 @@ interface Props {
   onConversationDelete: (conversation: ConversationInfo) => void;
   getConversation: (conversationId: string) => Promise<Conversation>;
   getFileBlob: (path: string) => Promise<Blob>;
+  renameConversation: (n: string, b: string) => Promise<void>;
   triggerButton?: ReactNode;
   locale: string;
 }
@@ -34,39 +37,55 @@ export const ActionMenu: FC<Props> = ({
   onConversationDelete,
   getConversation,
   getFileBlob,
+  renameConversation,
   triggerButton,
   locale,
 }) => {
   const items: DropdownItem[] = useMemo(() => {
-    return [
-      ...(!conversation.isShared
-        ? [
-            {
-              key: ActionMenuItem.SHARE,
-              title: conversationStyles?.titles?.share ?? 'Share',
-              icon: conversationStyles.actionsIcons?.[ActionMenuItem.SHARE],
-            },
-          ]
-        : []),
-      {
-        key: ActionMenuItem.EXPORT,
-        title: conversationStyles?.titles?.export ?? 'Export',
-        icon: conversationStyles.actionsIcons?.[ActionMenuItem.EXPORT],
-      },
+    const baseActions = [
       {
         key: ActionMenuItem.DELETE,
         title: conversationStyles?.titles?.delete ?? 'Delete',
         icon: conversationStyles.actionsIcons?.[ActionMenuItem.DELETE],
       },
     ];
+
+    return conversation?.model?.id?.endsWith(ONBOARDING_MODEL_POSTFIX)
+      ? baseActions
+      : [
+          ...(!conversation.isShared
+            ? [
+                {
+                  key: ActionMenuItem.SHARE,
+                  title: conversationStyles?.titles?.share ?? 'Share',
+                  icon: conversationStyles.actionsIcons?.[ActionMenuItem.SHARE],
+                },
+                {
+                  key: ActionMenuItem.RENAME,
+                  title: conversationStyles?.titles?.rename ?? 'Rename',
+                  icon: conversationStyles.actionsIcons?.[
+                    ActionMenuItem.RENAME
+                  ],
+                },
+              ]
+            : []),
+          {
+            key: ActionMenuItem.EXPORT,
+            title: conversationStyles?.titles?.export ?? 'Export',
+            icon: conversationStyles.actionsIcons?.[ActionMenuItem.EXPORT],
+          },
+          ...baseActions,
+        ];
   }, [
     conversation.isShared,
+    conversation?.model?.id,
     conversationStyles.titles,
     conversationStyles.actionsIcons,
   ]);
 
   const [deleteModalState, setDeleteModalState] = useState(PopUpState.Closed);
   const [shareModalState, setShareModalState] = useState(PopUpState.Closed);
+  const [renameModalState, setRenameModalState] = useState(PopUpState.Closed);
 
   const onCloseDeleteModal = useCallback((): void => {
     setDeleteModalState(PopUpState.Closed);
@@ -76,10 +95,22 @@ export const ActionMenu: FC<Props> = ({
     setShareModalState(PopUpState.Closed);
   }, [setShareModalState]);
 
+  const onCloseRenameModal = useCallback((): void => {
+    setRenameModalState(PopUpState.Closed);
+  }, [setRenameModalState]);
+
   const deleteConversation = useCallback(() => {
     onConversationDelete(conversation);
     onCloseDeleteModal();
   }, [conversation, onConversationDelete, onCloseDeleteModal]);
+
+  const onRenameConversation = useCallback(
+    (conversationId: string, updatedId: string) => {
+      renameConversation(conversationId, updatedId);
+      onCloseRenameModal();
+    },
+    [renameConversation, onCloseRenameModal],
+  );
 
   const onOptionSelect = (key: string) => {
     if (key === ActionMenuItem.DELETE) {
@@ -88,6 +119,10 @@ export const ActionMenu: FC<Props> = ({
 
     if (key === ActionMenuItem.SHARE) {
       setShareModalState(PopUpState.Opened);
+    }
+
+    if (key === ActionMenuItem.RENAME) {
+      setRenameModalState(PopUpState.Opened);
     }
 
     if (key === ActionMenuItem.EXPORT) {
@@ -129,6 +164,18 @@ export const ActionMenu: FC<Props> = ({
           locale={locale}
           onCloseModal={onCloseShareModal}
           {...shareConversationProps}
+        />
+      )}
+
+      {renameModalState === PopUpState.Opened && (
+        <ConversationRename
+          conversation={conversation}
+          locale={locale}
+          titles={conversationStyles.titles}
+          renameCoversation={onRenameConversation}
+          onCloseModal={onCloseRenameModal}
+          disableModalDividers={conversationStyles.disableModalDividers}
+          isSmallButton={conversationStyles.isSmallModalButton}
         />
       )}
     </>

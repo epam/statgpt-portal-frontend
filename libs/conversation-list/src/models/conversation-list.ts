@@ -15,6 +15,10 @@ export interface ConversationListActions {
   getSharedConversations: (
     requestData?: SharedConversationsRequest,
   ) => Promise<SharedConversations>;
+  renameConversation: (
+    conversationId: string,
+    updatedId: string,
+  ) => Promise<void>;
 }
 
 export type GroupedConversations = Record<string, ConversationInfo[]>;

@@ -1,38 +1,45 @@
-import { FC } from 'react';
-import { QueryFilterDetails } from '@statgpt/shared-toolkit/src/models/data-query';
+import { FC, ReactNode } from 'react';
+import classNames from 'classnames';
 import AttachmentDetailsItem from './AttachmentDetailsItem';
-import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
+import { AttachmentInfo } from '../../../models/attachments';
 
 interface Props {
   titles: {
     queryUpdatedManuallyTitle?: string;
     setToTitle?: string;
   };
-  queryFiltersDetails?: QueryFilterDetails[];
-  isLoading?: boolean;
+  attachmentInfoList?: AttachmentInfo[];
+  datasetIcon?: ReactNode;
 }
 
 const AttachmentDetails: FC<Props> = ({
   titles,
-  queryFiltersDetails,
-  isLoading,
+  attachmentInfoList,
+  datasetIcon,
 }) => {
   return (
     <div className="attachment-details flex flex-col">
-      <p className="body-1 mb-2">
+      <p
+        className={classNames(
+          'body-1',
+          attachmentInfoList && attachmentInfoList.length <= 1 && 'mb-2',
+        )}
+      >
         {titles?.queryUpdatedManuallyTitle ??
           'Query has been updated manually.'}
       </p>
-      {!isLoading ? (
-        queryFiltersDetails?.map((queryFilterDetails) => (
-          <AttachmentDetailsItem
-            key={queryFilterDetails?.title}
-            setToTitle={titles?.setToTitle}
-            queryFilterDetails={queryFilterDetails}
-          />
-        ))
-      ) : (
-        <Loader />
+      {attachmentInfoList?.map(
+        (attachmentInfo) =>
+          !!attachmentInfo?.queryFiltersDetails?.length && (
+            <AttachmentDetailsItem
+              key={attachmentInfo?.datasetName}
+              setToTitle={titles?.setToTitle}
+              datasetName={attachmentInfo?.datasetName}
+              datasetIcon={datasetIcon}
+              isShowDatasetDetails={attachmentInfoList?.length > 1}
+              queryFilterDetails={attachmentInfo?.queryFiltersDetails}
+            />
+          ),
       )}
     </div>
   );

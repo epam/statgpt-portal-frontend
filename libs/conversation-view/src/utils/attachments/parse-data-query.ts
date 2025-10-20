@@ -41,6 +41,7 @@ function getDataQueryFromJson(jsonDataQuery: JsonDataQuery): DataQuery {
       componentCode: filter?.component_code || filter?.componentCode,
     })),
     metadata: {
+      datasetUrl: jsonDataQuery?.metadata?.datasetUrl,
       countryDimension:
         jsonDataQuery?.metadata?.country_dimension ||
         jsonDataQuery?.metadata?.countryDimension,

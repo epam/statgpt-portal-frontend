@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import { TimeRangeOptions } from '@statgpt/shared-toolkit/src/models/time-range';
 import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
 import { ConversationViewTitles } from '../../../../../models/titles';
+import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
 
 interface Props {
   filtersList: Filter[];
@@ -21,10 +22,13 @@ interface Props {
   onSelectDisplayMode?: (filterId?: string, displayMode?: string) => void;
   filterValuesProps?: FilterValuesProps;
   isDisableValues?: boolean;
-  initialTimeRange?: TimeRange;
   timeRangeOptions?: TimeRangeOptions[];
   titles?: ConversationViewTitles;
-  onTimePeriodChange: (timeRange: TimeRange | null) => void;
+  initialConstraints?: DataConstraints[];
+  onTimePeriodChange: (
+    timeRange: TimeRange | null,
+    selectedOption: string | number,
+  ) => void;
   selectFilterValue: (id: string, isSelectedValue?: boolean) => void;
   selectHierarchicalNodes: (nodes?: FilterTreeNodeProps[]) => void;
   expandHierarchicalValue: (value?: FilterTreeNodeProps) => void;
@@ -39,8 +43,8 @@ const FiltersFacetsList: FC<Props> = ({
   onSelectDisplayMode,
   filterValuesProps,
   isDisableValues,
-  initialTimeRange,
   timeRangeOptions,
+  initialConstraints,
   onTimePeriodChange,
   selectFilterValue,
   selectHierarchicalNodes,
@@ -50,7 +54,7 @@ const FiltersFacetsList: FC<Props> = ({
   return (
     <div
       className={classNames(
-        'overflow-y-auto advanced-view-filters-list pr-3 h-full sm:w-full',
+        'overflow-y-auto advanced-view-filters-list min-w-[320px] pr-3 h-full sm:w-full',
       )}
     >
       {filtersList?.map((filter) => (
@@ -64,13 +68,13 @@ const FiltersFacetsList: FC<Props> = ({
           onDeleteFilter={onDeleteFilter}
           hideFacetCounterByDefault={hideFacetCounterByDefault}
           isDisableValues={isDisableValues}
-          initialTimeRange={initialTimeRange}
           timeRangeOptions={timeRangeOptions}
           selectFilterValue={selectFilterValue}
           selectHierarchicalNodes={selectHierarchicalNodes}
           expandHierarchicalValue={expandHierarchicalValue}
           onTimePeriodChange={onTimePeriodChange}
           filterValuesProps={filterValuesProps}
+          initialConstraints={initialConstraints}
         />
       ))}
     </div>

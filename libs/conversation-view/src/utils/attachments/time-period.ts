@@ -8,6 +8,10 @@ import {
   isQuarterly,
 } from '@statgpt/sdmx-toolkit/src/parsers/time-period-parser/define-period';
 import { ConversationViewTitles } from '../../models/titles';
+import { SeriesFilterDto } from '@statgpt/sdmx-toolkit/src/models';
+import { DataQuery } from '@statgpt/shared-toolkit/src';
+import { TIME_PERIOD } from '@statgpt/sdmx-toolkit/src/utils/constraint';
+import { SeriesFilterOperator } from '@statgpt/sdmx-toolkit/src/types/logical-operator-type';
 
 export const getPickerOptions = (
   minDate: Date,
@@ -123,8 +127,8 @@ export const getRangedTimePeriod = (
   initialTimeRange: TimeRange,
   period: string | number,
 ): TimeRange => {
-  const currentYear = new Date().getFullYear();
   const { endPeriod } = initialTimeRange;
+  const currentYear = endPeriod?.getFullYear() || new Date().getFullYear();
   const year = currentYear + +period;
   const newEndPeriod = new Date(
     +period < 0 ? currentYear : year,
@@ -170,4 +174,20 @@ export const localizeTimePeriod = (
   }
 
   return period;
+};
+
+export const getFiltersDtoFromDataQuery = (
+  dataQuery: DataQuery,
+): SeriesFilterDto[] => {
+  const filters: SeriesFilterDto[] = [];
+  dataQuery?.filters?.forEach((filter) => {
+    if (filter.componentCode !== TIME_PERIOD) {
+      filters.push({
+        componentCode: filter.componentCode,
+        operator: SeriesFilterOperator.EQUALS,
+        value: filter.values.join(','),
+      });
+    }
+  });
+  return filters;
 };

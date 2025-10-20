@@ -9,7 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { getLastUpdatedTime } from '@statgpt/sdmx-toolkit/src/utils/annotations';
 import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getDateFormattedValue } from '../../utils/date-format';
 import classNames from 'classnames';
 import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
@@ -27,6 +27,10 @@ import { MetadataSettings } from '../../models/metadata';
 import Metadata from './Metadata/Metadata';
 import { ConversationViewTitles } from '../../models/titles';
 import { StructureComponentValue } from '../../models/structure-component';
+import { Tooltip } from '../Tooltip/Tooltip';
+import { getTooltipDataByElement } from '../../utils/get-tooltip-data.by-element';
+import { OnboardingElements } from '../../constants/onboarding-elements';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 interface Props {
   dataset?: Dataflow | null;
@@ -34,6 +38,7 @@ interface Props {
   structures?: StructuralData;
   metadataSettings?: MetadataSettings;
   locale: string;
+  externalLink?: string;
   isShowAgency?: boolean;
   titles?: ConversationViewTitles;
   getDatasetUpdatedTime?: (
@@ -50,9 +55,16 @@ const DatasetInfo: FC<Props> = ({
   locale,
   titles,
   getDatasetUpdatedTime,
+  externalLink,
 }) => {
   const [lastUpdatedDate, setLastUpdatedDate] = useState<string>('');
   const [isOpenMetadata, setIsOpenMetadata] = useState<boolean>(false);
+
+  const iconRef = useRef<HTMLDivElement | null>(null);
+  const [tooltipTitle, setTooltipTitle] = useState<string>('');
+  const [tooltipDescription, setTooltipDescription] = useState<string>('');
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const { onboardingFileSchema, isShowOnboarding } = useOnboarding();
 
   const datasetDescription = useMemo(
     () =>
@@ -105,6 +117,26 @@ const DatasetInfo: FC<Props> = ({
     setLastUpdatedDate(updatedTime);
   }, [dataset, locale, datasetMetadata, getDatasetUpdatedTime]);
 
+  useEffect(() => {
+    if (isShowOnboarding) {
+      const { title, description } = getTooltipDataByElement(
+        OnboardingElements.METADATA_PER_DATASET,
+        titles,
+      );
+      setTooltipTitle(title);
+      setTooltipDescription(description);
+    }
+  }, [titles, isShowOnboarding]);
+
+  useEffect(() => {
+    if (isShowOnboarding) {
+      setIsTooltipVisible(
+        onboardingFileSchema?.lastDisplayedElement ===
+          OnboardingElements.METADATA_PER_DATASET,
+      );
+    }
+  }, [onboardingFileSchema?.lastDisplayedElement, isShowOnboarding]);
+
   return (
     <div className={classNames('flex flex-col bg-white', 'dataset-info')}>
       {!isShowAgency ? (
@@ -122,26 +154,38 @@ const DatasetInfo: FC<Props> = ({
           </div>
           <h3 className="flex items-center gap-2">
             {getLocalizedName(dataset, locale)}
-            <IconButton
-              title={titles?.metadata ?? 'View details'}
-              buttonClassName="!text-neutrals-1000 !border-none !w-5 !h-5 !p-0 shrink-0"
-              icon={<MetadataIcon />}
-              onClick={openMetadata}
-            />
-            <IconArrowUpRight className="cursor-pointer w-6 h-6 shrink-0" />
+            <div ref={iconRef}>
+              <IconButton
+                title={titles?.metadata ?? 'View details'}
+                buttonClassName="!text-neutrals-1000 !border-none !w-5 !h-5 !p-0 shrink-0"
+                icon={<MetadataIcon width={20} height={20} />}
+                onClick={openMetadata}
+              />
+            </div>
+            {externalLink && (
+              <a href={externalLink} target="_blank" rel="noopener noreferrer">
+                <IconArrowUpRight className="cursor-pointer w-6 h-6 shrink-0" />
+              </a>
+            )}
           </h3>
         </>
       ) : (
         <>
           <h4 className="flex items-center gap-2">
-            <IconButton
-              title={titles?.metadata ?? 'View details'}
-              buttonClassName="!text-neutrals-1000 !border-none !w-5 !h-5 !p-0 shrink-0"
-              icon={<MetadataIcon />}
-              onClick={openMetadata}
-            />
+            <div ref={iconRef}>
+              <IconButton
+                title={titles?.metadata ?? 'View details'}
+                buttonClassName="!text-neutrals-1000 !border-none !w-5 !h-5 !p-0 shrink-0"
+                icon={<MetadataIcon width={20} height={20} />}
+                onClick={openMetadata}
+              />
+            </div>
             {dataset?.name}
-            <IconExternalLink className="text-primary cursor-pointer w-4 h-4 shrink-0" />
+            {externalLink && (
+              <a href={externalLink} target="_blank" rel="noopener noreferrer">
+                <IconExternalLink className="text-primary cursor-pointer w-4 h-4 shrink-0" />
+              </a>
+            )}
           </h4>
           <div className="flex mt-1 text-neutrals-800 body-3 divide-x divide-neutrals-500">
             <p className="pr-2">
@@ -157,9 +201,17 @@ const DatasetInfo: FC<Props> = ({
           </div>
         </>
       )}
+      {isTooltipVisible && (
+        <Tooltip
+          reference={iconRef}
+          title={tooltipTitle}
+          description={tooltipDescription}
+        />
+      )}
       {isOpenMetadata && (
         <Metadata
           titles={titles}
+          locale={locale}
           metadata={datasetMetadata}
           metadataDescription={datasetDescription}
           isOpenMetadata={isOpenMetadata}

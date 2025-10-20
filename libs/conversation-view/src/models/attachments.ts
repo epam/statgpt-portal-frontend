@@ -1,7 +1,10 @@
 import { Attachment } from '@epam/ai-dial-shared';
 import { AttachmentsStyles } from './attachments-styles';
 import { GridData } from '../types/data-grid/grid-data';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
+import {
+  DataQuery,
+  QueryFilterDetails,
+} from '@statgpt/shared-toolkit/src/models/data-query';
 import { ColDef } from 'ag-grid-community';
 import { ChartingData } from './charting';
 import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
@@ -19,4 +22,9 @@ export interface AttachmentsProps {
   dataQueries?: DataQuery[];
   datasets?: Dataflow[];
   styles?: AttachmentsStyles;
+}
+
+export interface AttachmentInfo {
+  datasetName?: string;
+  queryFiltersDetails?: QueryFilterDetails[];
 }

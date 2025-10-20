@@ -1,0 +1,19 @@
+{
+  "name": "user-info",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/user-info/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/user-info/**/*.{ts,tsx,js,jsx}",
+          "libs/user-info/package.json"
+        ]
+      }
+    }
+  }
+}

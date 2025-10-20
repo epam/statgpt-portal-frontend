@@ -3,9 +3,7 @@ import { FormatNumbersType } from '../models/format-numbers-type';
 
 // fixing JS math errors
 const roundNumber = (num: number, length: number): string => {
-  const number = Math.round(num * 10 ** length) / 10 ** length;
-
-  return number.toFixed(length);
+  return (Math.round(num * 10 ** length) / 10 ** length).toString();
 };
 
 export const formatNumberBySign = (

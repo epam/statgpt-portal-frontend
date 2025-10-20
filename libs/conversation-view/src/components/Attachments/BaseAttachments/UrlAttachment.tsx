@@ -37,7 +37,7 @@ const UrlAttachment: FC<Props> = ({
           role="img"
           aria-label="Link"
         >
-          <LinkIcon />
+          <LinkIcon width={16} height={16} />
         </span>
 
         <div className="flex-1 min-w-0">

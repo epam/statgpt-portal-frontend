@@ -8,6 +8,10 @@ export const sendRequest = async (
   return await fetch(url, {
     method: options.method || 'GET',
     headers,
-    body: options.body ? JSON.stringify(options.body) : undefined,
+    body:
+      options?.isFormData && typeof options?.body === 'string'
+        ? options.body
+        : JSON.stringify(options.body),
+    signal: options?.signal,
   });
 };

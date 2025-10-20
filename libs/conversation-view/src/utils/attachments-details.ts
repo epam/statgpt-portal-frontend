@@ -1,5 +1,6 @@
 import { isEqual } from 'lodash';
 import {
+  DataQuery,
   QueryFilter,
   QueryFilterDetails,
 } from '@statgpt/shared-toolkit/src/models/data-query';
@@ -12,8 +13,52 @@ import { findCodelistByDimension } from '@statgpt/sdmx-toolkit/src/utils/find-co
 import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
 import { QueryFilterType } from '@statgpt/shared-toolkit/src/types/query-filter-type';
 import { getTimePeriod } from '@statgpt/shared-toolkit/src/utils/get-time-period';
+import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
+import { getDimensions } from '@statgpt/sdmx-toolkit/src/utils/get-dimensions';
+import { AttachmentInfo } from '../models/attachments';
 
-export const getUpdatedQueryFiltersDetails = (
+export const getAttachmentInfoList = (
+  previousDataQueries: DataQuery[],
+  currentDataQueries: DataQuery[],
+  datasetStructuresMap: Map<string, StructuralData | undefined>,
+  locale: string,
+): AttachmentInfo[] => {
+  return currentDataQueries?.map((dataQuery) => {
+    const previousDataQuery = previousDataQueries?.find(
+      (previousDataQuery) => previousDataQuery?.urn === dataQuery?.urn,
+    );
+    const structures = datasetStructuresMap?.get(dataQuery?.urn);
+    const conceptSchemes = structures?.conceptSchemes || [];
+    const codelists = structures?.codelists || [];
+    const dimensionsList = getDimensions(structures as StructuralData);
+    const dimensions = [
+      ...(dimensionsList?.dimensions || []),
+      ...(dimensionsList?.timeDimensions || []),
+    ];
+
+    return {
+      datasetName: getLocalizedName(structures?.dataflows?.[0], locale),
+      queryFiltersDetails: getUpdatedQueryFiltersDetails(
+        getQueryFiltersDetails(
+          previousDataQuery?.filters || [],
+          dimensions,
+          conceptSchemes,
+          codelists,
+          locale,
+        ),
+        getQueryFiltersDetails(
+          dataQuery?.filters,
+          dimensions,
+          conceptSchemes,
+          codelists,
+          locale,
+        ),
+      ),
+    };
+  });
+};
+
+const getUpdatedQueryFiltersDetails = (
   previousFilters?: QueryFilterDetails[],
   currentFilters?: QueryFilterDetails[],
 ): QueryFilterDetails[] => {
@@ -32,7 +77,7 @@ export const getUpdatedQueryFiltersDetails = (
   );
 };
 
-export const getQueryFiltersDetails = (
+const getQueryFiltersDetails = (
   filters: QueryFilter[],
   dimensions: Dimension[],
   conceptSchemes: ConceptScheme[],

@@ -23,6 +23,7 @@ import { TimeRangeOptions } from '@statgpt/shared-toolkit/src/models/time-range'
 import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
 import FiltersValuesPanel from '../FiltersValuesPanel/FiltersValuesPanel';
 import { ConversationViewTitles } from '../../../../../models/titles';
+import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
 
 interface Props {
   filter: Filter;
@@ -33,10 +34,13 @@ interface Props {
   onDeleteFilter?: (filterId?: string) => void;
   filterValuesProps?: FilterValuesProps;
   isDisableValues?: boolean;
-  initialTimeRange?: TimeRange;
   timeRangeOptions?: TimeRangeOptions[];
   titles?: ConversationViewTitles;
-  onTimePeriodChange: (timeRange: TimeRange | null) => void;
+  initialConstraints?: DataConstraints[];
+  onTimePeriodChange: (
+    timeRange: TimeRange | null,
+    selectedOption: string | number,
+  ) => void;
   selectFilterValue: (id: string, isSelectedValue?: boolean) => void;
   selectHierarchicalNodes: (nodes?: FilterTreeNodeProps[]) => void;
   expandHierarchicalValue: (value?: FilterTreeNodeProps) => void;
@@ -49,10 +53,10 @@ const FiltersFacetItem: FC<Props> = ({
   onDeleteFilter,
   locale,
   titles,
+  initialConstraints,
   hideFacetCounterByDefault,
   filterValuesProps,
   isDisableValues,
-  initialTimeRange,
   timeRangeOptions,
   onTimePeriodChange,
   selectFilterValue,
@@ -125,7 +129,7 @@ const FiltersFacetItem: FC<Props> = ({
           )}
         </h3>
 
-        <div className="flex gap-2 items-center text-neutrals-800">
+        <div className="ml-2 flex gap-2 items-center text-neutrals-800">
           {isTimeDimension && (
             <span className="filters-facet-item-counter border-none">
               {timePeriodValue}
@@ -154,7 +158,7 @@ const FiltersFacetItem: FC<Props> = ({
                       'text-button-tertiary w-4 h-4 border-0 p-0',
                       'filters-facet-item-icon',
                     )}
-                    icon={<SettingsListIcon />}
+                    icon={<SettingsListIcon width={16} height={16} />}
                     title={titles?.displayOrder || 'Display Order'}
                     disabled={!filter?.isHierarchical}
                   />
@@ -170,7 +174,7 @@ const FiltersFacetItem: FC<Props> = ({
                     'text-button-tertiary w-4 h-4 border-0 p-0',
                     'filters-facet-item-icon',
                   )}
-                  icon={<ClearIcon />}
+                  icon={<ClearIcon width={16} height={16} />}
                   title={titles?.reset || 'Reset'}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -188,13 +192,13 @@ const FiltersFacetItem: FC<Props> = ({
           selectedFilter={filter}
           locale={locale}
           isDisableValues={isDisableValues}
-          initialTimeRange={initialTimeRange}
           timeRangeOptions={timeRangeOptions}
           selectFilterValue={selectFilterValue}
           selectHierarchicalNodes={selectHierarchicalNodes}
           expandHierarchicalValue={expandHierarchicalValue}
           onTimePeriodChange={onTimePeriodChange}
           filterValuesProps={filterValuesProps}
+          initialConstraints={initialConstraints}
         />
       )}
     </div>

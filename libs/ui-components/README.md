@@ -22,7 +22,6 @@ user interface across the application.
 - [License](#license)
 
 ## Features
--
 - Consistent, accessible, and customizable UI components
 - Components for forms, buttons, inputs, modals, loaders, and more
 - Built with TypeScript and Tailwind CSS

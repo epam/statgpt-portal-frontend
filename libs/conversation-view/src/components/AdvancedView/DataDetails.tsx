@@ -2,7 +2,7 @@
 
 import Filters from './Filters/Filters';
 import AttachmentRenderer from '../Attachments/AttachmentRenderer';
-import { FiltersProps } from '../../models/filters';
+import { Filter, FiltersProps } from '../../models/filters';
 import { FC, useEffect, useState } from 'react';
 import { AdvancedViewActions } from '../../models/actions';
 import { Attachment } from '@epam/ai-dial-shared';
@@ -11,12 +11,14 @@ import { AttachmentsStyles } from '../../models/attachments-styles';
 import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
 import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
 import { ConversationViewTitles } from '../../models/titles';
+import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
 
 interface Props {
   filtersProps: FiltersProps;
   actions: AdvancedViewActions;
   attachments: Attachment[];
   attachmentsDataQuery?: DataQuery;
+  dataQueries?: DataQuery[];
   dimensions?: Dimension[];
   locale?: string;
   attachmentsStyles?: AttachmentsStyles;
@@ -30,6 +32,7 @@ const DataDetails: FC<Props> = ({
   actions,
   attachments,
   attachmentsDataQuery,
+  dataQueries,
   dimensions,
   locale,
   attachmentsStyles,
@@ -45,11 +48,15 @@ const DataDetails: FC<Props> = ({
     getConstraints: actions.getConstraints,
   };
 
-  const onFiltersChange = (filterParams: DatasetQueryFilters) => {
+  const onFiltersChange = (
+    filterParams: DatasetQueryFilters,
+    constraints: DataConstraints[],
+    modalFilters?: Filter[],
+  ) => {
     setFilters(filterParams);
     setIsFiltering?.(true);
     if (filtersProps && filtersProps.onFiltersChange) {
-      filtersProps?.onFiltersChange(filterParams);
+      filtersProps?.onFiltersChange(filterParams, constraints, modalFilters);
     }
   };
 
@@ -66,6 +73,8 @@ const DataDetails: FC<Props> = ({
           <h2>{titles?.content ?? 'Content'}</h2>
           <Filters
             attachmentsDataQuery={attachmentsDataQuery}
+            dataQueries={dataQueries}
+            updateDataQueries={actions?.updateDataQueries}
             locale={locale}
             actions={constraintAction}
             dimensions={dimensions}

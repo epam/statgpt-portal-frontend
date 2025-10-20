@@ -36,6 +36,10 @@ const InputForAsk: FC<Props> = ({
   );
 
   const onSend = (value: string) => {
+    if (inProcess) {
+      return;
+    }
+
     setInputData('');
     onSendMessage(value);
   };

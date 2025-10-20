@@ -55,7 +55,10 @@ const GridAttachment: FC<Props> = ({ attachment, actions, className = '' }) => {
         rowHeight={GRID_ROW_HEIGHT}
         rowData={rowData}
         columnDefs={columnDefs}
+        enableCellTextSelection
         domLayout="normal"
+        tooltipShowDelay={0}
+        tooltipShowMode="whenTruncated"
         autoSizeStrategy={{
           type:
             columnDefs && columnDefs?.length > 5

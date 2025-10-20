@@ -18,6 +18,7 @@ import { ConversationInfo } from '@epam/ai-dial-shared';
 import { SharedConversationInfo } from '@statgpt/dial-toolkit/src';
 import { ShareTarget } from '@statgpt/dial-toolkit/src/constants/share-conversation';
 import { getSharedConversationsRequest } from '@statgpt/dial-toolkit/src/utils/shared-conversations-request';
+import { SHARE_CONVERSATION_ROUTE } from '../../constants/share-conversation';
 
 interface Props extends ShareConversationProps {
   conversation?: ConversationInfo | null;
@@ -46,6 +47,8 @@ const ShareConversationModal: FC<Props> = ({
   revokeSharedConversations,
   baseUrl,
   id,
+  clientSharedPage,
+  clientSharedProp,
 }) => {
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
   const [sharedConversation, setSharedConversation] =
@@ -57,8 +60,19 @@ const ShareConversationModal: FC<Props> = ({
 
   const conversationLink = useMemo(() => {
     const url = baseUrl || window.location.origin;
+
+    if (
+      baseUrl &&
+      baseUrl !== window.location.origin &&
+      clientSharedPage &&
+      clientSharedProp
+    ) {
+      const id = generatedLink?.split(`/${SHARE_CONVERSATION_ROUTE}/`)?.[1];
+      return `${url}/${clientSharedPage}?${clientSharedProp}=${id}`;
+    }
+
     return `${url}/${locale}${generatedLink}`;
-  }, [baseUrl, generatedLink, locale]);
+  }, [baseUrl, generatedLink, locale, clientSharedPage, clientSharedProp]);
 
   useEffect(() => {
     const generateShareConversationLink = async () => {
@@ -66,15 +80,13 @@ const ShareConversationModal: FC<Props> = ({
         const conversationKey = conversation
           ? decodeURI(conversation?.id)
           : decodeURI(`${id?.[0]}/${locale}/${id?.[1]}`);
-        const conversationDetails = await getConversation?.(
-          decodeURI(conversationKey),
+        const uri = `${decodeURI(conversationKey)}`;
+        const conversationDetails = await getConversation?.(uri);
+        const data = getConversationData(
+          conversationKey,
+          getConversationResources(conversationDetails),
         );
-        const generatedLinkResponse = await generateConversationLink?.(
-          getConversationData(
-            conversationKey,
-            getConversationResources(conversationDetails),
-          ),
-        );
+        const generatedLinkResponse = await generateConversationLink?.(data);
         const sharedConversationsData = await getSharedConversations?.(
           getSharedConversationsRequest(ShareTarget.OTHERS),
         );

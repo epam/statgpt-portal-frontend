@@ -6,6 +6,7 @@ export interface DataQuery {
   metadata: {
     countryDimension: string;
     indicatorDimensions: string[];
+    datasetUrl?: string;
   };
   filters: QueryFilter[];
 }
@@ -18,6 +19,7 @@ export interface JsonDataQuery {
     countryDimension: string;
     indicator_dimensions?: string[];
     indicatorDimensions: string[];
+    datasetUrl?: string;
   };
   filters: JsonQueryFilter[];
 }

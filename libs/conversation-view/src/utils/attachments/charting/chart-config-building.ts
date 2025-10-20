@@ -4,6 +4,7 @@ import {
   DEFAULT_LABEL_COLOR,
   DEFAULT_TICK_COLOR,
 } from '../../../constants/charting-default-colors';
+import { ChartingTooltipFormatterParams } from '../../../models/charting';
 
 export function buildChartConfig(
   timePeriods: string[],
@@ -14,6 +15,18 @@ export function buildChartConfig(
     animation: false,
     tooltip: {
       trigger: 'axis',
+      appendToBody: true,
+      formatter: (params: ChartingTooltipFormatterParams[]) => {
+        let result = params[0].axisValueLabel + '<br/>';
+
+        params.forEach((item: ChartingTooltipFormatterParams) => {
+          if (item.value !== null && item.value !== undefined) {
+            result +=
+              item.marker + ' ' + item.seriesName + ': ' + item.value + '<br/>';
+          }
+        });
+        return result;
+      },
     },
     legend: {
       bottom: 0,

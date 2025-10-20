@@ -28,7 +28,7 @@ const ConversationsSearchField: FC<Props> = ({
         <InputWithIcon
           inputId="conversations-search"
           placeholder={titles?.searchPlaceholder ?? 'Search'}
-          containerClasses="h-[40px] bg-transparent px-4 py-2 rounded-full border-neutrals-400 shadow-none"
+          containerClasses="conversation-list-search-input h-[40px] bg-transparent px-4 py-2 rounded-full border-neutrals-400 shadow-none"
           cssClass="h-auto"
           value={searchQuery}
           iconAfterInput={
@@ -42,7 +42,7 @@ const ConversationsSearchField: FC<Props> = ({
         />
       ) : (
         <Button
-          buttonClassName="text-button-tertiary p-0"
+          buttonClassName="text-button-tertiary p-0 search-button"
           iconBefore={<IconSearch className="w-5 h-5" />}
           onClick={toggleSearchField}
         />

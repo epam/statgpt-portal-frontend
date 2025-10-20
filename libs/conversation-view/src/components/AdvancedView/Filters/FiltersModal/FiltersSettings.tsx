@@ -13,6 +13,7 @@ import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
 import classNames from 'classnames';
 import { useIsMobile } from '@statgpt/ui-components/src/hooks/isMobile';
 import { ConversationViewTitles } from '../../../../models/titles';
+import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
 
 interface Props {
   filtersList: Filter[];
@@ -21,13 +22,15 @@ interface Props {
   isDisableValues?: boolean;
   titles?: ConversationViewTitles;
   timeSeriesCount?: string;
-  initialTimeRange?: TimeRange;
   timeRangeOptions?: TimeRangeOptions[];
   modalProps?: FiltersModalProps;
+  initialConstraints?: DataConstraints[];
   setSelectedFilter: (filter?: Filter) => void;
   onSelectDisplayMode: (filterId?: string, displayMode?: string) => void;
   onDeleteFilter?: (filterId?: string) => void;
   updateSelectedFilterValues?: (filter: Filter) => void;
+  onTimePeriodChange?: (value: string | number) => void;
+  selectedTimeOption?: string | number;
 }
 
 const FilterSettings: FC<Props> = ({
@@ -38,12 +41,14 @@ const FilterSettings: FC<Props> = ({
   locale,
   isDisableValues,
   timeSeriesCount,
-  initialTimeRange,
   timeRangeOptions,
+  initialConstraints,
   setSelectedFilter,
   onSelectDisplayMode,
   onDeleteFilter,
   updateSelectedFilterValues,
+  onTimePeriodChange,
+  selectedTimeOption,
 }) => {
   const isMobile = useIsMobile();
 
@@ -108,11 +113,15 @@ const FilterSettings: FC<Props> = ({
     });
   };
 
-  const onSelectTimePeriodValue = (timeRange: TimeRange | null) => {
+  const onSelectTimePeriodValue = (
+    timeRange: TimeRange | null,
+    selectedOption: string | number,
+  ) => {
     const updatedFilter = {
       ...selectedFilter,
       timeRange: timeRange || void 0,
     };
+    onTimePeriodChange?.(selectedOption);
     setSelectedFilter(updatedFilter);
     if (updateSelectedFilterValues) {
       updateSelectedFilterValues(updatedFilter);
@@ -141,7 +150,7 @@ const FilterSettings: FC<Props> = ({
           onSelectDisplayMode={onSelectDisplayMode}
           onDeleteFilter={onDeleteFilter}
           isDisableValues={isDisableValues}
-          initialTimeRange={initialTimeRange}
+          initialConstraints={initialConstraints}
           timeRangeOptions={timeRangeOptions}
           selectFilterValue={onSelectFilterValue}
           selectHierarchicalNodes={onSelectHierarchicalNodes}
@@ -161,13 +170,14 @@ const FilterSettings: FC<Props> = ({
           locale={locale}
           titles={titles}
           isDisableValues={isDisableValues}
-          initialTimeRange={initialTimeRange}
           timeRangeOptions={timeRangeOptions}
           selectFilterValue={onSelectFilterValue}
           selectHierarchicalNodes={onSelectHierarchicalNodes}
           expandHierarchicalValue={onExpandHierarchicalValue}
           onTimePeriodChange={onSelectTimePeriodValue}
           filterValuesProps={modalProps?.filterValuesProps}
+          initialConstraints={initialConstraints}
+          selectedTimeOption={selectedTimeOption}
         />
       )}
     </div>

@@ -6,10 +6,15 @@ import { IconButton } from '@statgpt/ui-components/src/components/IconButton/Ico
 import ChevronSolidDownIcon from '../../../assets/icons/chevron-solid-down.svg';
 import { StructureComponentValue } from '../../../models/structure-component';
 
-const MetadataItem: FC<StructureComponentValue> = ({
+interface Props extends StructureComponentValue {
+  locale: string;
+}
+
+const MetadataItem: FC<Props> = ({
   title,
   value,
   attachedKeysTitles,
+  locale,
 }) => {
   const [isItemOpen, setIsItemOpen] = useState(false);
   const [isShowIcon, setShowIcon] = useState<boolean>(false);
@@ -22,8 +27,15 @@ const MetadataItem: FC<StructureComponentValue> = ({
   }, [setIsItemOpen, isShowIcon]);
 
   const getMetadataItemValue = useCallback(
-    () => (Array.isArray(value) ? value.join(', ') : value),
-    [value],
+    () =>
+      Array.isArray(value)
+        ? value
+            ?.map((valueItem) =>
+              typeof valueItem === 'object' ? valueItem?.[locale] : valueItem,
+            )
+            ?.join(', ')
+        : value,
+    [locale, value],
   );
 
   useEffect(() => {
@@ -61,7 +73,8 @@ const MetadataItem: FC<StructureComponentValue> = ({
               'border-none p-0 w-6 h-6',
               isItemOpen ? 'rotate-[180deg]' : '',
             )}
-            icon={<ChevronSolidDownIcon />}
+            isBaseIconStyles={false}
+            icon={<ChevronSolidDownIcon width={24} height={24} />}
             onClick={onIconClick}
           />
         )}

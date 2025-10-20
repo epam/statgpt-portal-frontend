@@ -23,5 +23,6 @@ export const openDownloadWindow = (
     isMetadata: isMetadata ? 'true' : 'none',
   }).toString();
 
-  window.open(`${DOWNLOAD_PATH}?${queryParams}`, '_blank');
+  const link = `${DOWNLOAD_PATH}?${queryParams}`;
+  window.open(link, '_blank');
 };

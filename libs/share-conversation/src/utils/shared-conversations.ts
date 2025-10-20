@@ -6,6 +6,7 @@ import {
 } from '@statgpt/dial-toolkit/src/models/conversation';
 import { InvitationType } from '@statgpt/dial-toolkit/src/types/invitation-type';
 import { Conversation, ConversationInfo } from '@epam/ai-dial-shared';
+import { SHARE_CONVERSATION_ROUTE } from '../constants/share-conversation';
 
 export const getConversationData = (
   id: string,
@@ -26,7 +27,7 @@ export const getConversationLink = (
   generatedLink: GeneratedLinkResponse,
 ): string => {
   const conversationId = generatedLink?.invitationLink?.split('/').at(-1) || '';
-  return `/share/${conversationId}`;
+  return `/${SHARE_CONVERSATION_ROUTE}/${conversationId}`;
 };
 
 export const getSharedConversation = (

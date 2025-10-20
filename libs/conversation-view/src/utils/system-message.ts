@@ -4,26 +4,32 @@ import {
   DataQuery,
   QueryFilter,
 } from '@statgpt/shared-toolkit/src/models/data-query';
+import { getLastAssistantMessage } from './messages';
 
 export const prepareSystemMessage = (
   filters: QueryFilter[],
   currentDataQuery?: DataQuery,
+  dataQueries?: DataQuery[],
+  message?: Message,
 ): Message => {
   return {
     role: Role.System,
     content: '',
     custom_content: {
-      attachments: [
-        {
+      attachments:
+        dataQueries?.map((dataQuery) => ({
           type: AttachmentType.JSON,
-          title: currentDataQuery?.title,
+          title: dataQuery?.title,
           data: JSON.stringify({
-            urn: currentDataQuery?.urn,
-            metadata: currentDataQuery?.metadata,
-            filters,
+            urn: dataQuery?.urn,
+            metadata: dataQuery?.metadata,
+            filters:
+              currentDataQuery?.urn === dataQuery?.urn
+                ? filters
+                : dataQuery?.filters,
           }),
-        },
-      ],
+        })) || [],
+      form_schema: message?.custom_content?.form_schema,
     },
   } as Message;
 };
@@ -32,6 +38,7 @@ export const updateMessagesWithSystemMessage = (
   messages: Message[],
   filters: QueryFilter[],
   currentDataQuery?: DataQuery,
+  dataQueries?: DataQuery[],
 ): Message[] => {
   if (!messages) {
     return [];
@@ -43,5 +50,13 @@ export const updateMessagesWithSystemMessage = (
     messages?.pop();
   }
 
-  return [...messages, prepareSystemMessage(filters, currentDataQuery)];
+  return [
+    ...messages,
+    prepareSystemMessage(
+      filters,
+      currentDataQuery,
+      dataQueries,
+      getLastAssistantMessage(messages),
+    ),
+  ];
 };

@@ -9,7 +9,7 @@
 
 'use client';
 
-import { Attachment, Role } from '@epam/ai-dial-shared';
+import { Attachment, FormSchemaButtonOption, Role } from '@epam/ai-dial-shared';
 import classNames from 'classnames';
 import {
   FC,
@@ -27,32 +27,37 @@ import { useDatasets } from '../../../context/Datasets';
 import { useAdvancedView } from '../../../context/AdvancedViewContext';
 import { AttachmentsActions } from '../../../models/actions';
 import { AttachmentsStyles } from '../../../models/attachments-styles';
-import { MessageStyles } from '../../../models/message';
+import {
+  EditMessageTitles,
+  MessageActionIcons,
+  MessageStyles,
+} from '../../../models/message';
 import {
   isGridAttachment,
   parseMessageAttachments,
 } from '../../../utils/attachments/attachment-parser';
 import { getDataQueries } from '../../../utils/attachments/parse-data-query';
-import {
-  DataQuery,
-  QueryFilterDetails,
-} from '@statgpt/shared-toolkit/src/models/data-query';
+import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
 import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
 import { Message as MessageType } from '@statgpt/dial-toolkit/src/models/message';
 import { MetadataSettings } from '../../../models/metadata';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
 import MessageStages from '../MessageStages/MessageStages';
 import { ConversationViewTitles } from '../../../models/titles';
-import {
-  getQueryFiltersDetails,
-  getUpdatedQueryFiltersDetails,
-} from '../../../utils/query-filters-details';
+import { AttachmentInfo } from '../../../models/attachments';
+import { getAttachmentInfoList } from '../../../utils/attachments-details';
+import { AssistantActionsPanel } from '../AssistantActions/AssistantActions';
+import { RequestActionsPanel } from '../RequestActions/RequestActions';
+import MessageEdit from '../MessageEdit/MessageEdit';
+import { ChoiceButtons } from '../../ConversationOnboarding/ChoiceButtons/ChoiceButtons';
 
 interface Props {
   message: MessageType;
   previousMessage?: MessageType;
   isStreaming?: boolean;
+  isCurrentMessageStreaming?: boolean;
   actions: AttachmentsActions;
+  dataQuery?: DataQuery;
   messageStyles?: MessageStyles;
   attachmentsStyles?: AttachmentsStyles;
   showAdvancedView?: boolean;
@@ -62,6 +67,14 @@ interface Props {
   expandStagesIcon?: ReactNode;
   titles?: ConversationViewTitles;
   onAdvancedViewOpen?: () => void;
+  regenerateMessage?: (message: MessageType) => void;
+  selectMessageToSend: (message?: string, choiceId?: string) => void;
+  editMessage?: (message: MessageType) => void;
+  messageActionsIcons?: MessageActionIcons;
+  rateResponse: (responseId: string, rate: boolean) => void;
+  editMessageTitles: EditMessageTitles;
+  isReadOnlyConversation?: boolean;
+  isNotLastUserMessage?: boolean;
 }
 
 const Message: FC<Props> = ({
@@ -69,7 +82,9 @@ const Message: FC<Props> = ({
   previousMessage,
   titles,
   actions,
+  dataQuery,
   isStreaming = false,
+  isCurrentMessageStreaming = false,
   messageStyles,
   attachmentsStyles,
   showAdvancedView,
@@ -78,25 +93,47 @@ const Message: FC<Props> = ({
   metadataSettings,
   expandStagesIcon,
   onAdvancedViewOpen,
+  regenerateMessage,
+  selectMessageToSend,
+  messageActionsIcons,
+  rateResponse,
+  editMessage,
+  editMessageTitles,
+  isReadOnlyConversation,
+  isNotLastUserMessage,
 }) => {
   const [attachmentsDataQueries, setAttachmentsDataQueries] = useState<
     DataQuery[] | undefined
   >();
   const [currentAttachmentDataQuery, setCurrentAttachmentDataQuery] = useState<
     DataQuery | undefined
-  >(attachmentsDataQueries?.[0]);
-  const [queryFiltersDetails, setQueryFiltersDetails] = useState<
-    QueryFilterDetails[]
+  >();
+  const [attachmentInfoList, setAttachmentInfoList] = useState<
+    AttachmentInfo[]
   >([]);
   const [baseGridAttachments, setBaseGridAttachments] = useState<Attachment[]>(
     [],
   );
+  const [initialSelectedDatasetUrn, setInitialSelectedDatasetUrn] =
+    useState<string>();
   const [isDataSetAttachments, setIsDataSetAttachments] =
     useState<boolean>(false);
   const isUser = message.role === Role.User;
   const isSystem = message.role === Role.System;
-  const { datasets } = useDatasets(actions?.getDataSet, attachmentsDataQueries);
-  const { dataSetAttachments, dimensions, isLoadingGridData, structures } =
+  const { datasets, datasetStructuresMap } = useDatasets(
+    actions?.getDataSet,
+    attachmentsDataQueries,
+  );
+  const [isEditing, setIsEditing] = useState(false);
+  const [choiceButtons, setChoiceButtons] = useState<FormSchemaButtonOption[]>(
+    [],
+  );
+
+  useEffect(() => {
+    setCurrentAttachmentDataQuery(attachmentsDataQueries?.[0]);
+  }, [attachmentsDataQueries]);
+
+  const { dataSetAttachments, dimensions, isLoadingGridData } =
     useAttachmentsData(
       actions,
       locale,
@@ -108,16 +145,40 @@ const Message: FC<Props> = ({
     );
   const { isOpenedAdvancedView } = useAdvancedView();
 
+  const onEditClick = () => {
+    if (isUser) {
+      setIsEditing(true);
+    }
+  };
+
+  const onCancel = () => {
+    setIsEditing(false);
+  };
+
+  const onEditApply = (text: string) => {
+    onCancel();
+    editMessage?.({ ...message, content: text });
+  };
+
   const onSelectDataset = useCallback(
     (datasetUrn?: string) => {
       if (datasetUrn) {
         setCurrentAttachmentDataQuery(
           attachmentsDataQueries?.find((query) => query?.urn === datasetUrn),
         );
+        setInitialSelectedDatasetUrn(void 0);
       }
     },
     [attachmentsDataQueries],
   );
+
+  useEffect(() => {
+    const properties = message.custom_content?.form_schema?.properties;
+    const choiceButtons = isNotLastUserMessage
+      ? properties?.choice?.oneOf || properties?.completion?.oneOf
+      : [];
+    setChoiceButtons(choiceButtons || []);
+  }, [message, isNotLastUserMessage]);
 
   useEffect(() => {
     const attachments = parseMessageAttachments(message);
@@ -137,61 +198,56 @@ const Message: FC<Props> = ({
   }, [attachmentsDataQueries]);
 
   useEffect(() => {
+    if (dataQuery && dataQuery.urn) {
+      setInitialSelectedDatasetUrn(dataQuery.urn);
+    }
+  }, [dataQuery]);
+
+  useEffect(() => {
     if (message?.role === Role.System && previousMessage) {
       const previousMessageAttachments =
         parseMessageAttachments(previousMessage);
-      const previousMessageDataQuery = getDataQueries(
-        previousMessageAttachments,
-      )?.find(
-        (previousQuery) =>
-          previousQuery?.urn === currentAttachmentDataQuery?.urn,
-      );
+      const previousMessageDataQueries =
+        getDataQueries(previousMessageAttachments) || [];
 
       if (
-        currentAttachmentDataQuery &&
-        previousMessageDataQuery &&
-        structures
+        attachmentsDataQueries &&
+        previousMessageDataQueries &&
+        datasetStructuresMap
       ) {
-        setQueryFiltersDetails(
-          getUpdatedQueryFiltersDetails(
-            getQueryFiltersDetails(
-              previousMessageDataQuery?.filters,
-              dimensions,
-              structures?.conceptSchemes || [],
-              structures?.codelists || [],
-              locale,
-            ),
-            getQueryFiltersDetails(
-              currentAttachmentDataQuery?.filters,
-              dimensions,
-              structures?.conceptSchemes || [],
-              structures?.codelists || [],
-              locale,
-            ),
+        setAttachmentInfoList(
+          getAttachmentInfoList(
+            previousMessageDataQueries,
+            attachmentsDataQueries,
+            datasetStructuresMap,
+            locale,
           ),
         );
       }
     }
   }, [
+    attachmentsDataQueries,
     currentAttachmentDataQuery,
+    datasetStructuresMap,
     dimensions,
     locale,
     message?.role,
     previousMessage,
-    structures,
   ]);
 
   const getMessageIcon = useCallback(() => {
     if (
       !isUser &&
       messageStyles?.systemMessageIcon &&
-      !(isOpenedAdvancedView && !isStreaming)
+      !(isOpenedAdvancedView && !isCurrentMessageStreaming)
     ) {
       return (
         <div
           className={classNames(
             'flex-shrink-0 rounded-full flex items-center justify-center w-[44px] h-[44px]',
-            isStreaming ? 'text-white absolute' : 'text-neutrals-400',
+            isCurrentMessageStreaming
+              ? 'text-white absolute'
+              : 'text-neutrals-400',
           )}
         >
           {messageStyles.systemMessageIcon}
@@ -203,7 +259,7 @@ const Message: FC<Props> = ({
     isUser,
     messageStyles?.systemMessageIcon,
     isOpenedAdvancedView,
-    isStreaming,
+    isCurrentMessageStreaming,
   ]);
 
   const attachmentRendererMemoized = useMemo(
@@ -217,6 +273,7 @@ const Message: FC<Props> = ({
         onAdvancedViewOpen={onAdvancedViewOpen}
         isDataSetAttachments={isDataSetAttachments}
         datasets={datasets}
+        initialSelectedDatasetUrn={initialSelectedDatasetUrn}
         messageStyles={messageStyles}
         attachmentsStyles={attachmentsStyles}
         showAdvancedView={showAdvancedView}
@@ -224,7 +281,7 @@ const Message: FC<Props> = ({
         isDataLoading={isLoadingGridData}
         currentDataQuery={currentAttachmentDataQuery}
         dataQueries={attachmentsDataQueries}
-        queryFiltersDetails={queryFiltersDetails}
+        attachmentInfoList={attachmentInfoList}
         locale={locale}
         dimensions={dimensions}
         selectDataset={onSelectDataset}
@@ -237,6 +294,7 @@ const Message: FC<Props> = ({
       dataSetAttachments,
       baseGridAttachments,
       datasets,
+      initialSelectedDatasetUrn,
       messageStyles,
       attachmentsStyles,
       showAdvancedView,
@@ -244,7 +302,7 @@ const Message: FC<Props> = ({
       isLoadingGridData,
       currentAttachmentDataQuery,
       attachmentsDataQueries,
-      queryFiltersDetails,
+      attachmentInfoList,
       locale,
       dimensions,
       onSelectDataset,
@@ -253,44 +311,93 @@ const Message: FC<Props> = ({
   );
 
   return (
-    <div
-      className={classNames(
-        'max-w-full flex',
-        isUser ? 'justify-end' : 'justify-start',
-      )}
-    >
-      <div
-        className={classNames(
-          'flex items-start max-w-full',
-          isSystem && 'w-full',
-        )}
-      >
-        <div className="mr-2 relative">
-          {getMessageIcon()}
-          {isStreaming && <Loader />}
-        </div>
-        <div className="flex-1 min-w-0">
+    <>
+      {!(isSystem && isOpenedAdvancedView) && (
+        <div
+          className={classNames(
+            'max-w-full flex',
+            isUser ? 'justify-end' : 'justify-start',
+            'message-wrapper',
+          )}
+        >
           <div
             className={classNames(
-              isUser ? 'bg-neutrals-300 px-6 ml-12' : 'pt-0',
-              isUser ? 'user-message' : 'system-message',
+              'flex items-start max-w-full',
+              (isSystem || isEditing) && 'w-full',
             )}
           >
-            {!isUser &&
-              !isOpenedAdvancedView &&
-              message?.custom_content?.stages && (
-                <MessageStages
-                  stages={message?.custom_content?.stages}
-                  expandIcon={expandStagesIcon}
-                  processingTitle={messageStyles?.processingTitle}
+            <div className="mr-2 relative">
+              {getMessageIcon()}
+              {isCurrentMessageStreaming && <Loader />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div
+                className={classNames(
+                  isUser ? 'bg-neutrals-300 px-6' : 'pt-0',
+                  isUser ? 'user-message' : 'system-message',
+                  isUser && (isEditing ? 'w-[100%] ml-0' : 'ml-12'),
+                )}
+              >
+                {!isUser &&
+                !isOpenedAdvancedView &&
+                message?.custom_content?.stages ? (
+                  <MessageStages
+                    stages={message?.custom_content?.stages}
+                    expandIcon={expandStagesIcon}
+                    processingTitle={messageStyles?.processingTitle}
+                  />
+                ) : (
+                  isCurrentMessageStreaming && (
+                    <p className="body-1 text-neutrals-700 loading-message">
+                      {titles?.loading}
+                    </p>
+                  )
+                )}
+
+                {isEditing ? (
+                  <MessageEdit
+                    content={message.content}
+                    onCancel={onCancel}
+                    onEditApply={onEditApply}
+                    editMessageTitles={editMessageTitles}
+                  />
+                ) : (
+                  <MessageContent content={message.content} />
+                )}
+              </div>
+              {attachmentRendererMemoized}
+              {!isCurrentMessageStreaming &&
+                (isUser ? (
+                  !isEditing && (
+                    <RequestActionsPanel
+                      messageActionsIcons={messageActionsIcons}
+                      message={message}
+                      isStreaming={isStreaming}
+                      onEditClick={onEditClick}
+                      isReadOnly={isReadOnlyConversation}
+                    />
+                  )
+                ) : (
+                  <AssistantActionsPanel
+                    messageActionsIcons={messageActionsIcons}
+                    message={message}
+                    isStreaming={isStreaming}
+                    regenerateMessage={regenerateMessage}
+                    rateResponse={rateResponse}
+                    isReadOnly={isReadOnlyConversation}
+                  />
+                ))}
+              {!isOpenedAdvancedView && (
+                <ChoiceButtons
+                  choiceButtons={choiceButtons}
+                  onClick={selectMessageToSend}
                 />
               )}
-            <MessageContent content={message.content} />
+            </div>
           </div>
-          {!(isSystem && isOpenedAdvancedView) && attachmentRendererMemoized}
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 

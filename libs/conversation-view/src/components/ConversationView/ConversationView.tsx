@@ -21,7 +21,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { IconCopy } from '@tabler/icons-react';
+import { IconCopy, IconPlus } from '@tabler/icons-react';
 
 import ChatMessages from '../ChatMessages/ChatMessages';
 import ConversationViewHeader from '../ConversationViewHeader/ConversationViewHeader';
@@ -29,7 +29,12 @@ import InputForAsk from '../InputForAsk/InputForAsk';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 import { ConversationViewActions } from '../../models/actions';
 import { AttachmentsStyles } from '../../models/attachments-styles';
-import { InputMessageStyles, MessageStyles } from '../../models/message';
+import {
+  EditMessageTitles,
+  InputMessageStyles,
+  MessageActionIcons,
+  MessageStyles,
+} from '../../models/message';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { extractPartialMessageData } from '../../utils/extract-partial-message';
@@ -37,7 +42,11 @@ import {
   isConversationIdExternal,
   isReadOnlyConversation,
 } from '../../utils/is-read-only-conversation';
-import { transformMessagesForApi } from '../../utils/transform-message-api';
+import {
+  transformEditMessage,
+  transformMessagesForApi,
+  transformRegenerateMessage,
+} from '../../utils/transform-message-api';
 import { validateAndPrepareMessage } from '../../utils/validate-message';
 import { streamChatResponse } from '@statgpt/dial-toolkit/src/api/chat-streaming-api';
 import { Message } from '@statgpt/dial-toolkit/src/models/message';
@@ -50,6 +59,14 @@ import { ConversationViewTitles } from '../../models/titles';
 import { getRedirectConversationPath } from '../../utils/get-conversation-path';
 import { generateConversation } from '../../utils/generate-conversation';
 import { cleanConversationNames } from '@statgpt/shared-toolkit/src/utils/conversation-mapping';
+import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { UserInfo } from '@statgpt/user-info/src/models/user-info';
+import { ABORT_ERROR } from '../../constants/errors';
+import { CustomFields } from '@statgpt/dial-toolkit/src/models/chat-stream';
+import { useOnboarding } from '../../context/OnboardingContext';
+import { OnboardingElements } from '../../constants/onboarding-elements';
+import { getOnboardingInfoForAdvancedView } from '../../utils/get-tooltip-data.by-element';
 
 interface Props {
   conversationKey: string;
@@ -67,9 +84,18 @@ interface Props {
   locale: string;
   conversationsRoute?: string;
   token?: string | null;
+  dataQuery?: DataQuery;
+  isShowUserInfo?: boolean;
+  userInfo?: UserInfo;
+  signOutTitle?: string;
   setConversation: Dispatch<SetStateAction<Conversation | null>>;
   setConversations: (conversations: ConversationInfo[]) => void;
   openUrl: (url: string) => void;
+  signOutAction?: () => void;
+  messageActionsIcons?: MessageActionIcons;
+  editMessageTitles: EditMessageTitles;
+  scrollBottomIcon?: ReactNode;
+  isFinalMessage?: boolean;
 }
 
 export const ConversationView: FC<Props> = ({
@@ -87,10 +113,18 @@ export const ConversationView: FC<Props> = ({
   locale,
   conversationsRoute,
   token,
+  isShowUserInfo,
+  userInfo,
   titles,
+  dataQuery,
   setConversation,
   setConversations,
   openUrl,
+  signOutAction,
+  messageActionsIcons,
+  editMessageTitles,
+  scrollBottomIcon,
+  isFinalMessage,
 }) => {
   const [conversationSignal, setConversationSignal] =
     useState<AbortController | null>(null);
@@ -98,6 +132,45 @@ export const ConversationView: FC<Props> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isStreaming, setIsStreaming] = useState(false);
   const { isOpenedAdvancedView } = useAdvancedView();
+  const {
+    onboardingFileSchema,
+    onboardingFilePath,
+    onboardingFileName,
+    isShowOnboarding,
+    setOnboardingFileSchema,
+  } = useOnboarding();
+
+  useEffect(() => {
+    if (onboardingFileSchema) {
+      actions.putOnboardingFile?.(
+        onboardingFileName,
+        onboardingFilePath,
+        onboardingFileSchema,
+      );
+    }
+  }, [actions, onboardingFileSchema, onboardingFileName, onboardingFilePath]);
+
+  useEffect(() => {
+    // if user open advanced view (while attachment is loading) -> skip tooltip for opening
+    if (
+      isOpenedAdvancedView &&
+      onboardingFileSchema?.lastDisplayedElement ===
+        OnboardingElements.OPEN_ADVANCED_VIEW
+    ) {
+      setOnboardingFileSchema?.(
+        getOnboardingInfoForAdvancedView(onboardingFileSchema),
+      );
+    }
+  }, [
+    actions,
+    isOpenedAdvancedView,
+    setOnboardingFileSchema,
+    onboardingFileSchema,
+  ]);
+
+  const handleOpeningOfNewConversation = useCallback(() => {
+    openUrl(`/${locale}${conversationsRoute}`);
+  }, [locale, conversationsRoute, openUrl]);
 
   const duplicateConversation = useCallback(async () => {
     try {
@@ -203,13 +276,21 @@ export const ConversationView: FC<Props> = ({
     [setConversation],
   );
 
+  const rateResponse = useCallback(
+    (id: string, rate: boolean) => {
+      actions.rateResponse(id, rate);
+    },
+    [actions],
+  );
+
   const handleStreamingResponse = useCallback(
     async (
       assistantMessage: Message,
       apiMessages: Message[],
-      conversation?: Conversation,
+      conversation?: Conversation & CustomFields,
     ) => {
-      setConversationSignal(new AbortController());
+      const abortController = new AbortController();
+      setConversationSignal(abortController);
       let currentAssistantMessage: Message | undefined = assistantMessage;
       if (!conversation) {
         return;
@@ -220,7 +301,7 @@ export const ConversationView: FC<Props> = ({
         apiMessages,
         {
           model: conversation.model,
-          signal: conversationSignal?.signal,
+          signal: abortController?.signal,
           onMessage: (data) => {
             const partialMessage = extractPartialMessageData(data);
 
@@ -236,30 +317,40 @@ export const ConversationView: FC<Props> = ({
             }
           },
           onError: (error) => {
-            console.error('Streaming error:', error);
-            throw error;
+            if (!isStopedStreaming(error)) {
+              console.error('Streaming error:', error);
+              throw error;
+            }
           },
         },
         token,
+        conversation?.custom_fields as CustomFields,
       );
 
       return currentAssistantMessage;
     },
-    [updateAssistantMessage, conversationSignal, token],
+    [updateAssistantMessage, token],
   );
 
   const finalizeConversation = useCallback(
     async (
-      userMessage: Message,
       assistantMessage: Message,
       conversation: Conversation,
+      userMessage?: Message,
     ) => {
       if (conversation) {
         const updatedConversation = {
           ...conversation,
-          messages: [...conversation.messages, userMessage, assistantMessage],
+          messages: [...conversation.messages],
           updatedAt: Date.now(),
         };
+
+        if (userMessage) {
+          updatedConversation.messages.push(userMessage);
+        }
+
+        updatedConversation.messages.push(assistantMessage);
+
         await saveConversation(updatedConversation);
       }
     },
@@ -288,12 +379,49 @@ export const ConversationView: FC<Props> = ({
     }
   }, [conversationSignal]);
 
+  const isStopedStreaming = (error?: Error) => {
+    return error?.name === ABORT_ERROR;
+  };
+
+  const handleStreamingProcessError = useCallback(
+    async (
+      conversation: Conversation,
+      userMessage: Message,
+      initialAssistantMessage?: Message,
+      finalAssistantMessage?: Message,
+      error?: Error,
+      isSaveUserMessage = true,
+    ) => {
+      if (isStopedStreaming(error)) {
+        await finalizeConversation(
+          (finalAssistantMessage ?? initialAssistantMessage) as Message,
+          conversation,
+          isSaveUserMessage ? userMessage : void 0,
+        );
+      } else {
+        handleSendMessageError(error, userMessage);
+      }
+    },
+    [finalizeConversation, handleSendMessageError],
+  );
+
   const sendMessageToConversation = useCallback(
-    async (content: string, data: Conversation | null) => {
+    async (
+      content: string,
+      data: Conversation | null,
+      customChoiceId?: string,
+    ) => {
       if (!data || !content) {
         return;
       }
-      const userMessage = validateAndPrepareMessage(content, isStreaming, data);
+      const userMessage = validateAndPrepareMessage(
+        content,
+        isStreaming,
+        data,
+        customChoiceId,
+      );
+      let initialAssistantMessage, finalAssistantMessage;
+
       if (!userMessage) return;
 
       addUserMessageToConversation(userMessage);
@@ -301,34 +429,131 @@ export const ConversationView: FC<Props> = ({
       try {
         setIsStreaming(true);
 
-        const assistantMessage = initializeAssistantMessage();
+        initialAssistantMessage = initializeAssistantMessage();
         const apiMessages = transformMessagesForApi(userMessage, data);
 
-        const finalAssistantMessage = await handleStreamingResponse(
-          assistantMessage,
+        finalAssistantMessage = await handleStreamingResponse(
+          initialAssistantMessage,
           apiMessages,
           data,
         );
 
         await finalizeConversation(
-          userMessage,
           finalAssistantMessage as Message,
           data,
+          userMessage,
         );
       } catch (err) {
-        handleSendMessageError(err, userMessage);
+        handleStreamingProcessError(
+          data,
+          userMessage,
+          initialAssistantMessage,
+          finalAssistantMessage,
+          err as Error,
+        );
       } finally {
         setIsStreaming(false);
       }
     },
     [
+      isStreaming,
       addUserMessageToConversation,
-      handleSendMessageError,
+      initializeAssistantMessage,
+      handleStreamingResponse,
       finalizeConversation,
+      handleStreamingProcessError,
+    ],
+  );
+
+  const processMessageRequest = useCallback(
+    async (
+      apiMessages: Message[],
+      updatedConversation: Conversation,
+      message: Message,
+    ) => {
+      let initialAssistantMessage, finalAssistantMessage;
+
+      try {
+        setIsStreaming(true);
+        initialAssistantMessage = initializeAssistantMessage();
+        finalAssistantMessage = await handleStreamingResponse(
+          initialAssistantMessage,
+          apiMessages,
+          updatedConversation,
+        );
+
+        await finalizeConversation(
+          finalAssistantMessage as Message,
+          updatedConversation,
+        );
+      } catch (err) {
+        handleStreamingProcessError(
+          updatedConversation,
+          message,
+          initialAssistantMessage,
+          finalAssistantMessage,
+          err as Error,
+          false,
+        );
+      } finally {
+        setIsStreaming(false);
+      }
+    },
+    [
+      finalizeConversation,
+      handleStreamingProcessError,
       handleStreamingResponse,
       initializeAssistantMessage,
-      isStreaming,
     ],
+  );
+
+  const regenerateMessage = useCallback(
+    async (message: Message, data: Conversation | null) => {
+      if (!data || !message) {
+        return;
+      }
+
+      const apiMessages = transformRegenerateMessage(message, data);
+      const updatedConversation = {
+        ...data,
+        messages: data.messages.slice(0, apiMessages.length),
+      };
+      setConversation((prev) =>
+        prev
+          ? {
+              ...prev,
+              ...updatedConversation,
+            }
+          : null,
+      );
+
+      processMessageRequest(apiMessages, updatedConversation, message);
+    },
+    [setConversation, processMessageRequest],
+  );
+
+  const editMessage = useCallback(
+    async (message: Message, data: Conversation | null) => {
+      if (!data || !message) {
+        return;
+      }
+
+      const apiMessages = transformEditMessage(message, data);
+      const updatedConversation = {
+        ...data,
+        messages: [...data.messages.slice(0, apiMessages.length - 1), message],
+      };
+      setConversation((prev) =>
+        prev
+          ? {
+              ...prev,
+              ...updatedConversation,
+            }
+          : null,
+      );
+      processMessageRequest(apiMessages, updatedConversation, message);
+    },
+    [setConversation, processMessageRequest],
   );
 
   useEffect(() => {
@@ -337,12 +562,17 @@ export const ConversationView: FC<Props> = ({
         setIsLoading(true);
         const { bucket } = await actions.getBucket();
         const data = await actions.getConversation(decodeURI(conversationKey));
+
         setConversation(data);
         setIsReadonlyConversation(
           isReadOnlyConversation(data) &&
             isConversationIdExternal(data, bucket),
         );
-        if (data.messages.length === 0) {
+        if (
+          data.messages.length === 0 ||
+          (data?.messages?.[0]?.role === Role.Assistant &&
+            data?.messages?.length === 1)
+        ) {
           sendMessageToConversation(data.prompt, data);
         }
       } catch {
@@ -361,6 +591,7 @@ export const ConversationView: FC<Props> = ({
   const messageServerActions = useMemo(
     () => ({
       getFile: actions.getFile,
+      putOnboardingFile: actions.putOnboardingFile,
       getDataSet: actions.getDataSet,
       getDataSetData: actions.getDataSetData,
       getConstraints: actions.getConstraints,
@@ -390,8 +621,12 @@ export const ConversationView: FC<Props> = ({
           conversation={conversation}
           locale={locale}
           isOpenedAdvancedView={isOpenedAdvancedView}
-          isShowShareButton={!isReadonlyConversation}
+          isShowShareButton={!isReadonlyConversation && !isShowOnboarding}
           shareConversationProps={shareConversationProps}
+          isShowUserInfo={isShowUserInfo}
+          userInfo={userInfo}
+          signOutTitle={titles?.signOut}
+          signOutAction={signOutAction}
         />
       )}
       <div
@@ -404,16 +639,34 @@ export const ConversationView: FC<Props> = ({
           messages={conversation?.messages || []}
           actions={messageServerActions}
           isStreaming={isStreaming}
+          isReadOnly={isReadonlyConversation}
           messageStyles={messageStyles}
           attachmentsStyles={attachmentsStyles}
           formattingSettings={formattingSettings}
           metadataSettings={metadataSettings}
           expandStagesIcon={expandStagesIcon}
+          dataQuery={dataQuery}
           locale={locale}
           titles={titles}
+          regenerateMessage={(message: Message) =>
+            regenerateMessage(message, conversation)
+          }
+          selectMessageToSend={(message, choiceId) =>
+            sendMessageToConversation(
+              message as string,
+              conversation,
+              choiceId as string,
+            )
+          }
+          messageActionsIcons={messageActionsIcons}
+          rateResponse={rateResponse}
+          editMessage={(message: Message) => editMessage(message, conversation)}
+          editMessageTitles={editMessageTitles}
+          scrollBottomIcon={scrollBottomIcon}
+          isReadOnlyConversation={isReadonlyConversation || isShowOnboarding}
         />
       </div>
-      {!isReadonlyConversation ? (
+      {isShowOnboarding ? null : !isReadonlyConversation ? (
         <div className={classNames(inputMessageStyles.inputContainerClass)}>
           <InputForAsk
             onSendMessage={(message) =>
@@ -437,6 +690,15 @@ export const ConversationView: FC<Props> = ({
             buttonClassName={classNames('text-button-secondary')}
           />
         </div>
+      )}
+      {isShowOnboarding && isFinalMessage && (
+        <Button
+          iconBefore={<IconPlus width={24} height={24} />}
+          title={titles?.onboardingFooterLink}
+          onClick={handleOpeningOfNewConversation}
+          isSmallButton={true}
+          buttonClassName="text-button-secondary self-center mb-3"
+        />
       )}
     </div>
   );

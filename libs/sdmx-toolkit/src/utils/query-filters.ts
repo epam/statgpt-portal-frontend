@@ -10,6 +10,11 @@ import {
 } from '@statgpt/shared-toolkit/src/models/data-query';
 import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
 import { getTimePeriod } from '@statgpt/shared-toolkit/src/utils/get-time-period';
+import {
+  AND_QUERY_OPERATOR,
+  QUERY_PARAMETER_FILTER_EQUAL,
+  QUERY_PARAMETER_FILTER_VALUE_SEPARATOR,
+} from '../constants/query-parameters';
 
 export const getTimeSeriesFilterKey = (
   dimensions: Dimension[],
@@ -46,12 +51,12 @@ export const getQueryTimePeriodFilters = (
   const { startPeriod, endPeriod } = timeRange;
   if (startPeriod) {
     filterValues.push(
-      `${SeriesFilterOperator.GREATER_OR_EQUAL}:${startPeriod.toISOString().split('T')[0]}`,
+      `${SeriesFilterOperator.GREATER_OR_EQUAL}${QUERY_PARAMETER_FILTER_VALUE_SEPARATOR}${startPeriod.toISOString().split('T')[0]}`,
     );
   }
   if (endPeriod) {
     filterValues.push(
-      `${SeriesFilterOperator.LESS_OR_EQUAL}:${endPeriod.toISOString().split('T')[0]}`,
+      `${SeriesFilterOperator.LESS_OR_EQUAL}${QUERY_PARAMETER_FILTER_VALUE_SEPARATOR}${endPeriod.toISOString().split('T')[0]}`,
     );
   }
 
@@ -59,11 +64,14 @@ export const getQueryTimePeriodFilters = (
     return null;
   }
 
-  const value = filterValues.join(GET_v3_FILTER_OR);
+  const id = timePeriodId;
 
-  const id = encodeURIComponent(`[${timePeriodId}]`);
-
-  return `c${id}=${value}`;
+  return filterValues
+    .map(
+      (v) =>
+        `${encodeURIComponent(`c[${id}]`)}${QUERY_PARAMETER_FILTER_EQUAL}${encodeURIComponent(v)}`,
+    )
+    .join(AND_QUERY_OPERATOR);
 };
 
 export const getTimeQueryFilter = (
@@ -72,10 +80,9 @@ export const getTimeQueryFilter = (
 ): string | null => {
   const timeRange =
     getTimeRangeFromAttachment(dataQuery, timeDimension) || null;
-  const timeFilter = timeRange
+  return timeRange
     ? (getQueryTimePeriodFilters(timeRange, timeDimension?.id) as string)
     : null;
-  return timeFilter;
 };
 
 export const getTimeRangeFromAttachment = (
@@ -94,6 +101,25 @@ export const getTimeRangeFromAttachment = (
   if (!periods.length) {
     return null;
   }
+
+  const operator = filterFromAttachment.operator as string;
+
+  if (
+    operator === SeriesFilterOperator.LESS_OR_EQUAL ||
+    operator === SeriesFilterOperator.LESS
+  ) {
+    const endPeriod = getTimePeriod(periods[0]);
+    return { startPeriod: null, endPeriod };
+  }
+
+  if (
+    operator === SeriesFilterOperator.GREATER_OR_EQUAL ||
+    operator === SeriesFilterOperator.GREATER
+  ) {
+    const startPeriod = getTimePeriod(periods[0]);
+    return { startPeriod, endPeriod: null };
+  }
+
   const startPeriod = getTimePeriod(periods[0]);
   const endPeriod = getTimePeriod(periods[1]);
   return { startPeriod, endPeriod };

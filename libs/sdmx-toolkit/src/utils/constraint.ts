@@ -10,6 +10,7 @@ import { getFilteredItemsWithParents } from './get-filtered-items';
 
 export const TIME_PERIOD_END = 'time_period_end';
 export const TIME_PERIOD_START = 'time_period_start';
+export const TIME_PERIOD = 'TIME_PERIOD';
 
 export const getAnnotationPeriod = (
   annotations: Annotation[] | undefined,

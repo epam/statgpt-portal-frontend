@@ -3,6 +3,7 @@
 import {
   FormSchemaButtonOption,
   DialSchemaProperties,
+  MessageFormSchema,
 } from '@epam/ai-dial-shared';
 import InputForAsk from '../InputForAsk/InputForAsk';
 import { Tag } from '@statgpt/ui-components/src/components/Tag/Tag';
@@ -15,6 +16,7 @@ import {
   SharedConversations,
 } from '@statgpt/dial-toolkit/src/models/conversation';
 import { getCreateConversationRequest } from '../../utils/conversation-request';
+import { generateOnboardingConversation } from '../../utils/generate-onboarding-conversation';
 import { InputMessageStyles } from '../../models/message';
 import { cleanConversationNames } from '@statgpt/shared-toolkit/src/utils/conversation-mapping';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
@@ -22,17 +24,27 @@ import { ConversationViewTitles } from '../../models/titles';
 import { ShareTarget } from '@statgpt/dial-toolkit/src/constants/share-conversation';
 import { transformSharedConversations } from '@statgpt/conversation-list/src/utils/shared-conversations';
 import { getSharedConversationsRequest } from '@statgpt/dial-toolkit/src/utils/shared-conversations-request';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { UserInfo } from '@statgpt/user-info/src/models/user-info';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import User from '@statgpt/user-info/src/components/User/User';
+import { ConversationOnboarding } from '../ConversationOnboarding/ConversationOnboarding';
+import ChatOnboardingFooter from '../ChatOnboardingFooter/ChatOnboardingFooter';
+import { useOnboarding } from '../../context/OnboardingContext';
+import { PutOnboardingFile } from '../../types/actions';
 
 interface ConversationListActions {
   getBucket: () => Promise<{ bucket: string }>;
   createConversation: (
     request: CreateConversationRequest,
     locale: string,
+    isOnboardingConversation?: boolean,
   ) => Promise<ConversationInfo>;
   getConversations: (locale: string) => Promise<ConversationInfo[]>;
   getSharedConversations: (
     requestData?: SharedConversationsRequest,
   ) => Promise<SharedConversations>;
+  putOnboardingFile?: PutOnboardingFile;
 }
 
 interface Props {
@@ -45,9 +57,12 @@ interface Props {
   isBottomInputPosition?: boolean;
   actions: ConversationListActions;
   prompt?: string;
+  onboardingMessageSchema?: MessageFormSchema;
   handleConversationClick: (folderId: string, conversationId: string) => void;
   setConversations: (conversations: ConversationInfo[]) => void;
   setSharedConversations: (sharedConversations: ConversationInfo[]) => void;
+  userInfo?: UserInfo;
+  signOutAction?: () => void;
 }
 
 export const ConversationWelcome: FC<Props> = ({
@@ -59,14 +74,25 @@ export const ConversationWelcome: FC<Props> = ({
   inputMessageStyles,
   isBottomInputPosition,
   prompt,
+  onboardingMessageSchema,
   handleConversationClick,
   setConversations,
   locale,
   setSharedConversations,
+  userInfo,
+  signOutAction,
 }) => {
   const [bucket, setBucket] = useState<string | null>(null);
   const [isCreatingConversation, setIsCreatingConversation] =
     useState<boolean>();
+  const {
+    onboardingFileSchema,
+    onboardingFileName,
+    onboardingFilePath,
+    isShowOnboarding,
+    setIsShowOnboarding,
+    setOnboardingFileSchema,
+  } = useOnboarding();
 
   useEffect(() => {
     const loadData = async () => {
@@ -82,26 +108,51 @@ export const ConversationWelcome: FC<Props> = ({
   }, [actions]);
 
   const createConversation = useCallback(
-    async (message?: string) => {
+    async (message?: string, choiceId?: string) => {
       setIsCreatingConversation(true);
       if (!bucket) {
         console.error('No bucket');
       }
 
       try {
+        const conversationRequestData = isShowOnboarding
+          ? generateOnboardingConversation(
+              bucket || '',
+              locale,
+              titles?.onboardingTitle ?? 'Introducing the AI assistant',
+              onboardingMessageSchema?.properties?.choice?.description ?? '',
+              message,
+              choiceId,
+            )
+          : getCreateConversationRequest(
+              bucket || '',
+              locale,
+              titles.newChat ?? 'New chat',
+              message,
+            );
+
         const newConversation = await actions.createConversation(
-          getCreateConversationRequest(
-            bucket || '',
-            locale,
-            titles.newChat ?? 'New chat',
-            message,
-          ),
+          conversationRequestData,
           locale,
+          isShowOnboarding,
         );
         const conversationsData = await actions.getConversations(locale);
         const sharedConversationsData = await actions.getSharedConversations(
           getSharedConversationsRequest(ShareTarget.ME),
         );
+
+        if (onboardingMessageSchema && onboardingFileSchema) {
+          const updatedOnboardingFileSchema = {
+            ...onboardingFileSchema,
+            isStarted: true,
+          };
+          await actions.putOnboardingFile?.(
+            onboardingFileName,
+            onboardingFilePath,
+            updatedOnboardingFileSchema,
+          );
+          setOnboardingFileSchema?.(updatedOnboardingFileSchema);
+        }
 
         setConversations(cleanConversationNames(conversationsData));
         setSharedConversations(
@@ -118,13 +169,47 @@ export const ConversationWelcome: FC<Props> = ({
       }
     },
     [
-      titles,
+      actions,
       bucket,
       handleConversationClick,
-      setConversations,
-      setSharedConversations,
-      actions,
+      isShowOnboarding,
       locale,
+      onboardingFileName,
+      onboardingFilePath,
+      onboardingFileSchema,
+      onboardingMessageSchema,
+      setConversations,
+      setOnboardingFileSchema,
+      setSharedConversations,
+      titles.newChat,
+      titles?.onboardingTitle,
+    ],
+  );
+
+  const handleOnboardingSkip = useCallback(
+    async (isSkippedOnboarding?: boolean) => {
+      setIsShowOnboarding(false);
+
+      if (isSkippedOnboarding && onboardingFileSchema) {
+        const updatedOnboardingFileSchema = {
+          ...onboardingFileSchema,
+          isSkipped: true,
+        };
+        await actions.putOnboardingFile?.(
+          onboardingFileName,
+          onboardingFilePath,
+          updatedOnboardingFileSchema,
+        );
+        setOnboardingFileSchema?.(updatedOnboardingFileSchema);
+      }
+    },
+    [
+      actions,
+      onboardingFileName,
+      onboardingFilePath,
+      onboardingFileSchema,
+      setIsShowOnboarding,
+      setOnboardingFileSchema,
     ],
   );
 
@@ -136,11 +221,32 @@ export const ConversationWelcome: FC<Props> = ({
   }, [bucket, prompt]);
 
   return (
-    <>
+    <div className="flex flex-col h-full w-full">
       {prompt || isCreatingConversation ? (
         <Loader />
+      ) : isShowOnboarding ? (
+        <ConversationOnboarding
+          titles={titles}
+          messageContent={
+            onboardingMessageSchema?.properties?.choice?.description || ''
+          }
+          choiceButtons={
+            onboardingMessageSchema?.properties?.choice?.oneOf || []
+          }
+          handleOnboardingSkip={handleOnboardingSkip}
+          onClick={createConversation}
+        />
       ) : (
         <div className="flex flex-col h-full items-center justify-center sm:px-4">
+          {userInfo && (
+            <div className="absolute top-4 right-4">
+              <User
+                userInfo={userInfo}
+                signOutAction={signOutAction}
+                title={titles?.signOut}
+              />
+            </div>
+          )}
           <div
             className={classNames(
               'flex items-center max-w-full sm-min:px-4',
@@ -184,6 +290,12 @@ export const ConversationWelcome: FC<Props> = ({
           </div>
         </div>
       )}
-    </>
+      {isShowOnboarding && (
+        <ChatOnboardingFooter
+          titles={titles}
+          openNewConversation={() => setIsShowOnboarding(false)}
+        />
+      )}
+    </div>
   );
 };
