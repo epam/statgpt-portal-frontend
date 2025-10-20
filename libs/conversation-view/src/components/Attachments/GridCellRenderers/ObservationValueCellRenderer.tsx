@@ -106,6 +106,7 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
       {isOpenMetadata && (
         <Metadata
           titles={params.titles}
+          locale={params?.locale}
           metadata={metadata}
           metadataDescription={
             params?.metadataSettings?.isMetadataDescription

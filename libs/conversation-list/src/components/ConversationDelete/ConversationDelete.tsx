@@ -33,7 +33,7 @@ const ConversationDelete: FC<Props> = ({
       onClose={onCloseModal}
       closeButtonTitle={titles?.close ?? 'Cancel'}
     >
-      <div className="py-4 px-6" lang={locale}>
+      <div className="py-4 px-6 sm:px-0" lang={locale}>
         {titles?.deleteMessage ??
           'Are you sure you want to delete this conversation? This action cannot be undone.'}
       </div>

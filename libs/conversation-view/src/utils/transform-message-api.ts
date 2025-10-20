@@ -5,8 +5,10 @@ import { Attachment } from '@epam/ai-dial-shared/src/types/chat';
 export const transformMessagesForApi = (
   userMessage: Message,
   conversation: Conversation | null,
-) => {
-  return [...(conversation?.messages || []), userMessage].map((msg) => {
+) => transformMessages([...(conversation?.messages || []), userMessage]);
+
+export const transformMessages = (messages: Message[]) =>
+  [...messages].map((msg) => {
     const transformedMsg: Message = {
       role: msg.role,
       content: msg.content,
@@ -33,8 +35,36 @@ export const transformMessagesForApi = (
           msg.custom_content.form_schema;
       }
     }
+    if (msg.role === Role.User && msg.custom_content) {
+      transformedMsg.custom_content = msg.custom_content;
+    }
     return transformedMsg;
   });
+
+export const transformRegenerateMessage = (
+  userMessage: Message,
+  conversation: Conversation | null,
+) => {
+  const messages = conversation?.messages;
+
+  const index = messages?.findIndex(
+    (message) => userMessage.id === (message as Message).id,
+  );
+
+  return transformMessages(messages?.slice(0, index) || []);
+};
+
+export const transformEditMessage = (
+  userMessage: Message,
+  conversation: Conversation | null,
+) => {
+  const messages = conversation?.messages;
+
+  const index = messages?.findIndex(
+    (message) => userMessage.id === (message as Message).id,
+  );
+
+  return transformMessages([...(messages?.slice(0, index) || []), userMessage]);
 };
 
 function transformAttachmentsForApi(attachments: Attachment[]): Attachment[] {

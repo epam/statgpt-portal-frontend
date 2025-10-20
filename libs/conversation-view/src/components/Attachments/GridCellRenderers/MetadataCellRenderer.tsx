@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ICellRendererParams } from 'ag-grid-community';
 import MetadataIcon from '../../../assets/icons/metadata.svg';
 import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
@@ -20,6 +20,10 @@ import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
 import { TimeSeries } from '@statgpt/sdmx-toolkit/src/models/data/time-series';
 import { getDimensionGroupAttributes } from '../../../utils/attachments/group-attributes';
 import { ConversationViewTitles } from '../../../models/titles';
+import { Tooltip } from '../../Tooltip/Tooltip';
+import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
+import { OnboardingElements } from '../../../constants/onboarding-elements';
+import { useOnboarding } from '../../../context/OnboardingContext';
 
 interface MetadataCellRendererParams extends ICellRendererParams {
   attributesData: Data;
@@ -31,6 +35,12 @@ interface MetadataCellRendererParams extends ICellRendererParams {
 
 const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
   const [isOpenMetadata, setIsOpenMetadata] = useState<boolean>(false);
+  const iconRef = useRef<HTMLDivElement | null>(null);
+  const [tooltipTitle, setTooltipTitle] = useState<string>('');
+  const [tooltipDescription, setTooltipDescription] = useState<string>('');
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const { onboardingFileSchema, isShowOnboarding } = useOnboarding();
+
   const structureComponentsMap = useMemo(
     () => getStructureComponentsMap(params?.dataSetData),
     [params?.dataSetData],
@@ -83,17 +93,51 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
     setIsOpenMetadata(false);
   }, []);
 
+  useEffect(() => {
+    if (isShowOnboarding) {
+      const { title, description } = getTooltipDataByElement(
+        OnboardingElements.METADATA_PER_SERIES,
+        params.titles,
+      );
+      setTooltipTitle(title);
+      setTooltipDescription(description);
+    }
+  }, [params.titles, isShowOnboarding]);
+
+  useEffect(() => {
+    if (isShowOnboarding) {
+      setIsTooltipVisible(
+        onboardingFileSchema?.lastDisplayedElement ===
+          OnboardingElements.METADATA_PER_SERIES && params.node.rowIndex === 0,
+      );
+    }
+  }, [
+    onboardingFileSchema?.lastDisplayedElement,
+    params.node.rowIndex,
+    isShowOnboarding,
+  ]);
+
   return (
     <>
-      <IconButton
-        title={params.titles?.metadata || 'View details'}
-        buttonClassName="text-neutrals-1000 border-none p-1"
-        icon={<MetadataIcon className="w-5 h-5" />}
-        onClick={openMetadata}
-      />
+      <div ref={iconRef}>
+        <IconButton
+          title={params.titles?.metadata || 'View details'}
+          buttonClassName="!text-neutrals-1000 !border-none !p-1"
+          icon={<MetadataIcon className="w-5 h-5" />}
+          onClick={openMetadata}
+        />
+      </div>
+      {isTooltipVisible && (
+        <Tooltip
+          reference={iconRef}
+          title={tooltipTitle}
+          description={tooltipDescription}
+        />
+      )}
       {isOpenMetadata && (
         <Metadata
           titles={params.titles}
+          locale={params?.locale}
           metadata={metadata}
           metadataDescription={
             params?.metadataSettings?.isMetadataDescription

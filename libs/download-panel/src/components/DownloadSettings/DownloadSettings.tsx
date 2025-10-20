@@ -28,6 +28,7 @@ import { DownloadTitles } from '../../models/titles';
 interface Props {
   actions: DownloadActions;
   datasetIcon: ReactNode;
+  isDisplayDatasetIcon?: boolean;
   datasetName: string;
   type: DownloadType | null;
   dataQuery?: DataQuery;
@@ -45,6 +46,7 @@ const DownloadSettings: FC<Props> = ({
   actions,
   dataQuery,
   datasetIcon,
+  isDisplayDatasetIcon = true,
   datasetName,
   onCloseModal,
   type = DownloadType.FULL_DATASET,
@@ -130,7 +132,7 @@ const DownloadSettings: FC<Props> = ({
             {titles?.dataset || 'Dataset'}:
           </p>
           <span className="h4 flex flex-row gap-x-1 flex-1 min-w-0">
-            {datasetIcon}
+            {isDisplayDatasetIcon && datasetIcon}
             <p className="flex-1 min-w-0 truncate">{datasetName}</p>
           </span>
         </div>
@@ -163,6 +165,8 @@ const DownloadSettings: FC<Props> = ({
           >
             {isMetadata ? (
               <ToggleActiveIcon
+                width={44}
+                height={24}
                 className="text-primary"
                 onClick={() => {
                   setIsMetadata(!isMetadata);
@@ -170,6 +174,8 @@ const DownloadSettings: FC<Props> = ({
               />
             ) : (
               <ToggleInactiveIcon
+                width={44}
+                height={24}
                 className="text-neutrals-500"
                 onClick={() => {
                   setIsMetadata(!isMetadata);

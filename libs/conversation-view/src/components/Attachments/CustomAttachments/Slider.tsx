@@ -1,8 +1,13 @@
 'use client';
 
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useEffect, useRef, useState } from 'react';
 import { ChartingIcon } from '../../../types/charting-icon';
 import classNames from 'classnames';
+import { ConversationViewTitles } from '../../../models/titles';
+import { Tooltip } from '../../Tooltip/Tooltip';
+import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
+import { OnboardingElements } from '../../../constants/onboarding-elements';
+import { useOnboarding } from '../../../context/OnboardingContext';
 
 const MAX_SLIDER_WIDTH = 200;
 const BASE_ITEM_WIDTH = 8;
@@ -12,6 +17,7 @@ interface Props {
   currentIndex: number;
   totalCount: number;
   icons?: Record<ChartingIcon, ReactNode>;
+  titles?: ConversationViewTitles;
   onPrev: () => void;
   onNext: () => void;
 }
@@ -20,9 +26,44 @@ const Slider: FC<Props> = ({
   currentIndex,
   totalCount,
   icons,
+  titles,
   onPrev,
   onNext,
 }) => {
+  const navRef = useRef<HTMLDivElement | null>(null);
+  const [tooltipTitle, setTooltipTitle] = useState<string>('');
+  const [tooltipDescription, setTooltipDescription] = useState<string>('');
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const { onboardingFileSchema, isShowOnboarding } = useOnboarding();
+
+  useEffect(() => {
+    if (isShowOnboarding) {
+      const { title, description } = getTooltipDataByElement(
+        OnboardingElements.CHARTS_NAVIGATION,
+        titles,
+      );
+      setTooltipTitle(title);
+      setTooltipDescription(description);
+    }
+  }, [titles, isShowOnboarding]);
+
+  useEffect(() => {
+    if (isShowOnboarding) {
+      const isCurrent =
+        onboardingFileSchema?.lastDisplayedElement ===
+        OnboardingElements.CHARTS_NAVIGATION;
+
+      setIsTooltipVisible(isCurrent);
+
+      if (isCurrent) {
+        navRef?.current?.scrollIntoView({
+          block: 'center',
+          behavior: 'smooth',
+        });
+      }
+    }
+  }, [onboardingFileSchema?.lastDisplayedElement, isShowOnboarding]);
+
   const leftShiftPercentage =
     totalCount > 0 ? (currentIndex / totalCount) * 100 : 0;
   const fullWidth =
@@ -70,9 +111,17 @@ const Slider: FC<Props> = ({
             : 'text-primary',
         )}
         onClick={onNext}
+        ref={navRef}
       >
         {icons?.[ChartingIcon.NEXT]}
       </div>
+      {isTooltipVisible && (
+        <Tooltip
+          reference={navRef}
+          title={tooltipTitle}
+          description={tooltipDescription}
+        />
+      )}
     </div>
   );
 };

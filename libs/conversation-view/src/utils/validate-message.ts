@@ -1,5 +1,10 @@
 import { Role, Conversation } from '@epam/ai-dial-shared';
 import { Message } from '@statgpt/dial-toolkit/src/models/message';
+import {
+  CUSTOM_CHOICE_ID,
+  CustomContentProperties,
+} from '../constants/custom-content-properties';
+
 /**
  * Validates and prepares a message object for sending.
  * @param content - The content of the message.
@@ -12,15 +17,27 @@ export const validateAndPrepareMessage = (
   content: string,
   isStreaming: boolean,
   conversation: Conversation | null,
+  customChoiceId?: string,
 ) => {
   if (!conversation || isStreaming) {
     return null;
   }
 
-  return {
+  const data = {
     id: `msg-${Date.now()}`,
     role: Role.User,
     content,
     timestamp: Date.now(),
   } as Message;
+
+  if (customChoiceId) {
+    const prop =
+      customChoiceId === CUSTOM_CHOICE_ID.COMPLETE
+        ? CustomContentProperties.COMPLETION
+        : CustomContentProperties.CHOICE;
+    data.custom_content = {
+      form_value: { [prop]: customChoiceId },
+    };
+  }
+  return data;
 };

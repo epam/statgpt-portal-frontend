@@ -2,12 +2,16 @@
 'use client';
 
 import { useAdvancedView } from '../../context/AdvancedViewContext';
-import { FC } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import ShareConversation from '@statgpt/share-conversation/src/components/ShareConversation/ShareConversation';
 import { CloseButton } from '@statgpt/ui-components/src/components/CloseButton/CloseButton';
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { ConversationViewTitles } from '../../models/titles';
+import { getTooltipDataByElement } from '../../utils/get-tooltip-data.by-element';
+import { Tooltip } from '../Tooltip/Tooltip';
+import { OnboardingElements } from '../../constants/onboarding-elements';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 interface Props {
   isShowShare?: boolean;
@@ -24,6 +28,32 @@ const Header: FC<Props> = ({
 }) => {
   const { setIsOpenedAdvancedView } = useAdvancedView();
 
+  const iconRef = useRef<HTMLDivElement | null>(null);
+  const [tooltipTitle, setTooltipTitle] = useState<string>('');
+  const [tooltipDescription, setTooltipDescription] = useState<string>('');
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const { onboardingFileSchema, isShowOnboarding } = useOnboarding();
+
+  useEffect(() => {
+    if (isShowOnboarding) {
+      const { title, description } = getTooltipDataByElement(
+        OnboardingElements.EXIT_ADVANCED_VIEW,
+        titles,
+      );
+      setTooltipTitle(title);
+      setTooltipDescription(description);
+    }
+  }, [titles, isShowOnboarding]);
+
+  useEffect(() => {
+    if (isShowOnboarding) {
+      setIsTooltipVisible(
+        onboardingFileSchema?.lastDisplayedElement ===
+          OnboardingElements.EXIT_ADVANCED_VIEW,
+      );
+    }
+  }, [onboardingFileSchema?.lastDisplayedElement, isShowOnboarding]);
+
   return (
     <header
       className={classNames(
@@ -37,11 +67,22 @@ const Header: FC<Props> = ({
           !isShowShare && 'justify-between w-full',
         )}
       >
-        <CloseButton
-          btnClassNames={classNames(!isShowShare && 'order-2')}
-          onClick={() => setIsOpenedAdvancedView(false)}
-          title={titles?.close || 'Close'}
-        />
+        <div
+          ref={iconRef}
+          className={classNames(!isShowShare && 'order-2', 'flex')}
+        >
+          <CloseButton
+            onClick={() => setIsOpenedAdvancedView(false)}
+            title={titles?.close || 'Close'}
+          />
+        </div>
+        {isTooltipVisible && (
+          <Tooltip
+            reference={iconRef}
+            title={tooltipTitle}
+            description={tooltipDescription}
+          />
+        )}
         <h2 className="sm:h-3">
           {titles?.advanceViewTitle ?? 'Advanced view'}
         </h2>

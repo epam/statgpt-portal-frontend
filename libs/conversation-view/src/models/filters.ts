@@ -1,5 +1,5 @@
 import { Dispatch, ReactNode, SetStateAction } from 'react';
-import { UpdateConversation } from '../types/actions';
+import { PutOnboardingFile, UpdateConversation } from '../types/actions';
 import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
 import {
   StructuralData,
@@ -60,6 +60,7 @@ export interface FiltersModalProps {
   isShowClearIcon?: boolean;
   isShowCancelButton?: boolean;
   filterValuesProps?: FilterValuesProps;
+  resetIcon?: ReactNode;
 }
 
 export interface FiltersProps {
@@ -68,6 +69,7 @@ export interface FiltersProps {
       urn: string,
       filters?: SeriesFilterDto[],
     ) => Promise<StructuralMetaData>;
+    putOnboardingFile?: PutOnboardingFile;
   };
   dimensions?: Dimension[];
   structureDimensions?: StructureItemBase[];
@@ -76,7 +78,12 @@ export interface FiltersProps {
   buttonProps?: FilterButtonProps;
   modalProps?: FiltersModalProps;
   attachmentsDataQuery?: DataQuery;
-  onFiltersChange?: (filterParams: DatasetQueryFilters) => void;
+  dataQueries?: DataQuery[];
+  onFiltersChange?: (
+    filterParams: DatasetQueryFilters,
+    constraints: DataConstraints[],
+    modalFilters?: Filter[],
+  ) => void;
   locale?: string;
   timeRangeOptions?: TimeRangeOptions[];
   titles?: ConversationViewTitles;
@@ -84,4 +91,5 @@ export interface FiltersProps {
   conversation?: Conversation | null;
   setConversation?: Dispatch<SetStateAction<Conversation | null>>;
   updateConversation: UpdateConversation;
+  updateDataQueries?: (dataQueries?: DataQuery[]) => void;
 }

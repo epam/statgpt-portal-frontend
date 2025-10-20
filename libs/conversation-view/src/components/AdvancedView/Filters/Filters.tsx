@@ -21,12 +21,11 @@ import {
 } from '../../../utils/query-filters';
 import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
 import {
-  getAnnotationPeriod,
   getAvailableCodesFromConstrains,
+  TIME_PERIOD,
 } from '@statgpt/sdmx-toolkit/src/utils/constraint';
 import { findCodelistByDimension } from '@statgpt/sdmx-toolkit/src/utils/find-codelist-by-dimension';
 import { getTimeSeriesCount } from '@statgpt/sdmx-toolkit/src/utils/time-series-count';
-import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
 import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
 import { Popup } from '@statgpt/ui-components/src/components/Popup/Popup';
 import { PopUpSize, PopUpState } from '@statgpt/ui-components/src/types/pop-up';
@@ -41,6 +40,7 @@ import {
 import ModalFooter from './FiltersModal/ModalFooter';
 import FilterButton from './FilterButton/FilterButton';
 import { updateMessagesWithSystemMessage } from '../../../utils/system-message';
+import { getUpdatedDataQueries } from '../../../utils/get-updated-data-queries';
 
 const Filters: FC<FiltersProps> = ({
   actions,
@@ -50,6 +50,7 @@ const Filters: FC<FiltersProps> = ({
   buttonProps,
   modalProps,
   attachmentsDataQuery,
+  dataQueries,
   initialConstraints,
   onFiltersChange,
   locale,
@@ -59,23 +60,25 @@ const Filters: FC<FiltersProps> = ({
   conversation,
   setConversation,
   updateConversation,
+  updateDataQueries,
 }) => {
   const [modalState, setModalState] = useState(PopUpState.Closed);
   const [modalFilters, setModalFilters] = useState<Filter[]>([]);
   const [appliedFilters, setAppliedFilters] = useState<Filter[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<Filter>();
-  const [initialTimeRange, setInitialTimeRange] = useState<TimeRange>();
-  const [shouldPreselectFromDataQuery, setShouldPreselectFromDataQuery] =
-    useState(true);
   const [selectedFilterValues, setSelectedFilterValues] = useState<Filter[]>(
     [],
   );
+  const [selectedTimeOption, setSelectedTimeOption] = useState<
+    string | number | undefined
+  >(undefined);
   const constraintsRef = useRef<DataConstraints[]>(initialConstraints || []);
   const [initialModalConstraints, setInitialModalConstraints] = useState<
     DataConstraints[]
   >([]);
   const [isConstraintsLoading, setIsConstraintsLoading] = useState<boolean>();
   const [isDisableFilterValues, setIsDisableFilterValues] = useState<boolean>();
+  const isPreselectedFromDataQuery = useRef(false);
 
   const updateSelectedFilterValues = (filter?: Filter) => {
     const filters = filter
@@ -86,12 +89,13 @@ const Filters: FC<FiltersProps> = ({
 
     setIsDisableFilterValues(true);
     setModalFilters(updateFiltersWithDisabledOption(filters));
-
+    setIsConstraintsLoading?.(true);
     handleFiltersWithConstraints(
       filter?.isTimeDimension
         ? updateFiltersWithSelectedItem(filters, filter)
         : filters,
       setModalFilters,
+      setIsConstraintsLoading,
     );
   };
 
@@ -110,7 +114,9 @@ const Filters: FC<FiltersProps> = ({
       actions
         ?.getConstraints(
           attachmentsDataQuery?.urn as string,
-          getSeriesFilterDto(filters),
+          getSeriesFilterDto(filters).filter(
+            (filter) => filter.componentCode !== TIME_PERIOD,
+          ),
         )
         .then((constraints) => {
           const newConstraints = constraints?.data?.dataConstraints || [];
@@ -147,10 +153,6 @@ const Filters: FC<FiltersProps> = ({
   );
 
   useEffect(() => {
-    const constraintsTimeRange = getAnnotationPeriod(
-      constraintsRef.current?.[0]?.annotations,
-    );
-    setInitialTimeRange(constraintsTimeRange);
     const datasetFilters = getDatasetFilters(
       dimensions,
       structures,
@@ -184,7 +186,7 @@ const Filters: FC<FiltersProps> = ({
       };
     });
 
-    if (shouldPreselectFromDataQuery) {
+    if (!isPreselectedFromDataQuery.current) {
       const filtersFromDataQuery = getFiltersPreselectedByDataQuery(
         dataFiltersFilled,
         attachmentsDataQuery,
@@ -196,6 +198,7 @@ const Filters: FC<FiltersProps> = ({
         setAppliedFilters,
         setIsConstraintsLoading,
       );
+      isPreselectedFromDataQuery.current = true;
     }
   }, [
     dimensions,
@@ -204,7 +207,6 @@ const Filters: FC<FiltersProps> = ({
     attachmentsDataQuery,
     locale,
     initialConstraints,
-    shouldPreselectFromDataQuery,
     handleFiltersWithConstraints,
   ]);
 
@@ -232,18 +234,28 @@ const Filters: FC<FiltersProps> = ({
 
   const addSystemMessage = useCallback(
     async (filters: Filter[]) => {
+      const dataQueryFilters = setDataQueryFilters(filters);
       const updatedConversationWithSystemMessage = conversation
         ? {
             ...conversation,
             messages: updateMessagesWithSystemMessage(
               conversation?.messages,
-              setDataQueryFilters(filters),
+              dataQueryFilters,
               attachmentsDataQuery,
+              dataQueries,
             ),
           }
         : null;
 
       setConversation?.(updatedConversationWithSystemMessage);
+
+      updateDataQueries?.(
+        getUpdatedDataQueries(
+          dataQueryFilters,
+          attachmentsDataQuery,
+          dataQueries,
+        ),
+      );
 
       await updateConversation(decodeURI(conversationKey), {
         name: updatedConversationWithSystemMessage?.name,
@@ -254,8 +266,10 @@ const Filters: FC<FiltersProps> = ({
       attachmentsDataQuery,
       conversation,
       conversationKey,
+      dataQueries,
       setConversation,
       updateConversation,
+      updateDataQueries,
     ],
   );
 
@@ -310,7 +324,9 @@ const Filters: FC<FiltersProps> = ({
       actions
         ?.getConstraints(
           attachmentsDataQuery?.urn || '',
-          getSeriesFilterDto(filtersToUpdate),
+          getSeriesFilterDto(filtersToUpdate).filter(
+            (filter) => filter.componentCode !== TIME_PERIOD,
+          ),
         )
         .then((constraints) => {
           updateViewAfterDelete(
@@ -347,11 +363,7 @@ const Filters: FC<FiltersProps> = ({
 
   const onApply = useCallback(() => {
     const params = getFiltersChangeParams(modalFilters);
-    onFiltersChange?.(params);
-
-    if (shouldPreselectFromDataQuery) {
-      setShouldPreselectFromDataQuery(false);
-    }
+    onFiltersChange?.(params, constraintsRef.current, modalFilters);
 
     setAppliedFilters(modalFilters);
     setModalState(PopUpState.Closed);
@@ -363,9 +375,12 @@ const Filters: FC<FiltersProps> = ({
     getFiltersChangeParams,
     modalFilters,
     onFiltersChange,
-    shouldPreselectFromDataQuery,
     addSystemMessage,
+    constraintsRef,
   ]);
+  const onTimePeriodChange = (value: string | number) => {
+    setSelectedTimeOption(value);
+  };
 
   return (
     <div className="filters-container">
@@ -376,6 +391,7 @@ const Filters: FC<FiltersProps> = ({
         )}
         isLoading={isConstraintsLoading}
         setModalState={setModalState}
+        titles={titles}
       />
       <>
         {modalState === PopUpState.Opened && (
@@ -391,12 +407,12 @@ const Filters: FC<FiltersProps> = ({
             <FilterSettings
               locale={locale}
               titles={titles}
-              initialTimeRange={initialTimeRange}
               timeRangeOptions={timeRangeOptions}
               filtersList={modalFilters}
               selectedFilter={selectedFilter}
               isDisableValues={isDisableFilterValues}
               modalProps={modalProps}
+              initialConstraints={initialConstraints}
               timeSeriesCount={getTimeSeriesCount(
                 constraintsRef.current?.[0]?.annotations,
               )}
@@ -404,6 +420,8 @@ const Filters: FC<FiltersProps> = ({
               onSelectDisplayMode={onSelectDisplayMode}
               onDeleteFilter={onDeleteFilter}
               updateSelectedFilterValues={updateSelectedFilterValues}
+              onTimePeriodChange={onTimePeriodChange}
+              selectedTimeOption={selectedTimeOption}
             />
             <ModalFooter
               titles={titles}
@@ -411,6 +429,7 @@ const Filters: FC<FiltersProps> = ({
               onClose={onCloseModal}
               onClearAllFilters={onClearAllFilters}
               modalProps={modalProps}
+              applyDisabled={isConstraintsLoading || isDisableFilterValues}
             />
           </Popup>
         )}

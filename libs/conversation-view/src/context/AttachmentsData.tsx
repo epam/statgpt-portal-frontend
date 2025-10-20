@@ -18,6 +18,7 @@ import {
   getConstraints,
   GetDatasetData,
   GetDatasetDetails,
+  PutOnboardingFile,
 } from '../types/actions';
 import { buildGridData } from '../utils/attachments/data-grid/data-grid';
 import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
@@ -29,12 +30,17 @@ import { MetadataSettings } from '../models/metadata';
 import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
 import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
 import { ConversationViewTitles } from '../models/titles';
+import { Filter } from '../models/filters';
+import { TimeRange } from '@statgpt/shared-toolkit/src';
+import { TIME_PERIOD } from '@statgpt/sdmx-toolkit/src/utils/constraint';
+import { getFiltersDtoFromDataQuery } from '../utils/attachments/time-period';
 
 export function useAttachmentsData(
   actions: {
     getDataSet: GetDatasetDetails;
     getDataSetData: GetDatasetData;
     getConstraints: getConstraints;
+    putOnboardingFile?: PutOnboardingFile;
   },
   locale: string,
   dataQuery?: DataQuery,
@@ -62,52 +68,75 @@ export function useAttachmentsData(
     StructureItemBase[]
   >([]);
   const [isLoadingGridData, setIsLoadingGridData] = useState(false);
+  const [selectedTimePeriod, setSelectedTimePeriod] = useState<TimeRange>({
+    startPeriod: null,
+    endPeriod: null,
+  });
+
+  const loadConstraints = useCallback(
+    async (dataQuery: DataQuery) => {
+      const filtersDto = getFiltersDtoFromDataQuery(dataQuery);
+
+      try {
+        const response = await actions.getConstraints(
+          dataQuery.urn,
+          filtersDto,
+        );
+        const constraints = response?.data?.dataConstraints || [];
+        setConstraints(constraints);
+      } catch {
+        setConstraints([]);
+      }
+    },
+    [actions, setConstraints],
+  );
+
+  const loadStructureAndData = useCallback(
+    async (dataQuery: DataQuery) => {
+      actions.getDataSet(dataQuery.urn).then((dataSet) => {
+        if (dataSet?.data) {
+          const dimensions = getDimensions(dataSet.data);
+          setDataset(dataSet.data.dataflows?.[0] || void 0);
+          setStructures(dataSet.data || void 0);
+          setDimensions([
+            ...(dimensions?.dimensions || []),
+            ...(dimensions?.timeDimensions || []),
+          ]);
+
+          const filterKey =
+            dimensions?.dimensions == null
+              ? null
+              : getTimeSeriesFilterKey(
+                  dimensions?.dimensions,
+                  dataQuery.filters,
+                );
+
+          const timeFilter = getTimeQueryFilterFromAttachment(
+            dataQuery,
+            dimensions,
+          );
+
+          actions
+            .getDataSetData(dataQuery.urn, { filterKey, timeFilter })
+            .then((data) => {
+              setDataMessage(data || void 0);
+              setStructureDimensions(getStructureDimensions(data));
+            })
+            .finally(() => setIsLoadingGridData(false));
+        }
+      });
+    },
+    [actions],
+  );
 
   useEffect(() => {
-    function loadDatSet(dataQuery: DataQuery) {
+    async function loadDatSet(dataQuery: DataQuery) {
       setIsLoadingGridData(true);
       try {
-        actions
-          .getConstraints(dataQuery.urn)
-          .then((constraints) => {
-            setConstraints(constraints?.data?.dataConstraints || []);
-          })
-          .catch(() => {
-            setConstraints([]);
-          });
-
-        actions.getDataSet(dataQuery.urn).then((dataSet) => {
-          if (dataSet?.data) {
-            const dimensions = getDimensions(dataSet.data);
-            setDataset(dataSet.data.dataflows?.[0] || void 0);
-            setStructures(dataSet.data || void 0);
-            setDimensions([
-              ...(dimensions?.dimensions || []),
-              ...(dimensions?.timeDimensions || []),
-            ]);
-
-            const filterKey =
-              dimensions?.dimensions == null
-                ? null
-                : getTimeSeriesFilterKey(
-                    dimensions?.dimensions,
-                    dataQuery.filters,
-                  );
-
-            const timeFilter = getTimeQueryFilterFromAttachment(
-              dataQuery,
-              dimensions,
-            );
-
-            actions
-              .getDataSetData(dataQuery.urn, { filterKey, timeFilter })
-              .then((data) => {
-                setDataMessage(data || void 0);
-                setStructureDimensions(getStructureDimensions(data));
-              })
-              .finally(() => setIsLoadingGridData(false));
-          }
-        });
+        await Promise.all([
+          loadConstraints(dataQuery),
+          loadStructureAndData(dataQuery),
+        ]);
       } catch (err) {
         console.error('Error loading dataset details', err as object);
       }
@@ -116,12 +145,23 @@ export function useAttachmentsData(
     if (dataQuery != null) {
       loadDatSet(dataQuery);
     }
-  }, [actions, dataQuery]);
+  }, [actions, dataQuery, loadConstraints, loadStructureAndData]);
 
   const onFiltersChange = useCallback(
-    (filterParams: DatasetQueryFilters) => {
+    (
+      filterParams: DatasetQueryFilters,
+      constraints: DataConstraints[],
+      filters?: Filter[],
+    ) => {
       try {
         setIsLoadingGridData(true);
+        setConstraints(constraints);
+        const timePeriodFilter = filters?.find(
+          (filter) => filter.id === TIME_PERIOD,
+        )?.timeRange;
+        if (timePeriodFilter) {
+          setSelectedTimePeriod(timePeriodFilter);
+        }
         actions
           .getDataSetData(dataQuery?.urn || '', filterParams)
           .then((data) => {
@@ -137,7 +177,7 @@ export function useAttachmentsData(
   );
 
   useEffect(() => {
-    if (structures != null && dataMessage != null) {
+    if (structures != null && dataMessage != null && constraints?.length) {
       const dataSetName = structures.dataflows?.[0]?.names?.[locale];
       const gridData = buildGridData(
         structures,
@@ -148,6 +188,9 @@ export function useAttachmentsData(
         metadataSettings,
         chartStyles,
         titles,
+        actions?.putOnboardingFile,
+        constraints,
+        selectedTimePeriod,
       );
 
       setCustomGridAttachment((prev) => ({
@@ -165,6 +208,9 @@ export function useAttachmentsData(
     dataQuery,
     metadataSettings,
     chartStyles,
+    constraints,
+    selectedTimePeriod,
+    actions?.putOnboardingFile,
   ]);
 
   useEffect(() => {

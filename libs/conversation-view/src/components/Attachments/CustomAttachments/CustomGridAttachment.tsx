@@ -1,7 +1,7 @@
 'use client';
 
 import { CustomGridAttachment } from '../../../models/attachments';
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
 import type { ColDef } from 'ag-grid-community';
@@ -19,12 +19,19 @@ import {
 import MetadataCellRenderer from '../GridCellRenderers/MetadataCellRenderer';
 import ObservationValueCellRenderer from '../GridCellRenderers/ObservationValueCellRenderer';
 import ChartCellRenderer from '../GridCellRenderers/ChartCellRenderer';
+import { ConversationViewTitles } from '../../../models/titles';
+import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
+import { Tooltip } from '../../Tooltip/Tooltip';
+import { OnboardingElements } from '../../../constants/onboarding-elements';
+import { useOnboarding } from '../../../context/OnboardingContext';
+import { OnboardingFileSchema } from '@statgpt/shared-toolkit/src/models/onboarding-schema';
 
 interface Props {
   attachment: CustomGridAttachment;
   isDataLoading?: boolean;
   chartColumn?: boolean;
   fixHeight?: boolean;
+  titles?: ConversationViewTitles;
 }
 
 const CustomDataGridAttachment: FC<Props> = ({
@@ -32,11 +39,19 @@ const CustomDataGridAttachment: FC<Props> = ({
   isDataLoading,
   chartColumn,
   fixHeight,
+  titles,
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [rowData, setRowData] = useState<GridData[]>([]);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>();
   const [gridHeight, setGridHeight] = useState<number>(400);
+
+  const gridRef = useRef<HTMLDivElement | null>(null);
+  const [tooltipTitle, setTooltipTitle] = useState<string>('');
+  const [tooltipDescription, setTooltipDescription] = useState<string>('');
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const { isShowOnboarding, onboardingFileSchema, setOnboardingFileSchema } =
+    useOnboarding();
 
   useEffect(() => {
     if (attachment.grid_data == null) {
@@ -60,14 +75,64 @@ const CustomDataGridAttachment: FC<Props> = ({
     }
   }, [rowData]);
 
+  useEffect(() => {
+    if (isShowOnboarding) {
+      const { title, description } = getTooltipDataByElement(
+        OnboardingElements.DATA_GRID,
+        titles,
+      );
+      setTooltipTitle(title);
+      setTooltipDescription(description);
+    }
+  }, [titles, isShowOnboarding]);
+
+  useEffect(() => {
+    if (onboardingFileSchema && !onboardingFileSchema?.infoElements?.dataGrid) {
+      setOnboardingFileSchema?.({
+        ...onboardingFileSchema,
+        infoElements: {
+          ...onboardingFileSchema?.infoElements,
+          dataGrid: true,
+        },
+        lastDisplayedElement: OnboardingElements.DATA_GRID,
+      } as OnboardingFileSchema);
+    }
+  }, [onboardingFileSchema, setOnboardingFileSchema]);
+
+  useEffect(() => {
+    if (isShowOnboarding) {
+      const isCurrent =
+        onboardingFileSchema?.lastDisplayedElement ===
+        OnboardingElements.DATA_GRID;
+      setIsTooltipVisible(isCurrent);
+
+      if (!isLoading && !isDataLoading && isCurrent) {
+        setTimeout(() => {
+          gridRef?.current?.scrollIntoView({
+            block: 'end',
+            behavior: 'smooth',
+          });
+        });
+      }
+    }
+  }, [
+    onboardingFileSchema?.lastDisplayedElement,
+    isShowOnboarding,
+    isDataLoading,
+    isLoading,
+  ]);
+
   const memoizedGrid = useMemo(
     () => (
       <AgGridReact
         headerHeight={GRID_HEADER_HEIGHT}
         rowHeight={GRID_ROW_HEIGHT}
         rowData={rowData}
+        enableCellTextSelection
         columnDefs={columnDefs}
         domLayout="normal"
+        tooltipShowDelay={0}
+        tooltipShowMode="whenTruncated"
         components={{
           [METADATA_CELL_RENDER]: MetadataCellRenderer,
           [OBSERVATION_VALUE_CELL_RENDER]: ObservationValueCellRenderer,
@@ -85,6 +150,7 @@ const CustomDataGridAttachment: FC<Props> = ({
   return (
     <div className="w-full h-full">
       <div
+        ref={gridRef}
         className={classNames(
           'ag-theme-quartz w-full min-h-[80px]',
           fixHeight ? 'max-h-[400px]' : 'max-h-full',
@@ -93,6 +159,13 @@ const CustomDataGridAttachment: FC<Props> = ({
       >
         {memoizedGrid}
       </div>
+      {isTooltipVisible && (
+        <Tooltip
+          reference={gridRef}
+          title={tooltipTitle}
+          description={tooltipDescription}
+        />
+      )}
     </div>
   );
 };

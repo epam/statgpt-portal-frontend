@@ -9,6 +9,9 @@ import { MetadataSettings } from '../../../models/metadata';
 import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
 import { ChartingStyles } from '../../../models/attachments-styles';
 import { ConversationViewTitles } from '../../../models/titles';
+import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
+import { TimeRange } from '@statgpt/shared-toolkit/src';
+import { PutOnboardingFile } from '../../../types/actions';
 
 export function buildGridData(
   structures: StructuralData,
@@ -19,6 +22,9 @@ export function buildGridData(
   metadataSettings?: MetadataSettings,
   chartStyles?: ChartingStyles,
   titles?: ConversationViewTitles,
+  action?: PutOnboardingFile,
+  constraints?: DataConstraints[],
+  selectedTimePeriod?: TimeRange,
 ): { data: GridData[]; columns: ColDef[] } {
   return {
     columns: getColumns(
@@ -28,6 +34,9 @@ export function buildGridData(
       formattingSettings,
       metadataSettings,
       titles,
+      action,
+      constraints,
+      selectedTimePeriod,
     ),
     data: getRowsData(data, structures, dataQuery, locale, chartStyles),
   };

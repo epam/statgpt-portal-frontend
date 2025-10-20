@@ -15,6 +15,7 @@ interface Props {
   isOpenMetadata?: boolean;
   onCloseMetadata?: () => void;
   titles?: ConversationViewTitles;
+  locale: string;
 }
 
 const Metadata: FC<Props> = ({
@@ -23,6 +24,7 @@ const Metadata: FC<Props> = ({
   isOpenMetadata,
   onCloseMetadata,
   titles,
+  locale,
 }) => {
   const [modalState, setModalState] = useState(PopUpState.Closed);
 
@@ -74,6 +76,7 @@ const Metadata: FC<Props> = ({
                     key={metadataItem?.id || metadataItem?.title}
                     title={metadataItem?.title}
                     value={metadataItem?.value}
+                    locale={locale}
                     attachedKeysTitles={metadataItem?.attachedKeysTitles}
                   />
                 ))

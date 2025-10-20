@@ -1,0 +1,3 @@
+export const AND_QUERY_OPERATOR = '&';
+export const QUERY_PARAMETER_FILTER_VALUE_SEPARATOR = ':';
+export const QUERY_PARAMETER_FILTER_EQUAL = '=';

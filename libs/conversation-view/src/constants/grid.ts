@@ -4,12 +4,14 @@ import { MetadataSettings } from '../models/metadata';
 import { Data } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
 import ChartCellRenderer from '../components/Attachments/GridCellRenderers/ChartCellRenderer';
 import { ConversationViewTitles } from '../models/titles';
+import { PutOnboardingFile } from '../types/actions';
 
 export const GRID_HEADER_HEIGHT = 32;
 export const GRID_ROW_HEIGHT = 32;
 export const GRID_HORIZONTAL_SCROLL_GAP = 16;
 export const CELL_PADDING_0 = 'padding-0';
 export const DEFAULT_GRID_COLUMN_WITH = 200;
+export const GRID_COLUMN_FLEX = { flex: 1, minWidth: DEFAULT_GRID_COLUMN_WITH };
 export const CHART_COLUMN_WIDTH = GRID_HEADER_HEIGHT;
 
 export const OBSERVATION_VALUE_CELL_RENDER = 'observationValueCell';
@@ -24,6 +26,7 @@ export const getMetaDataColumn = (
   locale?: string,
   metadataSettings?: MetadataSettings,
   titles?: ConversationViewTitles,
+  action?: PutOnboardingFile,
 ): ColDef => {
   return {
     headerName: '',
@@ -42,6 +45,7 @@ export const getMetaDataColumn = (
       locale,
       metadataSettings,
       titles,
+      action,
     },
   };
 };
@@ -52,6 +56,7 @@ export function getChartColumn(
   locale?: string,
   width = CHART_COLUMN_WIDTH,
   titles?: ConversationViewTitles,
+  action?: PutOnboardingFile,
 ): ColDef {
   return {
     headerName: '',
@@ -73,6 +78,7 @@ export function getChartColumn(
       dataSetData,
       locale,
       titles,
+      action,
     },
   };
 }

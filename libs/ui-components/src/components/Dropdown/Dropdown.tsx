@@ -14,7 +14,8 @@ import { DropdownItem } from '../../models/dropdown-item';
 
 interface Props {
   triggerButton: ReactNode;
-  options: DropdownItem[];
+  options?: DropdownItem[];
+  content?: ReactNode;
   selectedOption?: string;
   disabled?: boolean;
   containerClassName?: string;
@@ -25,6 +26,7 @@ interface Props {
 export const Dropdown: FC<Props> = ({
   triggerButton,
   options,
+  content,
   selectedOption,
   disabled,
   containerClassName,
@@ -67,28 +69,30 @@ export const Dropdown: FC<Props> = ({
           className="flex flex-col z-10 dropdown-menu-shadow bg-white dropdown-container rounded"
           {...getFloatingProps()}
         >
-          {options.map((option) => (
-            <div
-              key={option.key}
-              onClick={(e) => {
-                e.stopPropagation();
-                onOptionSelect?.(option.key);
-                setOpen(false);
-              }}
-              className={classNames(
-                'text-neutrals-900 body-3 cursor-pointer dropdown-item min-w-[200px]',
-                selectedOption === option.key && 'bg-hues-100',
-              )}
-            >
+          {content && content}
+          {options &&
+            options.map((option) => (
               <div
-                className="p-2 hover:bg-hues-100 h-full dropdown-item-text flex items-center gap-x-2"
-                title={option.title}
+                key={option.key}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOptionSelect?.(option.key);
+                  setOpen(false);
+                }}
+                className={classNames(
+                  'text-neutrals-900 body-3 cursor-pointer dropdown-item min-w-[200px]',
+                  selectedOption === option.key && 'bg-hues-100',
+                )}
               >
-                {option.icon ? option.icon : null}
-                <p>{option?.title}</p>
+                <div
+                  className="p-2 hover:bg-hues-100 h-full dropdown-item-text flex items-center gap-x-2"
+                  title={option.title}
+                >
+                  {option.icon ? option.icon : null}
+                  <p>{option?.title}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
     </>

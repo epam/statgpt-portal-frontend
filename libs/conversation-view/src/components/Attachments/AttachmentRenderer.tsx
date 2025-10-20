@@ -14,6 +14,7 @@ import {
 } from '../../utils/attachments/attachment-parser';
 import { Attachment } from '@epam/ai-dial-shared';
 import {
+  AttachmentInfo,
   CustomChartAttachmentType,
   CustomGridAttachment,
 } from '../../models/attachments';
@@ -29,10 +30,7 @@ import { AttachmentsActions } from '../../models/actions';
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import CustomDataGridAttachment from './CustomAttachments/CustomGridAttachment';
 import { AttachmentsStyles } from '../../models/attachments-styles';
-import {
-  DataQuery,
-  QueryFilterDetails,
-} from '@statgpt/shared-toolkit/src/models/data-query';
+import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
 import CustomChartAttachment from './CustomAttachments/CustomChartAttachment';
 import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
 import { PopUpState } from '@statgpt/ui-components/src/types/pop-up';
@@ -63,8 +61,9 @@ interface Props {
   attachmentsStyles?: AttachmentsStyles;
   currentDataQuery?: DataQuery;
   dataQueries?: DataQuery[];
-  queryFiltersDetails?: QueryFilterDetails[];
+  attachmentInfoList?: AttachmentInfo[];
   datasets?: Dataflow[];
+  initialSelectedDatasetUrn?: string;
   isDataLoading?: boolean;
   isDataSetAttachments: boolean;
   locale?: string;
@@ -86,8 +85,9 @@ const AttachmentRenderer: FC<Props> = ({
   showAdvancedView,
   currentDataQuery,
   dataQueries,
-  queryFiltersDetails,
+  attachmentInfoList,
   datasets,
+  initialSelectedDatasetUrn,
   isDataLoading,
   isDataSetAttachments,
   locale,
@@ -122,7 +122,7 @@ const AttachmentRenderer: FC<Props> = ({
   const onOpenAdvancedView = useCallback(() => {
     onAdvancedViewOpen?.();
     setIsOpenedAdvancedView(true);
-    actions.updateCurrentDataQuery(currentDataQuery);
+    actions.updateCurrentDataQuery(currentDataQuery || dataQueries?.[0]);
     actions.updateDataQueries(dataQueries);
     actions.updateDatasets(datasets);
   }, [
@@ -181,8 +181,8 @@ const AttachmentRenderer: FC<Props> = ({
                     queryUpdatedManuallyTitle: titles?.queryUpdatedManually,
                     setToTitle: titles?.setTo,
                   }}
-                  queryFiltersDetails={queryFiltersDetails}
-                  isLoading={isDataLoading}
+                  datasetIcon={attachmentsStyles?.datasetIcon}
+                  attachmentInfoList={attachmentInfoList}
                 />
               )}
               {!isOpenedAdvancedView &&
@@ -190,7 +190,9 @@ const AttachmentRenderer: FC<Props> = ({
                 datasets?.length > 0 && (
                   <DatasetTabs
                     datasets={datasets}
+                    initialSelectedDatasetUrn={initialSelectedDatasetUrn}
                     locale={locale}
+                    titles={titles}
                     isHideAdvancedViewButton={!showAdvancedView}
                     openAdvancedViewIcon={
                       attachmentsStyles?.openAdvancedViewIcon
@@ -215,6 +217,7 @@ const AttachmentRenderer: FC<Props> = ({
                       selectedAttachmentIndex={selectedAttachmentIndex}
                       showTabIcon={attachmentsStyles?.showTabIcon}
                       onSelectedAttachmentChange={selectAttachment}
+                      titles={titles}
                     />
                     {selectedAttachment &&
                       isCustomGridAttachment(selectedAttachment) && (
@@ -249,6 +252,7 @@ const AttachmentRenderer: FC<Props> = ({
                           isDataLoading={isDataLoading}
                           chartColumn={isOpenedAdvancedView}
                           fixHeight={!isOpenedAdvancedView}
+                          titles={titles}
                         />
                       )}
                       {isCustomChartAttachment(selectedAttachment) && (
@@ -290,6 +294,7 @@ const AttachmentRenderer: FC<Props> = ({
                 filters={filters}
                 urn={currentDataQuery?.urn}
                 datasetIcon={attachmentsStyles?.datasetIcon}
+                isDisplayDatasetIcon={attachmentsStyles?.isDisplayDatasetIcon}
                 titles={attachmentsStyles?.downloadTitles}
                 setIsShowDownloadAlert={setIsShowDownloadAlert}
                 setDownloadAlertDetails={setDownloadAlertDetails}

@@ -37,13 +37,7 @@ const DatasetTab: FC<Props> = ({
         }
       }}
     >
-      <h3
-        className={classNames(
-          'dataset-tab-title truncate',
-          !isSingleTab && 'max-w-[250px]',
-        )}
-        title={title}
-      >
+      <h3 className="dataset-tab-title truncate" title={title}>
         {title}
       </h3>
     </div>

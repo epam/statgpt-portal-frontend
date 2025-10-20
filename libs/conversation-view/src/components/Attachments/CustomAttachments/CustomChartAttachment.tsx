@@ -1,9 +1,8 @@
 'use client';
 
 import { CustomChartAttachmentType } from '../../../models/attachments';
-import { FC, ReactNode, useCallback, useEffect, useState } from 'react';
+import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
-import ReactECharts from 'echarts-for-react';
 import { ChartUnit } from '../../../models/charting';
 import { ChartingIcon } from '../../../types/charting-icon';
 import ChartSidebar from './ChartSidebar';
@@ -11,6 +10,14 @@ import Slider from './Slider';
 import ChartLimitationInfo from './ChartLimitationInfo';
 import classNames from 'classnames';
 import { ConversationViewTitles } from '../../../models/titles';
+import { useOnboarding } from '../../../context/OnboardingContext';
+import {
+  getOnboardingInfoForAdvancedView,
+  getOnboardingInfoForChartsView,
+  isShowChartsOnboarding,
+} from '../../../utils/get-tooltip-data.by-element';
+import { OnboardingElements } from '../../../constants/onboarding-elements';
+import ResponsiveEChart from './ResponsiveChart';
 
 interface Props {
   attachment: CustomChartAttachmentType;
@@ -33,6 +40,9 @@ const CustomChartAttachment: FC<Props> = ({
   const [selectedUnit, setSelectedUnit] = useState<ChartUnit | undefined>(
     void 0,
   );
+  const { onboardingFileSchema, isShowOnboarding, setOnboardingFileSchema } =
+    useOnboarding();
+  const chartAttachmentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setIsLoading(attachment.charting_data == null);
@@ -44,6 +54,35 @@ const CustomChartAttachment: FC<Props> = ({
       !isLoading && units.length > 0 ? units[chartIndex] : void 0,
     );
   }, [isLoading, units, chartIndex]);
+
+  useEffect(() => {
+    if (onboardingFileSchema && isShowOnboarding && !isLoading) {
+      // if user click on the chart tab (while attachment is loading) -> set tooltips for charts
+      if (isShowChartsOnboarding(onboardingFileSchema)) {
+        setOnboardingFileSchema?.(
+          getOnboardingInfoForChartsView(onboardingFileSchema),
+        );
+        chartAttachmentRef?.current?.scrollIntoView({
+          block: 'center',
+          behavior: 'smooth',
+        });
+      }
+      // if user is on the chart (but tooltip should be shown for grid) -> go to the next tooltip
+      if (
+        onboardingFileSchema.lastDisplayedElement ===
+        OnboardingElements.CHART_PER_SERIES
+      ) {
+        setOnboardingFileSchema?.(
+          getOnboardingInfoForAdvancedView(onboardingFileSchema),
+        );
+      }
+    }
+  }, [
+    isLoading,
+    setOnboardingFileSchema,
+    onboardingFileSchema,
+    isShowOnboarding,
+  ]);
 
   const nextChart = useCallback(() => {
     setChartIndex((prevV) => Math.min(prevV + 1, units.length - 1));
@@ -58,7 +97,7 @@ const CustomChartAttachment: FC<Props> = ({
   }
 
   return (
-    <div className="chart-attachment w-full h-full">
+    <div className="chart-attachment w-full h-full" ref={chartAttachmentRef}>
       {attachment.charting_data && (
         <div className="flex flex-col w-full h-full gap-4">
           {units.length == 0 || selectedUnit == null ? (
@@ -81,11 +120,12 @@ const CustomChartAttachment: FC<Props> = ({
                 )}
               >
                 <div className="flex flex-col flex-1 min-h-0 min-w-0 gap-4">
-                  <ReactECharts
+                  <ResponsiveEChart
                     option={selectedUnit.config}
                     style={{
                       width: '100%',
                       height: '100%',
+                      minHeight: 0,
                     }}
                   />
                   {selectedUnit.limitedByRowsAmountTo && (
@@ -100,6 +140,7 @@ const CustomChartAttachment: FC<Props> = ({
                       icons={icons}
                       currentIndex={chartIndex}
                       totalCount={units.length}
+                      titles={titles}
                       onNext={nextChart}
                       onPrev={prevChart}
                     ></Slider>

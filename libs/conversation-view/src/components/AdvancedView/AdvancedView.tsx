@@ -95,6 +95,9 @@ export const AdvancedView: FC<Props> = ({
           {attachmentsProps?.datasets?.length > 1 && (
             <DatasetTabs
               datasets={attachmentsProps?.datasets}
+              initialSelectedDatasetUrn={
+                attachmentsProps?.currentDataQuery?.urn
+              }
               locale={locale}
               isHideAdvancedViewButton={true}
               selectDataset={onSelectDataset}
@@ -113,6 +116,9 @@ export const AdvancedView: FC<Props> = ({
                 structures={structures}
                 metadataSettings={metadataSettings}
                 getDatasetUpdatedTime={getDatasetUpdatedTime}
+                externalLink={
+                  attachmentsProps?.currentDataQuery?.metadata?.datasetUrl
+                }
               />
               <div
                 className={classNames(
@@ -126,6 +132,7 @@ export const AdvancedView: FC<Props> = ({
                   actions={actions}
                   attachments={dataSetAttachments}
                   attachmentsDataQuery={attachmentsProps.currentDataQuery}
+                  dataQueries={attachmentsProps?.dataQueries}
                   dimensions={dimensions}
                   attachmentsStyles={attachmentsProps.styles}
                   isDataLoading={isLoadingGridData}

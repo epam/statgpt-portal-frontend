@@ -76,8 +76,12 @@ export const ConversationList: FC<Props> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isExpandedSearch, setIsExpandedSearch] = useState<boolean>(false);
-  const { getConversations, getSharedConversations, deleteConversation } =
-    actions;
+  const {
+    getConversations,
+    getSharedConversations,
+    deleteConversation,
+    renameConversation,
+  } = actions;
 
   const isSearchConversations = useMemo(() => {
     return !!searchQuery?.length;
@@ -151,6 +155,38 @@ export const ConversationList: FC<Props> = ({
       setSharedConversations,
       selectedConversationId,
       handleSelectedConversationRemove,
+    ],
+  );
+
+  const handleRenameConversation = useCallback(
+    async (sourceUrl: string, destinationUrl: string) => {
+      try {
+        setIsLoading(true);
+        await renameConversation(sourceUrl, destinationUrl);
+        const conversationsData = await getConversations(locale);
+        const sharedConversationsData = await getSharedConversations(
+          getSharedConversationsRequest(ShareTarget.ME),
+        );
+
+        setConversations(cleanConversationNames(conversationsData));
+        setSharedConversations(
+          cleanConversationNames(
+            transformSharedConversations(sharedConversationsData, locale),
+          ),
+        );
+      } catch (err) {
+        console.error('Error renaming conversation', err as object);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [
+      getConversations,
+      locale,
+      getSharedConversations,
+      setConversations,
+      setSharedConversations,
+      renameConversation,
     ],
   );
 
@@ -230,6 +266,7 @@ export const ConversationList: FC<Props> = ({
                       actions={{
                         ...actions,
                         deleteConversation: handleDeleteConversation,
+                        renameConversation: handleRenameConversation,
                       }}
                       shareConversationProps={shareConversationProps}
                       selectedConversationId={selectedConversationId}

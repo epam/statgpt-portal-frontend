@@ -14,45 +14,58 @@ import { Radio } from '@statgpt/ui-components/src/components/Radio/Radio';
 import { CUSTOM_PERIOD } from '@statgpt/shared-toolkit/src/constants/calendar';
 import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
 import { ConversationViewTitles } from '../../../../../models/titles';
+import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
+import { getAnnotationPeriod } from '@statgpt/sdmx-toolkit/src/utils/constraint';
 
 interface Props {
-  initialTimeRange: TimeRange;
   calendarResolution: CalendarResolution;
   timeRange: TimeRange | null;
   timeRangeOptions: TimeRangeOptions[];
   calendarStartFromMonday?: boolean;
   locale?: string;
   radioIcon?: ReactNode;
-  onValueChange: (value: TimeRange | null) => void;
+  initialConstraints?: DataConstraints[];
+  onValueChange: (
+    value: TimeRange | null,
+    selectedTimeOption: string | number,
+  ) => void;
   calendarIcon?: ReactNode;
   dateFormat?: string;
   titles?: ConversationViewTitles;
+  defaultTimeOption?: string | number;
 }
 
 const TimePeriodFacet: FC<Props> = ({
-  initialTimeRange,
   calendarResolution,
   timeRange,
   timeRangeOptions,
   calendarStartFromMonday = true,
   locale = Locale.EN,
   radioIcon,
+  initialConstraints,
   onValueChange,
   calendarIcon,
   dateFormat,
   titles,
+  defaultTimeOption,
 }) => {
+  const initialTimeRange = getAnnotationPeriod(
+    initialConstraints?.[0].annotations,
+  );
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange | null>(
     timeRange,
   );
-  const [selectedTimeOption, setSelectedTimeOption] = useState(
+  const timeOption =
     !timeRange ||
-      (timeRange?.startPeriod?.getTime() ===
-        initialTimeRange?.startPeriod?.getTime() &&
-        timeRange?.endPeriod?.getTime() ===
-          initialTimeRange?.endPeriod?.getTime())
+    (timeRange?.startPeriod?.getTime() ===
+      initialTimeRange?.startPeriod?.getTime() &&
+      timeRange?.endPeriod?.getTime() ===
+        initialTimeRange?.endPeriod?.getTime())
       ? 0
-      : CUSTOM_PERIOD,
+      : CUSTOM_PERIOD;
+
+  const [selectedTimeOption, setSelectedTimeOption] = useState(
+    defaultTimeOption ?? timeOption,
   );
 
   const filteredPeriodsButtons = useMemo(() => {
@@ -71,7 +84,7 @@ const TimePeriodFacet: FC<Props> = ({
   }, [initialTimeRange, timeRangeOptions]);
 
   useEffect(() => {
-    onValueChange(selectedTimeRange);
+    onValueChange(selectedTimeRange, selectedTimeOption);
     //TODO: resolve excessive rerenders
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTimeRange]);
@@ -85,7 +98,10 @@ const TimePeriodFacet: FC<Props> = ({
               ...prev,
               startPeriod: date || null,
             }
-          : null,
+          : {
+              endPeriod: null,
+              startPeriod: date || null,
+            },
       );
     }
   };
@@ -99,7 +115,10 @@ const TimePeriodFacet: FC<Props> = ({
               ...prev,
               endPeriod: date || null,
             }
-          : null,
+          : {
+              startPeriod: null,
+              endPeriod: date || null,
+            },
       );
     }
   };
@@ -110,14 +129,16 @@ const TimePeriodFacet: FC<Props> = ({
 
   const startPickerOptions = getPickerOptions(
     initialTimeRange.startPeriod as Date,
-    selectedTimeRange?.endPeriod as Date,
+    (selectedTimeRange?.endPeriod as Date) ||
+      (initialTimeRange.endPeriod as Date),
     calendarResolution,
     locale,
     calendarStartFromMonday,
     dateFormat,
   );
   const endPickerOptions = getPickerOptions(
-    selectedTimeRange?.startPeriod as Date,
+    (selectedTimeRange?.startPeriod as Date) ||
+      (initialTimeRange.startPeriod as Date),
     initialTimeRange.endPeriod as Date,
     calendarResolution,
     locale,
@@ -126,8 +147,8 @@ const TimePeriodFacet: FC<Props> = ({
   );
 
   return (
-    <div className="mt-3">
-      <div>
+    <div className="mt-3 overflow-auto flex flex-col pt-2 pb-2 pr-3 h-full flex-1 min-w-0">
+      <div className="w-full">
         {filteredPeriodsButtons.map((periodButton) => (
           <Radio
             id={periodButton.value.toString()}
@@ -140,7 +161,7 @@ const TimePeriodFacet: FC<Props> = ({
               if (value !== CUSTOM_PERIOD) {
                 setSelectedTimeRange(
                   value === 0
-                    ? null
+                    ? initialTimeRange
                     : getRangedTimePeriod(initialTimeRange, value),
                 );
               }
@@ -150,7 +171,7 @@ const TimePeriodFacet: FC<Props> = ({
         ))}
       </div>
 
-      <div>
+      <div className="w-full">
         {selectedTimeOption === CUSTOM_PERIOD && (
           <div className="flex filters-time-period gap-4 mt-3 caption text-neutral-700">
             <Calendar

@@ -1,10 +1,13 @@
-import { ColDef } from 'ag-grid-community';
+import { ColDef, ITooltipParams } from 'ag-grid-community';
 import {
   GridAttachmentContent,
   RowData,
   SchemaField,
 } from '@statgpt/dial-toolkit/src/models/grid-attachment';
-import { DEFAULT_GRID_COLUMN_WITH } from '../../constants/grid';
+import {
+  DEFAULT_GRID_COLUMN_WITH,
+  GRID_COLUMN_FLEX,
+} from '../../constants/grid';
 
 const SPECIAL_COLUMNS = ['index', 'value'];
 export const convertToGridData = (
@@ -80,6 +83,8 @@ const getColumns = (visualizerData: GridAttachmentContent): ColDef[] => {
         field: field.name,
         headerName: field.name,
         pinned: 'left',
+        ...GRID_COLUMN_FLEX,
+        tooltipValueGetter: (p: ITooltipParams) => p.value,
       });
     }
   }
@@ -94,6 +99,8 @@ const getColumns = (visualizerData: GridAttachmentContent): ColDef[] => {
       field: field.name,
       headerName: field.name,
       pinned: false,
+      ...GRID_COLUMN_FLEX,
+      tooltipValueGetter: (p: ITooltipParams) => p.value,
     });
   }
 

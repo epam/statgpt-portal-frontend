@@ -6,12 +6,21 @@ export interface RequestStreamBody {
   messages: Message[];
   model: ModelInfo;
   content?: string;
+  custom_fields?: CustomFields;
 }
 
 export interface MessageStreamResponse {
   id?: string;
   content?: string;
   choices: MessageChoices[];
+}
+
+export interface CustomFields {
+  custom_fields?: {
+    configuration?: {
+      choice?: string;
+    };
+  };
 }
 
 export interface MessageChoices {

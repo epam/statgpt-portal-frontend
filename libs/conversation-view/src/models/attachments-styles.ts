@@ -18,6 +18,7 @@ export interface AttachmentsStyles {
   successDownloadIcon?: ReactNode;
   errorDownloadIcon?: ReactNode;
   datasetIcon?: ReactNode;
+  isDisplayDatasetIcon?: boolean;
   isDownloadDescriptionVisible?: boolean;
   downloadTitles?: DownloadTitles;
 }

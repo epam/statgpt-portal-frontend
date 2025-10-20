@@ -18,19 +18,24 @@ import { FilterDisplayMode } from '../../../../../constants/filter-display-mode'
 import { getFilteredItemsWithParents } from '@statgpt/sdmx-toolkit/src/utils/get-filtered-items';
 import classNames from 'classnames';
 import { ConversationViewTitles } from '../../../../../models/titles';
+import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
 
 interface Props {
   selectedFilter?: Filter;
   filterValuesProps?: FilterValuesProps;
   locale?: string;
   isDisableValues?: boolean;
-  initialTimeRange?: TimeRange;
   timeRangeOptions?: TimeRangeOptions[];
-  onTimePeriodChange: (timeRange: TimeRange | null) => void;
+  initialConstraints?: DataConstraints[];
+  onTimePeriodChange: (
+    timeRange: TimeRange | null,
+    selectedOption: string | number,
+  ) => void;
   selectFilterValue: (id: string, isSelectedValue?: boolean) => void;
   selectHierarchicalNodes: (nodes?: FilterTreeNodeProps[]) => void;
   expandHierarchicalValue: (value?: FilterTreeNodeProps) => void;
   titles?: ConversationViewTitles;
+  selectedTimeOption?: string | number;
 }
 
 const FiltersValuesPanel: FC<Props> = ({
@@ -38,13 +43,14 @@ const FiltersValuesPanel: FC<Props> = ({
   filterValuesProps,
   locale,
   isDisableValues,
-  initialTimeRange,
   timeRangeOptions,
   onTimePeriodChange,
   selectFilterValue,
   titles,
+  initialConstraints,
   selectHierarchicalNodes,
   expandHierarchicalValue,
+  selectedTimeOption,
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<FilterValue[]>([]);
@@ -80,10 +86,10 @@ const FiltersValuesPanel: FC<Props> = ({
 
   return (
     <>
-      {selectedFilter?.isTimeDimension && initialTimeRange ? (
+      {selectedFilter?.isTimeDimension && initialConstraints ? (
         <TimePeriodFacet
           titles={titles}
-          initialTimeRange={initialTimeRange}
+          initialConstraints={initialConstraints}
           calendarResolution={CalendarResolution.DAY}
           timeRange={selectedFilter?.timeRange || null}
           timeRangeOptions={timeRangeOptions || []}
@@ -93,6 +99,7 @@ const FiltersValuesPanel: FC<Props> = ({
           onValueChange={onTimePeriodChange}
           calendarIcon={filterValuesProps?.calendarIcon}
           dateFormat={filterValuesProps?.dateFormat}
+          defaultTimeOption={selectedTimeOption}
         />
       ) : (
         <div

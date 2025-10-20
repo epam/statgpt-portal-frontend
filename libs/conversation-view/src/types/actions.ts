@@ -1,12 +1,13 @@
 import { GridAttachmentContent } from '@statgpt/dial-toolkit/src/models/grid-attachment';
 import { StructuralMetaData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
 import { UpdateConversationRequest } from '@statgpt/dial-toolkit/src/models/conversation';
-import { Conversation, ConversationInfo } from '@epam/ai-dial-shared';
+import { Conversation, ConversationInfo, Entity } from '@epam/ai-dial-shared';
 import { DataMessage } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
 import { SeriesFilterDto } from '@statgpt/sdmx-toolkit/src/models/series-filter';
 import { SdmxReferences } from '@statgpt/sdmx-toolkit/src/types/references';
 import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
 import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
+import { OnboardingFileSchema } from '@statgpt/shared-toolkit/src/models/onboarding-schema';
 
 export type GetAttachmentContent = (
   fileId: string,
@@ -39,3 +40,11 @@ export type getConstraints = (
   filters?: SeriesFilterDto[],
   timeRange?: TimeRange,
 ) => Promise<StructuralMetaData>;
+
+export type RateResponse = (id: string, rate: boolean) => Promise<void>;
+
+export type PutOnboardingFile = (
+  fileName: string,
+  filePath: string,
+  fileData: OnboardingFileSchema,
+) => Promise<Entity | null>;

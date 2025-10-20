@@ -30,6 +30,9 @@ import {
 } from '../models/conversation';
 import { ModelInfo } from '../models/model';
 import { GridAttachmentContent } from '../models/grid-attachment';
+import { CustomFields } from '../models/chat-stream';
+import { getMultipartHeaders } from '@statgpt/shared-toolkit/src/utils/headers';
+import { OnboardingFileSchema } from '@statgpt/shared-toolkit/src/models/onboarding-schema';
 
 const CONVERSATION_URL = (id: string) =>
   `/v1/conversations/${encodeApiUrl(id)}`;
@@ -108,6 +111,57 @@ export class ConversationApi {
     }
   }
 
+  async putOnboardingFile(
+    fileName: string,
+    filePath: string,
+    fileData: OnboardingFileSchema,
+    token: string,
+  ): Promise<Entity | null> {
+    try {
+      const endpoint = `${DIAL_API_ROUTES.VERSION}/${encodeApiUrl(filePath)}`;
+
+      const boundary = '----NodeMultipartBoundary';
+
+      const bodyParts = [
+        `--${boundary}`,
+        `Content-Disposition: form-data; name="file"; filename="${fileName}"`,
+        `Content-Type: application/json`,
+        '',
+        JSON.stringify(fileData),
+        `--${boundary}--`,
+        '',
+      ];
+      const body = bodyParts.join('\r\n');
+
+      return await this.client.request(endpoint, token, {
+        method: 'PUT',
+        body,
+        headers: getMultipartHeaders(boundary),
+        isFormData: true,
+      });
+    } catch (error) {
+      if (isError(error)) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  async getOnboardingFile(
+    filePath: string,
+    token: string,
+  ): Promise<OnboardingFileSchema | null> {
+    try {
+      const endpoint = `${DIAL_API_ROUTES.VERSION}/${encodeApiUrl(filePath)}`;
+      return await this.client.getRequest(endpoint, token);
+    } catch (error) {
+      if (isError(error)) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
   async getFileBlob(filePath: string, token: string): Promise<Blob | null> {
     try {
       const endpoint = `${DIAL_API_ROUTES.VERSION}/${encodeApiUrl(filePath)}`;
@@ -125,9 +179,9 @@ export class ConversationApi {
     token: string,
   ): Promise<ConversationInfo> {
     const conversationId = data?.id || generateConversationId(data);
-    const { name, folderId, model, messages } = data;
+    const { name, folderId, model, messages, custom_fields } = data;
 
-    const conversationData: Conversation = {
+    const conversationData = {
       id: conversationId,
       name,
       folderId,
@@ -138,6 +192,7 @@ export class ConversationApi {
       temperature: data.temperature || 0.7,
       createdAt: Date.now(),
       updatedAt: Date.now(),
+      custom_fields,
     };
 
     await this.client.request<ConversationInfo>(
@@ -258,6 +313,7 @@ export class ConversationApi {
       conversationId: string;
       messages: Message[];
       model: ModelInfo;
+      custom_fields?: CustomFields;
     },
     token: string,
   ): Promise<ReadableStream> {
@@ -270,12 +326,40 @@ export class ConversationApi {
       stream: true,
       temperature: 0.7,
       max_tokens: 4096,
+      custom_fields: params.custom_fields,
     };
 
     return await this.client.stream(endpoint, token, {
       method: 'POST',
       body,
       chatReference: params.conversationId,
+    });
+  }
+
+  async rateResponse(
+    responseId: string,
+    rate: boolean,
+    token: string,
+  ): Promise<void> {
+    return await this.client.postRequest(DIAL_API_ROUTES.RATE, token, {
+      body: {
+        responseId,
+        rate,
+      },
+    });
+  }
+
+  async renameConversation(
+    sourceUrl: string,
+    destinationUrl: string,
+    token: string,
+  ): Promise<void> {
+    return await this.client.postRequest(DIAL_API_ROUTES.RENAME, token, {
+      body: {
+        sourceUrl,
+        destinationUrl,
+        overwrite: true,
+      },
     });
   }
 }
