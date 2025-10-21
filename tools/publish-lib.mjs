@@ -15,7 +15,7 @@ import minimist from 'minimist';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const PREFIX = '@epam/';
+const PREFIX = '@epam/statgpt';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -45,7 +45,7 @@ console.info(
 
 const getVersion = (version) => {
   let potentialVersion = version;
-
+  console.log('Initial potentialVersion:', potentialVersion);
   if (isDevelopment && !version) {
     potentialVersion = getDevVersion(potentialVersion);
     invariant(
@@ -57,6 +57,8 @@ const getVersion = (version) => {
   return potentialVersion || mainPackageJson.version;
 };
 version = getVersion(version);
+
+console.info(`Publishing ${name} with version ${version}\n`);
 
 // A simple SemVer validation to validate the version
 const validVersion = /^\d+\.\d+\.\d+(-\w+\.\d+)?/;
@@ -153,7 +155,7 @@ try {
   }
 
   writeFileSync(`package.json`, JSON.stringify(json, null, 2));
-} catch (e) {
+} catch {
   console.error(`Error reading package.json file from library build output.`);
 }
 
@@ -177,6 +179,8 @@ function getDevVersion(potentialVersion) {
       throw new Error(`Could not get versions from registry.`);
     }
   }
+
+  console.log('Existing versions:', result);
 
   if (!result) {
     throw new Error(`Could not get version.`);
