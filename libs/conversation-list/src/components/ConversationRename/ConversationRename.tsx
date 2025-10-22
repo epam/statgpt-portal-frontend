@@ -1,13 +1,10 @@
 'use client';
 
-import { Button } from '@statgpt/ui-components/src/components/Button/Button';
-import { Popup } from '@statgpt/ui-components/src/components/Popup/Popup';
-import { PopUpSize } from '@statgpt/ui-components/src/types/pop-up';
+import { ConversationInfo } from '@epam/ai-dial-shared';
+import { getClearedConversationName } from '@epam/statgpt-shared-toolkit';
+import { Button, Input, Popup, PopUpSize } from '@epam/statgpt-ui-components';
 import { FC, useState } from 'react';
 import { ConversationListTitles } from '../../models/titles';
-import { ConversationInfo } from '@epam/ai-dial-shared';
-import { Input } from '@statgpt/ui-components/src/components/Input/Input';
-import { getClearedConversationName } from '@statgpt/shared-toolkit/src';
 
 interface Props {
   conversation: ConversationInfo;

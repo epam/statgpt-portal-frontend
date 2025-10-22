@@ -1,7 +1,7 @@
 import { Entity } from '@epam/ai-dial-shared';
 
 import { CreateConversationRequest } from '../models/conversation';
-import { getClearedConversationName } from '@statgpt/shared-toolkit/src/utils/conversation-name';
+import { getClearedConversationName } from '@epam/statgpt-shared-toolkit';
 
 export const parseConversationName = (item: Entity) => {
   // Extract conversation info from the name field

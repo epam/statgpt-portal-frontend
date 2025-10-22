@@ -1,13 +1,21 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Data,
+  getStructureComponentsMap,
+  StructuralData,
+  TimeSeries,
+} from '@epam/statgpt-sdmx-toolkit';
+import { Locale } from '@epam/statgpt-shared-toolkit';
+import { IconButton } from '@epam/statgpt-ui-components';
 import { ICellRendererParams } from 'ag-grid-community';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MetadataIcon from '../../../assets/icons/metadata.svg';
-import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
-import Metadata from '../../AdvancedView/Metadata/Metadata';
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { Data } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
-import { getStructureComponentsMap } from '@statgpt/sdmx-toolkit/src/utils/get-structure-components';
+import { OnboardingElements } from '../../../constants/onboarding-elements';
+import { useOnboarding } from '../../../context/OnboardingContext';
+import { MetadataSettings } from '../../../models/metadata';
+import { ConversationViewTitles } from '../../../models/titles';
+import { getDimensionGroupAttributes } from '../../../utils/attachments/group-attributes';
 import {
   getAttributesFromParams,
   getDatasetNameItem,
@@ -15,15 +23,9 @@ import {
   getMetadataDescriptionItems,
   getStructureComponentsValues,
 } from '../../../utils/attachments/metadata';
-import { MetadataSettings } from '../../../models/metadata';
-import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
-import { TimeSeries } from '@statgpt/sdmx-toolkit/src/models/data/time-series';
-import { getDimensionGroupAttributes } from '../../../utils/attachments/group-attributes';
-import { ConversationViewTitles } from '../../../models/titles';
-import { Tooltip } from '../../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
-import { OnboardingElements } from '../../../constants/onboarding-elements';
-import { useOnboarding } from '../../../context/OnboardingContext';
+import Metadata from '../../AdvancedView/Metadata/Metadata';
+import { Tooltip } from '../../Tooltip/Tooltip';
 
 interface MetadataCellRendererParams extends ICellRendererParams {
   attributesData: Data;

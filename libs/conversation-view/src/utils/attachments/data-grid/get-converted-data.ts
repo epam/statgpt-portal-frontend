@@ -2,8 +2,8 @@ import {
   TimeSeries,
   TimeSeriesObservation,
   TimeSeriesValue,
-} from '@statgpt/sdmx-toolkit/src/models/data/time-series';
-import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
+  Dimension,
+} from '@epam/statgpt-sdmx-toolkit';
 import { GridData } from '../../../types/data-grid/grid-data';
 
 export function getConvertedData(

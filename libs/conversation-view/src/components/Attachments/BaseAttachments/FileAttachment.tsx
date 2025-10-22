@@ -2,7 +2,7 @@
 
 import { Attachment } from '@epam/ai-dial-shared';
 import { FC, useState } from 'react';
-import { Button } from '@statgpt/ui-components/src/components/Button/Button';
+import { Button } from '@epam/statgpt-ui-components';
 import { AttachmentsActions } from '../../../models/actions';
 
 interface Props {

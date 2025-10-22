@@ -1,36 +1,38 @@
 'use client';
 
-import DatasetIcon from '../../assets/icons/dataset.svg';
-import MetadataIcon from '../../assets/icons/metadata.svg';
 import {
-  IconClock,
+  Dataflow,
+  getLastUpdatedTime,
+  getLocalizedName,
+  StructuralData,
+  Data,
+  getStructureComponentsMap,
+} from '@epam/statgpt-sdmx-toolkit';
+import { IconButton } from '@epam/statgpt-ui-components';
+import {
   IconArrowUpRight,
+  IconClock,
   IconExternalLink,
 } from '@tabler/icons-react';
-import { getLastUpdatedTime } from '@statgpt/sdmx-toolkit/src/utils/annotations';
-import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { getDateFormattedValue } from '../../utils/date-format';
 import classNames from 'classnames';
-import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
-import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
-import { Data } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import DatasetIcon from '../../assets/icons/dataset.svg';
+import MetadataIcon from '../../assets/icons/metadata.svg';
+import { OnboardingElements } from '../../constants/onboarding-elements';
+import { useOnboarding } from '../../context/OnboardingContext';
+import { MetadataSettings } from '../../models/metadata';
+import { StructureComponentValue } from '../../models/structure-component';
+import { ConversationViewTitles } from '../../models/titles';
 import {
   getDataSetAttributes,
   getDatasetDescription,
   getDatasetNameItem,
   getStructureAttributes,
 } from '../../utils/attachments/metadata';
-import { getStructureComponentsMap } from '@statgpt/sdmx-toolkit/src/utils/get-structure-components';
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { MetadataSettings } from '../../models/metadata';
-import Metadata from './Metadata/Metadata';
-import { ConversationViewTitles } from '../../models/titles';
-import { StructureComponentValue } from '../../models/structure-component';
-import { Tooltip } from '../Tooltip/Tooltip';
+import { getDateFormattedValue } from '../../utils/date-format';
 import { getTooltipDataByElement } from '../../utils/get-tooltip-data.by-element';
-import { OnboardingElements } from '../../constants/onboarding-elements';
-import { useOnboarding } from '../../context/OnboardingContext';
+import { Tooltip } from '../Tooltip/Tooltip';
+import Metadata from './Metadata/Metadata';
 
 interface Props {
   dataset?: Dataflow | null;

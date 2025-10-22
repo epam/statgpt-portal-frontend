@@ -1,7 +1,7 @@
 'use client';
 
 import { FilterValue } from '../../../../../models/filters';
-import { Checkbox } from '@statgpt/ui-components/src/components/Checkbox/Checkbox';
+import { Checkbox } from '@epam/statgpt-ui-components';
 import { FC, ReactNode } from 'react';
 
 interface Props {

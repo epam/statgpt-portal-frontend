@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import { Calendar } from './Calendar';
-import { CalendarResolution } from '@statgpt/shared-toolkit/src/types/calendar';
+import { CalendarResolution } from '@epam/statgpt-shared-toolkit';
 
 describe('Calendar', () => {
   const mockOnChange = jest.fn();

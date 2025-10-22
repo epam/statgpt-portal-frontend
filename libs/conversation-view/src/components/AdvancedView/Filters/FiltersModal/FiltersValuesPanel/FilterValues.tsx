@@ -12,7 +12,7 @@ import {
 import FilterTreeView from './FilterTreeView';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import CheckboxRow from './CheckboxRow';
-import { useIsMobile } from '@statgpt/ui-components/src/hooks/isMobile';
+import { useIsMobile } from '@epam/statgpt-ui-components';
 
 interface Props {
   filterValues?: FilterValue[];

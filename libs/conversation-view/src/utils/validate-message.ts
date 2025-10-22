@@ -1,5 +1,5 @@
 import { Role, Conversation } from '@epam/ai-dial-shared';
-import { Message } from '@statgpt/dial-toolkit/src/models/message';
+import { Message } from '@epam/statgpt-dial-toolkit';
 import {
   CUSTOM_CHOICE_ID,
   CustomContentProperties,

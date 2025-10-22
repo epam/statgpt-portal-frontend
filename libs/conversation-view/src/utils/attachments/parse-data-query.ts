@@ -1,7 +1,4 @@
-import {
-  DataQuery,
-  JsonDataQuery,
-} from '@statgpt/shared-toolkit/src/models/data-query';
+import { DataQuery, JsonDataQuery } from '@epam/statgpt-shared-toolkit';
 import { isJsonAttachment } from './attachment-parser';
 import { Attachment } from '@epam/ai-dial-shared';
 

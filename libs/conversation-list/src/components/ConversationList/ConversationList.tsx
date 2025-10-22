@@ -19,26 +19,28 @@ import {
   useState,
 } from 'react';
 
-import ConversationsGroup from '../ConversationsGroup/ConversationsGroup';
-import ConversationsSearchField from '../ConversationsSearch/ConversationsSearchField';
-import ConversationsSearchResult from '../ConversationsSearch/ConversationsSearchResult';
-import NoConversations from '../NoConversations/NoConversations';
+import { ConversationInfo } from '@epam/ai-dial-shared';
+import {
+  getSharedConversationsRequest,
+  ShareTarget,
+} from '@epam/statgpt-dial-toolkit';
+import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
+import { cleanConversationNames } from '@epam/statgpt-shared-toolkit';
+import { Loader } from '@epam/statgpt-ui-components';
 import {
   ConversationListActions,
   ConversationStyles,
   GroupedConversations,
 } from '../../models/conversation-list';
-import { cleanConversationNames } from '@statgpt/shared-toolkit/src/utils/conversation-mapping';
 import { getConversationsGroupedByDate } from '../../utils/conversations-grouping';
-import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
-import { ConversationInfo } from '@epam/ai-dial-shared';
-import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
-import { ShareTarget } from '@statgpt/dial-toolkit/src/constants/share-conversation';
-import { getSharedConversationsRequest } from '@statgpt/dial-toolkit/src/utils/shared-conversations-request';
 import {
   getSharedConversationsGroup,
   transformSharedConversations,
 } from '../../utils/shared-conversations';
+import ConversationsGroup from '../ConversationsGroup/ConversationsGroup';
+import ConversationsSearchField from '../ConversationsSearch/ConversationsSearchField';
+import ConversationsSearchResult from '../ConversationsSearch/ConversationsSearchResult';
+import NoConversations from '../NoConversations/NoConversations';
 
 interface Props {
   selectedConversationId?: string;

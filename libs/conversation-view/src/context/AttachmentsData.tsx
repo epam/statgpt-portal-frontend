@@ -1,39 +1,41 @@
+import { AttachmentType } from '@epam/statgpt-dial-toolkit';
+import {
+  DataConstraints,
+  Dataflow,
+  DataMessage,
+  DatasetQueryFilters,
+  Dimension,
+  getDimensions,
+  getStructureDimensions,
+  getTimeSeriesFilterKey,
+  StructuralData,
+  StructureItemBase,
+  TIME_PERIOD,
+} from '@epam/statgpt-sdmx-toolkit';
+import {
+  DataQuery,
+  FormatNumbersType,
+  TimeRange,
+} from '@epam/statgpt-shared-toolkit';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { DataMessage } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
-import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
 import {
   CustomChartAttachmentType,
   CustomGridAttachment,
 } from '../models/attachments';
-import { AttachmentType } from '@statgpt/dial-toolkit/src/types/attachment-type';
-import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { StructureItemBase } from '@statgpt/sdmx-toolkit/src/models/data/structure';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
-import {
-  getDimensions,
-  getStructureDimensions,
-} from '@statgpt/sdmx-toolkit/src/utils/get-dimensions';
+import { ChartingStyles } from '../models/attachments-styles';
+import { Filter } from '../models/filters';
+import { MetadataSettings } from '../models/metadata';
+import { ConversationViewTitles } from '../models/titles';
 import {
   getConstraints,
   GetDatasetData,
   GetDatasetDetails,
   PutOnboardingFile,
 } from '../types/actions';
-import { buildGridData } from '../utils/attachments/data-grid/data-grid';
-import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
-import { getTimeSeriesFilterKey } from '@statgpt/sdmx-toolkit/src/utils/query-filters';
-import { getTimeQueryFilterFromAttachment } from '../utils/query-filters';
 import { buildChartData } from '../utils/attachments/charting/chart-data';
-import { ChartingStyles } from '../models/attachments-styles';
-import { MetadataSettings } from '../models/metadata';
-import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
-import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
-import { ConversationViewTitles } from '../models/titles';
-import { Filter } from '../models/filters';
-import { TimeRange } from '@statgpt/shared-toolkit/src';
-import { TIME_PERIOD } from '@statgpt/sdmx-toolkit/src/utils/constraint';
+import { buildGridData } from '../utils/attachments/data-grid/data-grid';
 import { getFiltersDtoFromDataQuery } from '../utils/attachments/time-period';
+import { getTimeQueryFilterFromAttachment } from '../utils/query-filters';
 
 export function useAttachmentsData(
   actions: {

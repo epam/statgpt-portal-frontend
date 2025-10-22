@@ -1,37 +1,37 @@
 'use client';
 
 import {
-  FormSchemaButtonOption,
+  ConversationInfo,
   DialSchemaProperties,
+  FormSchemaButtonOption,
   MessageFormSchema,
 } from '@epam/ai-dial-shared';
-import InputForAsk from '../InputForAsk/InputForAsk';
-import { Tag } from '@statgpt/ui-components/src/components/Tag/Tag';
-import { FC, ReactNode, useCallback, useEffect, useState } from 'react';
-import classNames from 'classnames';
-import { ConversationInfo } from '@epam/ai-dial-shared';
+import { transformSharedConversations } from '@epam/statgpt-conversation-list';
 import {
   CreateConversationRequest,
-  SharedConversationsRequest,
+  getSharedConversationsRequest,
   SharedConversations,
-} from '@statgpt/dial-toolkit/src/models/conversation';
+  SharedConversationsRequest,
+  ShareTarget,
+} from '@epam/statgpt-dial-toolkit';
+import { cleanConversationNames } from '@epam/statgpt-shared-toolkit';
+import { Loader } from '@epam/statgpt-ui-components';
+import { Tag } from '@epam/statgpt-ui-components';
+import classNames from 'classnames';
+import { FC, ReactNode, useCallback, useEffect, useState } from 'react';
+import { InputMessageStyles } from '../../models/message';
+import { ConversationViewTitles } from '../../models/titles';
 import { getCreateConversationRequest } from '../../utils/conversation-request';
 import { generateOnboardingConversation } from '../../utils/generate-onboarding-conversation';
-import { InputMessageStyles } from '../../models/message';
-import { cleanConversationNames } from '@statgpt/shared-toolkit/src/utils/conversation-mapping';
-import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
-import { ConversationViewTitles } from '../../models/titles';
-import { ShareTarget } from '@statgpt/dial-toolkit/src/constants/share-conversation';
-import { transformSharedConversations } from '@statgpt/conversation-list/src/utils/shared-conversations';
-import { getSharedConversationsRequest } from '@statgpt/dial-toolkit/src/utils/shared-conversations-request';
+import InputForAsk from '../InputForAsk/InputForAsk';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { UserInfo } from '@statgpt/user-info/src/models/user-info';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import User from '@statgpt/user-info/src/components/User/User';
-import { ConversationOnboarding } from '../ConversationOnboarding/ConversationOnboarding';
-import ChatOnboardingFooter from '../ChatOnboardingFooter/ChatOnboardingFooter';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { PutOnboardingFile } from '../../types/actions';
+import ChatOnboardingFooter from '../ChatOnboardingFooter/ChatOnboardingFooter';
+import { ConversationOnboarding } from '../ConversationOnboarding/ConversationOnboarding';
 
 interface ConversationListActions {
   getBucket: () => Promise<{ bucket: string }>;

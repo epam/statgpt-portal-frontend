@@ -8,29 +8,29 @@
 
 'use client';
 
-import { FC, ReactNode, useEffect, useRef, useState } from 'react';
 import { Role } from '@epam/ai-dial-shared';
-import { useDebounce } from '@statgpt/ui-components/src/hooks/debounce';
+import { useDebounce } from '@epam/statgpt-ui-components';
+import { FC, ReactNode, useEffect, useRef, useState } from 'react';
 
-import { Message as MessageType } from '@statgpt/dial-toolkit/src/models/message';
-import Message from './Message/Message';
+import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
+import { FormatNumbersType } from '@epam/statgpt-sdmx-toolkit';
+import { DataQuery } from '@epam/statgpt-shared-toolkit';
+import classNames from 'classnames';
+import { useAdvancedView } from '../../context/AdvancedViewContext';
+import { AttachmentsActions } from '../../models/actions';
+import { AttachmentsStyles } from '../../models/attachments-styles';
 import {
   EditMessageTitles,
   MessageActionIcons,
   MessageStyles,
 } from '../../models/message';
-import { AttachmentsActions } from '../../models/actions';
-import { AttachmentsStyles } from '../../models/attachments-styles';
-import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
 import { MetadataSettings } from '../../models/metadata';
 import { ConversationViewTitles } from '../../models/titles';
 import {
   getLastMessageWithAttachmentIndex,
   getPreviousMessageWithAttachment,
 } from '../../utils/messages';
-import { useAdvancedView } from '../../context/AdvancedViewContext';
-import classNames from 'classnames';
+import Message from './Message/Message';
 
 interface Props {
   messages: MessageType[];

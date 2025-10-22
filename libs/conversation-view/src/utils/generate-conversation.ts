@@ -1,5 +1,5 @@
 import { Conversation } from '@epam/ai-dial-shared';
-import { generateConversationId } from '@statgpt/dial-toolkit/src/utils/parse-conversation-name';
+import { generateConversationId } from '@epam/statgpt-dial-toolkit';
 
 export const generateConversation = (
   conversation: Conversation,

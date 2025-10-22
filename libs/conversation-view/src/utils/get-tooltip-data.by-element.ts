@@ -1,5 +1,5 @@
 import { ConversationViewTitles } from '../models/titles';
-import { OnboardingFileSchema } from '@statgpt/shared-toolkit/src/models/onboarding-schema';
+import { OnboardingFileSchema } from '@epam/statgpt-shared-toolkit';
 import {
   OnboardingAdvancedViewElements,
   OnboardingBasicViewElements,

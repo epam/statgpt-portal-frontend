@@ -1,8 +1,6 @@
 'use client';
 
-import { Button } from '@statgpt/ui-components/src/components/Button/Button';
-import { Popup } from '@statgpt/ui-components/src/components/Popup/Popup';
-import { PopUpSize } from '@statgpt/ui-components/src/types/pop-up';
+import { Button, Popup, PopUpSize } from '@epam/statgpt-ui-components';
 import { FC } from 'react';
 import { ConversationListTitles } from '../../models/titles';
 

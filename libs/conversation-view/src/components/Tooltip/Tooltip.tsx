@@ -1,8 +1,8 @@
-import { FC, RefObject, useCallback, useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
+import { OnboardingFileSchema } from '@epam/statgpt-shared-toolkit';
+import { CloseButton } from '@epam/statgpt-ui-components';
 import {
-  autoUpdate,
   arrow,
+  autoUpdate,
   flip,
   FloatingPortal,
   offset,
@@ -11,11 +11,11 @@ import {
   useFloating,
   useInteractions,
 } from '@floating-ui/react';
-import { CloseButton } from '@statgpt/ui-components/src/components/CloseButton/CloseButton';
-import { useOnboarding } from '../../context/OnboardingContext';
-import { OnboardingFileSchema } from '@statgpt/shared-toolkit/src/models/onboarding-schema';
-import { getNextTooltipElement } from '../../utils/get-tooltip-data.by-element';
+import classNames from 'classnames';
+import { FC, RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { OnboardingElements } from '../../constants/onboarding-elements';
+import { useOnboarding } from '../../context/OnboardingContext';
+import { getNextTooltipElement } from '../../utils/get-tooltip-data.by-element';
 
 interface Props {
   reference?: RefObject<HTMLElement | HTMLDivElement | null>;

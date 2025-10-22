@@ -1,17 +1,21 @@
+import {
+  DataConstraints,
+  DataMessage,
+  StructuralData,
+} from '@epam/statgpt-sdmx-toolkit';
+import {
+  DataQuery,
+  FormatNumbersType,
+  TimeRange,
+} from '@epam/statgpt-shared-toolkit';
 import { ColDef } from 'ag-grid-community';
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { DataMessage } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
+import { ChartingStyles } from '../../../models/attachments-styles';
+import { MetadataSettings } from '../../../models/metadata';
+import { ConversationViewTitles } from '../../../models/titles';
+import { PutOnboardingFile } from '../../../types/actions';
+import { GridData } from '../../../types/data-grid/grid-data';
 import { getColumns } from './columns';
 import { getRowsData } from './rows-data';
-import { GridData } from '../../../types/data-grid/grid-data';
-import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
-import { MetadataSettings } from '../../../models/metadata';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
-import { ChartingStyles } from '../../../models/attachments-styles';
-import { ConversationViewTitles } from '../../../models/titles';
-import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
-import { TimeRange } from '@statgpt/shared-toolkit/src';
-import { PutOnboardingFile } from '../../../types/actions';
 
 export function buildGridData(
   structures: StructuralData,

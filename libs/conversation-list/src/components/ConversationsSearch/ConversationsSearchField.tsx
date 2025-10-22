@@ -1,10 +1,8 @@
 'use client';
 
-import { FC } from 'react';
+import { Button, IconButton, InputWithIcon } from '@epam/statgpt-ui-components';
 import { IconSearch, IconX } from '@tabler/icons-react';
-import { Button } from '@statgpt/ui-components/src/components/Button/Button';
-import { InputWithIcon } from '@statgpt/ui-components/src/components/Input/InputWithIcon';
-import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
+import { FC } from 'react';
 import { ConversationListTitles } from '../../models/titles';
 
 interface Props {

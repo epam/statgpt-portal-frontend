@@ -1,5 +1,5 @@
 import { Conversation, Role } from '@epam/ai-dial-shared';
-import { Message } from '@statgpt/dial-toolkit/src/models/message';
+import { Message } from '@epam/statgpt-dial-toolkit';
 import { Attachment } from '@epam/ai-dial-shared/src/types/chat';
 
 export const transformMessagesForApi = (

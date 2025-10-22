@@ -9,8 +9,8 @@ import {
   RateResponse,
   PutOnboardingFile,
 } from '../types/actions';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
-import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
+import { DataQuery } from '@epam/statgpt-shared-toolkit';
+import { Dataflow } from '@epam/statgpt-sdmx-toolkit';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { DownloadDatasetAction } from '@statgpt/download-panel/src/types/actions';
 // eslint-disable-next-line @nx/enforce-module-boundaries

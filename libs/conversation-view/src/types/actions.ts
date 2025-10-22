@@ -1,13 +1,16 @@
-import { GridAttachmentContent } from '@statgpt/dial-toolkit/src/models/grid-attachment';
-import { StructuralMetaData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { UpdateConversationRequest } from '@statgpt/dial-toolkit/src/models/conversation';
 import { Conversation, ConversationInfo, Entity } from '@epam/ai-dial-shared';
-import { DataMessage } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
-import { SeriesFilterDto } from '@statgpt/sdmx-toolkit/src/models/series-filter';
-import { SdmxReferences } from '@statgpt/sdmx-toolkit/src/types/references';
-import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
-import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
-import { OnboardingFileSchema } from '@statgpt/shared-toolkit/src/models/onboarding-schema';
+import {
+  GridAttachmentContent,
+  UpdateConversationRequest,
+} from '@epam/statgpt-dial-toolkit';
+import {
+  DataMessage,
+  DatasetQueryFilters,
+  SdmxReferences,
+  SeriesFilterDto,
+  StructuralMetaData,
+} from '@epam/statgpt-sdmx-toolkit';
+import { OnboardingFileSchema, TimeRange } from '@epam/statgpt-shared-toolkit';
 
 export type GetAttachmentContent = (
   fileId: string,

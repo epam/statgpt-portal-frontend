@@ -1,4 +1,4 @@
-import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
+import { TimeRange } from '@epam/statgpt-shared-toolkit';
 import { DataConstraints } from '../models';
 const YEAR_BOUNDARY_VALUE = 1;
 

@@ -4,7 +4,7 @@ import {
   GeneratedLinkResponse,
   SharedConversationsRequest,
   SharedConversations,
-} from '@statgpt/dial-toolkit/src/models/conversation';
+} from '@epam/statgpt-dial-toolkit';
 import { Conversation } from '@epam/ai-dial-shared';
 
 export type GetConversation = (conversationId: string) => Promise<Conversation>;

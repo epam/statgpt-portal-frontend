@@ -1,9 +1,11 @@
+import {
+  Dataflow,
+  generateShortUrn,
+  StructuralData,
+} from '@epam/statgpt-sdmx-toolkit';
+import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import { useEffect, useState } from 'react';
 import { GetDatasetDetails } from '../types/actions';
-import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { generateShortUrn } from '@statgpt/sdmx-toolkit/src/utils/urn';
 
 export function useDatasets(
   getDataSetAction: GetDatasetDetails,

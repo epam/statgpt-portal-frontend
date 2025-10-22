@@ -1,9 +1,6 @@
 import { Message, Role } from '@epam/ai-dial-shared';
-import { AttachmentType } from '@statgpt/dial-toolkit/src/types/attachment-type';
-import {
-  DataQuery,
-  QueryFilter,
-} from '@statgpt/shared-toolkit/src/models/data-query';
+import { AttachmentType } from '@epam/statgpt-dial-toolkit';
+import { DataQuery, QueryFilter } from '@epam/statgpt-shared-toolkit';
 import { getLastAssistantMessage } from './messages';
 
 export const prepareSystemMessage = (

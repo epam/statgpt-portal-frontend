@@ -1,16 +1,14 @@
 'use client';
 
+import { Button, Loader, PopUpState } from '@epam/statgpt-ui-components';
 import { FC, useEffect, useMemo, useRef, useState } from 'react';
-import { FilterButtonProps } from '../../../../models/filters';
-import { PopUpState } from '@statgpt/ui-components/src/types/pop-up';
 import FilterIcon from '../../../../assets/icons/filter.svg';
-import { Button } from '@statgpt/ui-components/src/components/Button/Button';
-import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
-import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
-import { ConversationViewTitles } from '../../../../models/titles';
-import { Tooltip } from '../../../Tooltip/Tooltip';
 import { OnboardingElements } from '../../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../../context/OnboardingContext';
+import { FilterButtonProps } from '../../../../models/filters';
+import { ConversationViewTitles } from '../../../../models/titles';
+import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
+import { Tooltip } from '../../../Tooltip/Tooltip';
 
 interface Props {
   buttonProps?: FilterButtonProps;

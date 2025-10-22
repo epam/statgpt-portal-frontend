@@ -1,4 +1,4 @@
-import { SharedConversations } from '@statgpt/dial-toolkit/src/models/conversation';
+import { SharedConversations } from '@epam/statgpt-dial-toolkit';
 import { ConversationInfo } from '@epam/ai-dial-shared';
 import { ConversationGroups } from '../types/conversation-groups';
 

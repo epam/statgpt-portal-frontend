@@ -1,20 +1,20 @@
-import { GET_v3_FILTER_OR } from '../constants/filter-operators';
-import {
-  Dimension,
-  DimensionType,
-} from '../models/structural-metadata/data-structure';
-import { SeriesFilterOperator } from '../types/logical-operator-type';
 import {
   DataQuery,
   QueryFilter,
-} from '@statgpt/shared-toolkit/src/models/data-query';
-import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
-import { getTimePeriod } from '@statgpt/shared-toolkit/src/utils/get-time-period';
+  TimeRange,
+  getTimePeriod,
+} from '@epam/statgpt-shared-toolkit';
+import { GET_v3_FILTER_OR } from '../constants/filter-operators';
 import {
   AND_QUERY_OPERATOR,
   QUERY_PARAMETER_FILTER_EQUAL,
   QUERY_PARAMETER_FILTER_VALUE_SEPARATOR,
 } from '../constants/query-parameters';
+import {
+  Dimension,
+  DimensionType,
+} from '../models/structural-metadata/data-structure';
+import { SeriesFilterOperator } from '../types/logical-operator-type';
 
 export const getTimeSeriesFilterKey = (
   dimensions: Dimension[],

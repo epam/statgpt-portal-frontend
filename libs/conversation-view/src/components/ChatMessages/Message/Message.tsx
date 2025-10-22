@@ -37,11 +37,10 @@ import {
   parseMessageAttachments,
 } from '../../../utils/attachments/attachment-parser';
 import { getDataQueries } from '../../../utils/attachments/parse-data-query';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
-import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
-import { Message as MessageType } from '@statgpt/dial-toolkit/src/models/message';
+import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
+import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import { MetadataSettings } from '../../../models/metadata';
-import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
+import { Loader } from '@epam/statgpt-ui-components';
 import MessageStages from '../MessageStages/MessageStages';
 import { ConversationViewTitles } from '../../../models/titles';
 import { AttachmentInfo } from '../../../models/attachments';

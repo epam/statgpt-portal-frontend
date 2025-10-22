@@ -1,21 +1,23 @@
-import { isEqual } from 'lodash';
+import {
+  Codelist,
+  ConceptScheme,
+  Dimension,
+  findCodelistByDimension,
+  getConcept,
+  getDimensions,
+  getLocalizedName,
+  StructuralData,
+} from '@epam/statgpt-sdmx-toolkit';
 import {
   DataQuery,
+  getTimePeriod,
   QueryFilter,
   QueryFilterDetails,
-} from '@statgpt/shared-toolkit/src/models/data-query';
-import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { ConceptScheme } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/concept-scheme';
-import { Codelist } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/codelist';
-import { getDateString } from './attachments/time-period';
-import { getConcept } from '@statgpt/sdmx-toolkit/src/utils/get-concept';
-import { findCodelistByDimension } from '@statgpt/sdmx-toolkit/src/utils/find-codelist-by-dimension';
-import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
-import { QueryFilterType } from '@statgpt/shared-toolkit/src/types/query-filter-type';
-import { getTimePeriod } from '@statgpt/shared-toolkit/src/utils/get-time-period';
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { getDimensions } from '@statgpt/sdmx-toolkit/src/utils/get-dimensions';
+  QueryFilterType,
+} from '@epam/statgpt-shared-toolkit';
+import { isEqual } from 'lodash';
 import { AttachmentInfo } from '../models/attachments';
+import { getDateString } from './attachments/time-period';
 
 export const getAttachmentInfoList = (
   previousDataQueries: DataQuery[],

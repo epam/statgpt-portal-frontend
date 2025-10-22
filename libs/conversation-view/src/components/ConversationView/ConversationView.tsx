@@ -10,6 +10,7 @@
 'use client';
 
 import { Conversation, ConversationInfo, Role } from '@epam/ai-dial-shared';
+import { IconCopy, IconPlus } from '@tabler/icons-react';
 import classNames from 'classnames';
 import {
   Dispatch,
@@ -21,11 +22,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { IconCopy, IconPlus } from '@tabler/icons-react';
 
-import ChatMessages from '../ChatMessages/ChatMessages';
-import ConversationViewHeader from '../ConversationViewHeader/ConversationViewHeader';
-import InputForAsk from '../InputForAsk/InputForAsk';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 import { ConversationViewActions } from '../../models/actions';
 import { AttachmentsStyles } from '../../models/attachments-styles';
@@ -35,9 +32,35 @@ import {
   MessageActionIcons,
   MessageStyles,
 } from '../../models/message';
+import ChatMessages from '../ChatMessages/ChatMessages';
+import ConversationViewHeader from '../ConversationViewHeader/ConversationViewHeader';
+import InputForAsk from '../InputForAsk/InputForAsk';
+
+import {
+  CustomFields,
+  mergeMessages,
+  Message,
+  streamChatResponse,
+} from '@epam/statgpt-dial-toolkit';
+import {
+  cleanConversationNames,
+  DataQuery,
+  FormatNumbersType,
+} from '@epam/statgpt-shared-toolkit';
+import { Button, Loader } from '@epam/statgpt-ui-components';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { UserInfo } from '@statgpt/user-info/src/models/user-info';
+import { ABORT_ERROR } from '../../constants/errors';
+import { OnboardingElements } from '../../constants/onboarding-elements';
+import { useOnboarding } from '../../context/OnboardingContext';
+import { MetadataSettings } from '../../models/metadata';
+import { ConversationViewTitles } from '../../models/titles';
 import { extractPartialMessageData } from '../../utils/extract-partial-message';
+import { generateConversation } from '../../utils/generate-conversation';
+import { getRedirectConversationPath } from '../../utils/get-conversation-path';
+import { getOnboardingInfoForAdvancedView } from '../../utils/get-tooltip-data.by-element';
 import {
   isConversationIdExternal,
   isReadOnlyConversation,
@@ -48,25 +71,6 @@ import {
   transformRegenerateMessage,
 } from '../../utils/transform-message-api';
 import { validateAndPrepareMessage } from '../../utils/validate-message';
-import { streamChatResponse } from '@statgpt/dial-toolkit/src/api/chat-streaming-api';
-import { Message } from '@statgpt/dial-toolkit/src/models/message';
-import { mergeMessages } from '@statgpt/dial-toolkit/src/utils/merge-messages';
-import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
-import { Button } from '@statgpt/ui-components/src/components/Button/Button';
-import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
-import { MetadataSettings } from '../../models/metadata';
-import { ConversationViewTitles } from '../../models/titles';
-import { getRedirectConversationPath } from '../../utils/get-conversation-path';
-import { generateConversation } from '../../utils/generate-conversation';
-import { cleanConversationNames } from '@statgpt/shared-toolkit/src/utils/conversation-mapping';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import { UserInfo } from '@statgpt/user-info/src/models/user-info';
-import { ABORT_ERROR } from '../../constants/errors';
-import { CustomFields } from '@statgpt/dial-toolkit/src/models/chat-stream';
-import { useOnboarding } from '../../context/OnboardingContext';
-import { OnboardingElements } from '../../constants/onboarding-elements';
-import { getOnboardingInfoForAdvancedView } from '../../utils/get-tooltip-data.by-element';
 
 interface Props {
   conversationKey: string;

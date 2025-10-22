@@ -1,8 +1,7 @@
+import { Data, StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import { ColDef } from 'ag-grid-community';
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { MetadataSettings } from '../models/metadata';
-import { Data } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
 import ChartCellRenderer from '../components/Attachments/GridCellRenderers/ChartCellRenderer';
+import { MetadataSettings } from '../models/metadata';
 import { ConversationViewTitles } from '../models/titles';
 import { PutOnboardingFile } from '../types/actions';
 

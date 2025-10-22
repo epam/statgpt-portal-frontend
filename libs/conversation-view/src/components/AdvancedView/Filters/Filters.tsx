@@ -1,6 +1,22 @@
 'use client';
 
-import FilterSettings from './FiltersModal/FiltersSettings';
+import {
+  DataConstraints,
+  findCodelistByDimension,
+  getAvailableCodesFromConstrains,
+  getTimeSeriesCount,
+  TIME_PERIOD,
+} from '@epam/statgpt-sdmx-toolkit';
+import { Locale } from '@epam/statgpt-shared-toolkit';
+import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
+import {
+  FC,
+  startTransition,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Filter, FiltersProps } from '../../../models/filters';
 import {
   getDatasetFilters,
@@ -15,32 +31,15 @@ import {
 } from '../../../utils/filters';
 import { getFilledFilters } from '../../../utils/get-filled-filters';
 import { getSeriesFilterDto } from '../../../utils/get-series-filters';
+import { getUpdatedDataQueries } from '../../../utils/get-updated-data-queries';
 import {
   getQueryFilters,
   setDataQueryFilters,
 } from '../../../utils/query-filters';
-import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
-import {
-  getAvailableCodesFromConstrains,
-  TIME_PERIOD,
-} from '@statgpt/sdmx-toolkit/src/utils/constraint';
-import { findCodelistByDimension } from '@statgpt/sdmx-toolkit/src/utils/find-codelist-by-dimension';
-import { getTimeSeriesCount } from '@statgpt/sdmx-toolkit/src/utils/time-series-count';
-import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
-import { Popup } from '@statgpt/ui-components/src/components/Popup/Popup';
-import { PopUpSize, PopUpState } from '@statgpt/ui-components/src/types/pop-up';
-import {
-  FC,
-  startTransition,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import ModalFooter from './FiltersModal/ModalFooter';
-import FilterButton from './FilterButton/FilterButton';
 import { updateMessagesWithSystemMessage } from '../../../utils/system-message';
-import { getUpdatedDataQueries } from '../../../utils/get-updated-data-queries';
+import FilterButton from './FilterButton/FilterButton';
+import FilterSettings from './FiltersModal/FiltersSettings';
+import ModalFooter from './FiltersModal/ModalFooter';
 
 const Filters: FC<FiltersProps> = ({
   actions,

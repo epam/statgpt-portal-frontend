@@ -1,5 +1,5 @@
 import { GridData } from '../../../types/data-grid/grid-data';
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
+import { StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import { ChartUnitRows } from '../../../models/charting';
 import { getDimValue } from '../localized-value';
 

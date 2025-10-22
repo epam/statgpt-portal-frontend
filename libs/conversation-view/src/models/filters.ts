@@ -1,18 +1,20 @@
-import { Dispatch, ReactNode, SetStateAction } from 'react';
-import { PutOnboardingFile, UpdateConversation } from '../types/actions';
-import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
+import { Conversation } from '@epam/ai-dial-shared';
 import {
+  DataConstraints,
+  DatasetQueryFilters,
+  Dimension,
+  SeriesFilterDto,
   StructuralData,
   StructuralMetaData,
-} from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { StructureItemBase } from '@statgpt/sdmx-toolkit/src/models/data/structure';
-import { Conversation } from '@epam/ai-dial-shared';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
-import { TimeRangeOptions } from '@statgpt/shared-toolkit/src/models/time-range';
-import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
-import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
-import { SeriesFilterDto } from '@statgpt/sdmx-toolkit/src/models/series-filter';
-import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
+  StructureItemBase,
+} from '@epam/statgpt-sdmx-toolkit';
+import {
+  DataQuery,
+  TimeRange,
+  TimeRangeOptions,
+} from '@epam/statgpt-shared-toolkit';
+import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { PutOnboardingFile, UpdateConversation } from '../types/actions';
 import { ConversationViewTitles } from './titles';
 
 export interface Filter {

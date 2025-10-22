@@ -1,4 +1,4 @@
-import { Message as MessageType } from '@statgpt/dial-toolkit/src/models/message';
+import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import classNames from 'classnames';
 import { FC } from 'react';
 import { MessageActionIcons } from '../../../models/message';

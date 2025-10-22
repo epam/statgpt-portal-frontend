@@ -3,7 +3,7 @@
 import { CustomGridAttachment } from '../../../models/attachments';
 import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
+import { Loader } from '@epam/statgpt-ui-components';
 import type { ColDef } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { GridData } from '../../../types/data-grid/grid-data';
@@ -24,7 +24,7 @@ import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-elem
 import { Tooltip } from '../../Tooltip/Tooltip';
 import { OnboardingElements } from '../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../context/OnboardingContext';
-import { OnboardingFileSchema } from '@statgpt/shared-toolkit/src/models/onboarding-schema';
+import { OnboardingFileSchema } from '@epam/statgpt-shared-toolkit';
 
 interface Props {
   attachment: CustomGridAttachment;
