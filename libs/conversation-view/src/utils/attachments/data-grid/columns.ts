@@ -1,9 +1,6 @@
 import {
   DataConstraints,
   DataMessage,
-  defaultFormatNumbers,
-  formatNumberBySign,
-  FormatNumbersType,
   getAdditionalColumns,
   getDimensions,
   getLocalizedName,
@@ -11,7 +8,12 @@ import {
   sortPeriods,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
-import { TimeRange } from '@epam/statgpt-shared-toolkit';
+import {
+  defaultFormatNumbers,
+  formatNumberBySign,
+  FormatNumbersType,
+  TimeRange,
+} from '@epam/statgpt-shared-toolkit';
 import {
   ColDef,
   ITooltipParams,

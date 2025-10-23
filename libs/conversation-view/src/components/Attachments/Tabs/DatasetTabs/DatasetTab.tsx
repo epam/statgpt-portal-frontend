@@ -2,7 +2,7 @@
 
 import { FC } from 'react';
 import classNames from 'classnames';
-import { generateShortUrn } from '@statgpt/sdmx-toolkit/src/utils/urn';
+import { generateShortUrn } from '@epam/statgpt-sdmx-toolkit';
 
 interface Props {
   id: string;

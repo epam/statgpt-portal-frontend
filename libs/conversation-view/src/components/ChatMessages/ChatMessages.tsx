@@ -13,8 +13,7 @@ import { useDebounce } from '@epam/statgpt-ui-components';
 import { FC, ReactNode, useEffect, useRef, useState } from 'react';
 
 import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
-import { FormatNumbersType } from '@epam/statgpt-sdmx-toolkit';
-import { DataQuery } from '@epam/statgpt-shared-toolkit';
+import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import classNames from 'classnames';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 import { AttachmentsActions } from '../../models/actions';

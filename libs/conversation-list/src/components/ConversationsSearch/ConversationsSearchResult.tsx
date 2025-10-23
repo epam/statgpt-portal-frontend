@@ -10,7 +10,7 @@ import {
   ConversationStyles,
 } from '../../models/conversation-list';
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
-import { getClearedConversationName } from '@statgpt/shared-toolkit/src/utils/conversation-name';
+import { getClearedConversationName } from '@epam/statgpt-shared-toolkit';
 import { sortConversationsByUpdatedAt } from '../../utils/conversations-grouping';
 
 interface Props {
