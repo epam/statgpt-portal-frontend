@@ -1,14 +1,14 @@
-import { Data } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
-import { AttributeIndexValue } from '@statgpt/sdmx-toolkit/src/types/attribute-index-value';
 import {
+  AttributeIndexValue,
+  Codelist,
+  Data,
+  DataStructure,
   DimensionValue,
+  ElementBase,
+  getLocalizedName,
   StructureAttribute,
-} from '@statgpt/sdmx-toolkit/src/models/data/structure';
-import { DataStructure } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { Codelist } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/codelist';
-import { ElementBase } from '@statgpt/sdmx-toolkit/src/models/structural-metadata-base';
-import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
-import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
+} from '@epam/statgpt-sdmx-toolkit';
+import { Locale } from '@epam/statgpt-shared-toolkit';
 import { StructureComponentValue } from '../../models/structure-component';
 
 const getDimensionsSeriesById = (

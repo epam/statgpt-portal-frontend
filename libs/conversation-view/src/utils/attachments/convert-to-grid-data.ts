@@ -3,7 +3,7 @@ import {
   GridAttachmentContent,
   RowData,
   SchemaField,
-} from '@statgpt/dial-toolkit/src/models/grid-attachment';
+} from '@epam/statgpt-dial-toolkit';
 import {
   DEFAULT_GRID_COLUMN_WITH,
   GRID_COLUMN_FLEX,

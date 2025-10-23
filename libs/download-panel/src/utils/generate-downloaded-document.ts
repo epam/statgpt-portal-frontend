@@ -1,4 +1,4 @@
-import { SdmxDataFormat } from '@statgpt/sdmx-toolkit/src/types/files';
+import { SdmxDataFormat } from '@epam/statgpt-sdmx-toolkit';
 
 export const generateDownloadedFile = (
   fileContent = '',

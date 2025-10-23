@@ -9,7 +9,7 @@ import {
   useContext,
   useState,
 } from 'react';
-import { OnboardingFileSchema } from '@statgpt/shared-toolkit/src/models/onboarding-schema';
+import { OnboardingFileSchema } from '@epam/statgpt-shared-toolkit';
 
 interface OnboardingContextType {
   onboardingFileName: string;

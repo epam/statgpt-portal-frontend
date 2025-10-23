@@ -4,7 +4,7 @@ import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';
 import { Stage } from '@epam/ai-dial-shared';
 import { IconPointFilled } from '@tabler/icons-react';
-import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
+import { Loader } from '@epam/statgpt-ui-components';
 
 interface Props {
   stage: Stage;

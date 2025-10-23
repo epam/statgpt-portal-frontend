@@ -2,13 +2,13 @@
 
 import DatasetIcon from '../../assets/icons/dataset.svg';
 import Explore from '../../assets/icons/explore.svg';
-import { Button } from '@statgpt/ui-components/src/components/Button/Button';
-
-import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
+import { Button } from '@epam/statgpt-ui-components';
+import { Dataflow } from '@epam/statgpt-sdmx-toolkit';
 import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
 import classNames from 'classnames';
 import { FC, useState } from 'react';
 import { ConversationViewTitles } from '../../models/titles';
+
 interface Props {
   datasets?: Dataflow[];
   locale: string;

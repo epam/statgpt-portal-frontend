@@ -1,8 +1,8 @@
-import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
 import {
+  DatasetQueryFilters,
   FileColumnsAttribute,
   SdmxDataFormat,
-} from '@statgpt/sdmx-toolkit/src/types/files';
+} from '@epam/statgpt-sdmx-toolkit';
 
 export type DownloadDatasetAction = (
   urn: string,

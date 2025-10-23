@@ -4,7 +4,7 @@ import { FC, ReactNode, useEffect, useState } from 'react';
 import { FilterTreeNodeProps } from '../../../../../models/filters';
 import ChevronSolidDownIcon from '../../../../../assets/icons/chevron-solid-down.svg';
 import ChevronSolidRightIcon from '../../../../../assets/icons/chevron-solid-right.svg';
-import { Checkbox } from '@statgpt/ui-components/src/components/Checkbox/Checkbox';
+import { Checkbox } from '@epam/statgpt-ui-components';
 import {
   getFilterNodesBySelection,
   getFilterTreeNodePadding,

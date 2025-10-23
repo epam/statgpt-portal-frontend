@@ -1,24 +1,28 @@
 'use client';
 
-import { FC, useCallback, useEffect, useState } from 'react';
+import {
+  DataConstraints,
+  getFilteredItemsWithParents,
+} from '@epam/statgpt-sdmx-toolkit';
+import {
+  CalendarResolution,
+  TimeRange,
+  TimeRangeOptions,
+} from '@epam/statgpt-shared-toolkit';
+import { InputWithIcon } from '@epam/statgpt-ui-components';
 import { IconSearch } from '@tabler/icons-react';
-import { InputWithIcon } from '@statgpt/ui-components/src/components/Input/InputWithIcon';
+import classNames from 'classnames';
+import { FC, useCallback, useEffect, useState } from 'react';
+import { FilterDisplayMode } from '../../../../../constants/filter-display-mode';
 import {
   Filter,
   FilterTreeNodeProps,
   FilterValue,
   FilterValuesProps,
 } from '../../../../../models/filters';
-import { TimeRangeOptions } from '@statgpt/shared-toolkit/src/models/time-range';
-import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
-import TimePeriodFacet from './TimePeriodFacet';
-import { CalendarResolution } from '@statgpt/shared-toolkit/src/types/calendar';
-import FilterValues from './FilterValues';
-import { FilterDisplayMode } from '../../../../../constants/filter-display-mode';
-import { getFilteredItemsWithParents } from '@statgpt/sdmx-toolkit/src/utils/get-filtered-items';
-import classNames from 'classnames';
 import { ConversationViewTitles } from '../../../../../models/titles';
-import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
+import FilterValues from './FilterValues';
+import TimePeriodFacet from './TimePeriodFacet';
 
 interface Props {
   selectedFilter?: Filter;

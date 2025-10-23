@@ -1,27 +1,27 @@
-import { getDimensionTitle } from '@statgpt/sdmx-toolkit/src/utils/get-dimension-title';
-import { getAvailableCodes } from '@statgpt/sdmx-toolkit/src/utils/get-available-codes';
 import {
+  DataConstraints,
   Dimension,
   DimensionType,
-} from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { Filter, FilterTreeNodeProps, FilterValue } from '../models/filters';
-import { StructureItemBase } from '@statgpt/sdmx-toolkit/src/models/data/structure';
+  findCodelistByDimension,
+  getAnnotationPeriod,
+  getAvailableCodes,
+  getDimensionTitle,
+  StructuralData,
+  StructureItemBase,
+} from '@epam/statgpt-sdmx-toolkit';
 import {
   DataQuery,
+  getTimePeriod,
   QueryFilter,
-} from '@statgpt/shared-toolkit/src/models/data-query';
+} from '@epam/statgpt-shared-toolkit';
 import {
   TREE_NODE_ARROW_SIZE,
   TREE_NODE_PADDING,
-} from '@statgpt/ui-components/src/constants/tree-view';
+} from '@epam/statgpt-ui-components';
 import { FilterDisplayMode } from '../constants/filter-display-mode';
-import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
-import { getAnnotationPeriod } from '@statgpt/sdmx-toolkit/src/utils/constraint';
-import { getMergedTimeRange } from './attachments/time-period';
-import { findCodelistByDimension } from '@statgpt/sdmx-toolkit/src/utils/find-codelist-by-dimension';
-import { getTimePeriod } from '@statgpt/shared-toolkit/src/utils/get-time-period';
+import { Filter, FilterTreeNodeProps, FilterValue } from '../models/filters';
 import { ConversationViewTitles } from '../models/titles';
+import { getMergedTimeRange } from './attachments/time-period';
 
 export const getDatasetFilters = (
   dimensions?: Dimension[],

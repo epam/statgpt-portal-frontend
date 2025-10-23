@@ -2,6 +2,20 @@ import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { ConversationInfo } from '@epam/ai-dial-shared';
+import {
+  getSharedConversationsRequest,
+  SharedConversationInfo,
+  ShareTarget,
+} from '@epam/statgpt-dial-toolkit';
+import {
+  Button,
+  InputWithIcon,
+  Loader,
+  Popup,
+  PopUpSize,
+} from '@epam/statgpt-ui-components';
+import { SHARE_CONVERSATION_ROUTE } from '../../constants/share-conversation';
 import { ShareConversationProps } from '../../models/share-conversation';
 import {
   getConversationData,
@@ -9,16 +23,6 @@ import {
   getConversationResources,
   getSharedConversation,
 } from '../../utils/shared-conversations';
-import { Button } from '@statgpt/ui-components/src/components/Button/Button';
-import { InputWithIcon } from '@statgpt/ui-components/src/components/Input/InputWithIcon';
-import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
-import { Popup } from '@statgpt/ui-components/src/components/Popup/Popup';
-import { PopUpSize } from '@statgpt/ui-components/src/types/pop-up';
-import { ConversationInfo } from '@epam/ai-dial-shared';
-import { SharedConversationInfo } from '@statgpt/dial-toolkit/src';
-import { ShareTarget } from '@statgpt/dial-toolkit/src/constants/share-conversation';
-import { getSharedConversationsRequest } from '@statgpt/dial-toolkit/src/utils/shared-conversations-request';
-import { SHARE_CONVERSATION_ROUTE } from '../../constants/share-conversation';
 
 interface Props extends ShareConversationProps {
   conversation?: ConversationInfo | null;

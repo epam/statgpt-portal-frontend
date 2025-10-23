@@ -1,29 +1,30 @@
-import { FC, ReactNode, useCallback, useState } from 'react';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
-import { PopUpSize } from '@statgpt/ui-components/src/types/pop-up';
-import { Button } from '@statgpt/ui-components/src/components/Button/Button';
-import { Popup } from '@statgpt/ui-components/src/components/Popup/Popup';
-import ToggleActiveIcon from '../../assets/icons/toggle-active.svg';
-import ToggleInactiveIcon from '../../assets/icons/toggle-inactive.svg';
-import { CollapsibleBlock } from '@statgpt/ui-components/src/components/CollapsibleBlock/CollapsibleBlock';
 import {
+  DatasetQueryFilters,
+  Dimension,
+  DownloadType,
   FileColumnsAttribute,
   SdmxDataFormat,
-} from '@statgpt/sdmx-toolkit/src/types/files';
-import { DownloadActions } from '../../models/actions';
-import { DownloadSettingItem } from '../../models/download-settings-item';
+} from '@epam/statgpt-sdmx-toolkit';
+import { DataQuery, Locale } from '@epam/statgpt-shared-toolkit';
+import {
+  AlertDetails,
+  Button,
+  CollapsibleBlock,
+  Popup,
+  PopUpSize,
+} from '@epam/statgpt-ui-components';
+import { FC, ReactNode, useCallback, useState } from 'react';
+import ToggleActiveIcon from '../../assets/icons/toggle-active.svg';
+import ToggleInactiveIcon from '../../assets/icons/toggle-inactive.svg';
 import {
   DOWNLOAD_ATTRIBUTES,
   DOWNLOAD_DATA_FORMATS,
 } from '../../constants/download-options';
-import { DownloadType } from '@statgpt/sdmx-toolkit/src/types/files';
-import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
-import DownloadOptionBlock from '../DownloadOptionBlock/DownloadOptionBlock';
-import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
-import { getDownloadFilters } from '../../utils/get-filter';
-import { AlertDetails } from '@statgpt/ui-components/src/models/alert';
+import { DownloadActions } from '../../models/actions';
+import { DownloadSettingItem } from '../../models/download-settings-item';
 import { DownloadTitles } from '../../models/titles';
+import { getDownloadFilters } from '../../utils/get-filter';
+import DownloadOptionBlock from '../DownloadOptionBlock/DownloadOptionBlock';
 
 interface Props {
   actions: DownloadActions;

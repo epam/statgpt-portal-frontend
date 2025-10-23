@@ -3,8 +3,7 @@
 import { Attachment } from '@epam/ai-dial-shared';
 import { FC } from 'react';
 import { sanitizeUrl } from '../../../utils/attachments/attachment-utils';
-import { Button } from '@statgpt/ui-components/src/components/Button/Button';
-import { Link } from '@statgpt/ui-components/src/components/Link/Link';
+import { Button, Link } from '@epam/statgpt-ui-components';
 import LinkIcon from '../../../assets/icons/link.svg';
 
 interface Props {

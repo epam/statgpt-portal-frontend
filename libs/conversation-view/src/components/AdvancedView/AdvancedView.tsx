@@ -10,8 +10,8 @@ import { ShareConversationProps } from '@statgpt/share-conversation/src/models/s
 import { MetadataSettings } from '../../models/metadata';
 import { FC, useCallback, useState } from 'react';
 import { AttachmentsActions } from '../../models/actions';
-import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
-import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
+import { FormatNumbersType } from '@epam/statgpt-shared-toolkit';
+import { Loader } from '@epam/statgpt-ui-components';
 import { useAttachmentsData } from '../../context/AttachmentsData';
 import { AdvanceViewStyles } from '../../models/advance-view-styles';
 import classNames from 'classnames';

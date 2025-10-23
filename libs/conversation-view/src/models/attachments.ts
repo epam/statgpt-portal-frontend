@@ -1,13 +1,10 @@
 import { Attachment } from '@epam/ai-dial-shared';
 import { AttachmentsStyles } from './attachments-styles';
 import { GridData } from '../types/data-grid/grid-data';
-import {
-  DataQuery,
-  QueryFilterDetails,
-} from '@statgpt/shared-toolkit/src/models/data-query';
+import { DataQuery, QueryFilterDetails } from '@epam/statgpt-shared-toolkit';
 import { ColDef } from 'ag-grid-community';
 import { ChartingData } from './charting';
-import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
+import { Dataflow } from '@epam/statgpt-sdmx-toolkit';
 
 export interface CustomGridAttachment extends Attachment {
   grid_data?: { data: GridData[]; columns: ColDef[] };

@@ -1,26 +1,25 @@
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { DataMessage } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
-import { ObsColGetter } from '../../../types/data-grid/obs-col-getter';
+import {
+  DataConstraints,
+  DataMessage,
+  getAdditionalColumns,
+  getDimensions,
+  getLocalizedName,
+  getTimePeriods,
+  sortPeriods,
+  StructuralData,
+} from '@epam/statgpt-sdmx-toolkit';
+import {
+  defaultFormatNumbers,
+  formatNumberBySign,
+  FormatNumbersType,
+  TimeRange,
+} from '@epam/statgpt-shared-toolkit';
 import {
   ColDef,
   ITooltipParams,
   ValueFormatterParams,
   ValueGetterParams,
 } from 'ag-grid-community';
-import {
-  getDimensions,
-  getTimePeriods,
-} from '@statgpt/sdmx-toolkit/src/utils/get-dimensions';
-import { getAdditionalColumns } from '@statgpt/sdmx-toolkit/src/utils/get-periods';
-import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
-import { formatNumberBySign } from '@statgpt/shared-toolkit/src/utils/format-numbers';
-import { FormatNumbersType } from '@statgpt/shared-toolkit/src/models/format-numbers-type';
-import { defaultFormatNumbers } from '@statgpt/shared-toolkit/src/constants/format-numbers-default';
-import {
-  getDimRelatedStructures,
-  getDimValueLocalizedName,
-} from '../localized-value';
-import { sortPeriods } from '@statgpt/sdmx-toolkit/src/parsers/time-period-parser/period-sorting';
 import {
   CELL_PADDING_0,
   DEFAULT_GRID_COLUMN_WITH,
@@ -30,11 +29,14 @@ import {
   OBSERVATION_VALUE_CELL_RENDER,
 } from '../../../constants/grid';
 import { MetadataSettings } from '../../../models/metadata';
-import { localizeTimePeriod } from '../time-period';
 import { ConversationViewTitles } from '../../../models/titles';
-import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
-import { TimeRange } from '@statgpt/shared-toolkit/src';
 import { PutOnboardingFile } from '../../../types/actions';
+import { ObsColGetter } from '../../../types/data-grid/obs-col-getter';
+import {
+  getDimRelatedStructures,
+  getDimValueLocalizedName,
+} from '../localized-value';
+import { localizeTimePeriod } from '../time-period';
 
 export function getColumns(
   structures: StructuralData,

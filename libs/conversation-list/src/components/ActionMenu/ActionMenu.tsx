@@ -1,22 +1,24 @@
 /* eslint-disable @nx/enforce-module-boundaries */
 'use client';
 
+import { Conversation, ConversationInfo } from '@epam/ai-dial-shared';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { FC, ReactNode, useCallback, useMemo, useState } from 'react';
-import { ConversationInfo, Conversation } from '@epam/ai-dial-shared';
 
-import ConversationDelete from '../ConversationDelete/ConversationDelete';
-import { getZippedFile } from '../../utils/compress-zip';
-import { triggerDownload } from '../../utils/download';
+import {
+  Dropdown,
+  DropdownItem,
+  PopUpState,
+} from '@epam/statgpt-ui-components';
 import ShareConversationModal from '@statgpt/share-conversation/src/components/ShareConversation/ShareConversationModal';
+import { ONBOARDING_MODEL_POSTFIX } from '@statgpt/share-conversation/src/constants/share-conversation';
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { ConversationStyles } from '../../models/conversation-list';
-import { Dropdown } from '@statgpt/ui-components/src/components/Dropdown/Dropdown';
-import { DropdownItem } from '@statgpt/ui-components/src/models/dropdown-item';
-import { PopUpState } from '@statgpt/ui-components/src/types/pop-up';
 import { ActionMenuItem } from '../../types/action-menu-item';
+import { getZippedFile } from '../../utils/compress-zip';
+import { triggerDownload } from '../../utils/download';
+import ConversationDelete from '../ConversationDelete/ConversationDelete';
 import ConversationRename from '../ConversationRename/ConversationRename';
-import { ONBOARDING_MODEL_POSTFIX } from '@statgpt/share-conversation/src/constants/share-conversation';
 
 interface Props {
   conversation: ConversationInfo;

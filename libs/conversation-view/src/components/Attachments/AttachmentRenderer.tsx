@@ -1,9 +1,35 @@
 /* eslint-disable @nx/enforce-module-boundaries */
 'use client';
 
-import FileAttachment from './BaseAttachments/FileAttachment';
-import MarkdownAttachment from './BaseAttachments/MarkdownAttachment';
-import UrlAttachment from './BaseAttachments/UrlAttachment';
+import { Attachment } from '@epam/ai-dial-shared';
+import {
+  Dataflow,
+  DatasetQueryFilters,
+  Dimension,
+  DownloadType as DownloadTypeOptions,
+} from '@epam/statgpt-sdmx-toolkit';
+import { DataQuery } from '@epam/statgpt-shared-toolkit';
+import {
+  Alert,
+  AlertDetails,
+  Loader,
+  PopUpState,
+} from '@epam/statgpt-ui-components';
+import DownloadSettings from '@statgpt/download-panel/src/components/DownloadSettings/DownloadSettings';
+import { DownloadType } from '@statgpt/download-panel/src/components/DownloadType/DownloadType';
+import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
+import classNames from 'classnames';
+import { FC, useCallback, useEffect, useState } from 'react';
+import { useAdvancedView } from '../../context/AdvancedViewContext';
+import { AttachmentsActions } from '../../models/actions';
+import {
+  AttachmentInfo,
+  CustomChartAttachmentType,
+  CustomGridAttachment,
+} from '../../models/attachments';
+import { AttachmentsStyles } from '../../models/attachments-styles';
+import { MessageStyles } from '../../models/message';
+import { ConversationViewTitles } from '../../models/titles';
 import {
   isCustomChartAttachment,
   isCustomGridAttachment,
@@ -12,37 +38,15 @@ import {
   isMarkdownAttachment,
   isUrlAttachment,
 } from '../../utils/attachments/attachment-parser';
-import { Attachment } from '@epam/ai-dial-shared';
-import {
-  AttachmentInfo,
-  CustomChartAttachmentType,
-  CustomGridAttachment,
-} from '../../models/attachments';
-import { FC, useCallback, useEffect, useState } from 'react';
-import classNames from 'classnames';
-import AttachmentTabs from './Tabs/AttachmentTabs/AttachmentTabs';
-import AttachmentDetails from './AttachmentDetails/AttachmentDetails';
-import GridAttachment from './BaseAttachments/GridAttachment';
-import { useAdvancedView } from '../../context/AdvancedViewContext';
 import AttachmentCollapsed from './AttachmentCollapsed';
-import { MessageStyles } from '../../models/message';
-import { AttachmentsActions } from '../../models/actions';
-import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
-import CustomDataGridAttachment from './CustomAttachments/CustomGridAttachment';
-import { AttachmentsStyles } from '../../models/attachments-styles';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
+import AttachmentDetails from './AttachmentDetails/AttachmentDetails';
+import FileAttachment from './BaseAttachments/FileAttachment';
+import GridAttachment from './BaseAttachments/GridAttachment';
+import MarkdownAttachment from './BaseAttachments/MarkdownAttachment';
+import UrlAttachment from './BaseAttachments/UrlAttachment';
 import CustomChartAttachment from './CustomAttachments/CustomChartAttachment';
-import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { PopUpState } from '@statgpt/ui-components/src/types/pop-up';
-import { DownloadType as DownloadTypeOptions } from '@statgpt/sdmx-toolkit/src/types/files';
-import { DownloadType } from '@statgpt/download-panel/src/components/DownloadType/DownloadType';
-import DownloadSettings from '@statgpt/download-panel/src/components/DownloadSettings/DownloadSettings';
-import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
-import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
-import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
-import { Alert } from '@statgpt/ui-components/src/components/Alert/Alert';
-import { AlertDetails } from '@statgpt/ui-components/src/models/alert';
-import { ConversationViewTitles } from '../../models/titles';
+import CustomDataGridAttachment from './CustomAttachments/CustomGridAttachment';
+import AttachmentTabs from './Tabs/AttachmentTabs/AttachmentTabs';
 import DatasetTabs from './Tabs/DatasetTabs/DatasetTabs';
 
 ModuleRegistry.registerModules([AllCommunityModule]);

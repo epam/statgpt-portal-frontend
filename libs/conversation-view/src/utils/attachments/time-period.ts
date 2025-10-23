@@ -1,17 +1,19 @@
-import { CalendarResolution } from '@statgpt/shared-toolkit/src/types/calendar';
-import FlatpickrLanguages from 'flatpickr/dist/l10n';
-import monthSelectPlugin from 'flatpickr/dist/plugins/monthSelect';
-import { OptionsType } from 'react-flatpickr';
-import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
 import {
   isMonthly,
   isQuarterly,
-} from '@statgpt/sdmx-toolkit/src/parsers/time-period-parser/define-period';
+  SeriesFilterDto,
+  SeriesFilterOperator,
+  TIME_PERIOD,
+} from '@epam/statgpt-sdmx-toolkit';
+import {
+  CalendarResolution,
+  DataQuery,
+  TimeRange,
+} from '@epam/statgpt-shared-toolkit';
+import FlatpickrLanguages from 'flatpickr/dist/l10n';
+import monthSelectPlugin from 'flatpickr/dist/plugins/monthSelect';
+import { OptionsType } from 'react-flatpickr';
 import { ConversationViewTitles } from '../../models/titles';
-import { SeriesFilterDto } from '@statgpt/sdmx-toolkit/src/models';
-import { DataQuery } from '@statgpt/shared-toolkit/src';
-import { TIME_PERIOD } from '@statgpt/sdmx-toolkit/src/utils/constraint';
-import { SeriesFilterOperator } from '@statgpt/sdmx-toolkit/src/types/logical-operator-type';
 
 export const getPickerOptions = (
   minDate: Date,

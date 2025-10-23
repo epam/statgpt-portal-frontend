@@ -1,35 +1,34 @@
-import { DataMessage } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
 import {
+  DataMessage,
+  Dimension,
   getDimensions,
+  getLocalizedName,
   getTimePeriods,
-} from '@statgpt/sdmx-toolkit/src/utils/get-dimensions';
-import { getRowsData } from '../data-grid/rows-data';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
+  sortPeriods,
+  StructuralData,
+  isMonthly,
+  isQuarterly,
+  isYearly,
+  FREQUENCY_DIMENSION_ID,
+  Periods,
+} from '@epam/statgpt-sdmx-toolkit';
+import { DataQuery } from '@epam/statgpt-shared-toolkit';
+
 import { ChartingStyles } from '../../../models/attachments-styles';
-import { GridData } from '../../../types/data-grid/grid-data';
-import { buildChartConfig } from './chart-config-building';
 import {
   ChartingData,
   ChartUnit,
   ChartUnitRows,
   DimensionInfo,
 } from '../../../models/charting';
+import { GridData } from '../../../types/data-grid/grid-data';
+import { getRowsData } from '../data-grid/rows-data';
+import { getDimRelatedStructures } from '../localized-value';
+import { buildChartConfig } from './chart-config-building';
+import { getDimensionsUniquenessByValues } from './data-uniqueness';
 import { buildSerieKeyTitle } from './serie-title';
 import { buildSortedNonRegionDimensionsList } from './sort-dimensions';
 import { splitForUnits } from './split-for-units';
-import { getDimensionsUniquenessByValues } from './data-uniqueness';
-import { sortPeriods } from '@statgpt/sdmx-toolkit/src/parsers/time-period-parser/period-sorting';
-import { getDimRelatedStructures } from '../localized-value';
-import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
-import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { FREQUENCY_DIMENSION_ID } from '@statgpt/sdmx-toolkit/src/constants/frequency-dimension';
-import { Periods } from '@statgpt/sdmx-toolkit/src/types/periods';
-import {
-  isMonthly,
-  isQuarterly,
-  isYearly,
-} from '@statgpt/sdmx-toolkit/src/parsers/time-period-parser/define-period';
 
 const LINE_TYPE = 'line';
 const MAX_LINES_PER_UNIT = 10;

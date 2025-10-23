@@ -1,7 +1,6 @@
-import { FC } from 'react';
-import { Radio } from '@statgpt/ui-components/src/components/Radio/Radio';
+import { CollapsibleBlock, Radio } from '@epam/statgpt-ui-components';
 import { IconCircleFilled } from '@tabler/icons-react';
-import { CollapsibleBlock } from '@statgpt/ui-components/src/components/CollapsibleBlock/CollapsibleBlock';
+import { FC } from 'react';
 import { DownloadSettingItem } from '../../models/download-settings-item';
 
 interface Props {

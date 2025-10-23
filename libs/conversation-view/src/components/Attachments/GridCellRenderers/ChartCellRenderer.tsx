@@ -1,17 +1,16 @@
-import SingleLineChart from '../SingleLineChart';
-import { MetadataSettings } from '../../../models/metadata';
-import { Data } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
-import ChartIcon from '../../../assets/icons/chart.svg';
-import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
+import { Data, StructuralData } from '@epam/statgpt-sdmx-toolkit';
+import { Locale } from '@epam/statgpt-shared-toolkit';
+import { IconButton } from '@epam/statgpt-ui-components';
 import { ICellRendererParams } from 'ag-grid-community';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ConversationViewTitles } from '../../../models/titles';
-import { Tooltip } from '../../Tooltip/Tooltip';
-import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
+import ChartIcon from '../../../assets/icons/chart.svg';
 import { OnboardingElements } from '../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../context/OnboardingContext';
+import { MetadataSettings } from '../../../models/metadata';
+import { ConversationViewTitles } from '../../../models/titles';
+import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
+import { Tooltip } from '../../Tooltip/Tooltip';
+import SingleLineChart from '../SingleLineChart';
 
 interface ChartCellRendererParams extends ICellRendererParams {
   attributesData: Data;

@@ -1,11 +1,13 @@
 'use client';
 
-import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
-import { InputWithIcon } from '@statgpt/ui-components/src/components/Input/InputWithIcon';
-import { KeyboardKey } from '@statgpt/ui-components/src/types/keyboard';
+import {
+  IconButton,
+  InputWithIcon,
+  KeyboardKey,
+} from '@epam/statgpt-ui-components';
 import { IconPlayerStopFilled } from '@tabler/icons-react';
-import { FC, KeyboardEvent, ReactNode, useCallback, useState } from 'react';
 import classNames from 'classnames';
+import { FC, KeyboardEvent, ReactNode, useCallback, useState } from 'react';
 
 interface Props {
   containerClasses?: string;

@@ -2,7 +2,7 @@
 
 import { CustomChartAttachmentType } from '../../../models/attachments';
 import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
+import { Loader } from '@epam/statgpt-ui-components';
 import { ChartUnit } from '../../../models/charting';
 import { ChartingIcon } from '../../../types/charting-icon';
 import ChartSidebar from './ChartSidebar';

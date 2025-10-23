@@ -1,6 +1,6 @@
 import { UserInfo } from '../../models/user-info';
 import { FC, useMemo } from 'react';
-import { Dropdown } from '@statgpt/ui-components/src/components/Dropdown/Dropdown';
+import { Dropdown } from '@epam/statgpt-ui-components';
 import SignOutIcon from '../../assets/icons/sign-out.svg';
 
 interface Props {

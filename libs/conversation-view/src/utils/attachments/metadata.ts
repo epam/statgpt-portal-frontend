@@ -1,17 +1,19 @@
-import { ICellRendererParams, ColDef } from 'ag-grid-community';
-import { ElementBase } from '@statgpt/sdmx-toolkit/src/models/structural-metadata-base';
-import { Codelist } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/codelist';
-import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
+import {
+  Codelist,
+  Data,
+  Dataflow,
+  ElementBase,
+  getDimensions,
+  getDimensionTitle,
+  getLocalizedName,
+  StructuralData,
+  StructureAttribute,
+  TimeSeries,
+} from '@epam/statgpt-sdmx-toolkit';
+import { ColDef, ICellRendererParams } from 'ag-grid-community';
 import { StructureComponentValue } from '../../models/structure-component';
-import { getDimensionTitle } from '@statgpt/sdmx-toolkit/src/utils/get-dimension-title';
-import { getDimensions } from '@statgpt/sdmx-toolkit/src/utils/get-dimensions';
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { GridData } from '../../types/data-grid/grid-data';
-import { TimeSeries } from '@statgpt/sdmx-toolkit/src/models/data/time-series';
-import { Data } from '@statgpt/sdmx-toolkit/src/models/data/data-message';
-import { StructureAttribute } from '@statgpt/sdmx-toolkit/src/models/data/structure';
-import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
 import { ConversationViewTitles } from '../../models/titles';
+import { GridData } from '../../types/data-grid/grid-data';
 
 export const getObsAttributesFromParams = (params: ICellRendererParams) =>
   params?.data[params?.colDef?.field || 0]?.obsAttributes;

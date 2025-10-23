@@ -1,7 +1,7 @@
 import {
   FileColumnsAttribute,
   SdmxDataFormat,
-} from '@statgpt/sdmx-toolkit/src/types/files';
+} from '@epam/statgpt-sdmx-toolkit';
 import { DownloadSettingItem } from '../models/download-settings-item';
 import { DownloadTitles } from '../models/titles';
 

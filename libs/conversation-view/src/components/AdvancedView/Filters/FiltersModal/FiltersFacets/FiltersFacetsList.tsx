@@ -1,17 +1,16 @@
 'use client';
 
+import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
+import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
+import classNames from 'classnames';
 import { FC } from 'react';
 import {
   Filter,
   FilterTreeNodeProps,
   FilterValuesProps,
 } from '../../../../../models/filters';
-import FiltersFacetItem from './FiltersFacetItem';
-import classNames from 'classnames';
-import { TimeRangeOptions } from '@statgpt/shared-toolkit/src/models/time-range';
-import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
 import { ConversationViewTitles } from '../../../../../models/titles';
-import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
+import FiltersFacetItem from './FiltersFacetItem';
 
 interface Props {
   filtersList: Filter[];

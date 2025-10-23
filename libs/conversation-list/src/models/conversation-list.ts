@@ -5,7 +5,7 @@ import { ConversationListTitles } from './titles';
 import {
   SharedConversationsRequest,
   SharedConversations,
-} from '@statgpt/dial-toolkit/src/models/conversation';
+} from '@epam/statgpt-dial-toolkit';
 
 export interface ConversationListActions {
   deleteConversation: (conversation: ConversationInfo) => Promise<void>;

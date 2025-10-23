@@ -31,8 +31,10 @@ import {
 import { ModelInfo } from '../models/model';
 import { GridAttachmentContent } from '../models/grid-attachment';
 import { CustomFields } from '../models/chat-stream';
-import { getMultipartHeaders } from '@statgpt/shared-toolkit/src/utils/headers';
-import { OnboardingFileSchema } from '@statgpt/shared-toolkit/src/models/onboarding-schema';
+import {
+  getMultipartHeaders,
+  OnboardingFileSchema,
+} from '@epam/statgpt-shared-toolkit';
 
 const CONVERSATION_URL = (id: string) =>
   `/v1/conversations/${encodeApiUrl(id)}`;

@@ -1,10 +1,12 @@
+import {
+  DataConstraints,
+  Dimension,
+  findCodelistByDimension,
+  getAvailableCodesFromConstrains,
+  StructuralData,
+} from '@epam/statgpt-sdmx-toolkit';
+import { Locale } from '@epam/statgpt-shared-toolkit';
 import { Filter } from '../models/filters';
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
-import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
-import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { findCodelistByDimension } from '@statgpt/sdmx-toolkit/src/utils/find-codelist-by-dimension';
-import { getAvailableCodesFromConstrains } from '@statgpt/sdmx-toolkit/src/utils/constraint';
 
 export const getFilledFilters = (
   filters?: Filter[],

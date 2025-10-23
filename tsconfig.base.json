@@ -29,14 +29,14 @@
       }
     ],
     "paths": {
-      "@statgpt/conversation-list/*": ["libs/conversation-list/*"],
-      "@statgpt/conversation-view/*": ["libs/conversation-view/*"],
-      "@statgpt/dial-toolkit/*": ["libs/dial-toolkit/*"],
-      "@statgpt/download-panel/*": ["libs/download-panel/*"],
-      "@statgpt/sdmx-toolkit/*": ["libs/sdmx-toolkit/*"],
-      "@statgpt/shared-toolkit/*": ["libs/shared-toolkit/*"],
+      "@epam/statgpt-conversation-list": ["libs/conversation-list/src/index"],
+      "@epam/statgpt-conversation-view": ["libs/conversation-view/src/index"],
+      "@epam/statgpt-dial-toolkit": ["libs/dial-toolkit/src/index"],
+      "@epam/statgpt-sdmx-toolkit": ["libs/sdmx-toolkit/src/index"],
+      "@epam/statgpt-shared-toolkit": ["libs/shared-toolkit/src/index"],
+      "@epam/statgpt-ui-components": ["libs/ui-components/src/index"],
       "@statgpt/share-conversation/*": ["libs/share-conversation/*"],
-      "@statgpt/ui-components/*": ["libs/ui-components/*"],
+      "@statgpt/download-panel/*": ["libs/download-panel/*"],
       "@statgpt/user-info/*": ["libs/user-info/*"]
     }
   },

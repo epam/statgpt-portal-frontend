@@ -1,4 +1,4 @@
-import { Message } from '@statgpt/dial-toolkit/src/models';
+import { Message } from '@epam/statgpt-dial-toolkit';
 import { isJsonAttachment } from './attachments/attachment-parser';
 import { Role } from '@epam/ai-dial-shared';
 

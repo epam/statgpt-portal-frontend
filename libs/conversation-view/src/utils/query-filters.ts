@@ -1,20 +1,18 @@
-import { Filter } from '../models/filters';
-import { getSelectedFilterValues } from './filters';
-import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
 import {
+  DatasetQueryFilters,
   Dimension,
   DimensionList,
-} from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import {
-  DataQuery,
-  QueryFilter,
-} from '@statgpt/shared-toolkit/src/models/data-query';
-import { QueryFilterType } from '@statgpt/shared-toolkit/src/types/query-filter-type';
-import {
   getQueryTimePeriodFilters,
   getTimeRangeFromAttachment,
   getTimeSeriesFilterKey,
-} from '@statgpt/sdmx-toolkit/src/utils/query-filters';
+} from '@epam/statgpt-sdmx-toolkit';
+import {
+  DataQuery,
+  QueryFilter,
+  QueryFilterType,
+} from '@epam/statgpt-shared-toolkit';
+import { Filter } from '../models/filters';
+import { getSelectedFilterValues } from './filters';
 
 export const getQueryTimeSeriesFilters = (filters: Filter[]): QueryFilter[] =>
   filters.map(

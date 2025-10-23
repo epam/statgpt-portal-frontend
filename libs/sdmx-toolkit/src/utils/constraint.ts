@@ -3,7 +3,7 @@ import {
   MemberSelectionValue,
 } from '../models/structural-metadata/constraints';
 import { Annotation } from '../models/structural-metadata-base';
-import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
+import { TimeRange } from '@epam/statgpt-shared-toolkit';
 import { getLocalizedName } from './get-localized-name';
 import { Code, Codelist } from '../models/structural-metadata/codelist';
 import { getFilteredItemsWithParents } from './get-filtered-items';

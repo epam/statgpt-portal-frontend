@@ -1,17 +1,19 @@
 'use client';
 
-import Filters from './Filters/Filters';
-import AttachmentRenderer from '../Attachments/AttachmentRenderer';
-import { Filter, FiltersProps } from '../../models/filters';
+import { Attachment } from '@epam/ai-dial-shared';
+import {
+  DataConstraints,
+  DatasetQueryFilters,
+  Dimension,
+} from '@epam/statgpt-sdmx-toolkit';
+import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import { FC, useEffect, useState } from 'react';
 import { AdvancedViewActions } from '../../models/actions';
-import { Attachment } from '@epam/ai-dial-shared';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
 import { AttachmentsStyles } from '../../models/attachments-styles';
-import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
-import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
+import { Filter, FiltersProps } from '../../models/filters';
 import { ConversationViewTitles } from '../../models/titles';
-import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
+import AttachmentRenderer from '../Attachments/AttachmentRenderer';
+import Filters from './Filters/Filters';
 
 interface Props {
   filtersProps: FiltersProps;

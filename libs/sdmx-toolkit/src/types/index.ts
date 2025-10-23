@@ -7,3 +7,4 @@ export * from './logical-operator-type';
 export * from './references';
 export * from './representation-text-type';
 export * from './series';
+export * from './periods';

@@ -1,5 +1,4 @@
-import { Message } from '@statgpt/dial-toolkit/src/models/message';
-import { MessageStreamResponse } from '@statgpt/dial-toolkit/src/models/chat-stream';
+import { Message, MessageStreamResponse } from '@epam/statgpt-dial-toolkit';
 
 export const extractPartialMessageData = (data: MessageStreamResponse) => {
   const partialMessage: Partial<Message> = {};

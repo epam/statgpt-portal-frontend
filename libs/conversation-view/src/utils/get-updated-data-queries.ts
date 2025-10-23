@@ -1,7 +1,4 @@
-import {
-  DataQuery,
-  QueryFilter,
-} from '@statgpt/shared-toolkit/src/models/data-query';
+import { DataQuery, QueryFilter } from '@epam/statgpt-shared-toolkit';
 
 export const getUpdatedDataQueries = (
   filters: QueryFilter[],

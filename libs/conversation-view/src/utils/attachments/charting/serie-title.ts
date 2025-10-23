@@ -1,10 +1,9 @@
+import { getDimensions, StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import { GridData } from '../../../types/data-grid/grid-data';
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
 import {
   getDimRelatedStructures,
   getDimValueLocalizedName,
 } from '../localized-value';
-import { getDimensions } from '@statgpt/sdmx-toolkit/src/utils/get-dimensions';
 
 export function buildSerieKeyTitle(
   serie: GridData,

@@ -1,6 +1,5 @@
 import { Attachment } from '@epam/ai-dial-shared';
-import { Message } from '@statgpt/dial-toolkit/src/models/message';
-import { AttachmentType } from '@statgpt/dial-toolkit/src/types/attachment-type';
+import { AttachmentType, Message } from '@epam/statgpt-dial-toolkit';
 
 export const parseMessageAttachments = (message: Message): Attachment[] => {
   const attachments: Attachment[] = [];

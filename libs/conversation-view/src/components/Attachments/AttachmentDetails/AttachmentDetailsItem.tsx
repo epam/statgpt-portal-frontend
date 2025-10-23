@@ -1,5 +1,5 @@
 import { FC, ReactNode } from 'react';
-import { QueryFilterDetails } from '@statgpt/shared-toolkit/src/models/data-query';
+import { QueryFilterDetails } from '@epam/statgpt-shared-toolkit';
 
 interface Props {
   setToTitle?: string;

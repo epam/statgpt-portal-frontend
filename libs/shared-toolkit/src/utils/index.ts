@@ -7,3 +7,5 @@ export * from './headers';
 export * from './parse-boolean';
 export * from './send-request';
 export * from './conversation-url';
+export * from './conversation-mapping';
+export * from './format-numbers';

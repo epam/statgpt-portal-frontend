@@ -1,8 +1,10 @@
-import { SeriesFilterOperator } from '@statgpt/sdmx-toolkit/src/types/logical-operator-type';
-import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
+import {
+  GET_v3_FILTER_AND,
+  SeriesFilterDto,
+  SeriesFilterOperator,
+} from '@epam/statgpt-sdmx-toolkit';
+import { TimeRange } from '@epam/statgpt-shared-toolkit';
 import { Filter } from '../models/filters';
-import { SeriesFilterDto } from '@statgpt/sdmx-toolkit/src/models/series-filter';
-import { GET_v3_FILTER_AND } from '@statgpt/sdmx-toolkit/src/constants/filter-operators';
 
 export const getSeriesFilterDto = (filters: Filter[]): SeriesFilterDto[] => {
   let seriesFilters: SeriesFilterDto[] = [];

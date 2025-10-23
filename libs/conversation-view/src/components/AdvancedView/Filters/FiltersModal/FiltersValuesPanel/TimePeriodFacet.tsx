@@ -1,21 +1,24 @@
 'use client';
 
+import {
+  DataConstraints,
+  getAnnotationPeriod,
+} from '@epam/statgpt-sdmx-toolkit';
+import {
+  CalendarResolution,
+  CUSTOM_PERIOD,
+  Locale,
+  TimeRange,
+  TimeRangeOptions,
+} from '@epam/statgpt-shared-toolkit';
+import { Calendar, Radio } from '@epam/statgpt-ui-components';
 import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
-import { CalendarResolution } from '@statgpt/shared-toolkit/src/types/calendar';
-import { TimeRangeOptions } from '@statgpt/shared-toolkit/src/models/time-range';
-import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
+import { ConversationViewTitles } from '../../../../../models/titles';
 import {
   correctTimeZone,
   getPickerOptions,
   getRangedTimePeriod,
 } from '../../../../../utils/attachments/time-period';
-import { Calendar } from '@statgpt/ui-components/src/components/Calendar/Calendar';
-import { Radio } from '@statgpt/ui-components/src/components/Radio/Radio';
-import { CUSTOM_PERIOD } from '@statgpt/shared-toolkit/src/constants/calendar';
-import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
-import { ConversationViewTitles } from '../../../../../models/titles';
-import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
-import { getAnnotationPeriod } from '@statgpt/sdmx-toolkit/src/utils/constraint';
 
 interface Props {
   calendarResolution: CalendarResolution;

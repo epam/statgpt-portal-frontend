@@ -1,11 +1,10 @@
 'use client';
 
-import { Button } from '@statgpt/ui-components/src/components/Button/Button';
+import { Button, useIsMobile } from '@epam/statgpt-ui-components';
+import classNames from 'classnames';
 import { FC } from 'react';
 import { FiltersModalProps } from '../../../../models/filters';
-import classNames from 'classnames';
 import { ConversationViewTitles } from '../../../../models/titles';
-import { useIsMobile } from '@statgpt/ui-components/src/hooks/isMobile';
 
 interface Props {
   modalProps?: FiltersModalProps;

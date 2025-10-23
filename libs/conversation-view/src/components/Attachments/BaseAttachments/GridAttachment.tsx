@@ -2,7 +2,7 @@
 
 import { Attachment } from '@epam/ai-dial-shared';
 import { FC, useEffect, useMemo, useState } from 'react';
-import { Loader } from '@statgpt/ui-components/src/components/Loader/Loader';
+import { Loader } from '@epam/statgpt-ui-components';
 import { convertToGridData } from '../../../utils/attachments/convert-to-grid-data';
 import type { ColDef } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';

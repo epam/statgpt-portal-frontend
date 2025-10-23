@@ -1,19 +1,21 @@
 'use client';
 
-import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Dataflow,
+  generateShortUrn,
+  getLocalizedName,
+} from '@epam/statgpt-sdmx-toolkit';
+import { Locale } from '@epam/statgpt-shared-toolkit';
+import { IconButton } from '@epam/statgpt-ui-components';
 import classNames from 'classnames';
-import { Dataflow } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/dataflow';
-import { getLocalizedName } from '@statgpt/sdmx-toolkit/src/utils/get-localized-name';
-import { generateShortUrn } from '@statgpt/sdmx-toolkit/src/utils/urn';
-import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
-import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
-import DatasetTab from './DatasetTab';
-import { useAdvancedView } from '../../../../context/AdvancedViewContext';
-import { Tooltip } from '../../../Tooltip/Tooltip';
-import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
-import { ConversationViewTitles } from '../../../../models/titles';
+import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { OnboardingElements } from '../../../../constants/onboarding-elements';
+import { useAdvancedView } from '../../../../context/AdvancedViewContext';
 import { useOnboarding } from '../../../../context/OnboardingContext';
+import { ConversationViewTitles } from '../../../../models/titles';
+import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
+import { Tooltip } from '../../../Tooltip/Tooltip';
+import DatasetTab from './DatasetTab';
 
 interface Props {
   datasets?: Dataflow[];

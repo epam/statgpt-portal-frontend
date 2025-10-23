@@ -1,6 +1,6 @@
 import { format, isValid } from 'date-fns';
 import { uk } from 'date-fns/locale';
-import { Locale } from '@statgpt/shared-toolkit/src/types/locale';
+import { Locale } from '@epam/statgpt-shared-toolkit';
 
 const getDateFormatByLocale = (locale: string): string => {
   return locale === Locale.UK ? 'dd MMM, yyyy' : ' MMM dd, yyyy hh:mm aa';

@@ -5,17 +5,16 @@
  * with support for multiple message formats (OpenAI delta, direct content),
  * error handling, and streaming lifecycle management.
  */
-import { Message } from '../models/message';
-import { API_ROUTES } from '@statgpt/shared-toolkit/src/constants/api-urls';
+import { API_ROUTES, getHeaders } from '@epam/statgpt-shared-toolkit';
 import {
   CustomFields,
   MessageStreamResponse,
   RequestStreamBody,
 } from '../models/chat-stream';
+import { Message } from '../models/message';
 import { ModelInfo } from '../models/model';
 import { handleStreamMessage } from '../utils/chat-stream-api';
 import { sendRequest } from '../utils/send-request';
-import { getHeaders } from '@statgpt/shared-toolkit/src/utils/headers';
 
 interface SSEOptions {
   signal?: AbortSignal;

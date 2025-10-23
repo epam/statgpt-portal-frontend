@@ -8,10 +8,10 @@ import {
   ConversationListActions,
   ConversationStyles,
 } from '../../models/conversation-list';
-import { HighlightText } from '@statgpt/ui-components/src/components/HighlightText/HighlightText';
+import { HighlightText } from '@epam/statgpt-ui-components';
 import { ActionMenu } from '../ActionMenu/ActionMenu';
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
-import { getClearedConversationName } from '@statgpt/shared-toolkit/src/utils/conversation-name';
+import { getClearedConversationName } from '@epam/statgpt-shared-toolkit';
 
 interface Props {
   conversation: ConversationInfo;

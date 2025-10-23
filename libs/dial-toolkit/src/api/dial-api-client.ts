@@ -6,16 +6,16 @@
  * streaming support, error handling, and header sanitization for security.
  */
 
-import { LogData } from '@statgpt/shared-toolkit/src/models/log-data';
-import { RequestOptions } from '@statgpt/shared-toolkit/src/models/request-options';
 import {
+  ApiHeaders,
   getHeaders,
+  LogData,
+  RequestOptions,
   sanitizeHeaders,
-} from '@statgpt/shared-toolkit/src/utils/headers';
-import { sendRequest } from '../utils/send-request';
-import { ApiHeaders } from '@statgpt/shared-toolkit/src/models/api';
+} from '@epam/statgpt-shared-toolkit';
 import { DialApiConfig } from '../models/dial-config';
 import { getErrorMessage } from '../utils/get-error-message';
+import { sendRequest } from '../utils/send-request';
 
 export class DialApiClient {
   public readonly config: DialApiConfig;

@@ -1,13 +1,13 @@
-import { sendRequest } from '@statgpt/shared-toolkit/src/utils/send-request';
-import { SdmxApiConfig } from './sdmx-config';
-import { ApiHeaders } from '@statgpt/shared-toolkit/src/models/api';
-import { RequestOptions } from '@statgpt/shared-toolkit/src/models/request-options';
-import { LogData } from '@statgpt/shared-toolkit/src/models/log-data';
+import { getErrorMessage } from '@epam/statgpt-dial-toolkit';
 import {
+  ApiHeaders,
   getHeaders,
+  LogData,
+  RequestOptions,
   sanitizeHeaders,
-} from '@statgpt/shared-toolkit/src/utils/headers';
-import { getErrorMessage } from '@statgpt/dial-toolkit/src/utils/get-error-message';
+  sendRequest,
+} from '@epam/statgpt-shared-toolkit';
+import { SdmxApiConfig } from './sdmx-config';
 
 export class SdmxApiClient {
   public readonly config: SdmxApiConfig;

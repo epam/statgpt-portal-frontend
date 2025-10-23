@@ -3,7 +3,7 @@ import { Conversation, FormSchemaButtonOption } from '@epam/ai-dial-shared';
 import ConversationViewHeader from '../ConversationViewHeader/ConversationViewHeader';
 import MessageContent from '../ChatMessages/MessageContent';
 import { ChoiceButtons } from './ChoiceButtons/ChoiceButtons';
-import { Button } from '@statgpt/ui-components/src';
+import { Button } from '@epam/statgpt-ui-components';
 import { ConversationViewTitles } from '../../models/titles';
 
 interface Props {

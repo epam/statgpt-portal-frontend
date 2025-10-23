@@ -1,19 +1,18 @@
 'use client';
 
+import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
+import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
+import { useIsMobile } from '@epam/statgpt-ui-components';
+import classNames from 'classnames';
 import { FC, useCallback } from 'react';
 import {
   Filter,
   FiltersModalProps,
   FilterTreeNodeProps,
 } from '../../../../models/filters';
+import { ConversationViewTitles } from '../../../../models/titles';
 import FiltersFacetsList from './FiltersFacets/FiltersFacetsList';
 import FiltersValuesPanel from './FiltersValuesPanel/FiltersValuesPanel';
-import { TimeRangeOptions } from '@statgpt/shared-toolkit/src/models/time-range';
-import { TimeRange } from '@statgpt/shared-toolkit/src/models/time-range';
-import classNames from 'classnames';
-import { useIsMobile } from '@statgpt/ui-components/src/hooks/isMobile';
-import { ConversationViewTitles } from '../../../../models/titles';
-import { DataConstraints } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/constraints';
 
 interface Props {
   filtersList: Filter[];

@@ -3,7 +3,7 @@
 import { FC, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { useAdvancedView } from '../../../context/AdvancedViewContext';
-import { Button } from '@statgpt/ui-components/src/components/Button/Button';
+import { Button } from '@epam/statgpt-ui-components';
 import { EditMessageTitles } from '../../../models/message';
 
 interface Props {

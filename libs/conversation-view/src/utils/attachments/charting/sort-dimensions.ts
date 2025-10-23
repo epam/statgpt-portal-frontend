@@ -1,6 +1,5 @@
-import { StructuralData } from '@statgpt/sdmx-toolkit/src/models/structural-metadata';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
-import { getDimensions } from '@statgpt/sdmx-toolkit/src/utils/get-dimensions';
+import { StructuralData, getDimensions } from '@epam/statgpt-sdmx-toolkit';
+import { DataQuery } from '@epam/statgpt-shared-toolkit';
 
 export function buildSortedNonRegionDimensionsList(
   structures: StructuralData,

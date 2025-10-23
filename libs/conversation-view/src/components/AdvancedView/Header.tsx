@@ -5,7 +5,7 @@ import { useAdvancedView } from '../../context/AdvancedViewContext';
 import { FC, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import ShareConversation from '@statgpt/share-conversation/src/components/ShareConversation/ShareConversation';
-import { CloseButton } from '@statgpt/ui-components/src/components/CloseButton/CloseButton';
+import { CloseButton } from '@epam/statgpt-ui-components';
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { ConversationViewTitles } from '../../models/titles';
 import { getTooltipDataByElement } from '../../utils/get-tooltip-data.by-element';

@@ -2,7 +2,7 @@
 
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { IconButton } from '@statgpt/ui-components/src/components/IconButton/IconButton';
+import { IconButton } from '@epam/statgpt-ui-components';
 import ChevronSolidDownIcon from '../../../assets/icons/chevron-solid-down.svg';
 import { StructureComponentValue } from '../../../models/structure-component';
 

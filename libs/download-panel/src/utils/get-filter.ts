@@ -1,12 +1,12 @@
 import {
+  DatasetQueryFilters,
+  Dimension,
+  DownloadType,
+  getTimeDimension,
   getTimeQueryFilter,
   getTimeSeriesFilterKey,
-} from '@statgpt/sdmx-toolkit/src/utils/query-filters';
-import { DatasetQueryFilters } from '@statgpt/sdmx-toolkit/src/models/dataset-query-filters';
-import { Dimension } from '@statgpt/sdmx-toolkit/src/models/structural-metadata/data-structure';
-import { DownloadType } from '@statgpt/sdmx-toolkit/src/types/files';
-import { getTimeDimension } from '@statgpt/sdmx-toolkit/src/utils/get-dimensions';
-import { DataQuery } from '@statgpt/shared-toolkit/src/models/data-query';
+} from '@epam/statgpt-sdmx-toolkit';
+import { DataQuery } from '@epam/statgpt-shared-toolkit';
 
 export const getDownloadFilters = (
   type: DownloadType | null,
