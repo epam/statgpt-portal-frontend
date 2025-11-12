@@ -30,10 +30,10 @@ import { UserInfo } from '@statgpt/user-info/src/models/user-info';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import User from '@statgpt/user-info/src/components/User/User';
 import { ConversationOnboarding } from '../ConversationOnboarding/ConversationOnboarding';
-import ChatOnboardingFooter from '../ChatOnboardingFooter/ChatOnboardingFooter';
+import { ChatOnboardingFooter } from '../ChatOnboardingFooter/ChatOnboardingFooter';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { PutOnboardingFile } from '../../types/actions';
-import ChatFooter from '../ChatFooter/ChatFooter';
+import { ChatFooter } from '../ChatFooter/ChatFooter';
 
 interface ConversationListActions {
   getBucket: () => Promise<{ bucket: string }>;
