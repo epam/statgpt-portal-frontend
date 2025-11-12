@@ -10,19 +10,19 @@ import {
   TimeRangeOptions,
 } from '@epam/statgpt-shared-toolkit';
 import { InputWithIcon } from '@epam/statgpt-ui-components';
-import { IconSearch } from '@tabler/icons-react';
-import classNames from 'classnames';
 import { FC, useCallback, useEffect, useState } from 'react';
-import { FilterDisplayMode } from '../../../../../constants/filter-display-mode';
+import { IconSearch } from '@tabler/icons-react';
 import {
   Filter,
   FilterTreeNodeProps,
   FilterValue,
   FilterValuesProps,
 } from '../../../../../models/filters';
-import { ConversationViewTitles } from '../../../../../models/titles';
-import FilterValues from './FilterValues';
 import TimePeriodFacet from './TimePeriodFacet';
+import FilterValues from './FilterValues';
+import { FilterDisplayMode } from '../../../../../constants/filter-display-mode';
+import classNames from 'classnames';
+import { ConversationViewTitles } from '../../../../../models/titles';
 
 interface Props {
   selectedFilter?: Filter;

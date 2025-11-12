@@ -8,28 +8,28 @@
 
 'use client';
 
-import { Role } from '@epam/ai-dial-shared';
-import { useDebounce } from '@epam/statgpt-ui-components';
 import { FC, ReactNode, useEffect, useRef, useState } from 'react';
-
+import { Role } from '@epam/ai-dial-shared';
+import { useDebounce, LimitMessages } from '@epam/statgpt-ui-components';
 import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
-import classNames from 'classnames';
-import { useAdvancedView } from '../../context/AdvancedViewContext';
-import { AttachmentsActions } from '../../models/actions';
-import { AttachmentsStyles } from '../../models/attachments-styles';
+import Message from './Message/Message';
 import {
   EditMessageTitles,
   MessageActionIcons,
   MessageStyles,
 } from '../../models/message';
+import { AttachmentsActions } from '../../models/actions';
+import { AttachmentsStyles } from '../../models/attachments-styles';
 import { MetadataSettings } from '../../models/metadata';
 import { ConversationViewTitles } from '../../models/titles';
 import {
   getLastMessageWithAttachmentIndex,
   getPreviousMessageWithAttachment,
 } from '../../utils/messages';
-import Message from './Message/Message';
+import { useAdvancedView } from '../../context/AdvancedViewContext';
+import classNames from 'classnames';
+import { AttachmentsConfig } from '../../models/attachments';
 
 interface Props {
   messages: MessageType[];
@@ -52,6 +52,8 @@ interface Props {
   editMessageTitles: EditMessageTitles;
   scrollBottomIcon?: ReactNode;
   isReadOnlyConversation?: boolean;
+  limitMessages: LimitMessages;
+  attachmentsConfig?: AttachmentsConfig;
 }
 
 const ChatMessages: FC<Props> = ({
@@ -106,7 +108,7 @@ const ChatMessages: FC<Props> = ({
       const { scrollTop, scrollHeight, clientHeight } = container;
       if (scrollTop + clientHeight >= scrollHeight) {
         setShowScrollButton(false);
-      } else if (!showScrollButton) {
+      } else if (!showScrollButton && !isOpenedAdvancedView) {
         setShowScrollButton(true);
       }
     }

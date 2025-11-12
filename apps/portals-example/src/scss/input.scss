@@ -1,0 +1,11 @@
+.input {
+  @apply rounded-[20px] px-4 py-3 h-[68px];
+  @apply border-neutrals-600 border focus:border-hues-200 w-full bg-white;
+}
+
+.input-for-ask {
+  @apply text-neutrals-900;
+  &-button {
+    @apply text-button-primary;
+  }
+}

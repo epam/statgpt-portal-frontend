@@ -13,9 +13,9 @@ import {
   RequestOptions,
   sanitizeHeaders,
 } from '@epam/statgpt-shared-toolkit';
+import { sendRequest } from '../utils/send-request';
 import { DialApiConfig } from '../models/dial-config';
 import { getErrorMessage } from '../utils/get-error-message';
-import { sendRequest } from '../utils/send-request';
 
 export class DialApiClient {
   public readonly config: DialApiConfig;

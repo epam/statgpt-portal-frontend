@@ -10,10 +10,10 @@ import {
   StructureAttribute,
   TimeSeries,
 } from '@epam/statgpt-sdmx-toolkit';
-import { ColDef, ICellRendererParams } from 'ag-grid-community';
+import { ICellRendererParams, ColDef } from 'ag-grid-community';
 import { StructureComponentValue } from '../../models/structure-component';
-import { ConversationViewTitles } from '../../models/titles';
 import { GridData } from '../../types/data-grid/grid-data';
+import { ConversationViewTitles } from '../../models/titles';
 
 export const getObsAttributesFromParams = (params: ICellRendererParams) =>
   params?.data[params?.colDef?.field || 0]?.obsAttributes;

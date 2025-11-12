@@ -19,6 +19,16 @@ import {
   useState,
 } from 'react';
 
+import ConversationsGroup from '../ConversationsGroup/ConversationsGroup';
+import ConversationsSearchField from '../ConversationsSearch/ConversationsSearchField';
+import ConversationsSearchResult from '../ConversationsSearch/ConversationsSearchResult';
+import NoConversations from '../NoConversations/NoConversations';
+import {
+  ConversationListActions,
+  ConversationStyles,
+  GroupedConversations,
+} from '../../models/conversation-list';
+import { getConversationsGroupedByDate } from '../../utils/conversations-grouping';
 import { ConversationInfo } from '@epam/ai-dial-shared';
 import {
   getSharedConversationsRequest,
@@ -27,20 +37,11 @@ import {
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { cleanConversationNames } from '@epam/statgpt-shared-toolkit';
 import { Loader } from '@epam/statgpt-ui-components';
-import {
-  ConversationListActions,
-  ConversationStyles,
-  GroupedConversations,
-} from '../../models/conversation-list';
-import { getConversationsGroupedByDate } from '../../utils/conversations-grouping';
+
 import {
   getSharedConversationsGroup,
   transformSharedConversations,
 } from '../../utils/shared-conversations';
-import ConversationsGroup from '../ConversationsGroup/ConversationsGroup';
-import ConversationsSearchField from '../ConversationsSearch/ConversationsSearchField';
-import ConversationsSearchResult from '../ConversationsSearch/ConversationsSearchResult';
-import NoConversations from '../NoConversations/NoConversations';
 
 interface Props {
   selectedConversationId?: string;
@@ -222,6 +223,7 @@ export const ConversationList: FC<Props> = ({
           )}
           <ConversationsSearchField
             searchQuery={searchQuery}
+            searchIcon={conversationStyles.searchIcon}
             titles={conversationStyles.titles}
             isExpandedSearch={isExpandedSearch}
             onSearchConversations={onSearchConversations}

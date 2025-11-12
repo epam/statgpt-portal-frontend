@@ -2,7 +2,10 @@ import {
   DatasetQueryFilters,
   FileColumnsAttribute,
   SdmxDataFormat,
+  StructuralMetaData,
+  SeriesFilterDto,
 } from '@epam/statgpt-sdmx-toolkit';
+import { TimeRange } from '@epam/statgpt-shared-toolkit';
 
 export type DownloadDatasetAction = (
   urn: string,
@@ -13,3 +16,9 @@ export type DownloadDatasetAction = (
   filename: string,
   isMetadata?: boolean,
 ) => void;
+
+export type GetConstraints = (
+  urn: string,
+  filters?: SeriesFilterDto[],
+  timeRange?: TimeRange,
+) => Promise<StructuralMetaData>;

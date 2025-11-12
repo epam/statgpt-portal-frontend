@@ -1,0 +1,66 @@
+.download {
+  &-popup {
+    @apply rounded-[10px] pt-2 w-[35%];
+
+    .modal-heading {
+      @apply pt-5 border-b-[1px] border-neutrals-500 mb-5;
+    }
+  }
+
+  &-button {
+    @apply border-t-[1px] justify-end border-neutrals-500;
+  }
+
+  &-settings {
+    @apply pt-5;
+
+    .collapsible-block {
+      @apply border-t-[1px] border-neutrals-500;
+
+      &-title {
+        @apply py-5;
+        span {
+          @apply h2 text-neutrals-1000;
+        }
+      }
+
+      &-open {
+        .collapsible-block-title {
+          @apply pb-3;
+        }
+
+        .collapsible-block-content {
+          label {
+            @apply h-auto;
+          }
+        }
+      }
+
+      &-content {
+        @apply gap-2 pl-5;
+
+        label {
+          @apply p-0 h-[24px];
+        }
+      }
+    }
+  }
+
+  &-type {
+    @apply border-[1px] border-transparent rounded-[40px];
+
+    &-trigger {
+      @apply h-8 w-8;
+      svg {
+        @apply m-auto text-primary;
+      }
+      span {
+        @apply hidden;
+      }
+    }
+
+    &-opened {
+      @apply border-hues-400;
+    }
+  }
+}

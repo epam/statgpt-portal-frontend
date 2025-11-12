@@ -40,10 +40,10 @@ import { getDataQueries } from '../../../utils/attachments/parse-data-query';
 import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import { MetadataSettings } from '../../../models/metadata';
-import { Loader } from '@epam/statgpt-ui-components';
+import { Loader, LimitMessages } from '@epam/statgpt-ui-components';
 import MessageStages from '../MessageStages/MessageStages';
 import { ConversationViewTitles } from '../../../models/titles';
-import { AttachmentInfo } from '../../../models/attachments';
+import { AttachmentInfo, AttachmentsConfig } from '../../../models/attachments';
 import { getAttachmentInfoList } from '../../../utils/attachments-details';
 import { AssistantActionsPanel } from '../AssistantActions/AssistantActions';
 import { RequestActionsPanel } from '../RequestActions/RequestActions';
@@ -74,6 +74,8 @@ interface Props {
   editMessageTitles: EditMessageTitles;
   isReadOnlyConversation?: boolean;
   isNotLastUserMessage?: boolean;
+  limitMessages: LimitMessages;
+  attachmentsConfig?: AttachmentsConfig;
 }
 
 const Message: FC<Props> = ({
@@ -100,6 +102,8 @@ const Message: FC<Props> = ({
   editMessageTitles,
   isReadOnlyConversation,
   isNotLastUserMessage,
+  limitMessages,
+  attachmentsConfig,
 }) => {
   const [attachmentsDataQueries, setAttachmentsDataQueries] = useState<
     DataQuery[] | undefined
@@ -284,6 +288,8 @@ const Message: FC<Props> = ({
         locale={locale}
         dimensions={dimensions}
         selectDataset={onSelectDataset}
+        limitMessages={limitMessages}
+        attachmentsConfig={attachmentsConfig}
       />
     ),
     [
@@ -306,6 +312,8 @@ const Message: FC<Props> = ({
       dimensions,
       onSelectDataset,
       onAdvancedViewOpen,
+      limitMessages,
+      attachmentsConfig,
     ],
   );
 
@@ -386,7 +394,7 @@ const Message: FC<Props> = ({
                     isReadOnly={isReadOnlyConversation}
                   />
                 ))}
-              {!isOpenedAdvancedView && (
+              {!isOpenedAdvancedView && !isLoadingGridData && (
                 <ChoiceButtons
                   choiceButtons={choiceButtons}
                   onClick={selectMessageToSend}

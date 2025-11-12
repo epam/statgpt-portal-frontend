@@ -4,9 +4,9 @@ import { FC, useCallback, useEffect, useState } from 'react';
 
 import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
 import { StructureComponentValue } from '../../../models/structure-component';
-import { ConversationViewTitles } from '../../../models/titles';
 import MetadataDescriptionItem from './MetadataDescriptionItem';
 import MetadataItem from './MetadataItem';
+import { ConversationViewTitles } from '../../../models/titles';
 
 interface Props {
   metadata?: StructureComponentValue[];

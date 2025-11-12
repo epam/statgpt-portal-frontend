@@ -1,6 +1,6 @@
+import { FC, ReactNode } from 'react';
 import { CollapsibleBlock, Radio } from '@epam/statgpt-ui-components';
 import { IconCircleFilled } from '@tabler/icons-react';
-import { FC } from 'react';
 import { DownloadSettingItem } from '../../models/download-settings-item';
 
 interface Props {
@@ -8,6 +8,7 @@ interface Props {
   selectedValue: DownloadSettingItem;
   items: DownloadSettingItem[];
   setSelectedValue: (value: DownloadSettingItem) => void;
+  infoMessage?: ReactNode;
 }
 
 const DownloadOptionBlock: FC<Props> = ({
@@ -15,6 +16,7 @@ const DownloadOptionBlock: FC<Props> = ({
   items,
   selectedValue,
   setSelectedValue,
+  infoMessage,
 }) => {
   return (
     <CollapsibleBlock title={title} value={selectedValue.title}>
@@ -35,6 +37,7 @@ const DownloadOptionBlock: FC<Props> = ({
           </div>
         ))}
       </div>
+      {infoMessage}
     </CollapsibleBlock>
   );
 };

@@ -1,14 +1,14 @@
 'use client';
 
-import { Button, Loader, PopUpState } from '@epam/statgpt-ui-components';
 import { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { FilterButtonProps } from '../../../../models/filters';
+import { Button, PopUpState, Loader } from '@epam/statgpt-ui-components';
 import FilterIcon from '../../../../assets/icons/filter.svg';
+import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
+import { ConversationViewTitles } from '../../../../models/titles';
+import { Tooltip } from '../../../Tooltip/Tooltip';
 import { OnboardingElements } from '../../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../../context/OnboardingContext';
-import { FilterButtonProps } from '../../../../models/filters';
-import { ConversationViewTitles } from '../../../../models/titles';
-import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
-import { Tooltip } from '../../../Tooltip/Tooltip';
 
 interface Props {
   buttonProps?: FilterButtonProps;
@@ -16,6 +16,7 @@ interface Props {
   isLoading?: boolean;
   titles?: ConversationViewTitles;
   setModalState: (modalState: PopUpState) => void;
+  isModalClosed?: boolean;
 }
 
 const FilterButton: FC<Props> = ({
@@ -24,6 +25,7 @@ const FilterButton: FC<Props> = ({
   isLoading,
   setModalState,
   titles,
+  isModalClosed,
 }) => {
   const filtersRef = useRef<HTMLDivElement | null>(null);
   const [tooltipTitle, setTooltipTitle] = useState<string>('');
@@ -82,6 +84,8 @@ const FilterButton: FC<Props> = ({
               reference={filtersRef}
               title={tooltipTitle}
               description={tooltipDescription}
+              onReferenceClick={() => setModalState(PopUpState.Opened)}
+              shouldCloseTooltip={isModalClosed}
             />
           )}
         </>

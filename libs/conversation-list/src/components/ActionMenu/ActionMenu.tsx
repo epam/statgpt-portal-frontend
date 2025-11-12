@@ -1,24 +1,24 @@
 /* eslint-disable @nx/enforce-module-boundaries */
 'use client';
 
-import { Conversation, ConversationInfo } from '@epam/ai-dial-shared';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { FC, ReactNode, useCallback, useMemo, useState } from 'react';
+import { ConversationInfo, Conversation } from '@epam/ai-dial-shared';
 
+import ConversationDelete from '../ConversationDelete/ConversationDelete';
+import { getZippedFile } from '../../utils/compress-zip';
+import { triggerDownload } from '../../utils/download';
+import ShareConversationModal from '@statgpt/share-conversation/src/components/ShareConversation/ShareConversationModal';
+import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
+import { ConversationStyles } from '../../models/conversation-list';
 import {
   Dropdown,
   DropdownItem,
   PopUpState,
 } from '@epam/statgpt-ui-components';
-import ShareConversationModal from '@statgpt/share-conversation/src/components/ShareConversation/ShareConversationModal';
-import { ONBOARDING_MODEL_POSTFIX } from '@statgpt/share-conversation/src/constants/share-conversation';
-import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
-import { ConversationStyles } from '../../models/conversation-list';
 import { ActionMenuItem } from '../../types/action-menu-item';
-import { getZippedFile } from '../../utils/compress-zip';
-import { triggerDownload } from '../../utils/download';
-import ConversationDelete from '../ConversationDelete/ConversationDelete';
 import ConversationRename from '../ConversationRename/ConversationRename';
+import { ONBOARDING_MODEL_POSTFIX } from '@statgpt/share-conversation/src/constants/share-conversation';
 
 interface Props {
   conversation: ConversationInfo;
@@ -27,7 +27,7 @@ interface Props {
   onConversationDelete: (conversation: ConversationInfo) => void;
   getConversation: (conversationId: string) => Promise<Conversation>;
   getFileBlob: (path: string) => Promise<Blob>;
-  renameConversation: (n: string, b: string) => Promise<void>;
+  renameConversation: (n: string, b: string) => Promise<unknown>;
   triggerButton?: ReactNode;
   locale: string;
 }
@@ -142,7 +142,7 @@ export const ActionMenu: FC<Props> = ({
   return (
     <>
       <Dropdown
-        containerClassName="transition-opacity ml-3 group-hover:opacity-100"
+        containerClassName="invisible ml-3 group-hover:visible"
         triggerButton={triggerButton ?? <ActionTrigger />}
         options={items}
         openedClassName="action-menu-opened"
@@ -174,7 +174,7 @@ export const ActionMenu: FC<Props> = ({
           conversation={conversation}
           locale={locale}
           titles={conversationStyles.titles}
-          renameCoversation={onRenameConversation}
+          renameConversation={onRenameConversation}
           onCloseModal={onCloseRenameModal}
           disableModalDividers={conversationStyles.disableModalDividers}
           isSmallButton={conversationStyles.isSmallModalButton}

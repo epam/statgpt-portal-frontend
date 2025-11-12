@@ -2,7 +2,7 @@
 
 import { Attachment } from '@epam/ai-dial-shared';
 import { FC, useEffect, useMemo, useState } from 'react';
-import { Loader } from '@epam/statgpt-ui-components';
+import { Loader, SERIES_LIMIT } from '@epam/statgpt-ui-components';
 import { convertToGridData } from '../../../utils/attachments/convert-to-grid-data';
 import type { ColDef } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
@@ -15,9 +15,15 @@ interface Props {
   attachment: Attachment;
   className?: string;
   actions: AttachmentsActions;
+  showLimitMessage?: (p: boolean) => void;
 }
 
-const GridAttachment: FC<Props> = ({ attachment, actions, className = '' }) => {
+const GridAttachment: FC<Props> = ({
+  attachment,
+  actions,
+  className = '',
+  showLimitMessage,
+}) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [rowData, setRowData] = useState<GridData[]>([]);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>();
@@ -45,8 +51,11 @@ const GridAttachment: FC<Props> = ({ attachment, actions, className = '' }) => {
   useEffect(() => {
     if (rowData) {
       setGridHeight(getGridHeight(rowData.length));
+      showLimitMessage?.(rowData.length >= SERIES_LIMIT);
+    } else {
+      showLimitMessage?.(false);
     }
-  }, [rowData]);
+  }, [rowData, showLimitMessage]);
 
   const memoizedGrid = useMemo(
     () => (

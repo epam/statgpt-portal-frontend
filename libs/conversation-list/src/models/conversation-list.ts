@@ -18,13 +18,14 @@ export interface ConversationListActions {
   renameConversation: (
     conversationId: string,
     updatedId: string,
-  ) => Promise<void>;
+  ) => Promise<unknown>;
 }
 
 export type GroupedConversations = Record<string, ConversationInfo[]>;
 
 export interface ConversationStyles {
   conversationItemIcon?: ReactNode;
+  searchIcon?: ReactNode;
   disableModalDividers?: boolean;
   isSmallModalButton?: boolean;
   actionsIcons?: Record<ActionMenuItem, ReactNode>;

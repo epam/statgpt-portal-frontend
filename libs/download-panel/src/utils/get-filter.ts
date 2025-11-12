@@ -35,3 +35,6 @@ export const getDownloadFilters = (
     timeFilter,
   };
 };
+
+export const hasSelectedFilters = (splittedKey?: string[]) =>
+  splittedKey?.length && splittedKey?.find((el) => el !== '*');

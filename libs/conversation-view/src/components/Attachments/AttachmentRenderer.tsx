@@ -12,24 +12,15 @@ import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import {
   Alert,
   AlertDetails,
+  Button,
   Loader,
   PopUpState,
+  LimitMessages,
+  RequestLimitMessage,
 } from '@epam/statgpt-ui-components';
-import DownloadSettings from '@statgpt/download-panel/src/components/DownloadSettings/DownloadSettings';
-import { DownloadType } from '@statgpt/download-panel/src/components/DownloadType/DownloadType';
-import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
-import classNames from 'classnames';
-import { FC, useCallback, useEffect, useState } from 'react';
-import { useAdvancedView } from '../../context/AdvancedViewContext';
-import { AttachmentsActions } from '../../models/actions';
-import {
-  AttachmentInfo,
-  CustomChartAttachmentType,
-  CustomGridAttachment,
-} from '../../models/attachments';
-import { AttachmentsStyles } from '../../models/attachments-styles';
-import { MessageStyles } from '../../models/message';
-import { ConversationViewTitles } from '../../models/titles';
+import FileAttachment from './BaseAttachments/FileAttachment';
+import MarkdownAttachment from './BaseAttachments/MarkdownAttachment';
+import UrlAttachment from './BaseAttachments/UrlAttachment';
 import {
   isCustomChartAttachment,
   isCustomGridAttachment,
@@ -38,16 +29,29 @@ import {
   isMarkdownAttachment,
   isUrlAttachment,
 } from '../../utils/attachments/attachment-parser';
-import AttachmentCollapsed from './AttachmentCollapsed';
-import AttachmentDetails from './AttachmentDetails/AttachmentDetails';
-import FileAttachment from './BaseAttachments/FileAttachment';
-import GridAttachment from './BaseAttachments/GridAttachment';
-import MarkdownAttachment from './BaseAttachments/MarkdownAttachment';
-import UrlAttachment from './BaseAttachments/UrlAttachment';
-import CustomChartAttachment from './CustomAttachments/CustomChartAttachment';
-import CustomDataGridAttachment from './CustomAttachments/CustomGridAttachment';
+import {
+  AttachmentInfo,
+  AttachmentsConfig,
+  CustomChartAttachmentType,
+  CustomGridAttachment,
+} from '../../models/attachments';
+import { FC, useCallback, useEffect, useState } from 'react';
+import classNames from 'classnames';
 import AttachmentTabs from './Tabs/AttachmentTabs/AttachmentTabs';
+import AttachmentDetails from './AttachmentDetails/AttachmentDetails';
+import GridAttachment from './BaseAttachments/GridAttachment';
+import { useAdvancedView } from '../../context/AdvancedViewContext';
+import AttachmentCollapsed from './AttachmentCollapsed';
+import { MessageStyles } from '../../models/message';
+import { AttachmentsActions } from '../../models/actions';
+import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
+import CustomDataGridAttachment from './CustomAttachments/CustomGridAttachment';
+import { AttachmentsStyles } from '../../models/attachments-styles';
+import CustomChartAttachment from './CustomAttachments/CustomChartAttachment';
+import DownloadSettings from '@statgpt/download-panel/src/components/DownloadSettings/DownloadSettings';
+import { ConversationViewTitles } from '../../models/titles';
 import DatasetTabs from './Tabs/DatasetTabs/DatasetTabs';
+import { getExternalLink } from '../../utils/attachments-details';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -76,6 +80,8 @@ interface Props {
   titles?: ConversationViewTitles;
   selectDataset?: (datasetUrn?: string) => void;
   onAdvancedViewOpen?: () => void;
+  limitMessages?: LimitMessages;
+  attachmentsConfig?: AttachmentsConfig;
 }
 
 const AttachmentRenderer: FC<Props> = ({
@@ -99,6 +105,8 @@ const AttachmentRenderer: FC<Props> = ({
   filters,
   selectDataset,
   onAdvancedViewOpen,
+  limitMessages,
+  attachmentsConfig,
 }) => {
   const [selectedAttachmentIndex, setSelectedAttachmentIndex] =
     useState<number>(0);
@@ -107,17 +115,17 @@ const AttachmentRenderer: FC<Props> = ({
 
   const { isOpenedAdvancedView, setIsOpenedAdvancedView } = useAdvancedView();
   const [modalState, setModalState] = useState(PopUpState.Closed);
-  const [downloadType, setDownloadType] = useState<DownloadTypeOptions | null>(
-    null,
-  );
   const [showLoading, setShowLoading] = useState<boolean>(false);
   const [isShowDownloadAlert, setIsShowDownloadAlert] = useState<boolean>();
   const [downloadAlertDetails, setDownloadAlertDetails] =
     useState<AlertDetails>();
 
+  const [showLimitMessage, setShowLimitMessage] = useState(false);
   const downloadActions = {
     downloadDataSet: actions.downloadDataSet,
+    getConstraints: actions.getConstraints,
   };
+  const downloadType = DownloadTypeOptions.DATA_IN_TABLE;
 
   const selectAttachment = (index: number) => {
     setSelectedAttachmentIndex(index);
@@ -152,10 +160,14 @@ const AttachmentRenderer: FC<Props> = ({
     setModalState(PopUpState.Closed);
   }, [setModalState]);
 
-  const onDownloadTypeSelect = useCallback((key: string) => {
-    setDownloadType(key as DownloadTypeOptions);
-    setModalState(PopUpState.Opened);
-  }, []);
+  const isExternaLinkIncludeFilters =
+    attachmentsConfig?.isExternaLinkIncludeFilters;
+  const externalLink = getExternalLink(
+    isExternaLinkIncludeFilters,
+    filters,
+    currentDataQuery || dataQueries?.[0],
+    dimensions,
+  );
 
   if (!attachments || attachments.length === 0) return null;
 
@@ -205,6 +217,18 @@ const AttachmentRenderer: FC<Props> = ({
                     onOpenAdvancedView={onOpenAdvancedView}
                   />
                 )}
+              {showLimitMessage && (
+                <RequestLimitMessage
+                  limitMessages={limitMessages}
+                  showAdvancedViewButton={
+                    !!selectedAttachment &&
+                    isGridAttachment(selectedAttachment) &&
+                    showAdvancedView
+                  }
+                  onAdvancedViewClick={onOpenAdvancedView}
+                  query={externalLink}
+                />
+              )}
               <div
                 className={classNames(
                   !isOpenedAdvancedView &&
@@ -223,17 +247,32 @@ const AttachmentRenderer: FC<Props> = ({
                       onSelectedAttachmentChange={selectAttachment}
                       titles={titles}
                     />
-                    {selectedAttachment &&
-                      isCustomGridAttachment(selectedAttachment) && (
-                        <DownloadType
-                          onDownloadTypeSelect={onDownloadTypeSelect}
-                          icon={attachmentsStyles?.downloadIcon}
-                          chevronIcon={attachmentsStyles?.downloadChevronIcon}
-                          title={attachmentsStyles?.downloadTitle || 'Download'}
-                          showChevronIcon={attachmentsStyles?.showChevronIcon}
-                          downloadTitles={attachmentsStyles?.downloadTitles}
-                        ></DownloadType>
-                      )}
+                    <div className="flex gap-x-3 items-center flex-wrap w-full justify-end">
+                      {selectedAttachment &&
+                        isCustomGridAttachment(selectedAttachment) &&
+                        isExternaLinkIncludeFilters && (
+                          <a href={externalLink} target="_blank">
+                            <Button
+                              title={
+                                limitMessages?.dataExplorer || 'Data explorer'
+                              }
+                              buttonClassName="text-button-tertiary small-icon-button [&>svg]:h-[16px] [&>svg]:w-[16px] whitespace-nowrap"
+                              iconBefore={limitMessages?.dataExplorerIcon}
+                            />
+                          </a>
+                        )}
+                      {selectedAttachment &&
+                        isCustomGridAttachment(selectedAttachment) && (
+                          <Button
+                            title={
+                              attachmentsStyles?.downloadTitle || 'Download'
+                            }
+                            buttonClassName="text-button-tertiary small-icon-button"
+                            onClick={() => setModalState(PopUpState.Opened)}
+                            iconBefore={attachmentsStyles?.downloadIcon}
+                          />
+                        )}
+                    </div>
                   </div>
                   {selectedAttachment != null && (
                     <div className="flex flex-1 w-full justify-center min-h-0">
@@ -248,6 +287,7 @@ const AttachmentRenderer: FC<Props> = ({
                         <GridAttachment
                           actions={actions}
                           attachment={selectedAttachment}
+                          showLimitMessage={setShowLimitMessage}
                         />
                       )}
                       {isCustomGridAttachment(selectedAttachment) && (
@@ -257,11 +297,13 @@ const AttachmentRenderer: FC<Props> = ({
                           chartColumn={isOpenedAdvancedView}
                           fixHeight={!isOpenedAdvancedView}
                           titles={titles}
+                          showLimitMessage={setShowLimitMessage}
                         />
                       )}
                       {isCustomChartAttachment(selectedAttachment) && (
                         <CustomChartAttachment
                           titles={titles}
+                          isDataLoading={isDataLoading}
                           attachment={selectedAttachment}
                           icons={attachmentsStyles?.chartingIcons}
                           openAdvancedView={
@@ -302,6 +344,9 @@ const AttachmentRenderer: FC<Props> = ({
                 titles={attachmentsStyles?.downloadTitles}
                 setIsShowDownloadAlert={setIsShowDownloadAlert}
                 setDownloadAlertDetails={setDownloadAlertDetails}
+                limitMessages={limitMessages}
+                showLimitMessage={showLimitMessage}
+                externalLink={externalLink}
               />
             )}
             {isShowDownloadAlert && (

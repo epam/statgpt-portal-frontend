@@ -7,4 +7,7 @@ export default {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../coverage/portals-example',
+  transformIgnorePatterns: [
+    '/node_modules/(?!react-dnd|dnd-core|@react-dnd|@epam)',
+  ],
 };

@@ -14,21 +14,21 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 
+import { getRowsData } from '../data-grid/rows-data';
 import { ChartingStyles } from '../../../models/attachments-styles';
+import { GridData } from '../../../types/data-grid/grid-data';
+import { buildChartConfig } from './chart-config-building';
 import {
   ChartingData,
   ChartUnit,
   ChartUnitRows,
   DimensionInfo,
 } from '../../../models/charting';
-import { GridData } from '../../../types/data-grid/grid-data';
-import { getRowsData } from '../data-grid/rows-data';
-import { getDimRelatedStructures } from '../localized-value';
-import { buildChartConfig } from './chart-config-building';
-import { getDimensionsUniquenessByValues } from './data-uniqueness';
 import { buildSerieKeyTitle } from './serie-title';
 import { buildSortedNonRegionDimensionsList } from './sort-dimensions';
 import { splitForUnits } from './split-for-units';
+import { getDimensionsUniquenessByValues } from './data-uniqueness';
+import { getDimRelatedStructures } from '../localized-value';
 
 const LINE_TYPE = 'line';
 const MAX_LINES_PER_UNIT = 10;
@@ -88,6 +88,10 @@ export function buildUnit(
   locale: string,
   styles?: ChartingStyles,
 ): ChartUnit {
+  const dimensions = getDimensionsInfo(unit.rows, structures, locale);
+  const frequencyDimensionId = dimensions?.find((dimension) =>
+    FREQUENCY_DIMENSION_ID.includes(dimension?.id),
+  )?.id;
   const series = buildChartSeries(
     unit.rows.length > MAX_LINES_PER_UNIT
       ? unit.rows.slice(0, MAX_LINES_PER_UNIT)
@@ -95,12 +99,12 @@ export function buildUnit(
     structures,
     dataQuery,
     locale,
-    timePeriods,
+    filterTimePeriodsByFrequency(
+      timePeriods,
+      unit?.rows?.[0],
+      frequencyDimensionId,
+    ),
   );
-  const dimensions = getDimensionsInfo(unit.rows, structures, locale);
-  const frequencyDimensionId = dimensions?.find((dimension) =>
-    FREQUENCY_DIMENSION_ID.includes(dimension?.id),
-  )?.id;
 
   return {
     rows: unit.rows,

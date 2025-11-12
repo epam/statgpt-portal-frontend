@@ -1,0 +1,36 @@
+.alert {
+  @apply bg-white;
+  @apply px-4 py-3;
+  @apply rounded border-l-[4px];
+
+  &-shadow {
+    box-shadow: 0px 1px 4px 0px #424a9c4d;
+  }
+
+  &-in-progress {
+    @apply border-hues-600;
+  }
+
+  &-success {
+    @apply border-semantic-success;
+  }
+
+  &-error {
+    @apply border-semantic-error;
+  }
+
+  &-content {
+    @apply gap-3;
+  }
+
+  &-icon {
+    .loader:before {
+      @apply w-6 h-6;
+      @apply bg-contain;
+    }
+  }
+
+  &-text {
+    @apply body-3;
+  }
+}

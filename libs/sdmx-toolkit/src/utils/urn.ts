@@ -22,13 +22,19 @@ export const splitUrn = (urn?: string): SplittedUrn => {
     version: '',
   };
 
+  const isSafeComponent = (value: string | undefined): boolean =>
+    typeof value === 'string' && /^[a-zA-Z0-9_.-]+$/.test(value);
+
   if (keyFromUrn) {
     if (keyFromUrn.includes(':')) {
-      split.agency = keyFromUrn.split(':')[0];
-      split.id = keyFromUrn.split(':')[1].split('(')[0];
+      const agencyRaw = keyFromUrn.split(':')[0];
+      const idRaw = keyFromUrn.split(':')[1].split('(')[0];
+      split.agency = isSafeComponent(agencyRaw) ? agencyRaw : '';
+      split.id = isSafeComponent(idRaw) ? idRaw : '';
     }
     if (keyFromUrn.includes('(') && keyFromUrn.includes(')')) {
-      split.version = keyFromUrn.split('(')[1]?.split(')')[0];
+      const versionRaw = keyFromUrn.split('(')[1]?.split(')')[0];
+      split.version = isSafeComponent(versionRaw) ? versionRaw : '';
     }
   }
 

@@ -1,34 +1,24 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "jsx": "preserve",
-    "strict": true,
-    "noEmit": true,
-    "emitDeclarationOnly": false,
-    "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    "allowJs": true,
+    "jsx": "preserve",
+    "noEmit": true,
+    "incremental": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "incremental": true,
     "plugins": [
       {
         "name": "next"
       }
-    ],
-    "types": ["jest", "node"]
+    ]
   },
   "include": [
-    "**/*.js",
-    "**/*.jsx",
     "**/*.ts",
     "**/*.tsx",
-    "../dist/portals-example/.next/types/**/*.ts",
-    "../portals-example/.next/types/**/*.ts",
+    "../../.next/types/**/*.ts",
     ".next/types/**/*.ts",
     "next-env.d.ts",
     "../../dist/apps/portals-example/.next/types/**/*.ts"

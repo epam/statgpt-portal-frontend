@@ -9,19 +9,19 @@ import {
   StructuralData,
   StructureItemBase,
 } from '@epam/statgpt-sdmx-toolkit';
+import { Filter, FilterTreeNodeProps, FilterValue } from '../models/filters';
 import {
   DataQuery,
-  getTimePeriod,
   QueryFilter,
+  getTimePeriod,
 } from '@epam/statgpt-shared-toolkit';
 import {
   TREE_NODE_ARROW_SIZE,
   TREE_NODE_PADDING,
 } from '@epam/statgpt-ui-components';
 import { FilterDisplayMode } from '../constants/filter-display-mode';
-import { Filter, FilterTreeNodeProps, FilterValue } from '../models/filters';
-import { ConversationViewTitles } from '../models/titles';
 import { getMergedTimeRange } from './attachments/time-period';
+import { ConversationViewTitles } from '../models/titles';
 
 export const getDatasetFilters = (
   dimensions?: Dimension[],

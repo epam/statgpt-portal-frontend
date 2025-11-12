@@ -1,0 +1,111 @@
+.advanced-view {
+  &-button {
+    @apply border-neutrals-500 w-[40px] h-[24px];
+  }
+
+  &-filters {
+    @apply bg-neutrals-100 py-4 px-6;
+
+    .download-type {
+      @apply border-none;
+
+      &-trigger {
+        @apply text-primary border-none w-auto h-auto;
+        span {
+          @apply inline-block h4;
+        }
+      }
+    }
+  }
+
+  &-header {
+    @apply text-neutrals-900 border-b border-gray-200 h-[72px];
+  }
+
+  &-attachments-container {
+    @apply pb-4 px-4;
+  }
+
+  &-filters-modal {
+    &-apply-button {
+      @apply text-button-secondary;
+    }
+  }
+
+  &-filters-list {
+    @apply gap-y-1 flex flex-col;
+  }
+}
+
+.dataset-info {
+  @apply py-3 px-6;
+}
+
+.data-details-header {
+  @apply pt-4 px-4;
+}
+
+.filter {
+  &-button-container {
+    &:hover {
+      .filter-count-badge {
+        @apply bg-white border-primary text-primary;
+      }
+    }
+
+    .loader:before {
+      @apply w-8 h-8;
+      @apply bg-contain;
+    }
+  }
+
+  &-button {
+    @apply p-2 rounded-full h-8;
+  }
+
+  &-count-badge {
+    @apply absolute top-[-4px] right-[-6px] rounded-full;
+    @apply px-1 bg-primary text-white;
+    @apply border border-transparent;
+  }
+
+  &-values-container {
+    @apply pr-3;
+  }
+}
+
+.filters {
+  &-search-input {
+    @apply h-[32px] p-1 rounded text-neutrals-900;
+    &-text {
+      @apply body-3;
+    }
+  }
+
+  &-settings {
+    @apply pl-6 pt-2;
+  }
+
+  &-facet-item {
+    &-counter {
+      @apply text-neutrals-800 body-3;
+    }
+
+    &-icon {
+      @apply body-3;
+    }
+
+    &-settings {
+      .base-icon-button {
+        @apply h-[20px] w-[20px] p-0;
+      }
+    }
+  }
+
+  &-time-period {
+    @apply ml-6 mb-6 flex-col gap-5;
+    & > div {
+      @apply m-0;
+    }
+  }
+}

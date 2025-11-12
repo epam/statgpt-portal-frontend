@@ -5,8 +5,8 @@ import {
   getAvailableCodesFromConstrains,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
-import { Locale } from '@epam/statgpt-shared-toolkit';
 import { Filter } from '../models/filters';
+import { Locale } from '@epam/statgpt-shared-toolkit';
 
 export const getFilledFilters = (
   filters?: Filter[],

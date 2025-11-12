@@ -8,11 +8,12 @@ import {
   TimeSeries,
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
-import { CHART_COLUMN_ID } from '../../../constants/grid';
-import { ChartingStyles } from '../../../models/attachments-styles';
+
+import { getConvertedData } from './get-converted-data';
 import { GridData } from '../../../types/data-grid/grid-data';
 import { buildSingleLineUnit } from '../charting/chart-data';
-import { getConvertedData } from './get-converted-data';
+import { ChartingStyles } from '../../../models/attachments-styles';
+import { CHART_COLUMN_ID } from '../../../constants/grid';
 
 export function getRowsData(
   data: DataMessage,

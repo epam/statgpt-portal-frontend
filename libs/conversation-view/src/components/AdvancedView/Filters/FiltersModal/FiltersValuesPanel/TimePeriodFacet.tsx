@@ -1,5 +1,4 @@
 'use client';
-
 import {
   DataConstraints,
   getAnnotationPeriod,
@@ -13,12 +12,12 @@ import {
 } from '@epam/statgpt-shared-toolkit';
 import { Calendar, Radio } from '@epam/statgpt-ui-components';
 import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
-import { ConversationViewTitles } from '../../../../../models/titles';
 import {
   correctTimeZone,
   getPickerOptions,
   getRangedTimePeriod,
 } from '../../../../../utils/attachments/time-period';
+import { ConversationViewTitles } from '../../../../../models/titles';
 
 interface Props {
   calendarResolution: CalendarResolution;

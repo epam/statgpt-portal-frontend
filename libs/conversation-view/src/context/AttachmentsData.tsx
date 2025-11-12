@@ -7,6 +7,7 @@ import {
   Dimension,
   getDimensions,
   getStructureDimensions,
+  getFiltersDtoFromDataQuery,
   getTimeSeriesFilterKey,
   StructuralData,
   StructureItemBase,
@@ -22,20 +23,19 @@ import {
   CustomChartAttachmentType,
   CustomGridAttachment,
 } from '../models/attachments';
-import { ChartingStyles } from '../models/attachments-styles';
-import { Filter } from '../models/filters';
-import { MetadataSettings } from '../models/metadata';
-import { ConversationViewTitles } from '../models/titles';
 import {
   getConstraints,
   GetDatasetData,
   GetDatasetDetails,
   PutOnboardingFile,
 } from '../types/actions';
-import { buildChartData } from '../utils/attachments/charting/chart-data';
 import { buildGridData } from '../utils/attachments/data-grid/data-grid';
-import { getFiltersDtoFromDataQuery } from '../utils/attachments/time-period';
 import { getTimeQueryFilterFromAttachment } from '../utils/query-filters';
+import { buildChartData } from '../utils/attachments/charting/chart-data';
+import { ChartingStyles } from '../models/attachments-styles';
+import { MetadataSettings } from '../models/metadata';
+import { ConversationViewTitles } from '../models/titles';
+import { Filter } from '../models/filters';
 
 export function useAttachmentsData(
   actions: {

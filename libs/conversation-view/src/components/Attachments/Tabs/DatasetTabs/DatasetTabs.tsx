@@ -9,13 +9,13 @@ import { Locale } from '@epam/statgpt-shared-toolkit';
 import { IconButton } from '@epam/statgpt-ui-components';
 import classNames from 'classnames';
 import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { OnboardingElements } from '../../../../constants/onboarding-elements';
-import { useAdvancedView } from '../../../../context/AdvancedViewContext';
-import { useOnboarding } from '../../../../context/OnboardingContext';
-import { ConversationViewTitles } from '../../../../models/titles';
-import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
-import { Tooltip } from '../../../Tooltip/Tooltip';
 import DatasetTab from './DatasetTab';
+import { useAdvancedView } from '../../../../context/AdvancedViewContext';
+import { Tooltip } from '../../../Tooltip/Tooltip';
+import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
+import { ConversationViewTitles } from '../../../../models/titles';
+import { OnboardingElements } from '../../../../constants/onboarding-elements';
+import { useOnboarding } from '../../../../context/OnboardingContext';
 
 interface Props {
   datasets?: Dataflow[];
@@ -145,6 +145,8 @@ const DatasetTabs: FC<Props> = ({
           reference={iconRef}
           title={tooltipTitle}
           description={tooltipDescription}
+          onReferenceClick={onOpenAdvancedView}
+          shouldCloseTooltip={isOpenedAdvancedView}
         />
       )}
     </div>

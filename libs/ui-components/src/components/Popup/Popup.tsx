@@ -68,7 +68,7 @@ const PopupView: FC<Props> = ({
       {state !== PopUpState.Closed && (
         <FloatingOverlay
           className={classNames(
-            'z-[52] flex items-center justify-center bg-blackout p-4',
+            'z-modal flex items-center justify-center bg-blackout p-4',
             overlayClassName,
           )}
         >

@@ -10,7 +10,6 @@
 'use client';
 
 import { Conversation, ConversationInfo, Role } from '@epam/ai-dial-shared';
-import { IconCopy, IconPlus } from '@tabler/icons-react';
 import classNames from 'classnames';
 import {
   Dispatch,
@@ -22,7 +21,11 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { IconCopy, IconPlus } from '@tabler/icons-react';
 
+import ChatMessages from '../ChatMessages/ChatMessages';
+import ConversationViewHeader from '../ConversationViewHeader/ConversationViewHeader';
+import InputForAsk from '../InputForAsk/InputForAsk';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 import { ConversationViewActions } from '../../models/actions';
 import { AttachmentsStyles } from '../../models/attachments-styles';
@@ -32,9 +35,19 @@ import {
   MessageActionIcons,
   MessageStyles,
 } from '../../models/message';
-import ChatMessages from '../ChatMessages/ChatMessages';
-import ConversationViewHeader from '../ConversationViewHeader/ConversationViewHeader';
-import InputForAsk from '../InputForAsk/InputForAsk';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
+import { extractPartialMessageData } from '../../utils/extract-partial-message';
+import {
+  isConversationIdExternal,
+  isReadOnlyConversation,
+} from '../../utils/is-read-only-conversation';
+import {
+  transformEditMessage,
+  transformMessagesForApi,
+  transformRegenerateMessage,
+} from '../../utils/transform-message-api';
+import { validateAndPrepareMessage } from '../../utils/validate-message';
 
 import {
   CustomFields,
@@ -47,30 +60,18 @@ import {
   DataQuery,
   FormatNumbersType,
 } from '@epam/statgpt-shared-toolkit';
-import { Button, Loader } from '@epam/statgpt-ui-components';
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
+import { Button, Loader, LimitMessages } from '@epam/statgpt-ui-components';
+import { MetadataSettings } from '../../models/metadata';
+import { ConversationViewTitles } from '../../models/titles';
+import { getRedirectConversationPath } from '../../utils/get-conversation-path';
+import { generateConversation } from '../../utils/generate-conversation';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { UserInfo } from '@statgpt/user-info/src/models/user-info';
 import { ABORT_ERROR } from '../../constants/errors';
-import { OnboardingElements } from '../../constants/onboarding-elements';
 import { useOnboarding } from '../../context/OnboardingContext';
-import { MetadataSettings } from '../../models/metadata';
-import { ConversationViewTitles } from '../../models/titles';
-import { extractPartialMessageData } from '../../utils/extract-partial-message';
-import { generateConversation } from '../../utils/generate-conversation';
-import { getRedirectConversationPath } from '../../utils/get-conversation-path';
+import { OnboardingElements } from '../../constants/onboarding-elements';
 import { getOnboardingInfoForAdvancedView } from '../../utils/get-tooltip-data.by-element';
-import {
-  isConversationIdExternal,
-  isReadOnlyConversation,
-} from '../../utils/is-read-only-conversation';
-import {
-  transformEditMessage,
-  transformMessagesForApi,
-  transformRegenerateMessage,
-} from '../../utils/transform-message-api';
-import { validateAndPrepareMessage } from '../../utils/validate-message';
+import { AttachmentsConfig } from '../../models/attachments';
 
 interface Props {
   conversationKey: string;
@@ -96,10 +97,13 @@ interface Props {
   setConversations: (conversations: ConversationInfo[]) => void;
   openUrl: (url: string) => void;
   signOutAction?: () => void;
+  handleInvalidStreaming?: (error: string) => void;
   messageActionsIcons?: MessageActionIcons;
   editMessageTitles: EditMessageTitles;
   scrollBottomIcon?: ReactNode;
   isFinalMessage?: boolean;
+  limitMessages: LimitMessages;
+  attachmentsConfig?: AttachmentsConfig;
 }
 
 export const ConversationView: FC<Props> = ({
@@ -121,6 +125,7 @@ export const ConversationView: FC<Props> = ({
   userInfo,
   titles,
   dataQuery,
+  handleInvalidStreaming,
   setConversation,
   setConversations,
   openUrl,
@@ -129,6 +134,8 @@ export const ConversationView: FC<Props> = ({
   editMessageTitles,
   scrollBottomIcon,
   isFinalMessage,
+  limitMessages,
+  attachmentsConfig,
 }) => {
   const [conversationSignal, setConversationSignal] =
     useState<AbortController | null>(null);
@@ -321,7 +328,7 @@ export const ConversationView: FC<Props> = ({
             }
           },
           onError: (error) => {
-            if (!isStopedStreaming(error)) {
+            if (!isStoppedStreaming(error)) {
               console.error('Streaming error:', error);
               throw error;
             }
@@ -329,11 +336,14 @@ export const ConversationView: FC<Props> = ({
         },
         token,
         conversation?.custom_fields as CustomFields,
-      );
+      ).catch((error) => {
+        const message = error.message;
+        handleInvalidStreaming?.(message);
+      });
 
       return currentAssistantMessage;
     },
-    [updateAssistantMessage, token],
+    [updateAssistantMessage, handleInvalidStreaming, token],
   );
 
   const finalizeConversation = useCallback(
@@ -383,7 +393,7 @@ export const ConversationView: FC<Props> = ({
     }
   }, [conversationSignal]);
 
-  const isStopedStreaming = (error?: Error) => {
+  const isStoppedStreaming = (error?: Error) => {
     return error?.name === ABORT_ERROR;
   };
 
@@ -396,7 +406,7 @@ export const ConversationView: FC<Props> = ({
       error?: Error,
       isSaveUserMessage = true,
     ) => {
-      if (isStopedStreaming(error)) {
+      if (isStoppedStreaming(error)) {
         await finalizeConversation(
           (finalAssistantMessage ?? initialAssistantMessage) as Message,
           conversation,
@@ -668,6 +678,8 @@ export const ConversationView: FC<Props> = ({
           editMessageTitles={editMessageTitles}
           scrollBottomIcon={scrollBottomIcon}
           isReadOnlyConversation={isReadonlyConversation || isShowOnboarding}
+          limitMessages={limitMessages}
+          attachmentsConfig={attachmentsConfig}
         />
       </div>
       {isShowOnboarding ? null : !isReadonlyConversation ? (

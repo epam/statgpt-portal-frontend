@@ -1,0 +1,152 @@
+{
+  "app": {
+    "titleGlobal": " ",
+    "title": "Portals Example",
+    "footer": "Powered by StatGPT Portals.",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "close": "Close",
+    "search": "Search",
+    "cancel": "Cancel"
+  },
+  "auth": {
+    "authorization": "Authorization",
+    "errorTitle": "Authorization error occurred",
+    "errorDescription": "The service is under development, so access is currently unavailable.",
+    "signOut": "Sign out"
+  },
+  "nav": {
+    "newChat": "New Chat",
+    "settings": "Settings"
+  },
+  "chat": {
+    "share": "Share",
+    "shareLinkTitle": "Share link to chat",
+    "shareLinkDescription": "Your name, special instructions, and any messages you add after sharing remain confidential.",
+    "createLink": "Create Link",
+    "copyLink": "Copy Link",
+    "duplicateChat": "Duplicate Chat",
+    "copied": "Copied",
+    "removeAccessToUsers": "Remove access to all users",
+    "exploreData": "Explore Data",
+    "chatName": "Chat name:",
+    "chatExpiration": "Link expiration date:",
+    "chatExpirationDays": "days",
+    "chatWarning": "This chat has not been shared with anyone yet."
+  },
+  "advancedView": {
+    "title": "Advanced view",
+    "dataset": "Dataset",
+    "agency": "Agency",
+    "lastUpdated": "Last Updated",
+    "openedInAdvancedView": "Opened in Advanced view",
+    "filters": "Filters",
+    "filter": "Filter",
+    "content": "Content",
+    "clearAll": "Clear All",
+    "clearAllFilters": "Clear all filters",
+    "resetSelectedValues": "Reset selected values",
+    "displayOrder": "Display order",
+    "list": "Flat List",
+    "hierarchy": "Hierarchy",
+    "settings": "Filters",
+    "applied": "Applied",
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "timeseries": "Timeseries",
+    "customPeriod": "Custom period",
+    "allPeriods": "All years",
+    "years": "{years} years",
+    "from": "From",
+    "to": "To",
+    "all": "All",
+    "metadata": "Metadata",
+    "observation": "Observation",
+    "noMetadata": "No metadata to preview",
+    "chartingNoData": "No data",
+    "largeQuery": "Large Query",
+    "showingLimit": "Showing first {limit} timeseries.",
+    "downloadMessage": "The file will only contain the first {limit} rows",
+    "showInAdvancedView": "Refine in advanced mode",
+    "dataExplorer": "Data explorer",
+    "excelFormatTitle": "Excel format",
+    "excelFormatText": "is available in data explorer",
+    "fullLimitMessage": "Full dataset is available in data explorer"
+  },
+  "message": {
+    "streaming": "I'm on it! Please wait...",
+    "processingReview": "View Processing Steps",
+    "queryUpdatedManually": "Query has been updated manually.",
+    "setTo": " set to ",
+    "loading": "I'm on it! Please wait..."
+  },
+  "conversation": {
+    "delete": "Delete",
+    "export": "Export",
+    "noConversations": "No conversations found",
+    "deleteTitle": "Delete chat?",
+    "deleteConfirm": "Deleted data cannot be recovered.",
+    "clickNewChat": "Click \"New Chat\" above to start",
+    "allChats": "All Chats",
+    "shared": "Shared",
+    "chat": "Chat",
+    "cancel": "Cancel",
+    "send": "Submit",
+    "rename": "Rename",
+    "renameTitle": "Rename conversation",
+    "save": "Save"
+  },
+  "attachments": {
+    "download": "Download",
+    "openUrl": "Open",
+    "dataGrid": "Data",
+    "chart": "Chart",
+    "limits": "Limited to",
+    "timeSeries": "Timeseries",
+    "chartInfo": "Predefined charts grouped by indicators for quick, clear data representation.",
+    "limitInfo_p1_part1": "The number of timeseries displayed in a single chart is",
+    "limitInfo_p1_part2": "limited to",
+    "limitInfo_p1_part3": "for better clarity and performance.",
+    "limitInfo_p2_part1": "To visualize specific timeseries",
+    "limitInfo_p2_part2": "filter",
+    "limitInfo_p2_part3": "your request, or",
+    "limitInfo_p2_part4": "refine",
+    "limitInfo_p2_part5": "it in the chat.",
+    "limitInfo_link": "Open Advanced Mode"
+  },
+  "time": {
+    "quarterly": "Q",
+    "monthly": "M"
+  },
+  "dateGroups": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "lastWeek": "Last 7 days",
+    "earlier": "Earlier"
+  },
+
+  "welcome": {
+    "title": "How can I help you?",
+    "askAnything": "Ask anything..."
+  },
+
+  "download": {
+    "download": "Download",
+    "downloadType": "Download type",
+    "dataset": "Dataset",
+    "dataFormat": "Data Format",
+    "metadata": "Metadata",
+    "all": "Included",
+    "none": "Not included",
+    "includeMetadata": "Include Metadata",
+    "fullDataset": "Full Dataset",
+    "partialDataset": "Data in table",
+    "attributes": "Attributes",
+    "id": "ID",
+    "idDescription": "File will include only the ID column.",
+    "name": "ID and Name",
+    "nameDescription": "File will include ID and Name in separate columns.",
+    "idName": "Combined ID and Name",
+    "idNameDescription": "File will include one column with ID and Name combined (ID:Name)."
+  }
+}

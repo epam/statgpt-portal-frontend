@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Data,
   getStructureComponentsMap,
@@ -8,14 +9,10 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { Locale } from '@epam/statgpt-shared-toolkit';
 import { IconButton } from '@epam/statgpt-ui-components';
+
 import { ICellRendererParams } from 'ag-grid-community';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MetadataIcon from '../../../assets/icons/metadata.svg';
-import { OnboardingElements } from '../../../constants/onboarding-elements';
-import { useOnboarding } from '../../../context/OnboardingContext';
-import { MetadataSettings } from '../../../models/metadata';
-import { ConversationViewTitles } from '../../../models/titles';
-import { getDimensionGroupAttributes } from '../../../utils/attachments/group-attributes';
+import Metadata from '../../AdvancedView/Metadata/Metadata';
 import {
   getAttributesFromParams,
   getDatasetNameItem,
@@ -23,9 +20,13 @@ import {
   getMetadataDescriptionItems,
   getStructureComponentsValues,
 } from '../../../utils/attachments/metadata';
-import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
-import Metadata from '../../AdvancedView/Metadata/Metadata';
+import { MetadataSettings } from '../../../models/metadata';
+import { getDimensionGroupAttributes } from '../../../utils/attachments/group-attributes';
+import { ConversationViewTitles } from '../../../models/titles';
 import { Tooltip } from '../../Tooltip/Tooltip';
+import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
+import { OnboardingElements } from '../../../constants/onboarding-elements';
+import { useOnboarding } from '../../../context/OnboardingContext';
 
 interface MetadataCellRendererParams extends ICellRendererParams {
   attributesData: Data;
@@ -42,6 +43,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
   const [tooltipDescription, setTooltipDescription] = useState<string>('');
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   const { onboardingFileSchema, isShowOnboarding } = useOnboarding();
+  const [isMetadataClosed, setIsMetadataClosed] = useState(false);
 
   const structureComponentsMap = useMemo(
     () => getStructureComponentsMap(params?.dataSetData),
@@ -93,6 +95,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
 
   const closeMetadata = useCallback(() => {
     setIsOpenMetadata(false);
+    setIsMetadataClosed(true);
   }, []);
 
   useEffect(() => {
@@ -108,10 +111,20 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
 
   useEffect(() => {
     if (isShowOnboarding) {
-      setIsTooltipVisible(
+      const isCurrent =
         onboardingFileSchema?.lastDisplayedElement ===
-          OnboardingElements.METADATA_PER_SERIES && params.node.rowIndex === 0,
-      );
+          OnboardingElements.METADATA_PER_SERIES && params.node.rowIndex === 0;
+
+      setIsTooltipVisible(isCurrent);
+
+      if (isCurrent) {
+        setTimeout(() => {
+          iconRef?.current?.scrollIntoView({
+            block: 'end',
+            behavior: 'smooth',
+          });
+        });
+      }
     }
   }, [
     onboardingFileSchema?.lastDisplayedElement,
@@ -134,6 +147,8 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
           reference={iconRef}
           title={tooltipTitle}
           description={tooltipDescription}
+          onReferenceClick={openMetadata}
+          shouldCloseTooltip={isMetadataClosed}
         />
       )}
       {isOpenMetadata && (

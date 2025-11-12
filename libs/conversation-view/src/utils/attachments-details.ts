@@ -7,6 +7,9 @@ import {
   getDimensions,
   getLocalizedName,
   StructuralData,
+  DatasetQueryFilters,
+  TIME_PERIOD,
+  getTimeSeriesFilterKey,
 } from '@epam/statgpt-sdmx-toolkit';
 import {
   DataQuery,
@@ -16,8 +19,8 @@ import {
   QueryFilterType,
 } from '@epam/statgpt-shared-toolkit';
 import { isEqual } from 'lodash';
-import { AttachmentInfo } from '../models/attachments';
 import { getDateString } from './attachments/time-period';
+import { AttachmentInfo } from '../models/attachments';
 
 export const getAttachmentInfoList = (
   previousDataQueries: DataQuery[],
@@ -119,4 +122,45 @@ const getQueryFiltersDetails = (
             }),
     };
   });
+};
+
+export const getExternalUrlQueryParam = (
+  filters?: DatasetQueryFilters,
+  dataQuery?: DataQuery,
+  dimensions?: Dimension[],
+): string => {
+  let startPeriod = '';
+  let endPeriod = '';
+
+  if (filters?.timeFilter) {
+    const timeFilterValue = decodeURIComponent(filters.timeFilter || '')?.split(
+      ':',
+    );
+    startPeriod = timeFilterValue[1] || '';
+    endPeriod = timeFilterValue[3] || '';
+  } else if (dataQuery) {
+    const periodFilter = dataQuery?.filters.find(
+      (filter) => filter.componentCode === TIME_PERIOD,
+    );
+    startPeriod = periodFilter?.values?.[0] || '';
+    endPeriod = periodFilter?.values?.[1] || '';
+  }
+
+  const explorerQueryFilters =
+    filters?.filterKey ||
+    getTimeSeriesFilterKey(dimensions || [], dataQuery?.filters || []);
+
+  return `&filter=${explorerQueryFilters}&startPeriod=${startPeriod}&endPeriod=${endPeriod}`;
+};
+
+export const getExternalLink = (
+  isExternaLinkIncludeFilters?: boolean,
+  filters?: DatasetQueryFilters,
+  dataQuery?: DataQuery,
+  dimensions?: Dimension[],
+): string => {
+  const queryParams = isExternaLinkIncludeFilters
+    ? getExternalUrlQueryParam(filters, dataQuery, dimensions)
+    : '';
+  return dataQuery?.metadata?.datasetUrl + queryParams;
 };
