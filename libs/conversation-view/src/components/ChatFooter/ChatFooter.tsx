@@ -6,7 +6,7 @@ interface Props {
   secondLine?: string;
 }
 
-const ChatFooter: FC<Props> = ({ firstLine, secondLine }) => {
+export const ChatFooter: FC<Props> = ({ firstLine, secondLine }) => {
   const showFirstLine = firstLine != null && firstLine.trim() !== '';
   const showSecondLine = secondLine != null && secondLine.trim() !== '';
   return (
@@ -21,5 +21,3 @@ const ChatFooter: FC<Props> = ({ firstLine, secondLine }) => {
     </div>
   );
 };
-
-export default ChatFooter;

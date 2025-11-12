@@ -16,6 +16,8 @@ export * from './types/charting-icon';
 export { ConversationWelcome } from './components/ConversationWelcome/ConversationWelcome';
 export { AdvancedView } from './components/AdvancedView/AdvancedView';
 export { ConversationView } from './components/ConversationView/ConversationView';
+export { ChatFooter } from './components/ChatFooter/ChatFooter';
+export { ChatOnboardingFooter } from './components/ChatOnboardingFooter/ChatOnboardingFooter';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 export type { ShareConversationProps } from '../../share-conversation/src/models/share-conversation';
 // eslint-disable-next-line @nx/enforce-module-boundaries
