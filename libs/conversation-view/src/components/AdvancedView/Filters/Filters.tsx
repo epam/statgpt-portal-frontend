@@ -9,14 +9,7 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { Locale } from '@epam/statgpt-shared-toolkit';
 import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
-import {
-  FC,
-  startTransition,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import FilterSettings from './FiltersModal/FiltersSettings';
 import { Filter, FiltersProps } from '../../../models/filters';
 import {
   getDatasetFilters,
@@ -31,15 +24,22 @@ import {
 } from '../../../utils/filters';
 import { getFilledFilters } from '../../../utils/get-filled-filters';
 import { getSeriesFilterDto } from '../../../utils/get-series-filters';
-import { getUpdatedDataQueries } from '../../../utils/get-updated-data-queries';
 import {
   getQueryFilters,
   setDataQueryFilters,
 } from '../../../utils/query-filters';
-import { updateMessagesWithSystemMessage } from '../../../utils/system-message';
-import FilterButton from './FilterButton/FilterButton';
-import FilterSettings from './FiltersModal/FiltersSettings';
+import {
+  FC,
+  startTransition,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import ModalFooter from './FiltersModal/ModalFooter';
+import FilterButton from './FilterButton/FilterButton';
+import { updateMessagesWithSystemMessage } from '../../../utils/system-message';
+import { getUpdatedDataQueries } from '../../../utils/get-updated-data-queries';
 
 const Filters: FC<FiltersProps> = ({
   actions,
@@ -60,6 +60,7 @@ const Filters: FC<FiltersProps> = ({
   setConversation,
   updateConversation,
   updateDataQueries,
+  limitMessages,
 }) => {
   const [modalState, setModalState] = useState(PopUpState.Closed);
   const [modalFilters, setModalFilters] = useState<Filter[]>([]);
@@ -78,6 +79,7 @@ const Filters: FC<FiltersProps> = ({
   const [isConstraintsLoading, setIsConstraintsLoading] = useState<boolean>();
   const [isDisableFilterValues, setIsDisableFilterValues] = useState<boolean>();
   const isPreselectedFromDataQuery = useRef(false);
+  const [isModalClosed, setIsModalClosed] = useState(false);
 
   const updateSelectedFilterValues = (filter?: Filter) => {
     const filters = filter
@@ -352,6 +354,7 @@ const Filters: FC<FiltersProps> = ({
   const onCloseModal = useCallback(() => {
     constraintsRef.current = initialModalConstraints;
     setModalState(PopUpState.Closed);
+    setIsModalClosed(true);
   }, [initialModalConstraints]);
 
   const onClearAllFilters = useCallback(() => {
@@ -366,6 +369,7 @@ const Filters: FC<FiltersProps> = ({
 
     setAppliedFilters(modalFilters);
     setModalState(PopUpState.Closed);
+    setIsModalClosed(true);
 
     startTransition(() => {
       addSystemMessage(modalFilters);
@@ -391,6 +395,7 @@ const Filters: FC<FiltersProps> = ({
         isLoading={isConstraintsLoading}
         setModalState={setModalState}
         titles={titles}
+        isModalClosed={isModalClosed}
       />
       <>
         {modalState === PopUpState.Opened && (
@@ -429,6 +434,10 @@ const Filters: FC<FiltersProps> = ({
               onClearAllFilters={onClearAllFilters}
               modalProps={modalProps}
               applyDisabled={isConstraintsLoading || isDisableFilterValues}
+              timeseriesLength={Number(
+                getTimeSeriesCount(constraintsRef?.current?.[0]?.annotations),
+              )}
+              limitMessages={limitMessages}
             />
           </Popup>
         )}

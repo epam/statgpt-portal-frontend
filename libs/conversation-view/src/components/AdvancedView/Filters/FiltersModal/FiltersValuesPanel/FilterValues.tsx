@@ -1,9 +1,9 @@
 'use client';
 
-import React, { FC, ReactNode } from 'react';
+import React, { ComponentType, CSSProperties, FC, ReactNode } from 'react';
 import classNames from 'classnames';
 import { FixedSizeList as OriginalList } from 'react-window';
-const List = OriginalList as unknown as React.ComponentType<any>;
+const List = OriginalList as unknown as ComponentType<any>;
 
 import {
   FilterTreeNodeProps,
@@ -26,7 +26,7 @@ interface Props {
 
 interface RowProps {
   index: number;
-  style: React.CSSProperties;
+  style: CSSProperties;
 }
 
 const ROW_HEIGHT = 24;

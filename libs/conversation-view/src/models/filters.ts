@@ -1,4 +1,4 @@
-import { Conversation } from '@epam/ai-dial-shared';
+import { Dispatch, ReactNode, SetStateAction } from 'react';
 import {
   DataConstraints,
   DatasetQueryFilters,
@@ -13,8 +13,9 @@ import {
   TimeRange,
   TimeRangeOptions,
 } from '@epam/statgpt-shared-toolkit';
-import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { LimitMessages } from '@epam/statgpt-ui-components';
 import { PutOnboardingFile, UpdateConversation } from '../types/actions';
+import { Conversation } from '@epam/ai-dial-shared';
 import { ConversationViewTitles } from './titles';
 
 export interface Filter {
@@ -94,4 +95,5 @@ export interface FiltersProps {
   setConversation?: Dispatch<SetStateAction<Conversation | null>>;
   updateConversation: UpdateConversation;
   updateDataQueries?: (dataQueries?: DataQuery[]) => void;
+  limitMessages?: LimitMessages;
 }

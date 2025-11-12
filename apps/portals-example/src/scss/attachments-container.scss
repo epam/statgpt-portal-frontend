@@ -1,0 +1,29 @@
+.attachment {
+  &-tab {
+    @apply px-3 py-2;
+    @apply border-b border-t border-neutrals-400;
+    @apply last:border-r border-neutrals-400 last:rounded-br last:rounded-tr;
+    @apply first:border-l border-neutrals-400 first:rounded-bl first:rounded-tl;
+    &-active {
+      @apply bg-neutrals-100;
+    }
+  }
+
+  &-collapsed {
+    @apply bg-white text-neutrals-900 border-primary;
+  }
+
+  &-details {
+    @apply text-neutrals-900;
+  }
+
+  &-dataset-name {
+    @apply py-1 px-2 rounded-full;
+    @apply bg-neutrals-200 text-primary mb-3;
+    @apply border border-hues-600;
+  }
+
+  &-dataset-icon {
+    @apply w-4 h-4;
+  }
+}

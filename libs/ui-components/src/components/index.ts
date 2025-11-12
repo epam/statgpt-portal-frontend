@@ -16,3 +16,7 @@ export { Tag } from './Tag/Tag';
 export { Radio } from './Radio/Radio';
 export { Popup } from './Popup/Popup';
 export { Dropdown } from './Dropdown/Dropdown';
+export { DownloadFormatMessage } from './DownloadFormatMessage/DownloadFormatMessage';
+export { RequestLimitMessage } from './RequestLimit/RequestLimit';
+export type { LimitMessages } from './RequestLimit/RequestLimit';
+

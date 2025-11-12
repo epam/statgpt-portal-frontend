@@ -1,0 +1,80 @@
+h1 {
+  @apply h1;
+}
+
+h2 {
+  @apply h2;
+}
+
+h3 {
+  @apply h3;
+}
+
+h4 {
+  @apply h4;
+}
+
+h5 {
+  @apply h5;
+}
+
+.h1 {
+  font-size: 38px;
+  line-height: 42px;
+  @apply font-normal;
+}
+
+.h2 {
+  font-size: 16px;
+  line-height: 24px;
+  @apply font-bold;
+}
+
+.h3 {
+  font-size: 14px;
+  line-height: 16px;
+  @apply font-semibold;
+}
+
+.h4 {
+  font-size: 12px;
+  line-height: 16px;
+  @apply font-semibold;
+}
+
+.h5 {
+  font-size: 10px;
+  line-height: 16px;
+  @apply font-semibold;
+}
+
+.body-1 {
+  font-size: 16px;
+  line-height: 24px;
+  @apply font-normal;
+}
+
+.body-2 {
+  font-size: 14px;
+  line-height: 20px;
+  @apply font-normal;
+}
+
+.body-3 {
+  font-size: 12px;
+  line-height: 16px;
+  @apply font-normal;
+}
+
+.caption {
+  font-size: 10px;
+  line-height: 16px;
+  @apply font-normal;
+}
+
+.logo {
+  font-family: var(--font-inter);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 16px;
+}

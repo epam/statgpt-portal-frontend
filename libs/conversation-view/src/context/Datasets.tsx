@@ -1,11 +1,11 @@
+import { useEffect, useState } from 'react';
+import { GetDatasetDetails } from '../types/actions';
 import {
   Dataflow,
   generateShortUrn,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
-import { useEffect, useState } from 'react';
-import { GetDatasetDetails } from '../types/actions';
 
 export function useDatasets(
   getDataSetAction: GetDatasetDetails,

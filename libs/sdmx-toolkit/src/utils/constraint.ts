@@ -3,10 +3,12 @@ import {
   MemberSelectionValue,
 } from '../models/structural-metadata/constraints';
 import { Annotation } from '../models/structural-metadata-base';
-import { TimeRange } from '@epam/statgpt-shared-toolkit';
+import { TimeRange, DataQuery } from '@epam/statgpt-shared-toolkit';
 import { getLocalizedName } from './get-localized-name';
 import { Code, Codelist } from '../models/structural-metadata/codelist';
 import { getFilteredItemsWithParents } from './get-filtered-items';
+import { SeriesFilterDto } from '../models';
+import { SeriesFilterOperator } from '../types';
 
 export const TIME_PERIOD_END = 'time_period_end';
 export const TIME_PERIOD_START = 'time_period_start';
@@ -125,3 +127,19 @@ const isConstraintOnElements = (
   contentConstraints != null &&
   contentConstraints.length > 0 &&
   dimensionId != null;
+
+export const getFiltersDtoFromDataQuery = (
+  dataQuery: DataQuery,
+): SeriesFilterDto[] => {
+  const filters: SeriesFilterDto[] = [];
+  dataQuery?.filters?.forEach((filter) => {
+    if (filter.componentCode !== TIME_PERIOD) {
+      filters.push({
+        componentCode: filter.componentCode,
+        operator: SeriesFilterOperator.EQUALS,
+        value: filter.values.join(','),
+      });
+    }
+  });
+  return filters;
+};

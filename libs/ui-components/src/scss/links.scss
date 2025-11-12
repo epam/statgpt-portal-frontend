@@ -1,0 +1,8 @@
+@layer components {
+  .base-link {
+    @apply text-primary;
+    &:hover {
+      @apply underline;
+    }
+  }
+}

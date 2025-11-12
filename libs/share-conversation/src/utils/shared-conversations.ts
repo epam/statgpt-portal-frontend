@@ -1,11 +1,11 @@
-import { Conversation, ConversationInfo } from '@epam/ai-dial-shared';
 import {
   ConversationData,
   ConversationResource,
-  GeneratedLinkResponse,
   InvitationType,
+  GeneratedLinkResponse,
   SharedConversationInfo,
 } from '@epam/statgpt-dial-toolkit';
+import { Conversation, ConversationInfo } from '@epam/ai-dial-shared';
 import { SHARE_CONVERSATION_ROUTE } from '../constants/share-conversation';
 
 export const getConversationData = (

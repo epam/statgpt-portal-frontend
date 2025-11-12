@@ -39,10 +39,31 @@ const ConversationItem: FC<Props> = ({
 
   useEffect(() => {
     if (conversation?.id === selectedConversationId) {
-      conversationItemRef?.current?.scrollIntoView({
-        block: 'center',
-        behavior: 'smooth',
-      });
+      if (conversationItemRef?.current) {
+        const container =
+          conversationItemRef.current.parentElement?.parentElement
+            ?.parentElement;
+
+        if (container) {
+          const itemRect = conversationItemRef.current.getBoundingClientRect();
+          const containerRect = container.getBoundingClientRect();
+
+          const elementHeight = itemRect.height;
+          const containerHeight = containerRect.height;
+
+          const offsetTop = itemRect.top - containerRect.top;
+
+          const centerOffset =
+            offsetTop +
+            container.scrollTop -
+            (containerHeight / 2 - elementHeight / 2);
+
+          container.scrollTo({
+            top: centerOffset,
+            behavior: 'smooth',
+          });
+        }
+      }
     }
   }, [conversation, selectedConversationId]);
 
@@ -60,7 +81,7 @@ const ConversationItem: FC<Props> = ({
       }
       title={conversationName}
     >
-      <div className="flex w-full min-w-0 items-center">
+      <div className="flex flex-1 min-w-0 items-center">
         {conversationStyles.conversationItemIcon
           ? conversationStyles.conversationItemIcon
           : null}

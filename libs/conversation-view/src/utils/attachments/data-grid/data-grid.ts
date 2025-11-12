@@ -9,13 +9,13 @@ import {
   TimeRange,
 } from '@epam/statgpt-shared-toolkit';
 import { ColDef } from 'ag-grid-community';
-import { ChartingStyles } from '../../../models/attachments-styles';
-import { MetadataSettings } from '../../../models/metadata';
-import { ConversationViewTitles } from '../../../models/titles';
-import { PutOnboardingFile } from '../../../types/actions';
-import { GridData } from '../../../types/data-grid/grid-data';
 import { getColumns } from './columns';
 import { getRowsData } from './rows-data';
+import { GridData } from '../../../types/data-grid/grid-data';
+import { MetadataSettings } from '../../../models/metadata';
+import { ChartingStyles } from '../../../models/attachments-styles';
+import { ConversationViewTitles } from '../../../models/titles';
+import { PutOnboardingFile } from '../../../types/actions';
 
 export function buildGridData(
   structures: StructuralData,

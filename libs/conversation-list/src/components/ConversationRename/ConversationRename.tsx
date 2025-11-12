@@ -13,13 +13,13 @@ interface Props {
   titles: ConversationListTitles;
   locale: string;
   onCloseModal: () => void;
-  renameCoversation: (conversationId: string, name: string) => void;
+  renameConversation: (conversationId: string, name: string) => void;
 }
 
 const ConversationRename: FC<Props> = ({
   conversation,
   onCloseModal,
-  renameCoversation,
+  renameConversation,
   locale,
   disableModalDividers,
   titles,
@@ -32,7 +32,7 @@ const ConversationRename: FC<Props> = ({
 
   const onRenameSubmit = () => {
     const renamedConversationId = `${conversation?.folderId}/${encodeURIComponent(getClearedConversationName(value))}-${new Date().getTime()}`;
-    renameCoversation(
+    renameConversation(
       `conversations/${conversation.id}`,
       `conversations/${renamedConversationId}`,
     );

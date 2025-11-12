@@ -19,9 +19,14 @@ export interface AttachmentsProps {
   dataQueries?: DataQuery[];
   datasets?: Dataflow[];
   styles?: AttachmentsStyles;
+  showExternalButton?: boolean;
 }
 
 export interface AttachmentInfo {
   datasetName?: string;
   queryFiltersDetails?: QueryFilterDetails[];
+}
+
+export interface AttachmentsConfig {
+  isExternaLinkIncludeFilters?: boolean;
 }

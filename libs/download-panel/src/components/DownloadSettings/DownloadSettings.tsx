@@ -1,3 +1,4 @@
+import { FC, ReactNode, useCallback, useState } from 'react';
 import {
   DatasetQueryFilters,
   Dimension,
@@ -12,19 +13,21 @@ import {
   CollapsibleBlock,
   Popup,
   PopUpSize,
+  LimitMessages,
+  RequestLimitMessage,
+  DownloadFormatMessage,
 } from '@epam/statgpt-ui-components';
-import { FC, ReactNode, useCallback, useState } from 'react';
 import ToggleActiveIcon from '../../assets/icons/toggle-active.svg';
 import ToggleInactiveIcon from '../../assets/icons/toggle-inactive.svg';
+import { DownloadActions } from '../../models/actions';
+import { DownloadSettingItem } from '../../models/download-settings-item';
 import {
   DOWNLOAD_ATTRIBUTES,
   DOWNLOAD_DATA_FORMATS,
 } from '../../constants/download-options';
-import { DownloadActions } from '../../models/actions';
-import { DownloadSettingItem } from '../../models/download-settings-item';
-import { DownloadTitles } from '../../models/titles';
-import { getDownloadFilters } from '../../utils/get-filter';
 import DownloadOptionBlock from '../DownloadOptionBlock/DownloadOptionBlock';
+import { getDownloadFilters } from '../../utils/get-filter';
+import { DownloadTitles } from '../../models/titles';
 
 interface Props {
   actions: DownloadActions;
@@ -41,6 +44,9 @@ interface Props {
   onCloseModal: () => void;
   setIsShowDownloadAlert?: (isShowDownloadAlert?: boolean) => void;
   setDownloadAlertDetails?: (downloadAlertDetails?: AlertDetails) => void;
+  limitMessages?: LimitMessages;
+  showLimitMessage?: boolean;
+  externalLink?: string;
 }
 
 const DownloadSettings: FC<Props> = ({
@@ -56,6 +62,9 @@ const DownloadSettings: FC<Props> = ({
   filters,
   urn,
   titles,
+  limitMessages,
+  showLimitMessage,
+  externalLink,
 }) => {
   const downloadAttributes = DOWNLOAD_ATTRIBUTES(titles);
 
@@ -120,16 +129,6 @@ const DownloadSettings: FC<Props> = ({
       <div className="download-info flex flex-col gap-1 px-6">
         <div className="download-info-text flex gap-1">
           <p className="text-neutrals-800 body-3">
-            {titles?.downloadType || 'Download type'}:
-          </p>
-          <span className="h4">
-            {type === DownloadType.DATA_IN_TABLE
-              ? titles?.partialDataset || 'Data in table'
-              : titles?.fullDataset || 'Full Dataset'}
-          </span>
-        </div>
-        <div className="download-info-text flex gap-1">
-          <p className="text-neutrals-800 body-3">
             {titles?.dataset || 'Dataset'}:
           </p>
           <span className="h4 flex flex-row gap-x-1 flex-1 min-w-0">
@@ -137,6 +136,13 @@ const DownloadSettings: FC<Props> = ({
             <p className="flex-1 min-w-0 truncate">{datasetName}</p>
           </span>
         </div>
+        {showLimitMessage && (
+          <RequestLimitMessage
+            limitMessages={limitMessages}
+            isDownload
+            query={externalLink}
+          />
+        )}
       </div>
       <div className="download-settings flex flex-col overflow-auto p-6">
         <DownloadOptionBlock
@@ -144,6 +150,12 @@ const DownloadSettings: FC<Props> = ({
           selectedValue={selectedDataFormat}
           setSelectedValue={setSelectedDataFormat}
           items={DOWNLOAD_DATA_FORMATS}
+          infoMessage={
+            <DownloadFormatMessage
+              limitMessages={limitMessages}
+              query={externalLink}
+            />
+          }
         />
 
         <DownloadOptionBlock

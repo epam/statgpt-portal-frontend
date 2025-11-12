@@ -1,27 +1,26 @@
 'use client';
 
-import { useIsMobile } from '@epam/statgpt-ui-components';
-import classNames from 'classnames';
 import { FC, useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import ChevronSolidDownIcon from '../../../../../assets/icons/chevron-solid-down.svg';
-
 import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
 import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
 import { Dropdown, IconButton } from '@epam/statgpt-ui-components';
-import ClearIcon from '../../../../../assets/icons/clear.svg';
-import SettingsListIcon from '../../../../../assets/icons/settings-list.svg';
+import { useIsMobile } from '@epam/statgpt-ui-components';
 import {
   Filter,
   FilterTreeNodeProps,
   FilterValuesProps,
 } from '../../../../../models/filters';
-import { ConversationViewTitles } from '../../../../../models/titles';
+import ClearIcon from '../../../../../assets/icons/clear.svg';
+import SettingsListIcon from '../../../../../assets/icons/settings-list.svg';
 import { getDateString } from '../../../../../utils/attachments/time-period';
 import {
   getFilterDisplaySettings,
   getSelectedDimensionValues,
 } from '../../../../../utils/filters';
 import FiltersValuesPanel from '../FiltersValuesPanel/FiltersValuesPanel';
+import { ConversationViewTitles } from '../../../../../models/titles';
 
 interface Props {
   filter: Filter;

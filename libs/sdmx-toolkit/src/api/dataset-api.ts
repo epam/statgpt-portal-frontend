@@ -37,7 +37,7 @@ export class DatasetApi {
   ): Promise<DataMessage | null> {
     const queryParams = new URLSearchParams({
       includeHistory: 'false',
-      limit: '10000',
+      limit: '1000',
       attributes: ALL_ATTRIBUTES,
       dimensionAtObservation: 'TIME_PERIOD', // TODO: use time dimensions
     }).toString();
@@ -59,6 +59,7 @@ export class DatasetApi {
       format: dataFormat,
       compress: 'false',
       attributes: isMetadata ? 'all' : 'none',
+      limit: '1000',
     }).toString();
 
     const urlWithParams = generateDatasetDataRequest(urn, queryParams, filters);

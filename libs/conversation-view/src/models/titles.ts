@@ -1,7 +1,31 @@
-export interface ConversationViewTitles {
+interface InputForAskTitles {
+  askAnything?: string;
+}
+
+interface OnboardingTitles {
+  onboardingTitle?: string;
+  onboardingFooter?: string;
+  onboardingFooterLink?: string;
+  skipOnboardingNow?: string;
+  refuseOnboarding?: string;
+}
+
+interface FooterTitles {
+  footerFirstLine?: string;
+  footerSecondLine?: string;
+}
+
+export interface WelcomeViewTitles
+  extends InputForAskTitles,
+    OnboardingTitles,
+    FooterTitles {
   newChat?: string;
   welcomeTitle?: string;
-  askAnything?: string;
+  close?: string;
+}
+
+//TODO: rewright to not extend WelcomeViewTitles
+export interface ConversationViewTitles extends WelcomeViewTitles {
   close?: string;
   duplicate?: string;
   chart?: string;
@@ -48,11 +72,6 @@ export interface ConversationViewTitles {
   setTo?: string;
   signOut?: string;
   loading?: string;
-  onboardingTitle?: string;
-  onboardingFooter?: string;
-  onboardingFooterLink?: string;
-  skipOnboardingNow?: string;
-  refuseOnboarding?: string;
   dataGridTitle?: string;
   dataGridDescription?: string;
   metadataPerSeriesTitle?: string;

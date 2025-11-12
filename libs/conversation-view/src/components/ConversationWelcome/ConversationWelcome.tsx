@@ -1,37 +1,39 @@
 'use client';
 
 import {
-  ConversationInfo,
-  DialSchemaProperties,
   FormSchemaButtonOption,
+  DialSchemaProperties,
   MessageFormSchema,
 } from '@epam/ai-dial-shared';
-import { transformSharedConversations } from '@epam/statgpt-conversation-list';
+import InputForAsk from '../InputForAsk/InputForAsk';
+import { FC, ReactNode, useCallback, useEffect, useState } from 'react';
+import classNames from 'classnames';
+import { ConversationInfo } from '@epam/ai-dial-shared';
 import {
   CreateConversationRequest,
   getSharedConversationsRequest,
-  SharedConversations,
   SharedConversationsRequest,
+  SharedConversations,
   ShareTarget,
 } from '@epam/statgpt-dial-toolkit';
 import { cleanConversationNames } from '@epam/statgpt-shared-toolkit';
 import { Loader } from '@epam/statgpt-ui-components';
 import { Tag } from '@epam/statgpt-ui-components';
-import classNames from 'classnames';
-import { FC, ReactNode, useCallback, useEffect, useState } from 'react';
-import { InputMessageStyles } from '../../models/message';
-import { ConversationViewTitles } from '../../models/titles';
+
 import { getCreateConversationRequest } from '../../utils/conversation-request';
 import { generateOnboardingConversation } from '../../utils/generate-onboarding-conversation';
-import InputForAsk from '../InputForAsk/InputForAsk';
+import { InputMessageStyles } from '../../models/message';
+import { ConversationViewTitles } from '../../models/titles';
+import { transformSharedConversations } from '@epam/statgpt-conversation-list';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { UserInfo } from '@statgpt/user-info/src/models/user-info';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import User from '@statgpt/user-info/src/components/User/User';
+import { ConversationOnboarding } from '../ConversationOnboarding/ConversationOnboarding';
+import ChatOnboardingFooter from '../ChatOnboardingFooter/ChatOnboardingFooter';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { PutOnboardingFile } from '../../types/actions';
-import ChatOnboardingFooter from '../ChatOnboardingFooter/ChatOnboardingFooter';
-import { ConversationOnboarding } from '../ConversationOnboarding/ConversationOnboarding';
+import ChatFooter from '../ChatFooter/ChatFooter';
 
 interface ConversationListActions {
   getBucket: () => Promise<{ bucket: string }>;
@@ -260,7 +262,6 @@ export const ConversationWelcome: FC<Props> = ({
           </div>
           <InputForAsk
             containerClasses={classNames(
-              'mb-6',
               inputMessageStyles.inputContainerClass,
               isBottomInputPosition && 'order-3 mt-auto',
             )}
@@ -294,6 +295,12 @@ export const ConversationWelcome: FC<Props> = ({
         <ChatOnboardingFooter
           titles={titles}
           openNewConversation={() => setIsShowOnboarding(false)}
+        />
+      )}
+      {!isShowOnboarding && (
+        <ChatFooter
+          firstLine={titles.footerFirstLine}
+          secondLine={titles.footerSecondLine}
         />
       )}
     </div>

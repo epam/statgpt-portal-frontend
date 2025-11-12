@@ -5,13 +5,13 @@
  * with support for multiple message formats (OpenAI delta, direct content),
  * error handling, and streaming lifecycle management.
  */
+import { Message } from '../models/message';
 import { API_ROUTES, getHeaders } from '@epam/statgpt-shared-toolkit';
 import {
   CustomFields,
   MessageStreamResponse,
   RequestStreamBody,
 } from '../models/chat-stream';
-import { Message } from '../models/message';
 import { ModelInfo } from '../models/model';
 import { handleStreamMessage } from '../utils/chat-stream-api';
 import { sendRequest } from '../utils/send-request';
@@ -72,7 +72,9 @@ export class ChatStreamSSEClient {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
+      throw new Error(
+        JSON.stringify({ status: response.status, message: errorText }),
+      );
     }
 
     if (!response.body) {
@@ -141,7 +143,6 @@ export class ChatStreamSSEClient {
 
       try {
         const parsed = JSON.parse(data);
-        console.info(`SSE: Parsed data: ${parsed}`);
         onMessage?.(parsed);
       } catch (error) {
         console.error(`Failed to parse SSE data: ${data} ${error}`);

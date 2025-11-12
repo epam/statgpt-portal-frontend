@@ -1,0 +1,32 @@
+@use '../scss/styles.scss';
+
+@use 'scroll.scss';
+@use 'buttons.scss';
+@use 'input.scss';
+@use 'fonts.scss';
+@use 'grid.scss';
+@use 'loader.scss';
+@use 'calendar.scss';
+@use 'attachments-container.scss';
+@use 'dataset-tabs.scss';
+@use 'messages.scss';
+@use 'conversation-list.scss';
+@use 'share.scss';
+@use 'metadata.scss';
+@use 'download.scss';
+@use 'advance-view.scss';
+@use 'alert.scss';
+@use 'chart-attachment.scss';
+
+body {
+  font-family: var(--open-sans);
+}
+
+.main-layout {
+  background-image: url('/images/chat/layout.svg');
+  background-size: cover;
+}
+
+.dropdown-menu-shadow {
+  box-shadow: 0px 1px 4px 0px #3161b04d;
+}

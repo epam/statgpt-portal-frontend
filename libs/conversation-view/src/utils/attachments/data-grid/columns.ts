@@ -14,12 +14,17 @@ import {
   FormatNumbersType,
   TimeRange,
 } from '@epam/statgpt-shared-toolkit';
+import { ObsColGetter } from '../../../types/data-grid/obs-col-getter';
 import {
   ColDef,
   ITooltipParams,
   ValueFormatterParams,
   ValueGetterParams,
 } from 'ag-grid-community';
+import {
+  getDimRelatedStructures,
+  getDimValueLocalizedName,
+} from '../localized-value';
 import {
   CELL_PADDING_0,
   DEFAULT_GRID_COLUMN_WITH,
@@ -29,14 +34,9 @@ import {
   OBSERVATION_VALUE_CELL_RENDER,
 } from '../../../constants/grid';
 import { MetadataSettings } from '../../../models/metadata';
+import { localizeTimePeriod } from '../time-period';
 import { ConversationViewTitles } from '../../../models/titles';
 import { PutOnboardingFile } from '../../../types/actions';
-import { ObsColGetter } from '../../../types/data-grid/obs-col-getter';
-import {
-  getDimRelatedStructures,
-  getDimValueLocalizedName,
-} from '../localized-value';
-import { localizeTimePeriod } from '../time-period';
 
 export function getColumns(
   structures: StructuralData,

@@ -1,0 +1,276 @@
+@use './fonts';
+
+$day-width: 28px;
+$day-margin: 4px;
+$inner-width: 7 * $day-width + 7 * $day-margin;
+$calendar-width: $inner-width;
+
+@mixin override-flatpickr-width {
+  width: $inner-width !important;
+  min-width: $inner-width !important;
+  max-width: $inner-width !important;
+}
+
+.calendar {
+  @apply w-[308px];
+
+  label {
+    @apply text-primary bg-hues-100;
+    @apply rounded-md w-5 h-5;
+    @apply flex items-center justify-center top-[32px];
+  }
+
+  &-title {
+    @apply mb-2 body-3 text-neutrals-800;
+  }
+
+  .flatpickr-input {
+    @apply border-[1px] border-neutrals-500 rounded-md;
+    @apply px-3 py-2 h-[36px];
+    @apply text-neutrals-800 body-2;
+    &.active {
+      @apply border-hues-600;
+    }
+  }
+}
+
+.flatpickr-calendar {
+  @apply bg-white;
+  @apply py-[3px] px-[12px];
+  width: 248px !important;
+
+  &.open {
+    @apply bg-white;
+    @apply px-[12px] py-[16px];
+    min-width: $calendar-width !important;
+    &:before,
+    &:after {
+      @apply hidden;
+    }
+  }
+
+  &.arrowBottom {
+    @apply mt-[-38px];
+  }
+
+  &.arrowTop {
+    &:before,
+    &:after {
+      @apply border-none;
+    }
+  }
+
+  &.hasTime {
+    .flatpickr-time {
+      @apply flex;
+      @apply border-neutrals-700;
+      @apply pt-[12px] h-[60px] max-h-[60px];
+      .flatpickr-time-separator {
+        @apply hidden;
+      }
+      .numInputWrapper {
+        @apply flex w-[108px] max-w-[108px] h-[32px];
+
+        &:first-child {
+          @apply mr-[8px];
+        }
+        &:hover {
+          @apply bg-transparent;
+        }
+
+        input {
+          @apply body-1 text-start;
+          @apply rounded border-neutrals-600;
+          @apply py-[8px] px-[6px];
+          &:hover {
+            @apply bg-transparent;
+          }
+        }
+
+        span {
+          @apply border-none;
+          @apply opacity-100;
+
+          &.arrowUp {
+            @apply top-[5px] right-[3px];
+          }
+          &.arrowDown {
+            @apply top-[10px] right-[3px];
+          }
+          &:hover {
+            @apply bg-transparent;
+          }
+        }
+      }
+    }
+  }
+
+  .flatpickr-months {
+    @apply p-0;
+    height: 24px !important;
+    .flatpickr-month {
+      @apply bg-white;
+      height: 24px !important;
+      display: flex;
+      justify-content: center;
+    }
+    .flatpickr-prev-month,
+    .flatpickr-next-month {
+      @apply relative p-0 h-[24px] flex items-center;
+      top: unset !important;
+      svg {
+        @apply h-[20px];
+      }
+    }
+  }
+
+  .flatpickr-current-month {
+    @apply relative w-fit;
+    left: unset;
+    @apply h-[20px] pt-0;
+    .cur-month {
+      @apply ml-0;
+    }
+    .cur-month,
+    .cur-year {
+      @extend h2;
+      @apply text-neutrals-1000;
+      &:hover {
+        @apply bg-transparent;
+      }
+    }
+    .numInputWrapper {
+      span {
+        @apply opacity-100 border-none;
+        @apply bg-white;
+      }
+      &:hover {
+        @apply bg-transparent;
+      }
+    }
+  }
+
+  .flatpickr-weekdaycontainer {
+    @apply text-center pb-[4px];
+    @apply border-b-[1px] border-neutrals-500;
+    .flatpickr-weekday {
+      @apply text-neutrals-800 body-3 bg-white;
+    }
+  }
+
+  .flatpickr-next-month,
+  .flatpickr-prev-month {
+    &:hover {
+      svg {
+        @apply fill-neutrals-1000;
+      }
+    }
+  }
+
+  .flatpickr-next-month {
+    &:after {
+      @apply rotate-180;
+    }
+  }
+
+  .flatpickr-innerContainer {
+    border: none !important;
+    margin-top: 12px;
+    .flatpickr-rContainer {
+      @include override-flatpickr-width;
+      .flatpickr-weekdaycontainer,
+      .flatpickr-weekdays {
+        @include override-flatpickr-width;
+      }
+      .flatpickr-days {
+        width: $inner-width !important;
+        border: none !important;
+        margin-top: 12px;
+        .dayContainer {
+          @include override-flatpickr-width;
+          @apply grid;
+          grid-template-columns: repeat(7, 1fr);
+          row-gap: 2px;
+          column-gap: 2px;
+          .flatpickr-day {
+            @apply border-none flex items-center;
+            border-radius: 20px !important;
+            @apply text-neutrals-1000;
+            @apply bg-white;
+            @apply body-2;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: $day-width !important;
+            min-width: $day-width !important;
+            height: $day-width !important;
+            &.prevMonthDay {
+              @apply invisible;
+            }
+            &.nextMonthDay {
+              @apply hidden;
+            }
+            &.today {
+              @apply border-primary;
+            }
+            &:hover {
+              @apply bg-neutrals-200;
+              @apply border-hues-600 border-[1px] border-solid;
+            }
+            &.selected {
+              @apply bg-primary;
+              @apply text-white;
+            }
+            &.flatpickr-disabled {
+              @apply cursor-default;
+              @apply text-neutrals-700;
+              border: none !important;
+              background-color: white !important;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .flatpickr-weekdays {
+    @apply bg-white;
+  }
+
+  .flatpickr-rContainer {
+    .flatpickr-weekdaycontainer {
+      min-width: 224px !important;
+      max-width: 224px !important;
+      width: 224px !important;
+    }
+    .flatpickr-days {
+      width: 230px !important;
+      border: 0 !important;
+      .flatpickr-day {
+        width: 32px !important;
+        max-width: 32px !important;
+        height: 32px !important;
+
+        @apply text-neutrals-1000 p-[2px];
+        font-size: 14px;
+        line-height: 26px;
+        &:hover {
+          @apply border-primary text-neutrals-1000 bg-white;
+        }
+        &.selected {
+          @apply border-primary bg-primary text-white;
+        }
+        &.today {
+          @apply border-primary;
+        }
+        &.nextMonthDay {
+          @apply text-neutrals-700;
+        }
+      }
+    }
+    .dayContainer {
+      min-width: 230px !important;
+      max-width: 230px !important;
+      justify-content: initial;
+    }
+  }
+}

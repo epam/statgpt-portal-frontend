@@ -4,7 +4,7 @@ import DataDetails from './DataDetails';
 import DatasetInfo from './DatasetInfo';
 import Header from './Header';
 import { FiltersProps } from '../../models/filters';
-import { AttachmentsProps } from '../../models/attachments';
+import { AttachmentsConfig, AttachmentsProps } from '../../models/attachments';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { MetadataSettings } from '../../models/metadata';
@@ -18,6 +18,7 @@ import classNames from 'classnames';
 import DatasetTabs from '../Attachments/Tabs/DatasetTabs/DatasetTabs';
 import { ConversationViewTitles } from '../../models/titles';
 import { StructureComponentValue } from '../../models/structure-component';
+import { LimitMessages } from '@epam/statgpt-ui-components';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -32,6 +33,8 @@ interface Props {
   getDatasetUpdatedTime?: (
     attributes: StructureComponentValue[],
   ) => string | null;
+  limitMessages?: LimitMessages;
+  attachmentsConfig?: AttachmentsConfig;
 }
 
 export const AdvancedView: FC<Props> = ({
@@ -44,6 +47,7 @@ export const AdvancedView: FC<Props> = ({
   locale,
   advanceViewStyles,
   getDatasetUpdatedTime,
+  attachmentsConfig,
   ...props
 }) => {
   const {
@@ -117,7 +121,9 @@ export const AdvancedView: FC<Props> = ({
                 metadataSettings={metadataSettings}
                 getDatasetUpdatedTime={getDatasetUpdatedTime}
                 externalLink={
-                  attachmentsProps?.currentDataQuery?.metadata?.datasetUrl
+                  !attachmentsConfig?.isExternaLinkIncludeFilters
+                    ? attachmentsProps?.currentDataQuery?.metadata?.datasetUrl
+                    : ''
                 }
               />
               <div
@@ -145,6 +151,7 @@ export const AdvancedView: FC<Props> = ({
                     initialConstraints: constraints,
                   }}
                   setIsFiltering={setIsFiltering}
+                  attachmentsConfig={attachmentsConfig}
                 />
               </div>
             </>

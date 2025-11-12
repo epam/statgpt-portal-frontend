@@ -1,8 +1,8 @@
+import { FC, ReactNode, useMemo } from 'react';
 import { Dropdown, DropdownItem } from '@epam/statgpt-ui-components';
 import { DownloadType as DownloadTypeOptions } from '@epam/statgpt-sdmx-toolkit';
-import { FC, ReactNode, useMemo } from 'react';
-import { DownloadTitles } from '../../models/titles';
 import { DownloadTypeTrigger } from './DownloadTypeTrigger';
+import { DownloadTitles } from '../../models/titles';
 
 interface Props {
   icon?: ReactNode;

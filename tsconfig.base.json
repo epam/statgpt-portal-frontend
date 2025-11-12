@@ -37,7 +37,8 @@
       "@epam/statgpt-ui-components": ["libs/ui-components/src/index"],
       "@statgpt/share-conversation/*": ["libs/share-conversation/*"],
       "@statgpt/download-panel/*": ["libs/download-panel/*"],
-      "@statgpt/user-info/*": ["libs/user-info/*"]
+      "@statgpt/user-info/*": ["libs/user-info/*"],
+      "@statgpt/portals-example/*": ["apps/portals-example/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

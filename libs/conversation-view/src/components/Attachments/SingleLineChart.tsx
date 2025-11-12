@@ -1,11 +1,11 @@
 'use client';
 
-import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
-import ReactECharts from 'echarts-for-react';
 import { FC, useCallback, useEffect, useState } from 'react';
+import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
 import { ChartUnit } from '../../models/charting';
-import { ConversationViewTitles } from '../../models/titles';
+import ReactECharts from 'echarts-for-react';
 import ChartSidebar from './CustomAttachments/ChartSidebar';
+import { ConversationViewTitles } from '../../models/titles';
 
 interface Props {
   chart: ChartUnit;

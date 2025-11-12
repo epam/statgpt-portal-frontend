@@ -3,7 +3,7 @@
 import { CustomGridAttachment } from '../../../models/attachments';
 import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { Loader } from '@epam/statgpt-ui-components';
+import { Loader, SERIES_LIMIT } from '@epam/statgpt-ui-components';
 import type { ColDef } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { GridData } from '../../../types/data-grid/grid-data';
@@ -32,6 +32,7 @@ interface Props {
   chartColumn?: boolean;
   fixHeight?: boolean;
   titles?: ConversationViewTitles;
+  showLimitMessage?: (p: boolean) => void;
 }
 
 const CustomDataGridAttachment: FC<Props> = ({
@@ -40,6 +41,7 @@ const CustomDataGridAttachment: FC<Props> = ({
   chartColumn,
   fixHeight,
   titles,
+  showLimitMessage,
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [rowData, setRowData] = useState<GridData[]>([]);
@@ -72,8 +74,11 @@ const CustomDataGridAttachment: FC<Props> = ({
   useEffect(() => {
     if (rowData) {
       setGridHeight(getGridHeight(rowData.length));
+      showLimitMessage?.(rowData.length >= SERIES_LIMIT);
+    } else {
+      showLimitMessage?.(false);
     }
-  }, [rowData]);
+  }, [rowData, showLimitMessage]);
 
   useEffect(() => {
     if (isShowOnboarding) {
@@ -164,6 +169,7 @@ const CustomDataGridAttachment: FC<Props> = ({
           reference={gridRef}
           title={tooltipTitle}
           description={tooltipDescription}
+          supressReferenceClick
         />
       )}
     </div>

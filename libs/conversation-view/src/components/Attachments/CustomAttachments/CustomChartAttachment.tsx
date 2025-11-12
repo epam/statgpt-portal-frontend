@@ -23,6 +23,7 @@ interface Props {
   attachment: CustomChartAttachmentType;
   icons?: Record<ChartingIcon, ReactNode>;
   openAdvancedView?: () => void;
+  isDataLoading?: boolean;
   fixHeight?: boolean;
   titles?: ConversationViewTitles;
 }
@@ -30,6 +31,7 @@ interface Props {
 const CustomChartAttachment: FC<Props> = ({
   attachment,
   icons,
+  isDataLoading,
   openAdvancedView,
   fixHeight = true,
   titles,
@@ -50,9 +52,13 @@ const CustomChartAttachment: FC<Props> = ({
   }, [attachment.charting_data]);
 
   useEffect(() => {
+    const isChartIndexInRange = units?.length >= chartIndex;
     setSelectedUnit(
-      !isLoading && units.length > 0 ? units[chartIndex] : void 0,
+      !isLoading && isChartIndexInRange ? units[chartIndex] : units[0],
     );
+    if (!isChartIndexInRange) {
+      setChartIndex(0);
+    }
   }, [isLoading, units, chartIndex]);
 
   useEffect(() => {
@@ -92,7 +98,7 @@ const CustomChartAttachment: FC<Props> = ({
     setChartIndex((prevV) => Math.max(prevV - 1, 0));
   }, []);
 
-  if (isLoading) {
+  if (isLoading || isDataLoading) {
     return <Loader />;
   }
 
@@ -108,9 +114,9 @@ const CustomChartAttachment: FC<Props> = ({
                 <h3 className="chart-attachment-title">
                   {titles?.chart || 'Chart'} {chartIndex + 1}/{units.length}
                 </h3>
-                <h4 className="text-neutrals-700">
+                <span className="text-neutrals-700 h4 chart-attachment-info">
                   {titles?.chartInfo || 'Chart Information'}
-                </h4>
+                </span>
               </div>
               <div
                 className={classNames(

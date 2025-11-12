@@ -3,16 +3,16 @@
 import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
 import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
 import { useIsMobile } from '@epam/statgpt-ui-components';
-import classNames from 'classnames';
 import { FC, useCallback } from 'react';
 import {
   Filter,
   FiltersModalProps,
   FilterTreeNodeProps,
 } from '../../../../models/filters';
-import { ConversationViewTitles } from '../../../../models/titles';
 import FiltersFacetsList from './FiltersFacets/FiltersFacetsList';
 import FiltersValuesPanel from './FiltersValuesPanel/FiltersValuesPanel';
+import classNames from 'classnames';
+import { ConversationViewTitles } from '../../../../models/titles';
 
 interface Props {
   filtersList: Filter[];

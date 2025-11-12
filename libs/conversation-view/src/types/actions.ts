@@ -1,4 +1,3 @@
-import { Conversation, ConversationInfo, Entity } from '@epam/ai-dial-shared';
 import {
   GridAttachmentContent,
   UpdateConversationRequest,
@@ -11,6 +10,7 @@ import {
   StructuralMetaData,
 } from '@epam/statgpt-sdmx-toolkit';
 import { OnboardingFileSchema, TimeRange } from '@epam/statgpt-shared-toolkit';
+import { Conversation, ConversationInfo, Entity } from '@epam/ai-dial-shared';
 
 export type GetAttachmentContent = (
   fileId: string,

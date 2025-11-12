@@ -1,0 +1,60 @@
+.ag-cell {
+  .metadata-indicator {
+    @apply absolute top-0 right-0;
+    @apply border-transparent border-r-gradients-light;
+    @apply border-r-[10px] border-b-[10px];
+    @apply cursor-pointer;
+  }
+
+  &.ag-cell-focus:not(.ag-cell-range-selected):focus-within {
+    .metadata-indicator {
+      @apply border-r-gradients-middle;
+    }
+  }
+}
+
+.metadata {
+  @apply pt-2 pb-5;
+  @apply max-h-[664px];
+
+  &-heading {
+    @apply text-base font-bold;
+  }
+
+  &-content {
+    @apply flex flex-col;
+    @apply px-6;
+    @apply border-t border-t-neutrals-500;
+  }
+
+  &-description {
+    @apply flex flex-col gap-y-2;
+    @apply pt-7 pb-5;
+    @apply border-b border-b-neutrals-500;
+  }
+
+  &-list {
+    @apply mt-4;
+  }
+
+  &-item {
+    @apply pb-5;
+
+    &-title {
+      @apply mb-1;
+    }
+
+    &-key,
+    &-value {
+      @apply body-2;
+    }
+
+    &-value {
+      @apply text-neutrals-1000;
+    }
+  }
+
+  &-empty {
+    @apply body-2;
+  }
+}

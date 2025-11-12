@@ -65,6 +65,7 @@ const Header: FC<Props> = ({
         className={classNames(
           'flex gap-3 items-center',
           !isShowShare && 'justify-between w-full',
+          'advanced-view-header-title',
         )}
       >
         <div
@@ -72,6 +73,7 @@ const Header: FC<Props> = ({
           className={classNames(!isShowShare && 'order-2', 'flex')}
         >
           <CloseButton
+            btnClassNames="button-close"
             onClick={() => setIsOpenedAdvancedView(false)}
             title={titles?.close || 'Close'}
           />
@@ -81,6 +83,8 @@ const Header: FC<Props> = ({
             reference={iconRef}
             title={tooltipTitle}
             description={tooltipDescription}
+            onReferenceClick={() => setIsOpenedAdvancedView(false)}
+            shouldMoveToNextStep
           />
         )}
         <h2 className="sm:h-3">

@@ -1,3 +1,4 @@
+import { SdmxApiConfig } from './sdmx-config';
 import { getErrorMessage } from '@epam/statgpt-dial-toolkit';
 import {
   ApiHeaders,
@@ -7,7 +8,6 @@ import {
   sanitizeHeaders,
   sendRequest,
 } from '@epam/statgpt-shared-toolkit';
-import { SdmxApiConfig } from './sdmx-config';
 
 export class SdmxApiClient {
   public readonly config: SdmxApiConfig;

@@ -7,13 +7,15 @@ import {
   Dimension,
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
+import { LimitMessages } from '@epam/statgpt-ui-components';
+import Filters from './Filters/Filters';
+import AttachmentRenderer from '../Attachments/AttachmentRenderer';
+import { Filter, FiltersProps } from '../../models/filters';
 import { FC, useEffect, useState } from 'react';
 import { AdvancedViewActions } from '../../models/actions';
 import { AttachmentsStyles } from '../../models/attachments-styles';
-import { Filter, FiltersProps } from '../../models/filters';
 import { ConversationViewTitles } from '../../models/titles';
-import AttachmentRenderer from '../Attachments/AttachmentRenderer';
-import Filters from './Filters/Filters';
+import { AttachmentsConfig } from '../../models/attachments';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -27,6 +29,8 @@ interface Props {
   isDataLoading?: boolean;
   titles?: ConversationViewTitles;
   setIsFiltering?: (isFiltering: boolean) => void;
+  limitMessages?: LimitMessages;
+  attachmentsConfig?: AttachmentsConfig;
 }
 
 const DataDetails: FC<Props> = ({
@@ -41,6 +45,8 @@ const DataDetails: FC<Props> = ({
   isDataLoading,
   setIsFiltering,
   titles,
+  limitMessages,
+  attachmentsConfig,
 }) => {
   const [filters, setFilters] = useState<DatasetQueryFilters>({
     filterKey: null,
@@ -83,6 +89,7 @@ const DataDetails: FC<Props> = ({
             titles={titles}
             {...filtersProps}
             onFiltersChange={onFiltersChange}
+            limitMessages={limitMessages}
           />
         </div>
         <div className="advanced-view-attachments-container flex-1 min-h-0">
@@ -98,6 +105,8 @@ const DataDetails: FC<Props> = ({
             isDataLoading={isDataLoading}
             locale={locale}
             filters={filters}
+            limitMessages={limitMessages}
+            attachmentsConfig={attachmentsConfig}
           />
         </div>
       </div>

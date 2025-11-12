@@ -1,5 +1,12 @@
 'use client';
 
+import DatasetIcon from '../../assets/icons/dataset.svg';
+import MetadataIcon from '../../assets/icons/metadata.svg';
+import {
+  IconClock,
+  IconArrowUpRight,
+  IconExternalLink,
+} from '@tabler/icons-react';
 import {
   Dataflow,
   getLastUpdatedTime,
@@ -9,30 +16,23 @@ import {
   getStructureComponentsMap,
 } from '@epam/statgpt-sdmx-toolkit';
 import { IconButton } from '@epam/statgpt-ui-components';
-import {
-  IconArrowUpRight,
-  IconClock,
-  IconExternalLink,
-} from '@tabler/icons-react';
-import classNames from 'classnames';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import DatasetIcon from '../../assets/icons/dataset.svg';
-import MetadataIcon from '../../assets/icons/metadata.svg';
-import { OnboardingElements } from '../../constants/onboarding-elements';
-import { useOnboarding } from '../../context/OnboardingContext';
-import { MetadataSettings } from '../../models/metadata';
-import { StructureComponentValue } from '../../models/structure-component';
-import { ConversationViewTitles } from '../../models/titles';
+import { getDateFormattedValue } from '../../utils/date-format';
+import classNames from 'classnames';
 import {
   getDataSetAttributes,
   getDatasetDescription,
   getDatasetNameItem,
   getStructureAttributes,
 } from '../../utils/attachments/metadata';
-import { getDateFormattedValue } from '../../utils/date-format';
-import { getTooltipDataByElement } from '../../utils/get-tooltip-data.by-element';
-import { Tooltip } from '../Tooltip/Tooltip';
+import { MetadataSettings } from '../../models/metadata';
 import Metadata from './Metadata/Metadata';
+import { ConversationViewTitles } from '../../models/titles';
+import { StructureComponentValue } from '../../models/structure-component';
+import { Tooltip } from '../Tooltip/Tooltip';
+import { getTooltipDataByElement } from '../../utils/get-tooltip-data.by-element';
+import { OnboardingElements } from '../../constants/onboarding-elements';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 interface Props {
   dataset?: Dataflow | null;
@@ -67,6 +67,7 @@ const DatasetInfo: FC<Props> = ({
   const [tooltipDescription, setTooltipDescription] = useState<string>('');
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   const { onboardingFileSchema, isShowOnboarding } = useOnboarding();
+  const [isMetadataClosed, setIsMetadataClosed] = useState(false);
 
   const datasetDescription = useMemo(
     () =>
@@ -108,6 +109,7 @@ const DatasetInfo: FC<Props> = ({
 
   const closeMetadata = useCallback(() => {
     setIsOpenMetadata(false);
+    setIsMetadataClosed(true);
   }, []);
 
   useEffect(() => {
@@ -208,6 +210,8 @@ const DatasetInfo: FC<Props> = ({
           reference={iconRef}
           title={tooltipTitle}
           description={tooltipDescription}
+          onReferenceClick={openMetadata}
+          shouldCloseTooltip={isMetadataClosed}
         />
       )}
       {isOpenMetadata && (

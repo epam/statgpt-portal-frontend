@@ -1,0 +1,29 @@
+.conversation {
+  &-item {
+    @apply rounded-[10px] h-[44px];
+  }
+
+  &-view-header {
+    @apply h-[72px];
+  }
+
+  &-list-search-input {
+    @apply h-[36px] border-hues-400 text-neutrals-800 bg-transparent py-2 px-3 items-center;
+    button {
+      @apply p-0 h-[22px] w-[22px];
+    }
+  }
+}
+
+.delete-conversation-popup {
+  @apply border-t-2 border-semantic-error;
+  .cancel-button {
+    @apply text-button-tertiary;
+  }
+}
+
+.rename-conversation-popup {
+  input {
+    @apply border-[1px] border-neutrals-500 rounded-[4px] px-3 py-2 body-2;
+  }
+}

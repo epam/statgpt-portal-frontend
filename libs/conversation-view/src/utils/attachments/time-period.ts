@@ -1,15 +1,6 @@
-import {
-  isMonthly,
-  isQuarterly,
-  SeriesFilterDto,
-  SeriesFilterOperator,
-  TIME_PERIOD,
-} from '@epam/statgpt-sdmx-toolkit';
-import {
-  CalendarResolution,
-  DataQuery,
-  TimeRange,
-} from '@epam/statgpt-shared-toolkit';
+import { isMonthly, isQuarterly } from '@epam/statgpt-sdmx-toolkit';
+import { CalendarResolution, TimeRange } from '@epam/statgpt-shared-toolkit';
+
 import FlatpickrLanguages from 'flatpickr/dist/l10n';
 import monthSelectPlugin from 'flatpickr/dist/plugins/monthSelect';
 import { OptionsType } from 'react-flatpickr';
@@ -176,20 +167,4 @@ export const localizeTimePeriod = (
   }
 
   return period;
-};
-
-export const getFiltersDtoFromDataQuery = (
-  dataQuery: DataQuery,
-): SeriesFilterDto[] => {
-  const filters: SeriesFilterDto[] = [];
-  dataQuery?.filters?.forEach((filter) => {
-    if (filter.componentCode !== TIME_PERIOD) {
-      filters.push({
-        componentCode: filter.componentCode,
-        operator: SeriesFilterOperator.EQUALS,
-        value: filter.values.join(','),
-      });
-    }
-  });
-  return filters;
 };

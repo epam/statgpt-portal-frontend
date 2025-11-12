@@ -1,4 +1,11 @@
-import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  CSSProperties,
+  FC,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import ReactECharts from 'echarts-for-react';
 import type {
   ECharts,
@@ -8,15 +15,20 @@ import type {
 } from 'echarts';
 import type ReactEChartsRef from 'echarts-for-react';
 import { estimateLegendItemWidth } from '../../../utils/attachments/charting/chart-legend-width';
+import { cloneDeep } from 'lodash';
 
 interface Props {
   option: EChartsOption;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 }
 
 const ResponsiveEChart: FC<Props> = ({ option, style }) => {
   const chartRef = useRef<ReactEChartsRef>(null);
   const [adjustedOption, setAdjustedOption] = useState<EChartsOption>(option);
+
+  useEffect(() => {
+    setAdjustedOption(cloneDeep(option));
+  }, [option]);
 
   const adjustGrid = useCallback(() => {
     const chart = chartRef.current?.getEchartsInstance?.() as
@@ -66,7 +78,15 @@ const ResponsiveEChart: FC<Props> = ({ option, style }) => {
     };
   }, [option, adjustGrid]);
 
-  return <ReactECharts ref={chartRef} option={adjustedOption} style={style} />;
+  return (
+    <ReactECharts
+      notMerge={true}
+      lazyUpdate={false}
+      ref={chartRef}
+      option={adjustedOption}
+      style={style}
+    />
+  );
 };
 
 export default ResponsiveEChart;

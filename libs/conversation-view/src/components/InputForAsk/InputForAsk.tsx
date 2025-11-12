@@ -6,8 +6,8 @@ import {
   KeyboardKey,
 } from '@epam/statgpt-ui-components';
 import { IconPlayerStopFilled } from '@tabler/icons-react';
-import classNames from 'classnames';
 import { FC, KeyboardEvent, ReactNode, useCallback, useState } from 'react';
+import classNames from 'classnames';
 
 interface Props {
   containerClasses?: string;
@@ -62,19 +62,21 @@ const InputForAsk: FC<Props> = ({
       cssClass={classNames(inputClasses, 'input-for-ask')}
       value={inputData}
       iconAfterInput={
-        inProcess ? (
-          <IconButton
-            buttonClassName="input-for-ask-button"
-            onClick={() => onStopStreaming?.()}
-            icon={<IconPlayerStopFilled />}
-          />
-        ) : (
-          <IconButton
-            buttonClassName="input-for-ask-button"
-            onClick={() => onSend(inputData)}
-            icon={sendMessageIcon}
-          />
-        )
+        inputData ? (
+          inProcess ? (
+            <IconButton
+              buttonClassName="input-for-ask-button"
+              onClick={() => onStopStreaming?.()}
+              icon={<IconPlayerStopFilled />}
+            />
+          ) : (
+            <IconButton
+              buttonClassName="input-for-ask-button"
+              onClick={() => onSend(inputData)}
+              icon={sendMessageIcon}
+            />
+          )
+        ) : null
       }
     />
   );

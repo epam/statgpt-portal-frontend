@@ -1,0 +1,121 @@
+.user-message {
+  @apply text-neutrals-900 rounded-t-[32px] rounded-bl-[32px] py-3;
+}
+
+.message-stages {
+  &-header {
+    @apply body-1 text-neutrals-700;
+    @apply gap-2 p-3 mb-3;
+
+    &.default-header {
+      @apply h4 text-neutrals-900;
+    }
+
+    &:hover {
+      @apply text-neutrals-800 bg-neutrals-200 rounded-[20px];
+
+      .message-stages-expand-icon {
+        @apply text-hues-900;
+      }
+    }
+  }
+
+  &-title {
+    @apply order-2;
+  }
+
+  &-expand-icon {
+    @apply text-primary;
+    @apply w-5 h-5 p-0;
+
+    &.rotated {
+      @apply rotate-[-90deg];
+    }
+  }
+}
+
+.message-stage {
+  @apply ml-3;
+
+  &-indicator {
+    @apply w-5 h-5;
+    @apply text-hues-200;
+  }
+
+  &-line {
+    @apply left-[10px] top-2;
+    @apply border-hues-200;
+  }
+
+  &-name {
+    @apply body-1 text-neutrals-700;
+  }
+
+  &:last-child {
+    .message-stage-line {
+      @apply border-l-0;
+    }
+  }
+
+  .loader:before {
+    @apply w-6 h-6 bg-contain;
+  }
+
+  .prose {
+    @apply body-3;
+
+    p {
+      @apply text-neutrals-1000 mb-3;
+    }
+
+    li {
+      @apply my-1 pl-0;
+      @apply text-neutrals-900 marker:text-neutrals-900;
+    }
+
+    pre {
+      @apply p-4 rounded;
+
+      code {
+        @apply text-neutrals-1000;
+      }
+    }
+  }
+}
+.message-wrapper {
+  &:hover {
+    .message-actions {
+      @apply opacity-100;
+    }
+  }
+
+  .edit-buttons-wrapper {
+    @apply justify-end;
+  }
+}
+
+.loading-message {
+  @apply p-3;
+}
+
+.message-actions {
+  @apply opacity-0 transition duration-300;
+
+  & > p {
+    @apply cursor-pointer;
+
+    svg {
+      @apply text-neutrals-1000;
+    }
+
+    &:hover {
+      svg {
+        @apply text-primary;
+      }
+    }
+  }
+}
+
+.scroll-button-wrapper {
+  bottom: 140px;
+}

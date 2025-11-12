@@ -1,16 +1,16 @@
+import SingleLineChart from '../SingleLineChart';
+import { MetadataSettings } from '../../../models/metadata';
 import { Data, StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import { Locale } from '@epam/statgpt-shared-toolkit';
 import { IconButton } from '@epam/statgpt-ui-components';
+import ChartIcon from '../../../assets/icons/chart.svg';
 import { ICellRendererParams } from 'ag-grid-community';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import ChartIcon from '../../../assets/icons/chart.svg';
+import { ConversationViewTitles } from '../../../models/titles';
+import { Tooltip } from '../../Tooltip/Tooltip';
+import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
 import { OnboardingElements } from '../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../context/OnboardingContext';
-import { MetadataSettings } from '../../../models/metadata';
-import { ConversationViewTitles } from '../../../models/titles';
-import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
-import { Tooltip } from '../../Tooltip/Tooltip';
-import SingleLineChart from '../SingleLineChart';
 
 interface ChartCellRendererParams extends ICellRendererParams {
   attributesData: Data;
@@ -27,6 +27,7 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
   const [tooltipDescription, setTooltipDescription] = useState<string>('');
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   const { onboardingFileSchema, isShowOnboarding } = useOnboarding();
+  const [isChartClosed, setIsChartClosed] = useState(false);
 
   const openChart = useCallback(() => {
     setIsOpenChart(true);
@@ -34,6 +35,7 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
 
   const closeChart = useCallback(() => {
     setIsOpenChart(false);
+    setIsChartClosed(true);
   }, []);
 
   useEffect(() => {
@@ -75,6 +77,8 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
           reference={iconRef}
           title={tooltipTitle}
           description={tooltipDescription}
+          onReferenceClick={openChart}
+          shouldCloseTooltip={isChartClosed}
         />
       )}
       {isOpenChart && (

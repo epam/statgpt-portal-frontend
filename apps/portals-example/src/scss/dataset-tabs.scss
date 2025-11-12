@@ -1,0 +1,26 @@
+.dataset {
+  &-tabs {
+    @apply border-b border-b-neutrals-400 mb-4;
+
+    &.hide-advance-button {
+      @apply px-6 mb-0;
+    }
+  }
+
+  &-tab {
+    @apply px-1 pt-4 pb-3;
+    @apply border-b-[3px];
+
+    &-active {
+      @apply text-primary border-b-primary;
+    }
+
+    &-single {
+      @apply text-neutrals-800;
+
+      .dataset-tab-title {
+        @apply body-2;
+      }
+    }
+  }
+}

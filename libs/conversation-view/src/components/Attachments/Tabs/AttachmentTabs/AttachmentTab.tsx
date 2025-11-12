@@ -99,10 +99,18 @@ const AttachmentTab: FC<Props> = ({
 
   useEffect(() => {
     if (isCustomChartAttachment(attachment) && isShowOnboarding) {
-      setIsTooltipVisible(
+      const isCurrent =
         onboardingFileSchema?.lastDisplayedElement ===
-          OnboardingElements.CHARTS,
-      );
+        OnboardingElements.CHARTS;
+
+      setIsTooltipVisible(isCurrent);
+
+      if (isCurrent) {
+        tabRef?.current?.scrollIntoView({
+          block: 'end',
+          behavior: 'smooth',
+        });
+      }
     }
   }, [
     onboardingFileSchema?.lastDisplayedElement,
