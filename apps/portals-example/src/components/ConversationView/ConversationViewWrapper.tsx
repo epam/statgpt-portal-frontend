@@ -5,14 +5,43 @@ import {
   ConversationView,
   useAdvancedView,
 } from '@epam/statgpt-conversation-view';
-import { useConversationList } from '../../context/ConversationListContext';
-import MessageIcon from '../../../public/images/chat/message-icon.svg';
-import Footer from '../Footer/Footer';
-import { formatNumbers } from '../../constants/format-numbers';
-import { SHARE_CONVERSATION_PROPS } from '../../constants/share-conversation';
-import { ApplicationRoute } from '../../types/application-routes';
+import { openDownloadWindow } from '@epam/statgpt-sdmx-toolkit';
+import {
+  CUSTOM_PERIOD,
+  DataQuery,
+  HTTP_ERROR_CODES,
+  TimeRangeOptions,
+} from '@epam/statgpt-shared-toolkit';
+import AdvancedModeIcon from '../../../public/images/advanced-mode.svg';
 import Dataset from '../../../public/images/chat/data-set.svg';
-import { useI18n } from '../../locales/client';
+import Down from '../../../public/images/chat/down.svg';
+import DownloadIcon from '../../../public/images/chat/download.svg';
+import ErrorIcon from '../../../public/images/chat/error.svg';
+import MessageIcon from '../../../public/images/chat/message-icon.svg';
+import SuccessIcon from '../../../public/images/chat/success.svg';
+import ChevronLeft from '../../../public/images/chevron-left.svg';
+import ChevronRight from '../../../public/images/chevron-right.svg';
+import ChevronSolidDownIcon from '../../../public/images/chevron-solid-down.svg';
+import Copy from '../../../public/images/messages/copy.svg';
+import Edit from '../../../public/images/messages/edit.svg';
+import Regenerate from '../../../public/images/messages/renew.svg';
+import ThumbDown from '../../../public/images/messages/thumb-down.svg';
+import ThumbPressed from '../../../public/images/messages/thumb-filled.svg';
+import ThumbUp from '../../../public/images/messages/thumb-up.svg';
+import Reset from '../../../public/images/reset.svg';
+import UnfoldIcon from '../../../public/images/unfold.svg';
+import { getFile } from '../../app/actions/attachments';
+import { getBucket } from '../../app/actions/bucket';
+import { getConstraints } from '../../app/actions/constraints';
+import {
+  createConversation,
+  getConversation,
+  getConversations,
+  rateResponse,
+  updateConversation,
+} from '../../app/actions/conversations';
+import { getDataSet, getDataSetData } from '../../app/actions/dataset';
+import { formatNumbers } from '../../constants/format-numbers';
 import {
   AdvancedViewI18nKeys,
   AppI18nKeys,
@@ -26,39 +55,23 @@ import {
   TimeI18nKeys,
   WelcomeI18nKeys,
 } from '../../constants/i18n-keys';
-import { getFile } from '../../app/actions/attachments';
-import { getConstraints } from '../../app/actions/constraints';
-import {
-  getConversation,
-  updateConversation,
-  createConversation,
-  getConversations,
-  rateResponse,
-} from '../../app/actions/conversations';
-import { getBucket } from '../../app/actions/bucket';
-import { getDataSet, getDataSetData } from '../../app/actions/dataset';
-import { CUSTOM_PERIOD } from '@epam/statgpt-shared-toolkit/src/constants/calendar';
-import { openDownloadWindow } from '@epam/statgpt-sdmx-toolkit/src/utils/download';
-import { DataQuery } from '@epam/statgpt-shared-toolkit/src/models/data-query';
-import { TimeRangeOptions } from '@epam/statgpt-shared-toolkit/src/models/time-range';
-import AdvancedModeIcon from '../../../public/images/advanced-mode.svg';
-import UnfoldIcon from '../../../public/images/unfold.svg';
-import DownloadIcon from '../../../public/images/chat/download.svg';
-import SuccessIcon from '../../../public/images/chat/success.svg';
-import ErrorIcon from '../../../public/images/chat/error.svg';
-import ChevronRight from '../../../public/images/chevron-right.svg';
-import ChevronLeft from '../../../public/images/chevron-left.svg';
-import ChevronSolidDownIcon from '../../../public/images/chevron-solid-down.svg';
-import Regenerate from '../../../public/images/messages/renew.svg';
-import Copy from '../../../public/images/messages/copy.svg';
-import ThumbUp from '../../../public/images/messages/thumb-up.svg';
-import ThumbDown from '../../../public/images/messages/thumb-down.svg';
-import Edit from '../../../public/images/messages/edit.svg';
-import Down from '../../../public/images/chat/down.svg';
-import ThumbPressed from '../../../public/images/messages/thumb-filled.svg';
-import Reset from '../../../public/images/reset.svg';
-import { HTTP_ERROR_CODES } from '@epam/statgpt-shared-toolkit/src';
+import { SHARE_CONVERSATION_PROPS } from '../../constants/share-conversation';
+import { useConversationList } from '../../context/ConversationListContext';
+import { useI18n } from '../../locales/client';
+import { ApplicationRoute } from '../../types/application-routes';
+import Footer from '../Footer/Footer';
 
+import { Conversation } from '@epam/ai-dial-shared';
+import {
+  AttachmentsActions,
+  AttachmentsStyles,
+  ChartingIcon,
+  ConversationViewTitles,
+  MessageActionIcons,
+} from '@epam/statgpt-conversation-view';
+import { Dataflow } from '@epam/statgpt-sdmx-toolkit';
+import { ApiResponse } from '@epam/statgpt-shared-toolkit';
+import { UserInfo } from '@statgpt/user-info/src/models/user-info';
 import {
   IconCalendarWeek,
   IconChevronRight,
@@ -67,22 +80,11 @@ import {
   IconSquareCheckFilled,
 } from '@tabler/icons-react';
 import classNames from 'classnames';
-import { FC, useCallback, useMemo, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { Dataflow } from '@epam/statgpt-sdmx-toolkit';
 import { JWT } from 'next-auth/jwt';
-import {
-  AttachmentsStyles,
-  ChartingIcon,
-  ConversationViewTitles,
-  AttachmentsActions,
-} from '@epam/statgpt-conversation-view';
-import { Conversation } from '@epam/ai-dial-shared';
 import { signOut, useSession } from 'next-auth/react';
-import { UserInfo } from '@statgpt/user-info/src/models/user-info';
-import { MessageActionIcons } from '@epam/statgpt-conversation-view';
+import { useParams, useRouter } from 'next/navigation';
+import { FC, useCallback, useMemo, useState } from 'react';
 import { SIGN_IN_LINK } from '../../constants/auth';
-import { ApiResponse } from '@epam/statgpt-shared-toolkit';
 import { wrapWithAuthHandler } from '../../utils/auth/requests-wrapper';
 
 interface Props {
