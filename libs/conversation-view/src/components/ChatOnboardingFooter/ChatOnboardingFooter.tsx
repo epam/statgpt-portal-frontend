@@ -7,7 +7,10 @@ interface Props {
   openNewConversation?: () => void;
 }
 
-export const ChatOnboardingFooter: FC<Props> = ({ titles, openNewConversation }) => {
+export const ChatOnboardingFooter: FC<Props> = ({
+  titles,
+  openNewConversation,
+}) => {
   return (
     <div className="text-center bg-accent-300 body-3 p-2">
       <span className="mr-2 text-neutrals-900">{titles?.onboardingFooter}</span>
