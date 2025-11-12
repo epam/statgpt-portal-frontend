@@ -7,7 +7,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ConversationList } from '@epam/statgpt-conversation-list';
 import MessageIcon from '../../../public/images/message-dots.svg';
-import Logo from '../../../public/images/logo.svg';
 import Collapse from '../../../public/images/menu/collapse.svg';
 import Share from '../../../public/images/chat/share.svg';
 import Delete from '../../../public/images/chat/delete.svg';
@@ -180,7 +179,6 @@ const ConversationListWrapper = () => {
           className="flex flex-row items-center cursor-pointer"
           onClick={redirectToMainView}
         >
-          <Logo width={34} height={34} />
           {!isCollapsed ? (
             <span className="text-hues-900 text-start logo ml-3">
               <p className="font-semibold mr-1 inline mb-1">

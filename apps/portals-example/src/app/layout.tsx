@@ -1,5 +1,7 @@
 import { Inter, Open_Sans } from 'next/font/google';
 import './globals.scss';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import '../../../../libs/ui-components/src/scss/styles-tailwind.scss';
 import classNames from 'classnames';
 import { ReactNode } from 'react';
 import { getServerSession } from 'next-auth';
@@ -33,8 +35,8 @@ export default async function RootLayout({
   return (
     <html>
       <head>
-        <link rel="icon" href={'/images/favicon.svg'} sizes="any" />
-        <link rel="apple-touch-icon" href={'/images/favicon.svg'} />
+        <link rel="icon" href={'/images/favicon.ico'} sizes="any" />
+        <link rel="apple-touch-icon" href={'/images/favicon.ico'} />
       </head>
       <body className={classNames(font.variable, inter.variable)}>
         <SessionProviderWrapper session={session}>

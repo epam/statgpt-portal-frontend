@@ -15,7 +15,7 @@ const I18nMiddleware = createI18nMiddleware({
 
 export const config = {
   matcher: [
-    '/((?!api|static|.*\\..*|_next/static|_next/image|images|favicon.svg|robots.txt).*)',
+    '/((?!api|static|.*\\..*|_next/static|_next/image|images|favicon.ico|robots.txt).*)',
   ],
 };
 
