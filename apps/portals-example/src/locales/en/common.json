@@ -79,7 +79,6 @@
     "queryUpdatedManually": "Query has been updated manually.",
     "setTo": " set to ",
     "loading": "I'm on it! Please wait..."
-
   },
   "conversation": {
     "delete": "Delete",
@@ -91,8 +90,8 @@
     "allChats": "All Chats",
     "shared": "Shared",
     "chat": "Chat",
-    "cancel" : "Cancel",
-    "send" : "Submit",
+    "cancel": "Cancel",
+    "send": "Submit",
     "rename": "Rename",
     "renameTitle": "Rename conversation",
     "save": "Save"

@@ -71,7 +71,12 @@ import { FC, useCallback, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Dataflow } from '@epam/statgpt-sdmx-toolkit';
 import { JWT } from 'next-auth/jwt';
-import { AttachmentsStyles, ChartingIcon, ConversationViewTitles, AttachmentsActions } from '@epam/statgpt-conversation-view';
+import {
+  AttachmentsStyles,
+  ChartingIcon,
+  ConversationViewTitles,
+  AttachmentsActions,
+} from '@epam/statgpt-conversation-view';
 import { Conversation } from '@epam/ai-dial-shared';
 import { signOut, useSession } from 'next-auth/react';
 import { UserInfo } from '@statgpt/user-info/src/models/user-info';
