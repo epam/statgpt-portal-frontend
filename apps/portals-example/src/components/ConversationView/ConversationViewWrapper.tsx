@@ -12,36 +12,14 @@ import {
   HTTP_ERROR_CODES,
   TimeRangeOptions,
 } from '@epam/statgpt-shared-toolkit';
-import AdvancedModeIcon from '../../../public/images/advanced-mode.svg';
-import Dataset from '../../../public/images/chat/data-set.svg';
-import Down from '../../../public/images/chat/down.svg';
-import DownloadIcon from '../../../public/images/chat/download.svg';
-import ErrorIcon from '../../../public/images/chat/error.svg';
+import { useConversationList } from '../../context/ConversationListContext';
 import MessageIcon from '../../../public/images/chat/message-icon.svg';
-import SuccessIcon from '../../../public/images/chat/success.svg';
-import ChevronLeft from '../../../public/images/chevron-left.svg';
-import ChevronRight from '../../../public/images/chevron-right.svg';
-import ChevronSolidDownIcon from '../../../public/images/chevron-solid-down.svg';
-import Copy from '../../../public/images/messages/copy.svg';
-import Edit from '../../../public/images/messages/edit.svg';
-import Regenerate from '../../../public/images/messages/renew.svg';
-import ThumbDown from '../../../public/images/messages/thumb-down.svg';
-import ThumbPressed from '../../../public/images/messages/thumb-filled.svg';
-import ThumbUp from '../../../public/images/messages/thumb-up.svg';
-import Reset from '../../../public/images/reset.svg';
-import UnfoldIcon from '../../../public/images/unfold.svg';
-import { getFile } from '../../app/actions/attachments';
-import { getBucket } from '../../app/actions/bucket';
-import { getConstraints } from '../../app/actions/constraints';
-import {
-  createConversation,
-  getConversation,
-  getConversations,
-  rateResponse,
-  updateConversation,
-} from '../../app/actions/conversations';
-import { getDataSet, getDataSetData } from '../../app/actions/dataset';
+import Footer from '../Footer/Footer';
 import { formatNumbers } from '../../constants/format-numbers';
+import { SHARE_CONVERSATION_PROPS } from '../../constants/share-conversation';
+import { ApplicationRoute } from '../../types/application-routes';
+import Dataset from '../../../public/images/chat/data-set.svg';
+import { useI18n } from '../../locales/client';
 import {
   AdvancedViewI18nKeys,
   AppI18nKeys,
@@ -55,13 +33,46 @@ import {
   TimeI18nKeys,
   WelcomeI18nKeys,
 } from '../../constants/i18n-keys';
-import { SHARE_CONVERSATION_PROPS } from '../../constants/share-conversation';
-import { useConversationList } from '../../context/ConversationListContext';
-import { useI18n } from '../../locales/client';
-import { ApplicationRoute } from '../../types/application-routes';
-import Footer from '../Footer/Footer';
-
+import { getFile } from '../../app/actions/attachments';
+import { getConstraints } from '../../app/actions/constraints';
+import {
+  getConversation,
+  updateConversation,
+  createConversation,
+  getConversations,
+  rateResponse,
+} from '../../app/actions/conversations';
+import { getBucket } from '../../app/actions/bucket';
+import { getDataSet, getDataSetData } from '../../app/actions/dataset';
+import AdvancedModeIcon from '../../../public/images/advanced-mode.svg';
+import UnfoldIcon from '../../../public/images/unfold.svg';
+import DownloadIcon from '../../../public/images/chat/download.svg';
+import SuccessIcon from '../../../public/images/chat/success.svg';
+import ErrorIcon from '../../../public/images/chat/error.svg';
+import ChevronRight from '../../../public/images/chevron-right.svg';
+import ChevronLeft from '../../../public/images/chevron-left.svg';
+import ChevronSolidDownIcon from '../../../public/images/chevron-solid-down.svg';
+import Regenerate from '../../../public/images/messages/renew.svg';
+import Copy from '../../../public/images/messages/copy.svg';
+import ThumbUp from '../../../public/images/messages/thumb-up.svg';
+import ThumbDown from '../../../public/images/messages/thumb-down.svg';
+import Edit from '../../../public/images/messages/edit.svg';
+import Down from '../../../public/images/chat/down.svg';
+import ThumbPressed from '../../../public/images/messages/thumb-filled.svg';
+import Reset from '../../../public/images/reset.svg';
+import {
+  IconCalendarWeek,
+  IconChevronRight,
+  IconCircleFilled,
+  IconSend,
+  IconSquareCheckFilled,
+} from '@tabler/icons-react';
+import classNames from 'classnames';
+import { FC, useCallback, useMemo, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { JWT } from 'next-auth/jwt';
 import { Conversation } from '@epam/ai-dial-shared';
+import { signOut, useSession } from 'next-auth/react';
 import {
   AttachmentsActions,
   AttachmentsStyles,
@@ -72,20 +83,9 @@ import {
 import { Dataflow } from '@epam/statgpt-sdmx-toolkit';
 import { ApiResponse } from '@epam/statgpt-shared-toolkit';
 import { UserInfo } from '@statgpt/user-info/src/models/user-info';
-import {
-  IconCalendarWeek,
-  IconChevronRight,
-  IconCircleFilled,
-  IconSend,
-  IconSquareCheckFilled,
-} from '@tabler/icons-react';
-import classNames from 'classnames';
-import { JWT } from 'next-auth/jwt';
-import { signOut, useSession } from 'next-auth/react';
-import { useParams, useRouter } from 'next/navigation';
-import { FC, useCallback, useMemo, useState } from 'react';
 import { SIGN_IN_LINK } from '../../constants/auth';
 import { wrapWithAuthHandler } from '../../utils/auth/requests-wrapper';
+import { LimitMessages } from '@epam/statgpt-ui-components';
 
 interface Props {
   bucketId: string;
@@ -289,6 +289,21 @@ const ConversationViewWrapper: FC<Props> = ({
     thumbPressed: <ThumbPressed width={20} height={20} />,
   };
 
+  const limitMessages: LimitMessages = {
+    largeQuery: t(AdvancedViewI18nKeys.LARGE_QUERY),
+    showingLimit: (limit: number) =>
+      t(AdvancedViewI18nKeys.SHOWING_LIMIT, { limit }),
+    downloadMessage: (limit: number) =>
+      t(AdvancedViewI18nKeys.DOWNLOAD_MESSAGE, { limit }),
+    refineInAdvancedView: t(AdvancedViewI18nKeys.REFINE_IN_ADVANCED_VIEW),
+    editIcon: <Edit />,
+    externalLink: currentDataQuery?.metadata?.datasetUrl,
+    dataExplorer: t(AdvancedViewI18nKeys.DATA_EXPLORER),
+    fullLimitMessage: t(AdvancedViewI18nKeys.FULL_LIMIT_MESSAGE),
+    excelFormatTitle: t(AdvancedViewI18nKeys.EXCEL_FORMAT_TITLE),
+    excelFormatText: t(AdvancedViewI18nKeys.EXCEL_FORMAT_TEXT),
+  };
+
   const signOutAction = () => {
     signOut();
   };
@@ -370,6 +385,7 @@ const ConversationViewWrapper: FC<Props> = ({
               send: t(ConversationI18nKeys.SEND),
             }}
             scrollBottomIcon={<Down width={20} height={20} />}
+            limitMessages={limitMessages}
           />
         </div>
         <Footer />
