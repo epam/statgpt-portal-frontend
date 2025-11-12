@@ -15,7 +15,7 @@ import {
   Popup,
   PopUpSize,
 } from '@epam/statgpt-ui-components';
-import { SHARE_CONVERSATION_ROUTE } from '../../constants/share-conversation';
+import { SHARE_CONVERSATION_ROUTE } from '@epam/statgpt-shared-toolkit';
 import { ShareConversationProps } from '../../models/share-conversation';
 import {
   getConversationData,

@@ -18,7 +18,7 @@ import {
 } from '@epam/statgpt-ui-components';
 import { ActionMenuItem } from '../../types/action-menu-item';
 import ConversationRename from '../ConversationRename/ConversationRename';
-import { ONBOARDING_MODEL_POSTFIX } from '@statgpt/share-conversation/src/constants/share-conversation';
+import { ONBOARDING_MODEL_POSTFIX } from '@epam/statgpt-shared-toolkit';
 
 interface Props {
   conversation: ConversationInfo;
