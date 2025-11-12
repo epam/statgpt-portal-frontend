@@ -5,14 +5,9 @@ export const sendRequest = async (
   headers: Record<string, string>,
   options: RequestOptions,
 ) => {
-  try {
-    return await fetch(url, {
-      method: options.method || 'GET',
-      headers,
-      body: options.body ? JSON.stringify(options.body) : undefined,
-    });
-  } catch (e) {
-    console.error('Send request failed', e);
-    return new Promise(() => null);
-  }
+  return await fetch(url, {
+    method: options.method || 'GET',
+    headers,
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
 };
