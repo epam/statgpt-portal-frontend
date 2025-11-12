@@ -21,7 +21,7 @@ export { ChatOnboardingFooter } from './components/ChatOnboardingFooter/ChatOnbo
 // eslint-disable-next-line @nx/enforce-module-boundaries
 export type { ShareConversationProps } from '../../share-conversation/src/models/share-conversation';
 // eslint-disable-next-line @nx/enforce-module-boundaries
-export type {
+export {
   ONBOARDING_MODEL_POSTFIX,
   SHARE_CONVERSATION_ROUTE,
 } from '../../share-conversation/src/constants/share-conversation';
