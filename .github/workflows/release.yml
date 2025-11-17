@@ -13,7 +13,7 @@ env:
 
 jobs:
   test:
-    uses: epam/ai-dial-ci/.github/workflows/node_test.yml@2.6.0
+    uses: epam/ai-dial-ci/.github/workflows/node_test.yml@2.7.3
     with:
       bypass-checks: false
       format-checks-enabled: true
@@ -35,7 +35,7 @@ jobs:
       is-latest: ${{ steps.semantic_versioning.outputs.is-latest }}
       latest-tag: ${{ steps.semantic_versioning.outputs.latest-tag }}
     steps:
-      - uses: epam/ai-dial-ci/actions/semantic_versioning@2.6.0
+      - uses: epam/ai-dial-ci/actions/semantic_versioning@2.7.3
         id: semantic_versioning
 
   release:
@@ -48,18 +48,33 @@ jobs:
 
     steps:
       - name: Maximize build space
-        uses: AdityaGarg8/remove-unwanted-software@90e01b21170618765a73370fcc3abbd1684a7793 # v5
+        uses: nepalevov/maximize-build-space@a1a975ceb44dddb1023067778f5c0111825ade6c # v1.0.1
         if: false # Maximize build space by removing unwanted software if set to true
         with:
-          remove-android: "true"
           remove-dotnet: "true"
+          remove-android: "true"
           remove-haskell: "true"
           remove-codeql: "true"
-          remove-docker-images: "true"
-          remove-cached-tools: "true"
+          docker-cleanup: "true"
           remove-large-packages: "true"
+          remove-cached-tools: "true"
+          remove-swapfile: "true"
+          remove-java: "true"
+          remove-swift: "true"
+          remove-julia: "true"
+          remove-browsers: "true"
+          remove-cloud-tools: "true"
+          remove-kubernetes-tools: "true"
+          remove-powershell: "true"
+          remove-container-tools: "true"
+          remove-rust: "true"
+          remove-python: "true"
+          remove-node: "true"
+          remove-go: "true"
+          remove-ruby: "true"
+          set-tmpdir: "true"
 
-      - uses: epam/ai-dial-ci/actions/generate_release_notes@2.6.0
+      - uses: epam/ai-dial-ci/actions/generate_release_notes@2.7.3
         with:
           latest-tag: ${{ needs.calculate_version.outputs.latest-tag }}
 
@@ -68,7 +83,7 @@ jobs:
           lfs: true
           token: ${{ secrets.ACTIONS_BOT_TOKEN }}
 
-      - uses: epam/ai-dial-ci/actions/node_prepare@2.6.0
+      - uses: epam/ai-dial-ci/actions/node_prepare@2.7.3
         with:
           node-version: "22"
           clean-install: true
@@ -124,7 +139,7 @@ jobs:
           IS_DEVELOPMENT_BRANCH: ${{ github.ref == 'refs/heads/development' }}
           IS_RELEASE_BRANCH: ${{ startsWith(github.ref, 'refs/heads/release-') }}
 
-      - uses: epam/ai-dial-ci/actions/publish_tag_release@2.6.0
+      - uses: epam/ai-dial-ci/actions/publish_tag_release@2.7.3
         with:
           tag-version: ${{ needs.calculate_version.outputs.next-version }}
           changelog-file: "/tmp/my_changelog" # Comes from generate_release_notes step
