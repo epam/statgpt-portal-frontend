@@ -4,6 +4,7 @@ import {
   ApiHeaders,
   getHeaders,
   LogData,
+  OCP_APIM_SUBSCRIPTION_KEY_HEADER,
   RequestOptions,
   sanitizeHeaders,
   sendRequest,
@@ -43,7 +44,7 @@ export class SdmxApiClient {
     };
 
     if (this.config.apiKey != null) {
-      headers['Ocp-Apim-Subscription-Key'] = this.config.apiKey;
+      headers[OCP_APIM_SUBSCRIPTION_KEY_HEADER] = this.config.apiKey;
     }
 
     const stream = new ReadableStream({

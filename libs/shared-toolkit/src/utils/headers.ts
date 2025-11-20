@@ -3,6 +3,7 @@ import {
   API_KEY_HEADER,
   X_CONVERSATION_ID_HEADER,
   CONTENT_TYPE_HEADER,
+  OCP_APIM_SUBSCRIPTION_KEY_HEADER,
 } from '../constants/headers';
 import { ApiHeaders } from '../models/api';
 
@@ -43,6 +44,12 @@ export const sanitizeHeaders = (
 
   if (sanitized.Authorization) {
     sanitized.Authorization = 'Bearer [REDACTED]';
+  }
+
+  if (sanitized[OCP_APIM_SUBSCRIPTION_KEY_HEADER]) {
+    sanitized[OCP_APIM_SUBSCRIPTION_KEY_HEADER] =
+      sanitized[OCP_APIM_SUBSCRIPTION_KEY_HEADER].substring(0, 8) +
+      '...[REDACTED]';
   }
 
   return sanitized;
