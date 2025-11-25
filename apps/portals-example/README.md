@@ -88,7 +88,7 @@ mpn run start
    npm run start
    ```
 
-   Once the server is up and running, open http://localhost:4200 in your browser to view the application.
+   Once the server is up and running, open http://localhost:4001 in your browser to view the application.
 
 
 ## 🎨 Theming & Customization
