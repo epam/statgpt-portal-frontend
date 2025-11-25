@@ -4,8 +4,7 @@
   "license": "MIT",
   "scripts": {
     "build": "nx run-many -t build && npm run build:styles",
-    "start": "nx serve",
-    "start:portals-example": "nx serve portals-example",
+    "start": "nx serve portals-example --port=4001",
     "test": "nx run-many -t test --runInBand",
     "lint": "nx run-many --target=lint --all",
     "lint:fix": "nx run-many --target=lint --all --fix",
