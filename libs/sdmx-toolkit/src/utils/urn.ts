@@ -10,34 +10,30 @@ export const getKeyFromUrn = (urn?: string | null): string | undefined => {
   return;
 };
 
-export const splitUrn = (urn?: string): SplittedUrn => {
-  if (urn == null) {
-    return {};
-  }
-
-  const keyFromUrn = getKeyFromUrn(urn);
-  const split: SplittedUrn = {
+export const splitUrn = (urn?: string | null): SplittedUrn => {
+  const split = {
     agency: '',
     id: '',
     version: '',
-  };
-
-  const isSafeComponent = (value: string | undefined): boolean =>
-    typeof value === 'string' && /^[a-zA-Z0-9_.-]+$/.test(value);
-
-  if (keyFromUrn) {
-    if (keyFromUrn.includes(':')) {
-      const agencyRaw = keyFromUrn.split(':')[0];
-      const idRaw = keyFromUrn.split(':')[1].split('(')[0];
-      split.agency = isSafeComponent(agencyRaw) ? agencyRaw : '';
-      split.id = isSafeComponent(idRaw) ? idRaw : '';
+  } as SplittedUrn;
+  if (urn == null) {
+    return split;
+  }
+  const item = getKeyFromUrn(urn);
+  if (item) {
+    if (item.includes(':')) {
+      split.agency = item.split(':')[0];
+      split.id = item.split(':')[1].split('(')[0];
     }
-    if (keyFromUrn.includes('(') && keyFromUrn.includes(')')) {
-      const versionRaw = keyFromUrn.split('(')[1]?.split(')')[0];
-      split.version = isSafeComponent(versionRaw) ? versionRaw : '';
+    if (item.includes('(')) {
+      const splittedKey = item.split('(');
+      split.version = splittedKey[1]?.split(')')[0];
+      // handle excel dataset urn without agency
+      if (!split.id) {
+        split.id = splittedKey[0];
+      }
     }
   }
-
   return split;
 };
 
