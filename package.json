@@ -72,6 +72,8 @@
     "@types/react-window": "^1.8.8",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
+    "@swc/core": "1.13.5",
+    "@swc/types": "0.1.24",
     "@vitejs/plugin-react": "^4.4.1",
     "autoprefixer": "10.4.21",
     "eslint": "9.32.0",
