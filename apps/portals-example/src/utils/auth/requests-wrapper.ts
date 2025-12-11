@@ -1,4 +1,4 @@
-import { ApiResponse, HTTP_ERROR_CODES } from '@statgpt/shared-toolkit/src';
+import { ApiResponse, HTTP_ERROR_CODES } from '@epam/statgpt-shared-toolkit';
 
 export type AuthHandler = <Args extends any[], T>(
   action: (...args: Args) => Promise<ApiResponse<T>>,
