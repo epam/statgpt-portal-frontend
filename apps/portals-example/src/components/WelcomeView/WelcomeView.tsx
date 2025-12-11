@@ -28,8 +28,6 @@ import {
   NavI18nKeys,
   WelcomeI18nKeys,
 } from '../../constants/i18n-keys';
-import { signOut, useSession } from 'next-auth/react';
-import { UserInfo } from '@statgpt/user-info/src/models/user-info';
 import { SIGN_IN_LINK } from '../../constants/auth';
 import { wrapWithAuthHandler } from '../../utils/auth/requests-wrapper';
 
@@ -43,7 +41,6 @@ const WelcomeView: FC<Props> = ({ suggestionsList, welcomeText }) => {
   const router = useRouter();
   const { setConversations, setSharedConversations } = useConversationList();
   const locale = useCurrentLocale();
-  const { data: session } = useSession();
 
   const authHandler = useCallback(
     function <Args extends any[], T>(
@@ -82,10 +79,6 @@ const WelcomeView: FC<Props> = ({ suggestionsList, welcomeText }) => {
     signOut: t(AuthI18nKeys.SIGN_OUT),
   };
 
-  const signOutAction = () => {
-    signOut();
-  };
-
   return (
     <ConversationWelcome
       locale={locale}
@@ -101,8 +94,6 @@ const WelcomeView: FC<Props> = ({ suggestionsList, welcomeText }) => {
       }}
       setConversations={setConversations}
       setSharedConversations={setSharedConversations}
-      userInfo={session?.user as UserInfo}
-      signOutAction={signOutAction}
     />
   );
 };
