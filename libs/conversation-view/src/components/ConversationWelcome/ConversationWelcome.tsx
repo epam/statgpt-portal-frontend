@@ -19,16 +19,11 @@ import {
 import { cleanConversationNames } from '@epam/statgpt-shared-toolkit';
 import { Loader } from '@epam/statgpt-ui-components';
 import { Tag } from '@epam/statgpt-ui-components';
-
+import { transformSharedConversations } from '@epam/statgpt-conversation-list';
 import { getCreateConversationRequest } from '../../utils/conversation-request';
 import { generateOnboardingConversation } from '../../utils/generate-onboarding-conversation';
 import { InputMessageStyles } from '../../models/message';
 import { ConversationViewTitles } from '../../models/titles';
-import { transformSharedConversations } from '@epam/statgpt-conversation-list';
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import { UserInfo } from '@statgpt/user-info/src/models/user-info';
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import User from '@statgpt/user-info/src/components/User/User';
 import { ConversationOnboarding } from '../ConversationOnboarding/ConversationOnboarding';
 import { ChatOnboardingFooter } from '../ChatOnboardingFooter/ChatOnboardingFooter';
 import { useOnboarding } from '../../context/OnboardingContext';
@@ -63,8 +58,6 @@ interface Props {
   handleConversationClick: (folderId: string, conversationId: string) => void;
   setConversations: (conversations: ConversationInfo[]) => void;
   setSharedConversations: (sharedConversations: ConversationInfo[]) => void;
-  userInfo?: UserInfo;
-  signOutAction?: () => void;
 }
 
 export const ConversationWelcome: FC<Props> = ({
@@ -81,8 +74,6 @@ export const ConversationWelcome: FC<Props> = ({
   setConversations,
   locale,
   setSharedConversations,
-  userInfo,
-  signOutAction,
 }) => {
   const [bucket, setBucket] = useState<string | null>(null);
   const [isCreatingConversation, setIsCreatingConversation] =
@@ -240,15 +231,6 @@ export const ConversationWelcome: FC<Props> = ({
         />
       ) : (
         <div className="flex flex-col h-full items-center justify-center sm:px-4">
-          {userInfo && (
-            <div className="absolute top-4 right-4">
-              <User
-                userInfo={userInfo}
-                signOutAction={signOutAction}
-                title={titles?.signOut}
-              />
-            </div>
-          )}
           <div
             className={classNames(
               'flex items-center max-w-full sm-min:px-4',

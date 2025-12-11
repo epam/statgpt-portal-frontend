@@ -4,7 +4,7 @@
   "license": "MIT",
   "dependencies": {
     "@tabler/icons-react": "^3.34.1",
-    "react": "19.1.0",
+    "react": "^19.2.1",
     "@epam/ai-dial-shared": "^0.34.0",
     "@epam/statgpt-ui-components": "*",
     "classnames": "^2.5.1",

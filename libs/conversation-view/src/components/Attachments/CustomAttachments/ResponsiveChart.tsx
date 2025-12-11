@@ -44,7 +44,7 @@ const ResponsiveEChart: FC<Props> = ({ option, style }) => {
     const fontSize = legendOpts.textStyle?.fontSize ?? 12;
     const legendData =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (chart as any).getModel().getComponent('legend').getData() || [];
+      (chart as any).getModel()?.getComponent('legend')?.getData() || [];
 
     let legendTotalWidth = 0;
     legendData.forEach((item: Model) => {

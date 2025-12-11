@@ -142,7 +142,7 @@ export const ActionMenu: FC<Props> = ({
   return (
     <>
       <Dropdown
-        containerClassName="invisible ml-3 group-hover:visible"
+        containerClassName="ml-3 group-hover:visible"
         triggerButton={triggerButton ?? <ActionTrigger />}
         options={items}
         openedClassName="action-menu-opened"

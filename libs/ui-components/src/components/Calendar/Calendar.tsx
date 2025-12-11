@@ -36,6 +36,7 @@ export const Calendar: FC<Props> = ({
 
   const updatedOptions = {
     ...options,
+    disableMobile: true,
     defaultDate:
       calendarResolution === CalendarResolution.MONTH
         ? new Date(value.getFullYear(), value.getMonth())
@@ -104,6 +105,15 @@ export const Calendar: FC<Props> = ({
         });
       }
     }
+    setTimeout(() => {
+      const calendar = fp.calendarContainer;
+      const inputRect = fp._input?.getBoundingClientRect();
+      if (calendar) {
+        calendar.style.left = `${inputRect.left}px`;
+        calendar.style.top = `${inputRect.top - calendar.offsetHeight - 8}px`;
+        calendar.style.width = `${inputRect.width}px`;
+      }
+    }, 0);
   };
 
   return (

@@ -10,30 +10,28 @@ export const getKeyFromUrn = (urn?: string | null): string | undefined => {
   return;
 };
 
-export const splitUrn = (urn?: string | null): SplittedUrn => {
-  const split = {
+export const splitUrn = (urn?: string): SplittedUrn => {
+  if (urn == null) {
+    return {};
+  }
+
+  const keyFromUrn = getKeyFromUrn(urn);
+  const split: SplittedUrn = {
     agency: '',
     id: '',
     version: '',
-  } as SplittedUrn;
-  if (urn == null) {
-    return split;
-  }
-  const item = getKeyFromUrn(urn);
-  if (item) {
-    if (item.includes(':')) {
-      split.agency = item.split(':')[0];
-      split.id = item.split(':')[1].split('(')[0];
+  };
+
+  if (keyFromUrn) {
+    if (keyFromUrn.includes(':')) {
+      split.agency = keyFromUrn.split(':')[0];
+      split.id = keyFromUrn.split(':')[1].split('(')[0];
     }
-    if (item.includes('(')) {
-      const splittedKey = item.split('(');
-      split.version = splittedKey[1]?.split(')')[0];
-      // handle excel dataset urn without agency
-      if (!split.id) {
-        split.id = splittedKey[0];
-      }
+    if (keyFromUrn.includes('(') && keyFromUrn.includes(')')) {
+      split.version = keyFromUrn.split('(')[1]?.split(')')[0];
     }
   }
+
   return split;
 };
 
