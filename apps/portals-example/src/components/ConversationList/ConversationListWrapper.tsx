@@ -8,7 +8,7 @@ import {
   ConversationList,
   SignOutTitles,
   UserInfo,
-  User
+  User,
 } from '@epam/statgpt-conversation-list';
 import MessageIcon from '../../../public/images/message-dots.svg';
 import { useAdvancedView } from '@epam/statgpt-conversation-view';

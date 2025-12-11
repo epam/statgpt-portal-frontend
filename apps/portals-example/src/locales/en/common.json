@@ -149,7 +149,7 @@
     "idName": "Combined ID and Name",
     "idNameDescription": "File will include one column with ID and Name combined (ID:Name)."
   },
-   "user": {
+  "user": {
     "signOut": "Log out",
     "settings": "Settings",
     "popupTitle": "Log out?",
