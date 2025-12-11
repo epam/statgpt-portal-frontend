@@ -25,7 +25,7 @@ interface Props {
   titles: SignOutTitles;
 }
 
-const User: FC<Props> = ({
+export const User: FC<Props> = ({
   userInfo,
   signOutAction,
   styles,
@@ -147,5 +147,3 @@ const User: FC<Props> = ({
     />
   );
 };
-
-export default User;

@@ -42,6 +42,15 @@ export enum ChatI18nKeys {
   EXPLORE_DATA = 'chart.exploreData',
 }
 
+export enum LogOutI18nKeys {
+  SIGN_OUT = 'user.signOut',
+  SETTINGS = 'user.settings',
+  POPUP_TITLE = 'user.popupTitle',
+  POPUP_TEXT = 'user.popupText',
+  POPUP_APPLY = 'user.popupApply',
+  POPUP_CANCEL = 'user.popupCancel',
+}
+
 export enum AdvancedViewI18nKeys {
   TITLE = 'advancedView.title',
   DATASET = 'advancedView.dataset',

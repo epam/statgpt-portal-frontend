@@ -148,5 +148,13 @@
     "nameDescription": "File will include ID and Name in separate columns.",
     "idName": "Combined ID and Name",
     "idNameDescription": "File will include one column with ID and Name combined (ID:Name)."
+  },
+   "user": {
+    "signOut": "Log out",
+    "settings": "Settings",
+    "popupTitle": "Log out?",
+    "popupText": "Are you sure you want to log out of your account?",
+    "popupApply": "Log out",
+    "popupCancel": "Cancel"
   }
 }
