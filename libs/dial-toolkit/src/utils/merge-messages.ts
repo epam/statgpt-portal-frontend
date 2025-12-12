@@ -67,7 +67,7 @@ export const mergeMessages = (
     }
 
     if (newData.content) {
-      newSource.content = `${newSource.content || ''}${newData.content}`;
+      updateContent(newSource, newData);
     }
 
     if (newData.custom_content) {
@@ -113,3 +113,23 @@ export const mergeMessages = (
 
   return newSource;
 };
+
+function updateContent(resultSource: Message, newData: Partial<Message>): void {
+  if (newData.content) {
+    const number = needDeleteCharsCount(newData.content);
+    if (number != null) {
+      resultSource.content = resultSource.content.slice(0, -number);
+    } else {
+      resultSource.content = `${resultSource.content || ''}${newData.content}`;
+    }
+  }
+}
+
+function needDeleteCharsCount(str: string): number | null {
+  const match = str.match(/delete_chars\((\d+)\)/);
+  if (match != null) {
+    return parseInt(match[1], 10);
+  } else {
+    return null;
+  }
+}

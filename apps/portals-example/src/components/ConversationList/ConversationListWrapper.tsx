@@ -4,15 +4,22 @@ import { IconPlus } from '@tabler/icons-react';
 import classNames from 'classnames';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
-import { ConversationList } from '@epam/statgpt-conversation-list';
+import {
+  ConversationList,
+  SignOutTitles,
+  UserInfo,
+  User,
+} from '@epam/statgpt-conversation-list';
 import MessageIcon from '../../../public/images/message-dots.svg';
+import { useAdvancedView } from '@epam/statgpt-conversation-view';
+import Logo from '../../../public/images/logo.svg';
 import Collapse from '../../../public/images/menu/collapse.svg';
 import Share from '../../../public/images/chat/share.svg';
 import Delete from '../../../public/images/chat/delete.svg';
 import Export from '../../../public/images/chat/export.svg';
 import Expand from '../../../public/images/menu/expand.svg';
 import Rename from '../../../public/images/chat/rename.svg';
+import SignOut from '../../../public/images/sign-out.svg';
 
 import { SHARE_CONVERSATION_PROPS } from '../../constants/share-conversation';
 import { getFileBlob } from '../../app/actions/attachments';
@@ -31,6 +38,7 @@ import {
   ConversationI18nKeys,
   DateGroupsI18nKeys,
   I18nKeys,
+  LogOutI18nKeys,
 } from '../../constants/i18n-keys';
 import { Button } from '@epam/statgpt-ui-components';
 import { useConversationList } from '../../context/ConversationListContext';
@@ -45,7 +53,7 @@ import {
 import { SIGN_IN_LINK } from '../../constants/auth';
 import { ApiResponse } from '@epam/statgpt-shared-toolkit';
 import { wrapWithAuthHandler } from '../../utils/auth/requests-wrapper';
-import { useAdvancedView } from '@epam/statgpt-conversation-view';
+import { signOut, useSession } from 'next-auth/react';
 
 const ConversationListWrapper = () => {
   const t = useI18n();
@@ -59,6 +67,7 @@ const ConversationListWrapper = () => {
     setSharedConversations,
   } = useConversationList();
   const locale = useCurrentLocale();
+  const { data: session } = useSession();
 
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -148,6 +157,19 @@ const ConversationListWrapper = () => {
     }
   }, [isOpenedAdvancedView, router, setIsOpenedAdvancedView]);
 
+  const signOutAction = useCallback(() => {
+    signOut();
+  }, []);
+
+  const signOutTitles: SignOutTitles = {
+    signOut: t(LogOutI18nKeys.SIGN_OUT),
+    settings: t(LogOutI18nKeys.SETTINGS),
+    popupTitle: t(LogOutI18nKeys.POPUP_TITLE),
+    popupText: t(LogOutI18nKeys.POPUP_TEXT),
+    popupApply: t(LogOutI18nKeys.POPUP_APPLY),
+    popupCancel: t(LogOutI18nKeys.POPUP_CANCEL),
+  };
+
   const shareTitles = {
     share: t(ChatI18nKeys.SHARE),
     shareLink: t(ChatI18nKeys.SHARE_LINK_TITLE),
@@ -165,8 +187,11 @@ const ConversationListWrapper = () => {
   return (
     <aside
       className={classNames(
-        'bg-neutrals-200 h-full flex flex-col min-w-0',
+        'bg-neutrals-200 h-full flex flex-col min-w-0 ',
         isCollapsed ? 'w-[64px]' : 'w-[362px]',
+        session?.user && !isCollapsed
+          ? 'relative pb-[104px] sm:pb-[60px] '
+          : '',
       )}
     >
       <div
@@ -179,6 +204,7 @@ const ConversationListWrapper = () => {
           className="flex flex-row items-center cursor-pointer"
           onClick={redirectToMainView}
         >
+          <Logo width={34} height={34} />
           {!isCollapsed ? (
             <span className="text-hues-900 text-start logo ml-3">
               <p className="font-semibold mr-1 inline mb-1">
@@ -257,6 +283,25 @@ const ConversationListWrapper = () => {
           ) : null}
         </ConversationList>
       </div>
+      {session?.user && !isCollapsed ? (
+        <div className="absolute bottom-0 h-[80px] left-0 w-[100%] bg-neutrals-200 flex items-center p-8 sm:p-4 pt-0 sm:pt-0 sm:h-[48px]">
+          <div className="border border-neutrals-500 p-2 rounded-[100px] w-full flex">
+            <User
+              userInfo={session?.user as UserInfo}
+              signOutAction={signOutAction}
+              locale={locale}
+              styles={{
+                initialStyles:
+                  'border-none bg-hues-800 text-white lg:h2 sm:body-2 border-accent-700 border-[1px]',
+                userNameStyles: '',
+                signOutIcon: <SignOut />,
+                dropdownButtonStyles: 'hover:bg-hues-100',
+              }}
+              titles={signOutTitles}
+            />
+          </div>
+        </div>
+      ) : null}
     </aside>
   );
 };

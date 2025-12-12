@@ -1,53 +1,138 @@
-import { UserInfo } from '../../models/user-info';
-import { FC, useMemo } from 'react';
+import { SignOutTitles, UserInfo } from '../../models/user-info';
+import { FC, ReactNode, useCallback, useMemo, useState } from 'react';
 import { Dropdown } from '@epam/statgpt-ui-components';
-import SignOutIcon from '../../assets/icons/sign-out.svg';
+import classNames from 'classnames';
+import SignOutModal from './SignOutModal/SignOutModal';
+
+interface UserStyles {
+  containerStyles?: string;
+  initialStyles?: string;
+  dropDownStyles?: string;
+  userNameStyles?: string;
+  dropdownButtonStyles?: string;
+  signOutIcon?: ReactNode;
+  settingsIcon?: ReactNode;
+  showShortName?: boolean;
+  showSeparator?: boolean;
+  disableModalDividers?: boolean;
+}
 
 interface Props {
   userInfo: UserInfo | null;
   signOutAction?: () => void;
-  title?: string;
+  styles?: UserStyles;
+  locale: string;
+  titles: SignOutTitles;
 }
 
-const User: FC<Props> = ({ userInfo, signOutAction, title }) => {
+export const User: FC<Props> = ({
+  userInfo,
+  signOutAction,
+  styles,
+  locale,
+  titles,
+}) => {
+  const getInitials = (name?: string) =>
+    name
+      ?.split(' ')
+      ?.map((n, i) => (i < 2 ? n[0].toUpperCase() : ''))
+      ?.join('') ?? '';
+
   const initials = useMemo(
     () =>
       userInfo?.name
-        .split(' ')
-        .map((n) => n[0].toUpperCase())
-        .join('') || '',
+        ? getInitials(userInfo?.name)
+        : (userInfo?.email?.[0].toUpperCase() ?? ''),
     [userInfo],
   );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const splittedUserName = userInfo?.name?.split(' ');
+  const userShortName = splittedUserName
+    ? `${splittedUserName?.[0] ?? ''} ${splittedUserName?.[1]?.[0] ? splittedUserName?.[1]?.[0] + '.' : ''}`
+    : (userInfo?.email ?? '');
+
+  const openModal = useCallback(() => {
+    setIsModalOpen(true);
+  }, []);
+
+  const onModalClose = useCallback(() => {
+    setIsModalOpen(false);
+  }, []);
 
   const initialsBlock = useMemo(() => {
     return (
-      <div
-        className="cursor-pointer flex items-center justify-center bg-hues-900 h-[44px] w-[44px] rounded-[100px]
-    p-[10px] text-white h2 border-accent-700 border-[1px]"
-      >
-        {initials}
+      <div className="flex items-center gap-2">
+        <div
+          className={classNames(
+            'cursor-pointer flex items-center justify-center  h-[44px] w-[44px] rounded-[100px] p-[10px] sm:h-[32px] sm:w-[32px]',
+            styles?.initialStyles,
+          )}
+        >
+          {initials}
+        </div>
+        <p className={classNames('h3 cursor-pointer', styles?.userNameStyles)}>
+          {(styles?.showShortName ? userShortName : userInfo?.name) ??
+            userInfo?.email ??
+            ''}
+        </p>
       </div>
     );
-  }, [initials]);
+  }, [initials, userShortName, styles, userInfo]);
 
   const content = useMemo(() => {
     return (
-      <div className="py-1">
-        <div className="py-2 px-3">
-          <h4 className="text-neutrals-1000">{userInfo?.name}</h4>
-          <p className="text-neutrals-800 body-3">{userInfo?.email}</p>
-        </div>
+      <div className={classNames('py-1', styles?.dropDownStyles)}>
+        {styles?.settingsIcon && (
+          <button
+            className={classNames(
+              'p-2 items-center flex gap-1 text-primary fill-primary body-1',
+              styles?.dropdownButtonStyles,
+            )}
+            title={titles?.settings}
+          >
+            {styles?.settingsIcon}
+            {titles?.settings || 'Settings'}
+          </button>
+        )}
+
+        <div
+          className={classNames(
+            'h-0 border-t border-neutrals-600 my-2',
+            styles?.showSeparator ? 'block' : 'hidden',
+          )}
+        ></div>
 
         <button
-          className="p-3 items-center flex gap-1 text-primary fill-primary h3"
-          onClick={signOutAction}
+          className={classNames(
+            'p-2 items-center flex gap-1 text-primary fill-primary body-1',
+            styles?.dropdownButtonStyles,
+          )}
+          title={titles?.signOut}
+          onClick={openModal}
         >
-          <SignOutIcon width={20} height={20} />
-          {title || 'Sign out'}
+          {styles?.signOutIcon}
+          {titles?.signOut || 'Sign out'}
+          {isModalOpen && (
+            <SignOutModal
+              onCloseModal={onModalClose}
+              signOut={() => signOutAction?.()}
+              locale={locale}
+              disableModalDividers={styles?.disableModalDividers}
+              titles={titles}
+            />
+          )}
         </button>
       </div>
     );
-  }, [userInfo, signOutAction, title]);
+  }, [
+    styles,
+    titles,
+    openModal,
+    isModalOpen,
+    onModalClose,
+    locale,
+    signOutAction,
+  ]);
 
   if (!userInfo) {
     return;
@@ -55,12 +140,10 @@ const User: FC<Props> = ({ userInfo, signOutAction, title }) => {
 
   return (
     <Dropdown
-      containerClassName="transition-opacity ml-3 group-hover:opacity-100"
+      containerClassName="transition-opacity ml-3 group-hover:opacity-100 shrink"
       triggerButton={initialsBlock}
       content={content}
       openedClassName="action-menu-opened"
     />
   );
 };
-
-export default User;

@@ -5,3 +5,5 @@ export * from './types/action-menu-item';
 export * from './utils/shared-conversations';
 export { ConversationList } from './components/ConversationList/ConversationList';
 export { ActionMenu } from './components/ActionMenu/ActionMenu';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+export * from '../../user-info/src';

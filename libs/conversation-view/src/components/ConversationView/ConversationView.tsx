@@ -121,15 +121,12 @@ export const ConversationView: FC<Props> = ({
   locale,
   conversationsRoute,
   token,
-  isShowUserInfo,
-  userInfo,
   titles,
   dataQuery,
   handleInvalidStreaming,
   setConversation,
   setConversations,
   openUrl,
-  signOutAction,
   messageActionsIcons,
   editMessageTitles,
   scrollBottomIcon,
@@ -637,10 +634,6 @@ export const ConversationView: FC<Props> = ({
           isOpenedAdvancedView={isOpenedAdvancedView}
           isShowShareButton={!isReadonlyConversation && !isShowOnboarding}
           shareConversationProps={shareConversationProps}
-          isShowUserInfo={isShowUserInfo}
-          userInfo={userInfo}
-          signOutTitle={titles?.signOut}
-          signOutAction={signOutAction}
         />
       )}
       <div
