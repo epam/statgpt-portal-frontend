@@ -13,7 +13,7 @@ env:
 
 jobs:
   test:
-    uses: epam/ai-dial-ci/.github/workflows/node_test.yml@2.7.3
+    uses: epam/ai-dial-ci/.github/workflows/node_test.yml@3.0.0
     with:
       bypass-checks: false
       format-checks-enabled: true
