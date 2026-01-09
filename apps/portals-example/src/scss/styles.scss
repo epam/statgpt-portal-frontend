@@ -20,6 +20,9 @@
 @use 'alert.scss';
 @use 'chart-attachment.scss';
 
+@import 'flatpickr/dist/themes/light.css';
+
+
 body {
   font-family: var(--open-sans);
 }

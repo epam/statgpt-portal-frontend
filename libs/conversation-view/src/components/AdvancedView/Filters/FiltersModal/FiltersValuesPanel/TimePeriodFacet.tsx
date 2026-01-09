@@ -198,6 +198,7 @@ const TimePeriodFacet: FC<Props> = ({
               label={titles?.to || 'To'}
               id="time-options-end"
               icon={calendarIcon}
+              isEndDate
             />
           </div>
         )}

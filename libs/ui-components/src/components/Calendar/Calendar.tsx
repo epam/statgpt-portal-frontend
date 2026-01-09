@@ -13,6 +13,7 @@ interface Props {
   calendarResolution?: CalendarResolution;
   id?: string;
   icon?: ReactNode;
+  isEndDate?: boolean;
 }
 
 export const Calendar: FC<Props> = ({
@@ -23,6 +24,7 @@ export const Calendar: FC<Props> = ({
   calendarResolution = CalendarResolution.DAY,
   id,
   icon,
+  isEndDate
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -109,9 +111,15 @@ export const Calendar: FC<Props> = ({
       const calendar = fp.calendarContainer;
       const inputRect = fp._input?.getBoundingClientRect();
       if (calendar) {
-        calendar.style.left = `${inputRect.left}px`;
         calendar.style.top = `${inputRect.top - calendar.offsetHeight - 8}px`;
-        calendar.style.width = `${inputRect.width}px`;
+        calendar.style.width = `${calendar.style.width}px`;
+
+        if(isEndDate) {
+          calendar.style.right = `${window.innerWidth - inputRect.right}px`;
+          calendar.style.left = 'auto';
+        } else {
+          calendar.style.left = `${inputRect.left}px`;
+        }
       }
     }, 0);
   };
