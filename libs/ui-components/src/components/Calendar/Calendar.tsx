@@ -24,7 +24,7 @@ export const Calendar: FC<Props> = ({
   calendarResolution = CalendarResolution.DAY,
   id,
   icon,
-  isEndDate
+  isEndDate,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -114,7 +114,7 @@ export const Calendar: FC<Props> = ({
         calendar.style.top = `${inputRect.top - calendar.offsetHeight - 8}px`;
         calendar.style.width = `${calendar.style.width}px`;
 
-        if(isEndDate) {
+        if (isEndDate) {
           calendar.style.right = `${window.innerWidth - inputRect.right}px`;
           calendar.style.left = 'auto';
         } else {
