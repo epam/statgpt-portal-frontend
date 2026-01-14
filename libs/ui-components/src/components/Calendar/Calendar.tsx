@@ -4,6 +4,8 @@ import Flatpickr, { OptionsType } from 'react-flatpickr';
 import { useEffect, useRef, FC, ReactNode } from 'react';
 import { CalendarResolution } from '@epam/statgpt-shared-toolkit';
 import { IconCalendarEvent } from '@tabler/icons-react';
+import { useIsMobile } from '../../hooks';
+import { CALENDAR_MOBILE_PADDING } from '../../constants';
 
 interface Props {
   onChange: (date: Date) => void;
@@ -27,6 +29,7 @@ export const Calendar: FC<Props> = ({
   isEndDate,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const container = ref?.current;
@@ -115,7 +118,7 @@ export const Calendar: FC<Props> = ({
         calendar.style.width = `${calendar.style.width}px`;
 
         if (isEndDate) {
-          calendar.style.right = `${window.innerWidth - inputRect.right}px`;
+          calendar.style.right = `${window.innerWidth - inputRect.right - (isMobile ? CALENDAR_MOBILE_PADDING : 0)}px`;
           calendar.style.left = 'auto';
         } else {
           calendar.style.left = `${inputRect.left}px`;

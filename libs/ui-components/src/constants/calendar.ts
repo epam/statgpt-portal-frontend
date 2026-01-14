@@ -1,0 +1,1 @@
+export const CALENDAR_MOBILE_PADDING = 24;
