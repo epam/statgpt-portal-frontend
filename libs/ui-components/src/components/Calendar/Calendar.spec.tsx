@@ -5,6 +5,7 @@ import { CalendarResolution } from '@epam/statgpt-shared-toolkit';
 
 describe('Calendar', () => {
   const mockOnChange = jest.fn();
+
   const baseDate = new Date(2024, 5, 15);
 
   const options = {
