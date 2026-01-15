@@ -7,5 +7,5 @@ export default {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/libs/ui-components',
-  setupFilesAfterEnv: ['./test-setup.js'],
+  setupFilesAfterEnv: ['./test-setup.js', './jest-env-mocks.ts'],
 };
