@@ -141,9 +141,12 @@ const ConversationListWrapper = () => {
   );
 
   const handleSelectedConversationRemove = useCallback(() => {
+    if (isOpenedAdvancedView) {
+      setIsOpenedAdvancedView(false);
+    }
     router.push(`/`);
     router.refresh();
-  }, [router]);
+  }, [router, isOpenedAdvancedView, setIsOpenedAdvancedView]);
 
   const redirectToMainView = useCallback(() => {
     router.push('/');
