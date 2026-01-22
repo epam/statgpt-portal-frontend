@@ -11,7 +11,7 @@
     "@epam/statgpt-shared-toolkit": "*",
     "@epam/statgpt-dial-toolkit": "*",
     "jszip": "3.10.1",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.23"
   },
   "exports": {
     ".": {
