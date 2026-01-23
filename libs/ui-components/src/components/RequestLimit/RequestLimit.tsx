@@ -1,5 +1,6 @@
 import { FC, ReactNode } from 'react';
 import { SERIES_LIMIT } from '../../constants/series-limit';
+import classNames from 'classnames';
 
 export interface LimitMessages {
   seriesCount?: (counter: number) => string | undefined;
@@ -16,6 +17,9 @@ export interface LimitMessages {
   dataExplorerIcon?: ReactNode;
   excelFormatTitle?: string;
   excelFormatText?: string;
+  containerClassName?: string;
+  largeQueryClassName?: string;
+  fullLimitMessageClassName?: string;
 }
 interface Props {
   limitMessages?: LimitMessages;
@@ -26,30 +30,42 @@ interface Props {
 }
 
 export const RequestLimitMessage: FC<Props> = ({
-  limitMessages,
+  limitMessages: lm,
   isDownload,
   showAdvancedViewButton,
   onAdvancedViewClick,
   query,
 }) => {
   return (
-    <div className="bg-accent-300 px-2 py-1 flex justify-between flex-wrap items-center">
-      <div className="flex gap-x-[4px]">
-        <span>{limitMessages?.warningIcon}</span>
+    <div
+      className={classNames(
+        'bg-semantic-warning-light px-2 py-1 flex justify-between flex-wrap items-center',
+        lm?.containerClassName,
+      )}
+    >
+      <div className="flex gap-x-2">
+        <span>{lm?.warningIcon}</span>
         <div className="flex flex-col">
           <div className="flex gap-x-[4px]">
-            <span className="text-primary h5">
-              {limitMessages?.largeQuery}:{' '}
+            <span
+              className={classNames('text-primary h5', lm?.largeQueryClassName)}
+            >
+              {lm?.largeQuery}:{' '}
             </span>
-            <span className="text-neutrals-800 body-3">
+            <span
+              className={classNames(
+                'text-neutrals-800 body-3',
+                lm?.fullLimitMessageClassName,
+              )}
+            >
               {isDownload
-                ? limitMessages?.downloadMessage?.(SERIES_LIMIT)
-                : limitMessages?.showingLimit?.(SERIES_LIMIT)}
+                ? lm?.downloadMessage?.(SERIES_LIMIT)
+                : lm?.showingLimit?.(SERIES_LIMIT)}
             </span>
           </div>
           {isDownload && (
             <span className="text-neutrals-800 body-3">
-              {limitMessages?.fullLimitMessage}
+              {lm?.fullLimitMessage}
             </span>
           )}
         </div>
@@ -58,17 +74,17 @@ export const RequestLimitMessage: FC<Props> = ({
       {showAdvancedViewButton && (
         <span
           onClick={() => onAdvancedViewClick?.()}
-          className="flex gap-x-[4px] body-3 cursor-pointer items-center"
+          className="flex gap-x-[4px] h4 cursor-pointer items-center text-primary"
         >
-          {limitMessages?.editIcon}
-          {limitMessages?.refineInAdvancedView}
+          {lm?.editIcon}
+          {lm?.refineInAdvancedView}
         </span>
       )}
       {isDownload && (
         <a href={query || ''} target="_blank">
           <span className="flex gap-x-[4px] body-3 cursor-pointer items-center">
-            {limitMessages?.dataExplorerIcon}
-            {limitMessages?.dataExplorer}
+            {lm?.dataExplorerIcon}
+            {lm?.dataExplorer}
           </span>
         </a>
       )}

@@ -45,6 +45,7 @@ import {
 import { getBucket } from '../../app/actions/bucket';
 import { getDataSet, getDataSetData } from '../../app/actions/dataset';
 import AdvancedModeIcon from '../../../public/images/advanced-mode.svg';
+import WarningIcon from '../../../public/images/warning.svg';
 import UnfoldIcon from '../../../public/images/unfold.svg';
 import DownloadIcon from '../../../public/images/chat/download.svg';
 import SuccessIcon from '../../../public/images/chat/success.svg';
@@ -290,18 +291,22 @@ const ConversationViewWrapper: FC<Props> = ({
   };
 
   const limitMessages: LimitMessages = {
+    warningIcon: <WarningIcon className="text-semantic-warning size-4" />,
     largeQuery: t(AdvancedViewI18nKeys.LARGE_QUERY),
     showingLimit: (limit: number) =>
       t(AdvancedViewI18nKeys.SHOWING_LIMIT, { limit }),
     downloadMessage: (limit: number) =>
       t(AdvancedViewI18nKeys.DOWNLOAD_MESSAGE, { limit }),
     refineInAdvancedView: t(AdvancedViewI18nKeys.REFINE_IN_ADVANCED_VIEW),
-    editIcon: <Edit />,
+    editIcon: <Edit className="size-4" />,
     externalLink: currentDataQuery?.metadata?.datasetUrl,
     dataExplorer: t(AdvancedViewI18nKeys.DATA_EXPLORER),
     fullLimitMessage: t(AdvancedViewI18nKeys.FULL_LIMIT_MESSAGE),
     excelFormatTitle: t(AdvancedViewI18nKeys.EXCEL_FORMAT_TITLE),
     excelFormatText: t(AdvancedViewI18nKeys.EXCEL_FORMAT_TEXT),
+    containerClassName: 'rounded border-l-[2px] border-semantic-warning py-2',
+    largeQueryClassName: '!text-neutrals-1000 h4 text-xs',
+    fullLimitMessageClassName: 'font-normal',
   };
 
   const signOutAction = () => {
