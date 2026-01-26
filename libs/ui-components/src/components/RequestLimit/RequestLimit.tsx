@@ -31,7 +31,7 @@ interface Props {
 }
 
 export const RequestLimitMessage: FC<Props> = ({
-  limitMessages: lm,
+  limitMessages,
   isDownload,
   showAdvancedViewButton,
   onAdvancedViewClick,
@@ -41,37 +41,40 @@ export const RequestLimitMessage: FC<Props> = ({
     <div
       className={classNames(
         'bg-semantic-warning-light px-2 py-1 flex justify-between flex-wrap items-center',
-        lm?.containerClassName,
+        limitMessages?.containerClassName,
       )}
     >
       <div className="flex gap-x-2 items-center">
-        <span>{lm?.warningIcon}</span>
+        <span>{limitMessages?.warningIcon}</span>
         <div className="flex flex-col gap-1">
           <div className="flex gap-x-[4px]">
             <span
-              className={classNames('text-primary h5', lm?.largeQueryClassName)}
+              className={classNames(
+                'text-primary h5',
+                limitMessages?.largeQueryClassName,
+              )}
             >
-              {lm?.largeQuery}:{' '}
+              {limitMessages?.largeQuery}:{' '}
             </span>
             <span
               className={classNames(
                 'text-neutrals-800 body-3',
-                lm?.limitMessageClassName,
+                limitMessages?.limitMessageClassName,
               )}
             >
               {isDownload
-                ? lm?.downloadMessage?.(SERIES_LIMIT)
-                : lm?.showingLimit?.(SERIES_LIMIT)}
+                ? limitMessages?.downloadMessage?.(SERIES_LIMIT)
+                : limitMessages?.showingLimit?.(SERIES_LIMIT)}
             </span>
           </div>
           {isDownload && (
             <span
               className={classNames(
                 'text-neutrals-800 body-3',
-                lm?.limitMessageClassName,
+                limitMessages?.limitMessageClassName,
               )}
             >
-              {lm?.fullLimitMessage}
+              {limitMessages?.fullLimitMessage}
             </span>
           )}
         </div>
@@ -82,15 +85,15 @@ export const RequestLimitMessage: FC<Props> = ({
           onClick={() => onAdvancedViewClick?.()}
           className="flex gap-x-[4px] h4 cursor-pointer items-center text-primary"
         >
-          {lm?.editIcon}
-          {lm?.refineInAdvancedView}
+          {limitMessages?.editIcon}
+          {limitMessages?.refineInAdvancedView}
         </span>
       )}
       {isDownload && (
         <a href={query || ''} target="_blank">
           <span className="flex gap-x-[4px] body-3 cursor-pointer items-center">
-            {lm?.dataExplorerIcon}
-            {lm?.dataExplorer}
+            {limitMessages?.dataExplorerIcon}
+            {limitMessages?.dataExplorer}
           </span>
         </a>
       )}
