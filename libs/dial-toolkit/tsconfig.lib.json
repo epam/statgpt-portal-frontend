@@ -3,6 +3,13 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc"
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["jest.config.js", "src/**/*.spec.ts", "src/**/*.test.ts"]
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "jest.config.js",
+    "vite.config.ts"
+  ]
 }
