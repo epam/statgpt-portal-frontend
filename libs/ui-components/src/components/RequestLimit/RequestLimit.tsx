@@ -46,7 +46,7 @@ export const RequestLimitMessage: FC<Props> = ({
     >
       <div className="flex gap-x-2 items-center">
         <span>{lm?.warningIcon}</span>
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-1">
           <div className="flex gap-x-[4px]">
             <span
               className={classNames('text-primary h5', lm?.largeQueryClassName)}
