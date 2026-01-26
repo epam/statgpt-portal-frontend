@@ -19,8 +19,9 @@ export interface LimitMessages {
   excelFormatText?: string;
   containerClassName?: string;
   largeQueryClassName?: string;
-  fullLimitMessageClassName?: string;
+  limitMessageClassName?: string;
 }
+
 interface Props {
   limitMessages?: LimitMessages;
   isDownload?: boolean;
@@ -43,7 +44,7 @@ export const RequestLimitMessage: FC<Props> = ({
         lm?.containerClassName,
       )}
     >
-      <div className="flex gap-x-2">
+      <div className="flex gap-x-2 items-center">
         <span>{lm?.warningIcon}</span>
         <div className="flex flex-col">
           <div className="flex gap-x-[4px]">
@@ -55,7 +56,7 @@ export const RequestLimitMessage: FC<Props> = ({
             <span
               className={classNames(
                 'text-neutrals-800 body-3',
-                lm?.fullLimitMessageClassName,
+                lm?.limitMessageClassName,
               )}
             >
               {isDownload
@@ -64,7 +65,12 @@ export const RequestLimitMessage: FC<Props> = ({
             </span>
           </div>
           {isDownload && (
-            <span className="text-neutrals-800 body-3">
+            <span
+              className={classNames(
+                'text-neutrals-800 body-3',
+                lm?.limitMessageClassName,
+              )}
+            >
               {lm?.fullLimitMessage}
             </span>
           )}

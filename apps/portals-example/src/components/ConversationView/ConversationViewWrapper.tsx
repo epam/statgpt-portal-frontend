@@ -306,7 +306,7 @@ const ConversationViewWrapper: FC<Props> = ({
     excelFormatText: t(AdvancedViewI18nKeys.EXCEL_FORMAT_TEXT),
     containerClassName: 'rounded border-l-[2px] border-semantic-warning py-2',
     largeQueryClassName: '!text-neutrals-1000 h4 text-xs',
-    fullLimitMessageClassName: 'font-normal',
+    limitMessageClassName: 'font-normal',
   };
 
   const signOutAction = () => {
