@@ -1,5 +1,6 @@
 import { FC, ReactNode } from 'react';
 import { SERIES_LIMIT } from '../../constants/series-limit';
+import classNames from 'classnames';
 
 export interface LimitMessages {
   seriesCount?: (counter: number) => string | undefined;
@@ -16,7 +17,11 @@ export interface LimitMessages {
   dataExplorerIcon?: ReactNode;
   excelFormatTitle?: string;
   excelFormatText?: string;
+  containerClassName?: string;
+  largeQueryClassName?: string;
+  limitMessageClassName?: string;
 }
+
 interface Props {
   limitMessages?: LimitMessages;
   isDownload?: boolean;
@@ -33,22 +38,42 @@ export const RequestLimitMessage: FC<Props> = ({
   query,
 }) => {
   return (
-    <div className="bg-accent-300 px-2 py-1 flex justify-between flex-wrap items-center">
-      <div className="flex gap-x-[4px]">
+    <div
+      className={classNames(
+        'bg-semantic-warning-light px-2 py-1 flex justify-between flex-wrap items-center',
+        limitMessages?.containerClassName,
+      )}
+    >
+      <div className="flex gap-x-2 items-center">
         <span>{limitMessages?.warningIcon}</span>
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-1">
           <div className="flex gap-x-[4px]">
-            <span className="text-primary h5">
+            <span
+              className={classNames(
+                'text-primary h5',
+                limitMessages?.largeQueryClassName,
+              )}
+            >
               {limitMessages?.largeQuery}:{' '}
             </span>
-            <span className="text-neutrals-800 body-3">
+            <span
+              className={classNames(
+                'text-neutrals-800 body-3',
+                limitMessages?.limitMessageClassName,
+              )}
+            >
               {isDownload
                 ? limitMessages?.downloadMessage?.(SERIES_LIMIT)
                 : limitMessages?.showingLimit?.(SERIES_LIMIT)}
             </span>
           </div>
           {isDownload && (
-            <span className="text-neutrals-800 body-3">
+            <span
+              className={classNames(
+                'text-neutrals-800 body-3',
+                limitMessages?.limitMessageClassName,
+              )}
+            >
               {limitMessages?.fullLimitMessage}
             </span>
           )}
@@ -58,7 +83,7 @@ export const RequestLimitMessage: FC<Props> = ({
       {showAdvancedViewButton && (
         <span
           onClick={() => onAdvancedViewClick?.()}
-          className="flex gap-x-[4px] body-3 cursor-pointer items-center"
+          className="flex gap-x-[4px] h4 cursor-pointer items-center text-primary"
         >
           {limitMessages?.editIcon}
           {limitMessages?.refineInAdvancedView}

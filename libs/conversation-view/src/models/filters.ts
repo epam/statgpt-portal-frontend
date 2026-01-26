@@ -96,4 +96,5 @@ export interface FiltersProps {
   updateConversation: UpdateConversation;
   updateDataQueries?: (dataQueries?: DataQuery[]) => void;
   limitMessages?: LimitMessages;
+  filterIconClassName?: string;
 }

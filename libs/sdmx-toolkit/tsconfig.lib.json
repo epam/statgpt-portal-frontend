@@ -4,6 +4,11 @@
     "outDir": "../../dist/out-tsc",
     "types": ["node", "vite/client"]
   },
-  "exclude": ["**/*.spec.ts", "**/*.spec.tsx", "jest.config.js"],
+  "exclude": [
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "jest.config.js",
+    "vite.config.ts"
+  ],
   "include": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"]
 }

@@ -1,14 +1,20 @@
 'use client';
 
-import { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { FilterButtonProps } from '../../../../models/filters';
-import { Button, PopUpState, Loader } from '@epam/statgpt-ui-components';
+import {
+  Button,
+  PopUpState,
+  Loader,
+  SERIES_LIMIT,
+} from '@epam/statgpt-ui-components';
 import FilterIcon from '../../../../assets/icons/filter.svg';
 import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
 import { ConversationViewTitles } from '../../../../models/titles';
 import { Tooltip } from '../../../Tooltip/Tooltip';
 import { OnboardingElements } from '../../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../../context/OnboardingContext';
+import classNames from 'classnames';
 
 interface Props {
   buttonProps?: FilterButtonProps;
@@ -17,6 +23,9 @@ interface Props {
   titles?: ConversationViewTitles;
   setModalState: (modalState: PopUpState) => void;
   isModalClosed?: boolean;
+  warningIcon?: ReactNode;
+  filterIconClassName?: string;
+  timeSeriesCount?: number;
 }
 
 const FilterButton: FC<Props> = ({
@@ -26,12 +35,17 @@ const FilterButton: FC<Props> = ({
   setModalState,
   titles,
   isModalClosed,
+  warningIcon,
+  filterIconClassName,
+  timeSeriesCount,
 }) => {
   const filtersRef = useRef<HTMLDivElement | null>(null);
   const [tooltipTitle, setTooltipTitle] = useState<string>('');
   const [tooltipDescription, setTooltipDescription] = useState<string>('');
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   const { onboardingFileSchema, isShowOnboarding } = useOnboarding();
+
+  const isOverLimit = SERIES_LIMIT < (timeSeriesCount ?? 0);
 
   const title = useMemo(
     () =>
@@ -68,7 +82,12 @@ const FilterButton: FC<Props> = ({
       ) : (
         <>
           <Button
-            iconBefore={<FilterIcon className="w-4 h-4" />}
+            iconBefore={
+              <FilterIcon
+                className={classNames('size-4', filterIconClassName)}
+              />
+            }
+            iconAfter={isOverLimit ? warningIcon : undefined}
             title={title}
             buttonClassName="text-button-secondary filter-button"
             isSmallButton={true}

@@ -13,7 +13,7 @@ const FiltersCounter: FC<Props> = ({ timeseriesLength = 0, limitMessages }) => {
   const showSeriesCounter =
     !timeseriesLength || SERIES_LIMIT > timeseriesLength;
   return (
-    <div className="body-3 text-neutrals-800 sm:text-center flex gap-x-[4px] sm:justify-center">
+    <div className="body-3 text-neutrals-800 sm:text-center flex gap-x-[4px] sm:justify-center items-center">
       {showSeriesCounter ? (
         <span>{limitMessages?.seriesCount?.(timeseriesLength)}</span>
       ) : (
