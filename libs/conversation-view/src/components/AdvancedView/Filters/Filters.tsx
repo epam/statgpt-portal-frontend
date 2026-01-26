@@ -61,6 +61,7 @@ const Filters: FC<FiltersProps> = ({
   updateConversation,
   updateDataQueries,
   limitMessages,
+  filterIconClassName,
 }) => {
   const [modalState, setModalState] = useState(PopUpState.Closed);
   const [modalFilters, setModalFilters] = useState<Filter[]>([]);
@@ -385,6 +386,10 @@ const Filters: FC<FiltersProps> = ({
     setSelectedTimeOption(value);
   };
 
+  const timeSeriesCount = Number(
+    getTimeSeriesCount(constraintsRef?.current?.[0]?.annotations),
+  );
+
   return (
     <div className="filters-container">
       <FilterButton
@@ -396,6 +401,9 @@ const Filters: FC<FiltersProps> = ({
         setModalState={setModalState}
         titles={titles}
         isModalClosed={isModalClosed}
+        warningIcon={limitMessages?.warningIcon}
+        filterIconClassName={filterIconClassName}
+        timeSeriesCount={timeSeriesCount}
       />
       <>
         {modalState === PopUpState.Opened && (
@@ -417,9 +425,7 @@ const Filters: FC<FiltersProps> = ({
               isDisableValues={isDisableFilterValues}
               modalProps={modalProps}
               initialConstraints={initialConstraints}
-              timeSeriesCount={getTimeSeriesCount(
-                constraintsRef.current?.[0]?.annotations,
-              )}
+              timeSeriesCount={`${timeSeriesCount}`}
               setSelectedFilter={setSelectedFilter}
               onSelectDisplayMode={onSelectDisplayMode}
               onDeleteFilter={onDeleteFilter}
@@ -434,9 +440,7 @@ const Filters: FC<FiltersProps> = ({
               onClearAllFilters={onClearAllFilters}
               modalProps={modalProps}
               applyDisabled={isConstraintsLoading || isDisableFilterValues}
-              timeseriesLength={Number(
-                getTimeSeriesCount(constraintsRef?.current?.[0]?.annotations),
-              )}
+              timeseriesLength={timeSeriesCount}
               limitMessages={limitMessages}
             />
           </Popup>
