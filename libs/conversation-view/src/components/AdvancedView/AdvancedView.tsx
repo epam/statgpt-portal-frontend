@@ -1,9 +1,9 @@
 'use client';
 
 import DataDetails from './DataDetails';
-import DatasetInfo from './DatasetInfo';
+import DatasetInfo, { DatasetInfoOptions } from './DatasetInfo';
 import Header from './Header';
-import { FiltersProps } from '../../models/filters';
+import { Filter, FiltersProps } from '../../models/filters';
 import { AttachmentsConfig, AttachmentsProps } from '../../models/attachments';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
@@ -19,6 +19,11 @@ import DatasetTabs from '../Attachments/Tabs/DatasetTabs/DatasetTabs';
 import { ConversationViewTitles } from '../../models/titles';
 import { StructureComponentValue } from '../../models/structure-component';
 import { LimitMessages } from '@epam/statgpt-ui-components';
+import {
+  DataConstraints,
+  DatasetQueryFilters,
+} from '@epam/statgpt-sdmx-toolkit';
+import { getExternalLink } from '../../utils/attachments-details';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -35,6 +40,7 @@ interface Props {
   ) => string | null;
   limitMessages?: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
+  datasetInfoOptions?: DatasetInfoOptions;
 }
 
 export const AdvancedView: FC<Props> = ({
@@ -48,6 +54,7 @@ export const AdvancedView: FC<Props> = ({
   advanceViewStyles,
   getDatasetUpdatedTime,
   attachmentsConfig,
+  datasetInfoOptions,
   ...props
 }) => {
   const {
@@ -70,6 +77,23 @@ export const AdvancedView: FC<Props> = ({
     titles,
   );
   const [isFiltering, setIsFiltering] = useState<boolean>();
+  const [filters, setFilters] = useState<DatasetQueryFilters>({
+    filterKey: null,
+    timeFilter: null,
+  });
+
+  const handleFiltersChange = useCallback(
+    (
+      filterParams: DatasetQueryFilters,
+      constraints: DataConstraints[],
+      modalFilters?: Filter[],
+    ) => {
+      setFilters(filterParams);
+      setIsFiltering(true);
+      onFiltersChange(filterParams, constraints, modalFilters);
+    },
+    [onFiltersChange],
+  );
 
   const onSelectDataset = useCallback(
     (datasetUrn?: string) => {
@@ -82,6 +106,13 @@ export const AdvancedView: FC<Props> = ({
       }
     },
     [actions, attachmentsProps.currentDataQuery, attachmentsProps?.dataQueries],
+  );
+
+  const externalLink = getExternalLink(
+    attachmentsConfig?.isExternaLinkIncludeFilters,
+    filters,
+    attachmentsProps.currentDataQuery || attachmentsProps.dataQueries?.[0],
+    dimensions,
   );
 
   return (
@@ -112,19 +143,15 @@ export const AdvancedView: FC<Props> = ({
           ) : (
             <>
               <DatasetInfo
+                {...datasetInfoOptions}
                 titles={titles}
-                isShowAgency={advanceViewStyles?.isShowAgency}
                 locale={locale}
                 dataset={dataset}
                 data={dataMessage?.data}
                 structures={structures}
                 metadataSettings={metadataSettings}
                 getDatasetUpdatedTime={getDatasetUpdatedTime}
-                externalLink={
-                  !attachmentsConfig?.isExternaLinkIncludeFilters
-                    ? attachmentsProps?.currentDataQuery?.metadata?.datasetUrl
-                    : ''
-                }
+                externalLink={externalLink}
               />
               <div
                 className={classNames(
@@ -152,6 +179,8 @@ export const AdvancedView: FC<Props> = ({
                   }}
                   setIsFiltering={setIsFiltering}
                   attachmentsConfig={attachmentsConfig}
+                  filters={filters}
+                  onFiltersChange={handleFiltersChange}
                 />
               </div>
             </>

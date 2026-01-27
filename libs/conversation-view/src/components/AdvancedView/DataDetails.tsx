@@ -11,7 +11,7 @@ import { LimitMessages } from '@epam/statgpt-ui-components';
 import Filters from './Filters/Filters';
 import AttachmentRenderer from '../Attachments/AttachmentRenderer';
 import { Filter, FiltersProps } from '../../models/filters';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect } from 'react';
 import { AdvancedViewActions } from '../../models/actions';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import { ConversationViewTitles } from '../../models/titles';
@@ -31,6 +31,12 @@ interface Props {
   setIsFiltering?: (isFiltering: boolean) => void;
   limitMessages?: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
+  filters?: DatasetQueryFilters;
+  onFiltersChange: (
+    filterParams: DatasetQueryFilters,
+    constraints: DataConstraints[],
+    modalFilters?: Filter[],
+  ) => void;
 }
 
 const DataDetails: FC<Props> = ({
@@ -47,25 +53,11 @@ const DataDetails: FC<Props> = ({
   titles,
   limitMessages,
   attachmentsConfig,
+  filters,
+  onFiltersChange,
 }) => {
-  const [filters, setFilters] = useState<DatasetQueryFilters>({
-    filterKey: null,
-    timeFilter: null,
-  });
   const constraintAction = {
     getConstraints: actions.getConstraints,
-  };
-
-  const onFiltersChange = (
-    filterParams: DatasetQueryFilters,
-    constraints: DataConstraints[],
-    modalFilters?: Filter[],
-  ) => {
-    setFilters(filterParams);
-    setIsFiltering?.(true);
-    if (filtersProps && filtersProps.onFiltersChange) {
-      filtersProps?.onFiltersChange(filterParams, constraints, modalFilters);
-    }
   };
 
   useEffect(() => {
