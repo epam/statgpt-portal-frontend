@@ -44,6 +44,7 @@
     "react-virtualized-auto-sizer": "^1.0.26",
     "react-window": "^1.8.11",
     "remark-gfm": "^4.0.1",
+    "tailwind-merge": "^3.4.0",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
@@ -60,6 +61,8 @@
     "@nx/vite": "21.1.2",
     "@nx/workspace": "21.1.2",
     "@svgr/webpack": "^8.1.0",
+    "@swc/core": "1.13.5",
+    "@swc/types": "0.1.24",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -72,8 +75,6 @@
     "@types/react-window": "^1.8.8",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
-    "@swc/core": "1.13.5",
-    "@swc/types": "0.1.24",
     "@vitejs/plugin-react": "^4.4.1",
     "autoprefixer": "10.4.21",
     "eslint": "9.32.0",

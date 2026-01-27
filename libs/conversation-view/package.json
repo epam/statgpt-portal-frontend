@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "license": "MIT",
   "dependencies": {
-    "react": "^19.2.1",
     "classnames": "^2.5.1",
     "@epam/ai-dial-shared": "^0.34.0",
     "@tabler/icons-react": "^3.34.1",
@@ -24,7 +23,11 @@
     "flatpickr": "4.6.13",
     "react-flatpickr": "^4.0.11",
     "date-fns": "^4.1.0",
-    "lodash": "^4.17.23"
+    "lodash": "^4.17.23",
+    "tailwind-merge": "^3.4.0"
+  },
+  "peerDependencies": {
+    "react": "^19.2.1"
   },
   "exports": {
     ".": {

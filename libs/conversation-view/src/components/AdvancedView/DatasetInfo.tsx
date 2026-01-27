@@ -1,12 +1,7 @@
 'use client';
 
-import DatasetIcon from '../../assets/icons/dataset.svg';
 import MetadataIcon from '../../assets/icons/metadata.svg';
-import {
-  IconClock,
-  IconArrowUpRight,
-  IconExternalLink,
-} from '@tabler/icons-react';
+import { IconExternalLink } from '@tabler/icons-react';
 import {
   Dataflow,
   getLastUpdatedTime,
@@ -16,9 +11,16 @@ import {
   getStructureComponentsMap,
 } from '@epam/statgpt-sdmx-toolkit';
 import { IconButton } from '@epam/statgpt-ui-components';
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  FC,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { getDateFormattedValue } from '../../utils/date-format';
-import classNames from 'classnames';
 import {
   getDataSetAttributes,
   getDatasetDescription,
@@ -33,15 +35,27 @@ import { Tooltip } from '../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../utils/get-tooltip-data.by-element';
 import { OnboardingElements } from '../../constants/onboarding-elements';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { mergeClasses } from '../../utils/mergeClasses';
 
-interface Props {
+export interface DatasetInfoOptions {
+  isShowAgency?: boolean;
+  isShowDatasetBadge?: boolean;
+  datasetIcon?: ReactNode;
+  externalLinkIcon?: ReactNode;
+  metadataButtonClassName?: string;
+  metadataIconClassName?: string;
+  infoSegmentContainerClassName?: string;
+  infoSegmentHeaderClassName?: string;
+  nameAndMetadataContainerClassName?: string;
+}
+
+interface Props extends DatasetInfoOptions {
   dataset?: Dataflow | null;
   data?: Data;
   structures?: StructuralData;
   metadataSettings?: MetadataSettings;
   locale: string;
   externalLink?: string;
-  isShowAgency?: boolean;
   titles?: ConversationViewTitles;
   getDatasetUpdatedTime?: (
     attributes: StructureComponentValue[],
@@ -50,6 +64,7 @@ interface Props {
 
 const DatasetInfo: FC<Props> = ({
   isShowAgency,
+  isShowDatasetBadge,
   dataset,
   data,
   structures,
@@ -58,6 +73,13 @@ const DatasetInfo: FC<Props> = ({
   titles,
   getDatasetUpdatedTime,
   externalLink,
+  datasetIcon,
+  externalLinkIcon,
+  metadataButtonClassName,
+  metadataIconClassName,
+  infoSegmentContainerClassName,
+  infoSegmentHeaderClassName,
+  nameAndMetadataContainerClassName,
 }) => {
   const [lastUpdatedDate, setLastUpdatedDate] = useState<string>('');
   const [isOpenMetadata, setIsOpenMetadata] = useState<boolean>(false);
@@ -141,70 +163,84 @@ const DatasetInfo: FC<Props> = ({
     }
   }, [onboardingFileSchema?.lastDisplayedElement, isShowOnboarding]);
 
-  return (
-    <div className={classNames('flex flex-col bg-white', 'dataset-info')}>
-      {!isShowAgency ? (
-        <>
-          <div className="flex gap-3 mb-3">
-            <p className="flex gap-1 items-center py-1 px-2 rounded-[20px] bg-accent-500 body-3">
-              <DatasetIcon className="w-4 h-4" />
-              {titles?.dataset ?? 'Dataset'}
-            </p>
-            <h5 className="flex items-center text-neutrals-700">
-              <IconClock className="w-4 h-4 mr-1" />
-              {titles?.lastUpdated ?? 'Last updated'}:
-              <span className="ml-1">{lastUpdatedDate}</span>
-            </h5>
-          </div>
-          <h3 className="flex items-center gap-2">
-            {getLocalizedName(dataset, locale)}
-            <div ref={iconRef}>
-              <IconButton
-                title={titles?.metadata ?? 'View details'}
-                buttonClassName="!text-neutrals-1000 !border-none !w-5 !h-5 !p-0 shrink-0"
-                icon={<MetadataIcon width={20} height={20} />}
-                onClick={openMetadata}
-              />
-            </div>
-            {externalLink && (
-              <a href={externalLink} target="_blank" rel="noopener noreferrer">
-                <IconArrowUpRight className="cursor-pointer w-6 h-6 shrink-0" />
-              </a>
-            )}
-          </h3>
-        </>
-      ) : (
-        <>
-          <h4 className="flex items-center gap-2">
-            <div ref={iconRef}>
-              <IconButton
-                title={titles?.metadata ?? 'View details'}
-                buttonClassName="!text-neutrals-1000 !border-none !w-5 !h-5 !p-0 shrink-0"
-                icon={<MetadataIcon width={20} height={20} />}
-                onClick={openMetadata}
-              />
-            </div>
-            {dataset?.name}
-            {externalLink && (
-              <a href={externalLink} target="_blank" rel="noopener noreferrer">
-                <IconExternalLink className="text-primary cursor-pointer w-4 h-4 shrink-0" />
-              </a>
-            )}
-          </h4>
-          <div className="flex mt-1 text-neutrals-800 body-3 divide-x divide-neutrals-500">
-            <p className="pr-2">
-              {titles?.lastUpdated ?? 'Agency'}:
-              <span className="text-neutrals-1000 pl-1">
-                {dataset?.agencyID}
-              </span>
-            </p>
-            <p className="pl-2">
-              {titles?.lastUpdated ?? 'Last updated'}:
-              <span className="text-neutrals-1000 pl-1">{lastUpdatedDate}</span>
-            </p>
-          </div>
-        </>
+  const renderInfoSegment = (header: string, value: string) => (
+    <div
+      className={mergeClasses(
+        'flex gap-1 text-neutrals-1000',
+        infoSegmentContainerClassName,
       )}
+    >
+      <span
+        className={mergeClasses('text-neutral-800', infoSegmentHeaderClassName)}
+      >
+        {header}:
+      </span>
+      <span>{value}</span>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col bg-white gap-3 dataset-info">
+      {isShowDatasetBadge && (
+        <div className="flex gap-1 items-center py-1 px-2 rounded-[20px] bg-accent-500 body-2 w-fit">
+          {datasetIcon}
+          {titles?.dataset ?? 'Dataset'}
+        </div>
+      )}
+      <div className="flex flex-col gap-1">
+        <div className="flex gap-1 items-center">
+          <div
+            role="heading"
+            aria-level={4}
+            className={mergeClasses(
+              'flex gap-1 items-center h4',
+              nameAndMetadataContainerClassName,
+            )}
+          >
+            <div ref={iconRef}>
+              <IconButton
+                title={titles?.metadata ?? 'View details'}
+                buttonClassName={mergeClasses(
+                  '!text-neutrals-1000 !border-none !w-4 !h-4 !p-0 shrink-0',
+                  metadataButtonClassName,
+                )}
+                icon={
+                  <MetadataIcon
+                    className={mergeClasses('size-4', metadataIconClassName)}
+                  />
+                }
+                onClick={openMetadata}
+              />
+            </div>
+            <span>{getLocalizedName(dataset, locale)}</span>
+          </div>
+          {externalLink && (
+            <a href={externalLink} target="_blank" rel="noopener noreferrer">
+              {externalLinkIcon || (
+                <IconExternalLink className="text-primary cursor-pointer w-4 h-4 shrink-0" />
+              )}
+            </a>
+          )}
+        </div>
+        <div className="flex gap-2 body-3 items-center">
+          {isShowAgency && (
+            <>
+              {renderInfoSegment(
+                titles?.agency ?? 'Agency',
+                dataset?.agencyID ?? '',
+              )}
+              <div
+                aria-hidden="true"
+                className="border-l border-l-neutral-500 h-[14px]"
+              />
+            </>
+          )}
+          {renderInfoSegment(
+            titles?.lastUpdated ?? 'Last updated',
+            lastUpdatedDate,
+          )}
+        </div>
+      </div>
       {isTooltipVisible && (
         <Tooltip
           reference={iconRef}

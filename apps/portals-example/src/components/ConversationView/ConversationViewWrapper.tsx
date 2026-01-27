@@ -3,6 +3,7 @@
 import {
   AdvancedView,
   ConversationView,
+  DatasetInfoOptions,
   useAdvancedView,
 } from '@epam/statgpt-conversation-view';
 import { openDownloadWindow } from '@epam/statgpt-sdmx-toolkit';
@@ -309,6 +310,11 @@ const ConversationViewWrapper: FC<Props> = ({
     limitMessageClassName: 'font-normal',
   };
 
+  const datasetInfoOptions: DatasetInfoOptions = {
+    isShowAgency: true,
+    isShowDatasetBadge: false,
+  };
+
   const signOutAction = () => {
     signOut();
   };
@@ -399,7 +405,6 @@ const ConversationViewWrapper: FC<Props> = ({
         <AdvancedView
           advanceViewStyles={{
             isShowShare: true,
-            isShowAgency: true,
           }}
           actions={attachmentsActions}
           filtersProps={{
@@ -445,6 +450,7 @@ const ConversationViewWrapper: FC<Props> = ({
             isMetadataDescription: true,
           }}
           locale={locale}
+          datasetInfoOptions={datasetInfoOptions}
         />
       )}
     </div>
