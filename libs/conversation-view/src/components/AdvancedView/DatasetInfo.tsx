@@ -21,7 +21,6 @@ import {
   useState,
 } from 'react';
 import { getDateFormattedValue } from '../../utils/date-format';
-import classNames from 'classnames';
 import {
   getDataSetAttributes,
   getDatasetDescription,
@@ -41,7 +40,6 @@ import { mergeClasses } from '../../utils/mergeClasses';
 export interface DatasetInfoOptions {
   isShowAgency?: boolean;
   isShowDatasetBadge?: boolean;
-  metadataIcon?: ReactNode;
   datasetIcon?: ReactNode;
   externalLinkIcon?: ReactNode;
   metadataButtonClassName?: string;
@@ -75,7 +73,6 @@ const DatasetInfo: FC<Props> = ({
   titles,
   getDatasetUpdatedTime,
   externalLink,
-  metadataIcon,
   datasetIcon,
   externalLinkIcon,
   metadataButtonClassName,
@@ -84,8 +81,6 @@ const DatasetInfo: FC<Props> = ({
   infoSegmentHeaderClassName,
   nameAndMetadataContainerClassName,
 }) => {
-  console.log('🚀 ~ DatasetInfo ~ datasetIcon:', !!datasetIcon);
-  console.log('🚀 ~ DatasetInfo ~ isShowAgency:', isShowAgency);
   const [lastUpdatedDate, setLastUpdatedDate] = useState<string>('');
   const [isOpenMetadata, setIsOpenMetadata] = useState<boolean>(false);
 
@@ -170,13 +165,13 @@ const DatasetInfo: FC<Props> = ({
 
   const renderInfoSegment = (header: string, value: string) => (
     <div
-      className={classNames(
+      className={mergeClasses(
         'flex gap-1 text-neutrals-1000',
         infoSegmentContainerClassName,
       )}
     >
       <span
-        className={classNames('text-neutral-800', infoSegmentHeaderClassName)}
+        className={mergeClasses('text-neutral-800', infoSegmentHeaderClassName)}
       >
         {header}:
       </span>
@@ -185,7 +180,7 @@ const DatasetInfo: FC<Props> = ({
   );
 
   return (
-    <div className={classNames('flex flex-col bg-white gap-3', 'dataset-info')}>
+    <div className="flex flex-col bg-white gap-3 dataset-info">
       {isShowDatasetBadge && (
         <div className="flex gap-1 items-center py-1 px-2 rounded-[20px] bg-accent-500 body-2 w-fit">
           {datasetIcon}
@@ -195,6 +190,8 @@ const DatasetInfo: FC<Props> = ({
       <div className="flex flex-col gap-1">
         <div className="flex gap-1 items-center">
           <div
+            role="heading"
+            aria-level={4}
             className={mergeClasses(
               'flex gap-1 items-center h4',
               nameAndMetadataContainerClassName,
@@ -203,16 +200,14 @@ const DatasetInfo: FC<Props> = ({
             <div ref={iconRef}>
               <IconButton
                 title={titles?.metadata ?? 'View details'}
-                buttonClassName={classNames(
+                buttonClassName={mergeClasses(
                   '!text-neutrals-1000 !border-none !w-4 !h-4 !p-0 shrink-0',
                   metadataButtonClassName,
                 )}
                 icon={
-                  metadataIcon || (
-                    <MetadataIcon
-                      className={classNames('size-4', metadataIconClassName)}
-                    />
-                  )
+                  <MetadataIcon
+                    className={mergeClasses('size-4', metadataIconClassName)}
+                  />
                 }
                 onClick={openMetadata}
               />
@@ -231,10 +226,13 @@ const DatasetInfo: FC<Props> = ({
           {isShowAgency && (
             <>
               {renderInfoSegment(
-                titles?.lastUpdated ?? 'Agency',
+                titles?.agency ?? 'Agency',
                 dataset?.agencyID ?? '',
               )}
-              <div className="border-l border-l-neutral-500 h-[14px]" />
+              <div
+                aria-hidden="true"
+                className="border-l border-l-neutral-500 h-[14px]"
+              />
             </>
           )}
           {renderInfoSegment(
