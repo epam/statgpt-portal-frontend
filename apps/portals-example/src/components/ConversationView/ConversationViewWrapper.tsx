@@ -405,7 +405,6 @@ const ConversationViewWrapper: FC<Props> = ({
         <AdvancedView
           advanceViewStyles={{
             isShowShare: true,
-            isShowAgency: true,
           }}
           actions={attachmentsActions}
           filtersProps={{
