@@ -65,8 +65,7 @@ import { MetadataSettings } from '../../models/metadata';
 import { ConversationViewTitles } from '../../models/titles';
 import { getRedirectConversationPath } from '../../utils/get-conversation-path';
 import { generateConversation } from '../../utils/generate-conversation';
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import { UserInfo } from '@statgpt/user-info/src/models/user-info';
+
 import { ABORT_ERROR } from '../../constants/errors';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { OnboardingElements } from '../../constants/onboarding-elements';

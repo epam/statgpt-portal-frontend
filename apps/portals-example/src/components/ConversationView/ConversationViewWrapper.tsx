@@ -74,7 +74,7 @@ import { FC, useCallback, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { JWT } from 'next-auth/jwt';
 import { Conversation } from '@epam/ai-dial-shared';
-import { signOut, useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 import {
   AttachmentsActions,
   AttachmentsStyles,
@@ -84,7 +84,6 @@ import {
 } from '@epam/statgpt-conversation-view';
 import { Dataflow } from '@epam/statgpt-sdmx-toolkit';
 import { ApiResponse } from '@epam/statgpt-shared-toolkit';
-import { UserInfo } from '@statgpt/user-info/src/models/user-info';
 import { SIGN_IN_LINK } from '../../constants/auth';
 import { wrapWithAuthHandler } from '../../utils/auth/requests-wrapper';
 import { LimitMessages } from '@epam/statgpt-ui-components';
@@ -114,7 +113,6 @@ const ConversationViewWrapper: FC<Props> = ({
     [ChartingIcon.NEXT]: <ChevronRight width={20} height={20} />,
     [ChartingIcon.PREVIOUS]: <ChevronLeft width={20} height={20} />,
   };
-  const { data: session } = useSession();
 
   const t = useI18n() as (
     key: string,
