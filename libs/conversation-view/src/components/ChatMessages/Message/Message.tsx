@@ -124,7 +124,10 @@ const Message: FC<Props> = ({
   const isUser = message.role === Role.User;
   const isSystem = message.role === Role.System;
   const { datasets, datasetStructuresMap } = useDatasets(
-    actions?.getDataSet,
+    actions.getDataSet,
+    actions.updateDatasets,
+    actions.updateDataQueries,
+    actions.updateCurrentDataQuery,
     attachmentsDataQueries,
   );
   const [isEditing, setIsEditing] = useState(false);
