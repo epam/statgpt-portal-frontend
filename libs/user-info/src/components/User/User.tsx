@@ -15,7 +15,7 @@ interface UserStyles {
   showSeparator?: boolean;
   disableModalDividers?: boolean;
   dropdownButtonStyles?: string;
-  dropdownContainerContainerClassName?: string;
+  dropdownContainerClassName?: string;
 }
 
 interface Props {
@@ -148,7 +148,7 @@ export const User: FC<Props> = ({
     <Dropdown
       containerClassName={classNames(
         'transition-opacity group-hover:opacity-100 shrink w-full',
-        styles?.dropdownContainerContainerClassName,
+        styles?.dropdownContainerClassName,
       )}
       triggerButton={initialsBlock}
       content={content}
