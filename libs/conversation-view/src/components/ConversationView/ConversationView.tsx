@@ -90,8 +90,6 @@ interface Props {
   conversationsRoute?: string;
   token?: string | null;
   dataQuery?: DataQuery;
-  isShowUserInfo?: boolean;
-  userInfo?: UserInfo;
   signOutTitle?: string;
   setConversation: Dispatch<SetStateAction<Conversation | null>>;
   setConversations: (conversations: ConversationInfo[]) => void;
