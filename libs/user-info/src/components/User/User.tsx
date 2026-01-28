@@ -9,12 +9,13 @@ interface UserStyles {
   initialStyles?: string;
   dropDownStyles?: string;
   userNameStyles?: string;
-  dropdownButtonStyles?: string;
   signOutIcon?: ReactNode;
   settingsIcon?: ReactNode;
   showShortName?: boolean;
   showSeparator?: boolean;
   disableModalDividers?: boolean;
+  dropdownButtonStyles?: string;
+  dropdownContainerContainerClassName?: string;
 }
 
 interface Props {
@@ -64,13 +65,18 @@ export const User: FC<Props> = ({
       <div className="flex items-center gap-2">
         <div
           className={classNames(
-            'cursor-pointer flex items-center justify-center  h-[44px] w-[44px] rounded-[100px] p-[10px] sm:h-[32px] sm:w-[32px]',
+            'cursor-pointer flex items-center justify-center h-[44px] w-[44px] rounded-[100px] p-[10px] sm:h-[32px] sm:w-[32px] flex-shrink-0',
             styles?.initialStyles,
           )}
         >
           {initials}
         </div>
-        <p className={classNames('h3 cursor-pointer', styles?.userNameStyles)}>
+        <p
+          className={classNames(
+            'h3 cursor-pointer overflow-x-hidden text-ellipsis',
+            styles?.userNameStyles,
+          )}
+        >
           {(styles?.showShortName ? userShortName : userInfo?.name) ??
             userInfo?.email ??
             ''}
@@ -140,7 +146,10 @@ export const User: FC<Props> = ({
 
   return (
     <Dropdown
-      containerClassName="transition-opacity ml-3 group-hover:opacity-100 shrink"
+      containerClassName={classNames(
+        'transition-opacity group-hover:opacity-100 shrink w-full',
+        styles?.dropdownContainerContainerClassName,
+      )}
       triggerButton={initialsBlock}
       content={content}
       openedClassName="action-menu-opened"

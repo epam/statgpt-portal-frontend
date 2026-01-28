@@ -277,7 +277,7 @@ const ConversationListWrapper = () => {
         >
           {isCollapsed ? (
             <i
-              className="text-primary cursor-pointer"
+              className="text-primary cursor-pointer self-center"
               title={t(I18nKeys.App.EXPAND)}
               onClick={onToggleCollapse}
             >
