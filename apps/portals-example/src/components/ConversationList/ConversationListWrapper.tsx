@@ -190,121 +190,131 @@ const ConversationListWrapper = () => {
   return (
     <aside
       className={classNames(
-        'bg-neutrals-200 h-full flex flex-col min-w-0 ',
+        'bg-neutrals-200 h-full flex flex-col justify-between min-w-0 relative',
         isCollapsed ? 'w-[64px]' : 'w-[362px]',
-        session?.user && !isCollapsed
-          ? 'relative pb-[104px] sm:pb-[60px] '
-          : '',
       )}
     >
-      <div
-        className={classNames(
-          'flex flex-row items-center py-[14px]',
-          isCollapsed ? 'px-3 justify-center' : 'px-6 justify-between',
-        )}
-      >
+      <div className="flex flex-col h-full">
         <div
-          className="flex flex-row items-center cursor-pointer"
-          onClick={redirectToMainView}
-        >
-          <Logo width={34} height={34} />
-          {!isCollapsed ? (
-            <span className="text-hues-900 text-start logo ml-3">
-              <p className="font-semibold mr-1 inline mb-1">
-                {t(I18nKeys.App.TITLE_GLOBAL)}
-              </p>
-              <p className="inline">{t(I18nKeys.App.TITLE)}</p>
-            </span>
-          ) : null}
-        </div>
-
-        {!isCollapsed ? (
-          <i
-            className="text-primary cursor-pointer"
-            title={t(I18nKeys.App.COLLAPSE)}
-            onClick={onToggleCollapse}
-          >
-            <Collapse width={20} height={20} />
-          </i>
-        ) : null}
-      </div>
-      <div
-        className={classNames(
-          'flex flex-col h-full pb-[14px] flex-1 min-h-0',
-          isCollapsed ? 'px-3' : 'px-6',
-        )}
-      >
-        <Button
-          iconBefore={<IconPlus width={20} height={20} />}
-          title={isCollapsed ? '' : t(I18nKeys.Nav.NEW_CHAT)}
-          onClick={handleOpeningOfNewConversation}
-          buttonClassName={classNames(
-            'text-button-client',
-            isCollapsed && 'p-2',
+          className={classNames(
+            'flex flex-row items-center py-[14px]',
+            isCollapsed ? 'px-[10px] justify-center' : 'px-6 justify-between',
           )}
-        />
-        <ConversationList
-          handleConversationClick={handleConversationSelect}
-          handleSelectedConversationRemove={handleSelectedConversationRemove}
-          actions={actions}
-          locale={locale}
-          shareConversationProps={{
-            ...SHARE_CONVERSATION_PROPS(authHandler),
-            ...shareTitles,
-            id,
-          }}
-          conversations={conversations}
-          sharedConversations={sharedConversations}
-          setConversations={setConversations}
-          setSharedConversations={setSharedConversations}
-          isCollapsed={isCollapsed}
-          selectedConversationId={getConversationId(id, locale)}
-          conversationStyles={{
-            titles,
-            isSmallModalButton: true,
-            conversationItemIcon: (
-              <i className="w-[20px] h-[20px] mr-4">
-                <MessageIcon width={20} height={20} />
-              </i>
-            ),
-            actionsIcons: {
-              [ActionMenuItem.DELETE]: <Delete width={16} height={16} />,
-              [ActionMenuItem.SHARE]: <Share width={16} height={16} />,
-              [ActionMenuItem.EXPORT]: <Export width={16} height={16} />,
-              [ActionMenuItem.RENAME]: <Rename width={16} height={16} />,
-            },
-          }}
         >
-          {isCollapsed ? (
+          <div
+            className="flex flex-row items-center cursor-pointer"
+            onClick={redirectToMainView}
+          >
+            <Logo width={34} height={34} />
+            {!isCollapsed ? (
+              <span className="text-hues-900 text-start logo ml-3">
+                <p className="font-semibold mr-1 inline mb-1">
+                  {t(I18nKeys.App.TITLE_GLOBAL)}
+                </p>
+                <p className="inline">{t(I18nKeys.App.TITLE)}</p>
+              </span>
+            ) : null}
+          </div>
+
+          {!isCollapsed ? (
             <i
-              className="text-primary cursor-pointer self-center"
-              title={t(I18nKeys.App.EXPAND)}
+              className="text-primary cursor-pointer"
+              title={t(I18nKeys.App.COLLAPSE)}
               onClick={onToggleCollapse}
             >
-              <Expand width={20} height={20} />
+              <Collapse width={20} height={20} />
             </i>
           ) : null}
-        </ConversationList>
+        </div>
+        <div
+          className={classNames(
+            'flex flex-col h-full pb-[14px] flex-1 min-h-0 pt-6',
+            isCollapsed ? 'px-[10px]' : 'px-6',
+          )}
+        >
+          <div className="flex flex-col gap-3">
+            {isCollapsed && (
+              <button
+                className="flex self-center justify-center items-center text-primary size-9"
+                title={t(I18nKeys.App.EXPAND)}
+                onClick={onToggleCollapse}
+              >
+                <Expand width={20} height={20} />
+              </button>
+            )}
+
+            <Button
+              iconBefore={<IconPlus width={20} height={20} />}
+              title={isCollapsed ? '' : t(I18nKeys.Nav.NEW_CHAT)}
+              onClick={handleOpeningOfNewConversation}
+              buttonClassName={classNames(
+                'text-button-client',
+                isCollapsed && 'p-2',
+              )}
+            />
+          </div>
+
+          <ConversationList
+            handleConversationClick={handleConversationSelect}
+            handleSelectedConversationRemove={handleSelectedConversationRemove}
+            actions={actions}
+            locale={locale}
+            shareConversationProps={{
+              ...SHARE_CONVERSATION_PROPS(authHandler),
+              ...shareTitles,
+              id,
+            }}
+            conversations={conversations}
+            sharedConversations={sharedConversations}
+            setConversations={setConversations}
+            setSharedConversations={setSharedConversations}
+            isCollapsed={isCollapsed}
+            selectedConversationId={getConversationId(id, locale)}
+            conversationStyles={{
+              titles,
+              isSmallModalButton: true,
+              conversationItemIcon: (
+                <i className="w-[20px] h-[20px] mr-4">
+                  <MessageIcon width={20} height={20} />
+                </i>
+              ),
+              actionsIcons: {
+                [ActionMenuItem.DELETE]: <Delete width={16} height={16} />,
+                [ActionMenuItem.SHARE]: <Share width={16} height={16} />,
+                [ActionMenuItem.EXPORT]: <Export width={16} height={16} />,
+                [ActionMenuItem.RENAME]: <Rename width={16} height={16} />,
+              },
+            }}
+          />
+        </div>
       </div>
-      {session?.user && !isCollapsed ? (
-        <div className="absolute bottom-0 h-[80px] left-0 w-[100%] bg-neutrals-200 flex items-center p-8 sm:p-4 pt-0 sm:pt-0 sm:h-[48px]">
-          <div className="border border-neutrals-500 p-2 rounded-[100px] w-full flex">
+
+      {session?.user && (
+        <div
+          className={classNames(
+            'w-full bg-neutrals-200 flex items-center p-6 sm:p-4 pt-0 sm:pt-0',
+            isCollapsed && '!p-0 !w-fit !self-center mb-6',
+          )}
+        >
+          <div className="border border-neutrals-500 p-[7px] rounded-[100px] w-full flex">
             <User
               userInfo={session?.user as UserInfo}
               signOutAction={signOutAction}
               locale={locale}
               styles={{
-                initialStyles:
+                initialStyles: classNames(
                   'border-none bg-hues-800 text-white lg:h2 sm:body-2 border-accent-700 border-[1px]',
-                userNameStyles: '',
+                  isCollapsed && '!size-10',
+                ),
                 signOutIcon: <SignOut />,
-                dropdownButtonStyles: 'hover:bg-hues-100',
+                userNameStyles: classNames(isCollapsed && 'hidden'),
+                dropdownButtonStyles: 'hover:bg-hues-100 w-max',
               }}
               titles={signOutTitles}
             />
           </div>
         </div>
-      ) : null}
+      )}
     </aside>
   );
 };
