@@ -65,7 +65,7 @@ export const User: FC<Props> = ({
       <div className="flex items-center gap-2">
         <div
           className={classNames(
-            'cursor-pointer flex items-center justify-center h-[44px] w-[44px] rounded-[100px] p-[10px] sm:h-[32px] sm:w-[32px] flex-shrink-0',
+            'cursor-pointer flex items-center justify-center size-11 rounded-[100px] p-[10px] sm:h-[32px] sm:w-[32px] flex-shrink-0',
             styles?.initialStyles,
           )}
         >
