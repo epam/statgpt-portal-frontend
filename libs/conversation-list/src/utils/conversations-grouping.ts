@@ -29,6 +29,9 @@ const getDayDifference = (currentDate: Date, updatedDate: Date) => {
   return Math.floor(diff / (1000 * 60 * 60 * 24));
 };
 
+const getUpdatedAtTime = (conversation: ConversationInfo): number | null =>
+  conversation?.updatedAt || Number(conversation?.id?.split('-').pop());
+
 export const getConversationsGroupedByDate = (
   conversations: ConversationInfo[],
 ): GroupedConversations => {
@@ -67,7 +70,8 @@ export const sortConversationsByUpdatedAt = (
   groupedConversations: ConversationInfo[],
 ): ConversationInfo[] => {
   return groupedConversations?.sort(
-    (previous, next) => (next?.updatedAt || 0) - (previous?.updatedAt || 0),
+    (previous, next) =>
+      (getUpdatedAtTime(next) || 0) - (getUpdatedAtTime(previous) || 0),
   );
 };
 
