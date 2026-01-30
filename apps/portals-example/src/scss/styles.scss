@@ -1,36 +1,41 @@
-@use 'tailwindcss/base';
-@use 'tailwindcss/components';
-@use 'tailwindcss/utilities';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@use 'scroll.scss';
-@use 'buttons.scss';
-@use 'input.scss';
-@use 'fonts.scss';
-@use 'grid.scss';
-@use 'loader.scss';
-@use 'calendar.scss';
-@use 'attachments-container.scss';
-@use 'dataset-tabs.scss';
-@use 'messages.scss';
-@use 'conversation-list.scss';
-@use 'share.scss';
-@use 'metadata.scss';
-@use 'download.scss';
-@use 'advance-view.scss';
-@use 'alert.scss';
-@use 'chart-attachment.scss';
+@import 'scroll.scss';
+@import 'buttons.scss';
+@import 'input.scss';
+@import 'fonts.scss';
+@import 'grid.scss';
+@import 'loader.scss';
+@import 'calendar.scss';
+@import 'attachments-container.scss';
+@import 'dataset-tabs.scss';
+@import 'messages.scss';
+@import 'conversation-list.scss';
+@import 'share.scss';
+@import 'metadata.scss';
+@import 'download.scss';
+@import 'advance-view.scss';
+@import 'alert.scss';
+@import 'chart-attachment.scss';
 
 @import 'flatpickr/dist/themes/light.css';
+@import '../../../../libs/ui-components/src/scss/styles-tailwind.scss';
 
-body {
-  font-family: var(--open-sans);
+@layer base {
+  body {
+    font-family: var(--open-sans);
+  }
 }
 
-.main-layout {
-  background-image: url('/images/chat/layout.svg');
-  background-size: cover;
-}
+@layer components {
+  .main-layout {
+    background-image: url('/images/chat/layout.svg');
+    background-size: cover;
+  }
 
-.dropdown-menu-shadow {
-  box-shadow: 0px 1px 4px 0px #3161b04d;
+  .dropdown-menu-shadow {
+    box-shadow: 0px 1px 4px 0px #3161b04d;
+  }
 }
