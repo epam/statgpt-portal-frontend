@@ -1,97 +1,98 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@layer base {
+  html,
+  body {
+    @apply h-full w-full text-neutrals-1000 overflow-hidden;
+  }
 
-body,
-html {
-  @apply h-full w-full text-neutrals-1000 overflow-hidden;
-}
+  input {
+    -moz-appearance: textfield;
 
-.base-icon-button {
-  @apply flex flex-row items-center justify-center;
-  @apply border border-solid;
-
-  &:disabled {
-    @apply pointer-events-none;
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
   }
 }
 
-.base-button {
-  @apply flex flex-row items-center justify-center;
-  @apply border border-solid;
+@layer components {
+  .base-icon-button {
+    @apply flex flex-row items-center justify-center border border-solid;
 
-  &:disabled {
-    @apply pointer-events-none;
+    &:disabled {
+      @apply pointer-events-none;
+    }
   }
-}
 
-.text-button-primary {
-  @apply bg-primary text-white border-primary;
-  &:hover {
+  .base-button {
+    @apply flex flex-row items-center justify-center border border-solid;
+
+    &:disabled {
+      @apply pointer-events-none;
+    }
+  }
+
+  .text-button-primary {
+    @apply bg-primary text-white border-primary;
+
+    &:hover {
+      @apply text-primary;
+    }
+  }
+
+  .text-button-secondary {
+    @apply bg-transparent text-primary border-primary;
+  }
+
+  .text-button-tertiary {
+    @apply bg-transparent text-primary border-transparent;
+  }
+
+  .base-link {
     @apply text-primary;
+
+    &:hover {
+      @apply underline;
+    }
+  }
+
+  .flatpickr-input {
+    @apply text-neutrals-1000 border-b-2 border-solid border-b-primary w-full h-[40px] py-[8px] px-[6px];
+
+    &:focus-visible {
+      @apply outline-none;
+    }
+
+    &:hover,
+    &:active {
+      @apply border-neutrals-1000;
+    }
   }
 }
 
-.text-button-secondary {
-  @apply bg-transparent text-primary border-primary;
-}
+@layer utilities {
+  .padding-0 {
+    padding: 0 !important;
+  }
 
-.text-button-tertiary {
-  @apply bg-transparent text-primary border-transparent;
-}
+  .two-lines {
+    @apply block first-line:overflow-hidden text-ellipsis;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
 
-.loader {
-  animation: spin 1s infinite linear;
+  .loader {
+    animation: spin 1s infinite linear;
+
+    &::before {
+      content: '';
+      @apply block;
+    }
+  }
 
   @keyframes spin {
     100% {
       transform: rotate(360deg);
     }
-  }
-  &::before {
-    content: '';
-    @apply block;
-  }
-}
-
-.two-lines {
-  @apply block first-line:overflow-hidden text-ellipsis;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.base-link {
-  @apply text-primary;
-  &:hover {
-    @apply underline;
-  }
-}
-
-input {
-  -moz-appearance: textfield; /* Firefox */
-
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-}
-
-.padding-0 {
-  @apply p-0 !important;
-}
-
-.flatpickr-input {
-  @apply text-neutrals-1000;
-  @apply border-b-2 border-solid border-b-primary;
-  @apply w-full h-[40px] py-[8px] px-[6px];
-
-  &:focus-visible {
-    @apply outline-none;
-  }
-
-  &:hover,
-  &:active {
-    @apply border-neutrals-1000;
   }
 }

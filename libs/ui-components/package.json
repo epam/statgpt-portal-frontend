@@ -4,11 +4,13 @@
   "license": "MIT",
   "dependencies": {
     "react-flatpickr": "^4.0.11",
-    "react": "^19.2.1",
     "classnames": "^2.5.1",
     "@epam/statgpt-shared-toolkit": "*",
     "@tabler/icons-react": "^3.34.1",
     "@floating-ui/react": "^0.27.14"
+  },
+  "peerDependencies": {
+    "react": "^19.2.1"
   },
   "exports": {
     ".": {
@@ -16,7 +18,7 @@
       "require": "./index.js",
       "types": "./index.d.ts"
     },
-    "./index.css": "./index.css"
+    "./styles-tailwind.scss": "./styles-tailwind.scss"
   },
   "main": "index",
   "browser": "index.js",

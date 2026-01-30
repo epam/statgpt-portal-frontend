@@ -12,7 +12,7 @@
     "format:write": "prettier --write .",
     "typecheck": "nx run-many --target=typecheck --all",
     "graph": "nx graph",
-    "build:styles": "tailwindcss -m -i ./libs/ui-components/src/scss/styles-tailwind.scss -o ./dist/libs/ui-components/index.css",
+    "build:styles": "tailwindcss -m -i ./libs/ui-components/src/scss/styles.scss -o ./dist/libs/ui-components/index.css",
     "publish": "nx run-many -t publish",
     "publish:dry": "nx run-many -t publish --output-style=static --dry",
     "affected:build": "nx affected --target=build",

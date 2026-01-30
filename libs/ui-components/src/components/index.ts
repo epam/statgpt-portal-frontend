@@ -1,5 +1,3 @@
-import '../scss/styles.scss';
-
 export { Alert } from './Alert/Alert';
 export { Button } from './Button/Button';
 export { Calendar } from './Calendar/Calendar';

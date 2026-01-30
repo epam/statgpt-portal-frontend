@@ -1,7 +1,5 @@
-import { Inter, Open_Sans } from 'next/font/google';
 import './globals.scss';
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import '../../../../libs/ui-components/src/scss/styles-tailwind.scss';
+import { Inter, Open_Sans } from 'next/font/google';
 import classNames from 'classnames';
 import { ReactNode } from 'react';
 import { getServerSession } from 'next-auth';

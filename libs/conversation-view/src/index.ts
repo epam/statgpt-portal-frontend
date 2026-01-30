@@ -1,5 +1,3 @@
-import './scss/styles.scss';
-
 export {
   AdvancedViewProvider,
   useAdvancedView,

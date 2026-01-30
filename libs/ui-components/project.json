@@ -21,6 +21,11 @@
             "glob": "LICENSE",
             "input": ".",
             "output": "."
+          },
+          {
+            "glob": "styles-tailwind.scss",
+            "input": "libs/ui-components/src/scss",
+            "output": "."
           }
         ]
       },

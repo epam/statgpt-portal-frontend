@@ -33,6 +33,10 @@ export default defineConfig({
           src: '../../LICENSE',
           dest: '',
         },
+        {
+          src: 'src/scss/styles-tailwind.scss',
+          dest: '',
+        },
       ],
     }),
   ],
