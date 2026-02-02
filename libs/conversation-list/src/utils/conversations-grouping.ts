@@ -30,7 +30,7 @@ const getDayDifference = (currentDate: Date, updatedDate: Date) => {
 };
 
 const getUpdatedAtTime = (conversation: ConversationInfo): number | null =>
-  conversation?.updatedAt || Number(conversation?.id?.split('-').pop());
+  conversation.updatedAt || Number(conversation.id?.split('-').pop());
 
 export const getConversationsGroupedByDate = (
   conversations: ConversationInfo[],
