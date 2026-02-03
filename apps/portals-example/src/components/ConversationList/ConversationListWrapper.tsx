@@ -22,14 +22,14 @@ import Rename from '../../../public/images/chat/rename.svg';
 import SignOut from '../../../public/images/sign-out.svg';
 
 import { SHARE_CONVERSATION_PROPS } from '../../constants/share-conversation';
-import { getFileBlob } from '../../app/actions/attachments';
+import { getFileBlobApi } from '../../app/api/attachments/client';
 import {
-  deleteConversation,
-  getConversations,
-  getConversation,
-  getSharedConversations,
-  renameConversation,
-} from '../../app/actions/conversations';
+  deleteConversationApi,
+  getConversationsApi,
+  getConversationApi,
+  renameConversationApi,
+} from '../../app/api/conversations/client';
+import { getSharedConversationsApi } from '../../app/api/share/client';
 import { ApplicationRoute } from '../../types/application-routes';
 import { useCurrentLocale, useI18n } from '../../locales/client';
 import {
@@ -84,14 +84,14 @@ const ConversationListWrapper = () => {
 
   const actions = useMemo(
     () => ({
-      getConversations: authHandler(getConversations),
-      getSharedConversations: authHandler(getSharedConversations),
-      deleteConversation: authHandler(deleteConversation),
-      getConversation: authHandler(getConversation),
-      getFileBlob: authHandler(getFileBlob),
+      getConversations: authHandler(getConversationsApi),
+      getSharedConversations: authHandler(getSharedConversationsApi),
+      deleteConversation: authHandler(deleteConversationApi),
+      getConversation: authHandler(getConversationApi),
+      getFileBlob: authHandler(getFileBlobApi),
       renameConversation: authHandler(
         (source: string, destination: string): any => {
-          renameConversation(source, destination).then(() =>
+          renameConversationApi(source, destination).then(() =>
             router.push(`/${destination.replace(locale, '')}`),
           );
         },
