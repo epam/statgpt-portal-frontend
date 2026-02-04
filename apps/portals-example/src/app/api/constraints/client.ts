@@ -11,8 +11,12 @@ export async function getConstraintsApi(
   urn: string,
   filters?: SeriesFilterDto[],
 ): Promise<ApiResponse<StructuralMetaData>> {
-  return apiRequest(CONSTRAINTS_API_ENDPOINT, 'Failed to fetch constraints', {
-    method: 'POST',
-    body: { urn, filters },
-  });
+  return apiRequest(
+    `${CONSTRAINTS_API_ENDPOINT}/${urn}/filter`,
+    'Failed to fetch constraints',
+    {
+      method: 'POST',
+      body: { filters },
+    },
+  );
 }
