@@ -1,3 +1,4 @@
+import { apiLogger } from './../../../../core/logger';
 import { AuthParams } from './../../../../models/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { conversationApi } from '../../api';
@@ -27,7 +28,7 @@ export const GET = withAuth(
 
       return NextResponse.json(file);
     } catch (error) {
-      console.error('Files API error:', error);
+      apiLogger.error('Files API error:', error);
       return NextResponse.json(
         { error: 'Failed to fetch file' },
         { status: 500 },

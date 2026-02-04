@@ -1,3 +1,4 @@
+import { apiLogger } from './../../../../core/logger';
 import { AuthParams } from './../../../../models/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { conversationApi } from '../../api';
@@ -25,7 +26,7 @@ export const getHandler = async (
 
     return NextResponse.json(conversation);
   } catch (error) {
-    console.error('Get conversation API error:', error);
+    apiLogger.error('Get conversation API error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch conversation' },
       { status: 500 },

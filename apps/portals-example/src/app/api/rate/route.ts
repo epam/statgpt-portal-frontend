@@ -1,3 +1,4 @@
+import { apiLogger } from './../../../core/logger';
 import { AuthParams } from '../../../models/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { conversationApi } from '../api';
@@ -25,7 +26,7 @@ export const POST = withAuth(
 
       return NextResponse.json({ success: true });
     } catch (error) {
-      console.error('Rate API error:', error);
+      apiLogger.error('Rate API error:', error);
       return NextResponse.json(
         { error: 'Failed to rate response' },
         { status: 500 },

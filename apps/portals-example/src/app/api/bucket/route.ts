@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dialApiClient } from '../api';
 import { DIAL_API_ROUTES } from '@epam/statgpt-dial-toolkit';
 import { withAuth } from '../../../utils/auth/withAuth';
+import { apiLogger } from '../../../core/logger';
 
 export const GET = withAuth(
   async (_req: NextRequest, { token }: AuthParams) => {
@@ -14,7 +15,7 @@ export const GET = withAuth(
 
       return NextResponse.json(bucket);
     } catch (error) {
-      console.error('Bucket API error:', error);
+      apiLogger.error('Bucket API error:', error);
       return NextResponse.json(
         { error: 'Failed to fetch bucket' },
         { status: 500 },

@@ -1,3 +1,4 @@
+import { apiLogger } from './../../../../core/logger';
 import { AuthParams } from './../../../../models/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { conversationApi } from '../../api';
@@ -20,7 +21,7 @@ export const deleteHandler = async (
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Delete conversation API error:', error);
+    apiLogger.error('Delete conversation API error:', error);
     return NextResponse.json(
       { error: 'Failed to delete conversation' },
       { status: 500 },

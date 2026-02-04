@@ -1,3 +1,4 @@
+import { apiLogger } from './../../../../../core/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { availabilityApi } from '../../../api';
 import { withAuth } from '../../../../../utils/auth/withAuth';
@@ -22,7 +23,7 @@ export const POST = withAuth(
 
       return NextResponse.json(constraints);
     } catch (error) {
-      console.error('Constraints API error:', error);
+      apiLogger.error('Constraints API error:', error);
       return NextResponse.json(
         { error: 'Failed to fetch constraints' },
         { status: 500 },

@@ -1,3 +1,4 @@
+import { apiLogger } from './../../../../../core/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { datasetApi } from '../../../api';
 import { withAuth } from '../../../../../utils/auth/withAuth';
@@ -22,7 +23,7 @@ export const POST = withAuth(
 
       return NextResponse.json(data);
     } catch (error) {
-      console.error('Dataset data API error:', error);
+      apiLogger.error('Dataset data API error:', error);
       return NextResponse.json(
         { error: 'Failed to fetch dataset data' },
         { status: 500 },
