@@ -24,10 +24,7 @@ export async function GET(request: NextRequest) {
     );
 
     if (!bucketResponse?.bucket) {
-      return NextResponse.json(
-        { error: 'No bucket data' },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: 'No bucket data' }, { status: 500 });
     }
 
     const conversations = await conversationApi.getConversations(

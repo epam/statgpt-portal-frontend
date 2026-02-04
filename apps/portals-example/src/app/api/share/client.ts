@@ -33,10 +33,14 @@ export async function generateConversationLinkApi(
 export async function getSharedConversationsApi(
   requestData?: SharedConversationsRequest,
 ): Promise<ApiResponse<SharedConversations>> {
-  return apiRequest(`${SHARE_API_ENDPOINT}/list`, 'Failed to get shared conversations', {
-    method: 'POST',
-    body: requestData,
-  });
+  return apiRequest(
+    `${SHARE_API_ENDPOINT}/list`,
+    'Failed to get shared conversations',
+    {
+      method: 'POST',
+      body: requestData,
+    },
+  );
 }
 
 export async function revokeSharedConversationsApi(

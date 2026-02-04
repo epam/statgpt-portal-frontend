@@ -90,7 +90,10 @@ export async function DELETE(
     const { id } = await params;
     const body = await request.json();
 
-    await conversationApi.deleteConversation(body, token.access_token as string);
+    await conversationApi.deleteConversation(
+      body,
+      token.access_token as string,
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {
