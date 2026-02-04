@@ -1,88 +1,20 @@
 'use server';
 
-import { ConversationInfo } from '@epam/ai-dial-shared';
-import { getBucket } from './bucket';
-import { conversationApi, DEFAULT_MODEL_ID } from '../api/api';
+import { conversationApi } from '../api/api';
 import { apiLogger } from '../../core/logger';
 import {
   ConversationData,
-  CreateConversationRequest,
   GeneratedLinkResponse,
   SharedConversations,
   SharedConversationsRequest,
 } from '@epam/statgpt-dial-toolkit';
-import { revalidatePath } from 'next/cache';
 import { cookies, headers } from 'next/headers';
 import { getUserToken } from '../../utils/auth/auth-request';
 import { getIsEnableAuthToggle } from '../../utils/auth/get-auth-toggle';
-import { ApiResponse, HTTP_ERROR_CODES } from '@epam/statgpt-shared-toolkit';
+import { ApiResponse } from '@epam/statgpt-shared-toolkit';
 import { getIsInvalidSession } from '../../utils/auth/is-valid-session';
 import { INVALID_SESSION_RESPONSE } from '../../utils/auth/check-session';
 import { makeSuccessResponse } from '../../utils/auth/success-response';
-
-const CONVERSATIONS_URL = '/conversations';
-
-export async function getConversations(
-  locale?: string,
-): Promise<ApiResponse<ConversationInfo[]>> {
-  try {
-    const isEnableAuth = getIsEnableAuthToggle();
-    const token = await getUserToken(isEnableAuth, headers(), cookies());
-    const isInvalidSession = await getIsInvalidSession(isEnableAuth, token);
-    if (isInvalidSession) {
-      return INVALID_SESSION_RESPONSE;
-    }
-
-    //TODO: update with locales folders logic
-    // First get the user's bucket
-    const bucketResponse = await getBucket();
-    if (!bucketResponse.success || bucketResponse.data == null) {
-      if (bucketResponse.statusCode === HTTP_ERROR_CODES.UNAUTHORIZED) {
-        return INVALID_SESSION_RESPONSE;
-      }
-      throw new Error('No bucket data');
-    }
-
-    const bucket = bucketResponse.data.bucket;
-
-    // Then fetch conversations for that bucket
-    return makeSuccessResponse(
-      await conversationApi.getConversations(
-        token?.access_token as string,
-        bucket,
-        locale,
-      ),
-    );
-  } catch (error) {
-    apiLogger.error(`Failed to fetch conversations: ${error}`);
-    throw new Error('Failed to fetch conversations');
-  }
-}
-
-export async function createConversation(
-  request: CreateConversationRequest,
-): Promise<ApiResponse<ConversationInfo>> {
-  try {
-    const isEnableAuth = getIsEnableAuthToggle();
-    const token = await getUserToken(isEnableAuth, headers(), cookies());
-    const isInvalidSession = await getIsInvalidSession(isEnableAuth, token);
-    if (isInvalidSession) {
-      return INVALID_SESSION_RESPONSE;
-    }
-    const conversation = await conversationApi.createConversation(
-      {
-        ...request,
-        model: { id: DEFAULT_MODEL_ID },
-      },
-      token?.access_token as string,
-    );
-    revalidatePath(CONVERSATIONS_URL);
-    return makeSuccessResponse(conversation);
-  } catch (error) {
-    apiLogger.error(`Failed to create conversation: ${error}`);
-    throw new Error('Failed to create conversation');
-  }
-}
 
 export async function generateConversationLink(
   conversationData?: ConversationData,
