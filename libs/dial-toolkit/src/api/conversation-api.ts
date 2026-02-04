@@ -282,6 +282,7 @@ export class ConversationApi {
   }
 
   async deleteConversation(
+    id: string,
     conversation: ConversationInfo,
     token: string,
   ): Promise<void> {
@@ -300,13 +301,9 @@ export class ConversationApi {
         },
       );
     } else {
-      await this.client.request(
-        CONVERSATION_URL(decodeURI(conversation?.id)),
-        token,
-        {
-          method: 'DELETE',
-        },
-      );
+      await this.client.request(CONVERSATION_URL(decodeURI(id)), token, {
+        method: 'DELETE',
+      });
     }
   }
 
