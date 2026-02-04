@@ -102,26 +102,3 @@ export async function rateResponse(
     throw new Error('Failed to rate response');
   }
 }
-
-export async function renameConversation(
-  sourceUrl: string,
-  destinationUrl: string,
-): Promise<ApiResponse<void>> {
-  try {
-    const isEnableAuth = getIsEnableAuthToggle();
-    const token = await getUserToken(isEnableAuth, headers(), cookies());
-    const isInvalidSession = await getIsInvalidSession(isEnableAuth, token);
-    if (isInvalidSession) {
-      return INVALID_SESSION_RESPONSE;
-    }
-    const res = await conversationApi.renameConversation(
-      sourceUrl,
-      destinationUrl,
-      token?.access_token as string,
-    );
-    return makeSuccessResponse(res);
-  } catch (error) {
-    apiLogger.error(`Failed to rename conversation: ${error}`);
-    throw new Error('Failed to rename conversation');
-  }
-}
