@@ -44,7 +44,11 @@ export type getConstraints = (
   timeRange?: TimeRange,
 ) => Promise<StructuralMetaData>;
 
-export type RateResponse = (id: string, rate: boolean) => Promise<void>;
+export type RateResponse = (
+  id: string,
+  rate: boolean,
+  deploymentId: string,
+) => Promise<void>;
 
 export type PutOnboardingFile = (
   fileName: string,

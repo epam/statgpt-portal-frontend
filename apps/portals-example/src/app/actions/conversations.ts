@@ -79,26 +79,3 @@ export async function revokeSharedConversations(
     throw new Error('Failed to revoke shared conversations');
   }
 }
-
-export async function rateResponse(
-  responseId: string,
-  rate: boolean,
-): Promise<ApiResponse<void>> {
-  try {
-    const isEnableAuth = getIsEnableAuthToggle();
-    const token = await getUserToken(isEnableAuth, headers(), cookies());
-    const isInvalidSession = await getIsInvalidSession(isEnableAuth, token);
-    if (isInvalidSession) {
-      return INVALID_SESSION_RESPONSE;
-    }
-    const res = await conversationApi.rateResponse(
-      responseId,
-      rate,
-      token?.access_token as string,
-    );
-    return makeSuccessResponse(res);
-  } catch (error) {
-    apiLogger.error(`Failed to rate response: ${error}`);
-    throw new Error('Failed to rate response');
-  }
-}

@@ -11,6 +11,7 @@ interface Props {
   isStreaming?: boolean;
   isReadOnly?: boolean;
 }
+
 export const AssistantActionsPanel: FC<Props> = ({
   message,
   regenerateMessage,

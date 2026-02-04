@@ -336,16 +336,21 @@ export class ConversationApi {
   }
 
   async rateResponse(
+    deploymentId: string,
     responseId: string,
     rate: boolean,
     token: string,
   ): Promise<void> {
-    return await this.client.postRequest(DIAL_API_ROUTES.RATE, token, {
-      body: {
-        responseId,
-        rate,
+    return await this.client.postRequest(
+      DIAL_API_ROUTES.RATE(deploymentId),
+      token,
+      {
+        body: {
+          responseId,
+          rate,
+        },
       },
-    });
+    );
   }
 
   async renameConversation(

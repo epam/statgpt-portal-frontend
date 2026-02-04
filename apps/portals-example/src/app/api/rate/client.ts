@@ -6,9 +6,10 @@ const RATE_API_ENDPOINT = '/api/rate';
 export async function rateResponseApi(
   responseId: string,
   rate: boolean,
+  deploymentId: string,
 ): Promise<ApiResponse<void>> {
   return apiRequestVoid(RATE_API_ENDPOINT, 'Failed to rate response', {
     method: 'POST',
-    body: { responseId, rate },
+    body: { deploymentId, responseId, rate },
   });
 }

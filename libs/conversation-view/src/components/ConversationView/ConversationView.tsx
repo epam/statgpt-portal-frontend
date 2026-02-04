@@ -283,9 +283,11 @@ export const ConversationView: FC<Props> = ({
 
   const rateResponse = useCallback(
     (id: string, rate: boolean) => {
-      actions.rateResponse(id, rate);
+      if (conversation?.model?.id) {
+        actions.rateResponse(id, rate, conversation.model.id);
+      }
     },
-    [actions],
+    [actions, conversation],
   );
 
   const handleStreamingResponse = useCallback(
