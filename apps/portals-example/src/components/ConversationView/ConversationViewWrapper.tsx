@@ -34,7 +34,7 @@ import {
   TimeI18nKeys,
   WelcomeI18nKeys,
 } from '../../constants/i18n-keys';
-import { getFileApi } from '../../app/api/attachments/client';
+import { getFileApi } from '../../app/api/files/client';
 import { getConstraintsApi } from '../../app/api/constraints/client';
 import {
   getConversationApi,

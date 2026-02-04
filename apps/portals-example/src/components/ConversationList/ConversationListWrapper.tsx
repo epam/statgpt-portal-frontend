@@ -22,7 +22,7 @@ import Rename from '../../../public/images/chat/rename.svg';
 import SignOut from '../../../public/images/sign-out.svg';
 
 import { SHARE_CONVERSATION_PROPS } from '../../constants/share-conversation';
-import { getFileBlobApi } from '../../app/api/attachments/client';
+import { getFileBlobApi } from '../../app/api/files/client';
 import {
   deleteConversationApi,
   getConversationsApi,
