@@ -63,10 +63,6 @@ function buildFetchOptions(options?: RequestOptions): RequestInit {
   return fetchOptions;
 }
 
-/**
- * Makes an API request and returns ApiResponse<T> format.
- * Handles 401 errors by returning unauthorized response.
- */
 export async function apiRequest<T>(
   url: string,
   errorMessage: string,
@@ -76,10 +72,6 @@ export async function apiRequest<T>(
   return handleResponse<T>(response, errorMessage);
 }
 
-/**
- * Makes an API request for endpoints that don't return data.
- * Returns ApiResponse<void> format.
- */
 export async function apiRequestVoid(
   url: string,
   errorMessage: string,
@@ -89,10 +81,6 @@ export async function apiRequestVoid(
   return handleVoidResponse(response, errorMessage);
 }
 
-/**
- * Makes an API request and returns the raw blob response.
- * Used for file downloads.
- */
 export async function apiRequestBlob(
   url: string,
   errorMessage: string,
