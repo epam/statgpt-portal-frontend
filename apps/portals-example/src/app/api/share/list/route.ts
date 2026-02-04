@@ -1,31 +1,25 @@
+import { AuthParams } from './../../../../models/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { conversationApi } from '../../api';
-import { getToken } from 'next-auth/jwt';
-import { HTTP_ERROR_CODES } from '@epam/statgpt-shared-toolkit';
+import { withAuth } from '../../../../utils/auth/withAuth';
 
-export async function POST(request: NextRequest) {
-  try {
-    const token = await getToken({ req: request });
-    if (!token) {
+export const POST = withAuth(
+  async (req: NextRequest, { token }: AuthParams) => {
+    try {
+      const body = await req.json();
+
+      const conversations = await conversationApi.getSharedConversations(
+        token.access_token as string,
+        body,
+      );
+
+      return NextResponse.json(conversations);
+    } catch (error) {
+      console.error('Get shared conversations API error:', error);
       return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: HTTP_ERROR_CODES.UNAUTHORIZED },
+        { error: 'Failed to get shared conversations' },
+        { status: 500 },
       );
     }
-
-    const body = await request.json();
-
-    const conversations = await conversationApi.getSharedConversations(
-      token.access_token as string,
-      body,
-    );
-
-    return NextResponse.json(conversations);
-  } catch (error) {
-    console.error('Get shared conversations API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to get shared conversations' },
-      { status: 500 },
-    );
-  }
-}
+  },
+);
