@@ -17,7 +17,7 @@ export class AvailabilityApi {
     const { agency, id, version } = splitUrn(urn);
 
     const body = {
-      filters: filters || [],
+      filter: filters || [],
       mode: SdmxAvailabilityMode.AVAILABLE,
       references: SdmxReferences.NONE,
     };

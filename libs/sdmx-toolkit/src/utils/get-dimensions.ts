@@ -23,7 +23,7 @@ export function getStructureDimensions(
 export function getTimePeriods(structure: DataMessage | null): string[] {
   return (
     structure?.data?.structures?.[0]?.dimensions?.observation?.[0].values
-      .map((value) => value.value)
+      .map((value) => value.value ?? value.id)
       .filter((value) => value != null) || []
   );
 }

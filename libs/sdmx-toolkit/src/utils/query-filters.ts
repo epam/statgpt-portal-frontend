@@ -72,6 +72,15 @@ export const getQueryTimePeriodFilters = (
         `${encodeURIComponent(`c[${id}]`)}${QUERY_PARAMETER_FILTER_EQUAL}${encodeURIComponent(v)}`,
     )
     .join(AND_QUERY_OPERATOR);
+
+//     const dates = [timeRange.startPeriod, timeRange.endPeriod]
+// const isoDates = dates.map(date => date?.toISOString());
+
+// const isoDatesDay = dates.map(date => date?.toISOString());
+
+// const result = isoDates.join("/");
+// return `asOf${QUERY_PARAMETER_FILTER_EQUAL}${result}`;
+
 };
 
 export const getTimeQueryFilter = (
@@ -89,7 +98,7 @@ export const getTimeRangeFromAttachment = (
   attachmentData: DataQuery,
   timeDimension: Dimension,
 ): TimeRange | null => {
-  const timeDimensionId = timeDimension.id;
+  const timeDimensionId = timeDimension?.id;
   const filterFromAttachment = attachmentData?.filters?.find(
     (filter) => filter.componentCode === timeDimensionId,
   );

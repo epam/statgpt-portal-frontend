@@ -16,7 +16,7 @@ const DATASET_URL = (
   version = '',
   references = SdmxReferences.DESCENDANTS,
 ) =>
-  `sdmx/3.0/structure/dataflow/${agency}/${id}/${version}?references=${references}&detail=${SdmxDetails.REFERENCE_PARTIAL}`;
+  `sdmx/3.0/structure/dataflow/${agency}/${id}/${version}?references=${references}&detail=${SdmxDetails.FULL}`;
 
 export class DatasetApi {
   constructor(private client: SdmxApiClient) {}
@@ -41,7 +41,7 @@ export class DatasetApi {
       attributes: ALL_ATTRIBUTES,
       dimensionAtObservation: 'TIME_PERIOD', // TODO: use time dimensions
     }).toString();
-
+    console.log('filtersfiltersfiltersfiltersfiltersfiltersfiltersfiltersfiltersfilters', filters)
     const urlWithParams = generateDatasetDataRequest(urn, queryParams, filters);
     return await this.client.getRequest<DataMessage>(urlWithParams);
   }
