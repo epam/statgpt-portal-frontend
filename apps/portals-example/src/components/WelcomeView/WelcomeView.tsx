@@ -68,7 +68,7 @@ const WelcomeView: FC<Props> = ({ suggestionsList, welcomeText }) => {
     conversationKey: string,
   ) => {
     const navPath = getConversationNavPath(folderId, conversationKey);
-    router.push(`/${locale}/${ApplicationRoute.Conversations}/${navPath}`);
+    router.push(`/${locale}${ApplicationRoute.Conversations}/${navPath}`);
   };
 
   const conversationViewTitles: ConversationViewTitles = {

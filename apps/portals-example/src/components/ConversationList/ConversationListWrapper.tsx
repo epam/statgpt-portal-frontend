@@ -135,7 +135,7 @@ const ConversationListWrapper = () => {
         setIsOpenedAdvancedView(false);
       }
       const navPath = getConversationNavPath(folderId, conversationKey);
-      router.push(`/${locale}/${ApplicationRoute.Conversations}/${navPath}`);
+      router.push(`/${locale}${ApplicationRoute.Conversations}/${navPath}`);
     },
     [locale, isOpenedAdvancedView, router, setIsOpenedAdvancedView],
   );
