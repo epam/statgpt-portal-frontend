@@ -52,7 +52,7 @@ const TimePeriodFacet: FC<Props> = ({
   defaultTimeOption,
 }) => {
   const initialTimeRange = getAnnotationPeriod(
-    initialConstraints?.[0].annotations,
+    initialConstraints?.[0]?.annotations,
   );
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange | null>(
     timeRange,
