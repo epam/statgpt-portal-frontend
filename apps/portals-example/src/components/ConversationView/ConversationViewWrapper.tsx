@@ -34,17 +34,17 @@ import {
   TimeI18nKeys,
   WelcomeI18nKeys,
 } from '../../constants/i18n-keys';
-import { getFile } from '../../app/actions/attachments';
-import { getConstraints } from '../../app/actions/constraints';
+import { getFileApi } from '../../app/api/files/client';
+import { getConstraintsApi } from '../../app/api/constraints/client';
 import {
-  getConversation,
-  updateConversation,
-  createConversation,
-  getConversations,
-  rateResponse,
-} from '../../app/actions/conversations';
-import { getBucket } from '../../app/actions/bucket';
-import { getDataSet, getDataSetData } from '../../app/actions/dataset';
+  getConversationApi,
+  updateConversationApi,
+  createConversationApi,
+  getConversationsApi,
+} from '../../app/api/conversations/client';
+import { getBucketApi } from '../../app/api/bucket/client';
+import { getDataSetApi, getDataSetDataApi } from '../../app/api/dataset/client';
+import { rateResponseApi } from '../../app/api/rate/client';
 import AdvancedModeIcon from '../../../public/images/advanced-mode.svg';
 import WarningIcon from '../../../public/images/warning.svg';
 import UnfoldIcon from '../../../public/images/unfold.svg';
@@ -206,11 +206,11 @@ const ConversationViewWrapper: FC<Props> = ({
   const attachmentsActions = useMemo(
     () =>
       ({
-        getFile: authHandler(getFile),
-        getDataSet: authHandler(getDataSet),
-        getDataSetData: authHandler(getDataSetData),
+        getFile: authHandler(getFileApi),
+        getDataSet: authHandler(getDataSetApi),
+        getDataSetData: authHandler(getDataSetDataApi),
         downloadDataSet: openDownloadWindow,
-        getConstraints: authHandler(getConstraints),
+        getConstraints: authHandler(getConstraintsApi),
         updateCurrentDataQuery: (dataQuery?: DataQuery) => {
           setCurrentDataQuery(dataQuery);
         },
@@ -225,12 +225,12 @@ const ConversationViewWrapper: FC<Props> = ({
   );
   const conversationViewActions = useMemo(
     () => ({
-      getConversation: authHandler(getConversation),
-      getConversations: authHandler(getConversations),
-      updateConversation: authHandler(updateConversation),
-      getBucket: authHandler(getBucket),
-      createConversation: authHandler(createConversation),
-      rateResponse: authHandler(rateResponse),
+      getConversation: authHandler(getConversationApi),
+      getConversations: authHandler(getConversationsApi),
+      updateConversation: authHandler(updateConversationApi),
+      getBucket: authHandler(getBucketApi),
+      createConversation: authHandler(createConversationApi),
+      rateResponse: authHandler(rateResponseApi),
       ...attachmentsActions,
     }),
     [attachmentsActions, authHandler],
@@ -431,7 +431,7 @@ const ConversationViewWrapper: FC<Props> = ({
             conversation,
             conversationKey,
             setConversation,
-            updateConversation: authHandler(updateConversation),
+            updateConversation: authHandler(updateConversationApi),
           }}
           attachmentsProps={{
             currentDataQuery,

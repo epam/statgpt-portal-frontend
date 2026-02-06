@@ -6,12 +6,12 @@ import {
   ConversationViewTitles,
 } from '@epam/statgpt-conversation-view';
 import WelcomeTitleIcon from '../../../public/images/logo-small.svg';
-import { getBucket } from '../../app/actions/bucket';
+import { getBucketApi } from '../../app/api/bucket/client';
 import {
-  createConversation,
-  getConversations,
-  getSharedConversations,
-} from '../../app/actions/conversations';
+  createConversationApi,
+  getConversationsApi,
+} from '../../app/api/conversations/client';
+import { getSharedConversationsApi } from '../../app/api/share/client';
 import { ApplicationRoute } from '../../types/application-routes';
 import { useRouter } from 'next/navigation';
 import { FC, useCallback, useMemo } from 'react';
@@ -55,10 +55,10 @@ const WelcomeView: FC<Props> = ({ suggestionsList, welcomeText }) => {
 
   const serverActions = useMemo(
     () => ({
-      getBucket: authHandler(getBucket),
-      createConversation: authHandler(createConversation),
-      getConversations: authHandler(getConversations),
-      getSharedConversations: authHandler(getSharedConversations),
+      getBucket: authHandler(getBucketApi),
+      createConversation: authHandler(createConversationApi),
+      getConversations: authHandler(getConversationsApi),
+      getSharedConversations: authHandler(getSharedConversationsApi),
     }),
     [authHandler],
   );
@@ -68,7 +68,7 @@ const WelcomeView: FC<Props> = ({ suggestionsList, welcomeText }) => {
     conversationKey: string,
   ) => {
     const navPath = getConversationNavPath(folderId, conversationKey);
-    router.push(`/${locale}/${ApplicationRoute.Conversations}/${navPath}`);
+    router.push(`/${locale}${ApplicationRoute.Conversations}/${navPath}`);
   };
 
   const conversationViewTitles: ConversationViewTitles = {
