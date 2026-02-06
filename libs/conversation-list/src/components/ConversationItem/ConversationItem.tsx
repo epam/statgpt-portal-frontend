@@ -18,6 +18,7 @@ interface Props {
   selectedConversationId?: string;
   shareConversationProps?: ShareConversationProps;
   searchQuery?: string;
+  isDisabled?: boolean;
   locale: string;
   conversationStyles: ConversationStyles;
   onConversationClick: (folder: string, conversationId: string) => void;
@@ -31,6 +32,7 @@ const ConversationItem: FC<Props> = ({
   onConversationClick,
   actions,
   locale,
+  isDisabled,
   conversationStyles,
   shareConversationProps,
 }) => {
@@ -71,12 +73,16 @@ const ConversationItem: FC<Props> = ({
     <div
       ref={conversationItemRef}
       className={classNames(
-        'flex justify-between items-center py-2 px-3 border-transparent relative group cursor-pointer border hover:border-hues-600',
+        'flex justify-between items-center py-2 px-3 border-transparent relative group border',
         'conversation-item',
         selectedConversationId === conversation?.id &&
           'bg-hues-100 conversation-item-active',
+        isDisabled
+          ? 'cursor-not-allowed'
+          : 'cursor-pointer hover:border-hues-600',
       )}
       onClick={() =>
+        !isDisabled &&
         onConversationClick(conversation.folderId, conversation?.id)
       }
       title={conversationName}
@@ -115,6 +121,7 @@ const ConversationItem: FC<Props> = ({
         getFileBlob={actions.getFileBlob}
         renameConversation={actions.renameConversation}
         shareConversationProps={shareConversationProps}
+        isDisabled={isDisabled}
       />
     </div>
   );

@@ -2,6 +2,10 @@ export {
   AdvancedViewProvider,
   useAdvancedView,
 } from './context/AdvancedViewContext';
+export {
+  ChatMessagesProvider,
+  useChatMessages,
+} from './context/ChatMessagesContext';
 
 export { OnboardingProvider, useOnboarding } from './context/OnboardingContext';
 export * from './models/actions';

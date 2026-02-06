@@ -19,6 +19,7 @@ import {
 import { ActionMenuItem } from '../../types/action-menu-item';
 import ConversationRename from '../ConversationRename/ConversationRename';
 import { ONBOARDING_MODEL_POSTFIX } from '@epam/statgpt-shared-toolkit';
+import classNames from 'classnames';
 
 interface Props {
   conversation: ConversationInfo;
@@ -30,6 +31,7 @@ interface Props {
   renameConversation: (n: string, b: string) => Promise<unknown>;
   triggerButton?: ReactNode;
   locale: string;
+  isDisabled?: boolean;
 }
 
 export const ActionMenu: FC<Props> = ({
@@ -42,6 +44,7 @@ export const ActionMenu: FC<Props> = ({
   renameConversation,
   triggerButton,
   locale,
+  isDisabled,
 }) => {
   const items: DropdownItem[] = useMemo(() => {
     const baseActions = [
@@ -143,10 +146,11 @@ export const ActionMenu: FC<Props> = ({
     <>
       <Dropdown
         containerClassName="ml-3 group-hover:visible"
-        triggerButton={triggerButton ?? <ActionTrigger />}
+        triggerButton={triggerButton ?? <ActionTrigger disabled={isDisabled} />}
         options={items}
         openedClassName="action-menu-opened"
         onOptionSelect={onOptionSelect}
+        disabled={isDisabled}
       />
 
       {deleteModalState === PopUpState.Opened && (
@@ -184,9 +188,14 @@ export const ActionMenu: FC<Props> = ({
   );
 };
 
-const ActionTrigger: FC = () => {
+const ActionTrigger: FC<{ disabled?: boolean }> = ({ disabled }) => {
   return (
-    <div className="cursor-pointer flex items-center justify-center w-[24px]">
+    <div
+      className={classNames(
+        'flex items-center justify-center w-[24px]',
+        disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+      )}
+    >
       <IconDotsVertical
         width={20}
         height={20}

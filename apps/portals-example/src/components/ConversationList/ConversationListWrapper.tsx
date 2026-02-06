@@ -11,7 +11,10 @@ import {
   User,
 } from '@epam/statgpt-conversation-list';
 import MessageIcon from '../../../public/images/message-dots.svg';
-import { useAdvancedView } from '@epam/statgpt-conversation-view';
+import {
+  useAdvancedView,
+  useChatMessages,
+} from '@epam/statgpt-conversation-view';
 import Logo from '../../../public/images/logo.svg';
 import Collapse from '../../../public/images/menu/collapse.svg';
 import Share from '../../../public/images/chat/share.svg';
@@ -68,6 +71,7 @@ const ConversationListWrapper = () => {
   } = useConversationList();
   const locale = useCurrentLocale();
   const { data: session } = useSession();
+  const { isStreaming } = useChatMessages();
 
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -264,6 +268,7 @@ const ConversationListWrapper = () => {
               ...shareTitles,
               id,
             }}
+            isStreaming={isStreaming}
             conversations={conversations}
             sharedConversations={sharedConversations}
             setConversations={setConversations}
