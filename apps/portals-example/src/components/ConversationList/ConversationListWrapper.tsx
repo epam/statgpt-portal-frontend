@@ -292,7 +292,7 @@ const ConversationListWrapper = () => {
       {session?.user && (
         <div
           className={classNames(
-            'w-full bg-neutrals-200 flex items-center p-6 sm:p-4 pt-0 sm:pt-0',
+            'w-full bg-neutrals-200 flex items-center p-6 sm:p-4 sticky bottom-0',
             isCollapsed && '!p-0 !w-fit !self-center mb-6',
           )}
         >
