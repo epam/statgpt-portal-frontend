@@ -9,7 +9,12 @@
 
 'use client';
 
-import { Attachment, FormSchemaButtonOption, Role } from '@epam/ai-dial-shared';
+import {
+  Attachment,
+  FormSchemaButtonOption,
+  LikeState,
+  Role,
+} from '@epam/ai-dial-shared';
 import classNames from 'classnames';
 import {
   FC,
@@ -70,7 +75,7 @@ interface Props {
   selectMessageToSend: (message?: string, choiceId?: string) => void;
   editMessage?: (message: MessageType) => void;
   messageActionsIcons?: MessageActionIcons;
-  rateResponse: (responseId: string, rate: boolean) => void;
+  rateResponse: (responseId: string, rate: LikeState) => void;
   editMessageTitles: EditMessageTitles;
   isReadOnlyConversation?: boolean;
   isNotLastUserMessage?: boolean;

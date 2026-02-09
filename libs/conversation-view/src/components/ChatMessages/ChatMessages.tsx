@@ -9,7 +9,7 @@
 'use client';
 
 import { FC, ReactNode, useEffect, useRef, useState } from 'react';
-import { Role } from '@epam/ai-dial-shared';
+import { LikeState, Role } from '@epam/ai-dial-shared';
 import { useDebounce, LimitMessages } from '@epam/statgpt-ui-components';
 import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
@@ -48,7 +48,7 @@ interface Props {
   editMessage?: (message: MessageType) => void;
   selectMessageToSend: (message?: string, choiceId?: string) => void;
   messageActionsIcons?: MessageActionIcons;
-  rateResponse: (responseId: string, rate: boolean) => void;
+  rateResponse: (responseId: string, rate: LikeState) => void;
   editMessageTitles: EditMessageTitles;
   scrollBottomIcon?: ReactNode;
   isReadOnlyConversation?: boolean;
