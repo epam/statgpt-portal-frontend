@@ -485,6 +485,7 @@ export const ConversationView: FC<Props> = ({
     },
     [
       isStreaming,
+      setIsStreaming,
       addUserMessageToConversation,
       initializeAssistantMessage,
       handleStreamingResponse,
@@ -528,6 +529,7 @@ export const ConversationView: FC<Props> = ({
       }
     },
     [
+      setIsStreaming,
       finalizeConversation,
       handleStreamingProcessError,
       handleStreamingResponse,
