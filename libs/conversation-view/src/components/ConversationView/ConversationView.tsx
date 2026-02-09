@@ -9,7 +9,12 @@
 
 'use client';
 
-import { Conversation, ConversationInfo, Role } from '@epam/ai-dial-shared';
+import {
+  Conversation,
+  ConversationInfo,
+  LikeState,
+  Role,
+} from '@epam/ai-dial-shared';
 import classNames from 'classnames';
 import {
   Dispatch,
@@ -72,6 +77,7 @@ import { useChatMessages } from '../../context/ChatMessagesContext';
 import { OnboardingElements } from '../../constants/onboarding-elements';
 import { getOnboardingInfoForAdvancedView } from '../../utils/get-tooltip-data.by-element';
 import { AttachmentsConfig } from '../../models/attachments';
+import { merge } from 'lodash';
 
 interface Props {
   conversationKey: string;
@@ -262,6 +268,7 @@ export const ConversationView: FC<Props> = ({
       const updatedMessage = mergeMessages?.(assistantMessage, [
         partialMessage,
       ]);
+
       if (!updatedMessage) {
         return;
       }
@@ -283,12 +290,22 @@ export const ConversationView: FC<Props> = ({
   );
 
   const rateResponse = useCallback(
-    (id: string, rate: boolean) => {
+    (id: string, rate: LikeState) => {
       if (conversation?.model?.id) {
-        actions.rateResponse(id, rate, conversation.model.id);
+        actions.rateResponse(
+          id,
+          rate === LikeState.Liked,
+          conversation.model.id,
+        );
+
+        conversation.messages = conversation.messages.map((msg) =>
+          msg.responseId === id ? merge(msg, { like: rate }) : msg,
+        );
+
+        saveConversation(conversation);
       }
     },
-    [actions, conversation],
+    [actions, conversation, saveConversation],
   );
 
   const handleStreamingResponse = useCallback(
