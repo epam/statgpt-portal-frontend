@@ -106,6 +106,7 @@ const ConversationListWrapper = () => {
 
   const titles: ConversationListTitles = {
     noConversation: t(ConversationI18nKeys.NO_CONVERSATIONS),
+    noActionsAllowed: t(ConversationI18nKeys.NO_ACTIONS_ALLOWED),
     clickNewChat: t(ConversationI18nKeys.CLICK_NEW_CHAT),
     allChats: t(ConversationI18nKeys.ALL_CHATS),
     share: t(ChatI18nKeys.SHARE),
@@ -251,9 +252,11 @@ const ConversationListWrapper = () => {
               iconBefore={<IconPlus width={20} height={20} />}
               title={isCollapsed ? '' : t(I18nKeys.Nav.NEW_CHAT)}
               onClick={handleOpeningOfNewConversation}
+              disabled={isStreaming}
               buttonClassName={classNames(
                 'text-button-client',
                 isCollapsed && 'p-2',
+                isStreaming && 'cursor-not-allowed',
               )}
             />
           </div>

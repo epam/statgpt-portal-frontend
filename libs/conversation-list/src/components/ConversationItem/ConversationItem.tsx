@@ -85,7 +85,11 @@ const ConversationItem: FC<Props> = ({
         !isDisabled &&
         onConversationClick(conversation.folderId, conversation?.id)
       }
-      title={conversationName}
+      title={
+        isDisabled
+          ? conversationStyles?.titles?.noActionsAllowed
+          : conversationName
+      }
     >
       <div className="flex flex-1 min-w-0 items-center">
         {conversationStyles.conversationItemIcon
@@ -100,7 +104,11 @@ const ConversationItem: FC<Props> = ({
               ? 'conversation-item-text-active'
               : '',
           )}
-          title={conversationName}
+          title={
+            isDisabled
+              ? conversationStyles?.titles?.noActionsAllowed
+              : conversationName
+          }
         >
           {searchQuery?.length ? (
             <HighlightText

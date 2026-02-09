@@ -1,5 +1,6 @@
 export interface ConversationListTitles {
   noConversation?: string;
+  noActionsAllowed?: string;
   clickNewChat?: string;
   allChats?: string;
   share?: string;

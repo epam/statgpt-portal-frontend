@@ -94,7 +94,8 @@
     "send": "Submit",
     "rename": "Rename",
     "renameTitle": "Rename conversation",
-    "save": "Save"
+    "save": "Save",
+    "noActionsAllowed": "You can't leave the chat while the AI is generating a response"
   },
   "attachments": {
     "download": "Download",
