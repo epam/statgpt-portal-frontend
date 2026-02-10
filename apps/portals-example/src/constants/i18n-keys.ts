@@ -105,6 +105,7 @@ export enum ConversationI18nKeys {
   DELETE_TITLE = 'conversation.deleteTitle',
   DELETE_CONFIRM = 'conversation.deleteConfirm',
   NO_CONVERSATIONS = 'conversation.noConversations',
+  NO_ACTIONS_ALLOWED = 'conversation.noActionsAllowed',
   CLICK_NEW_CHAT = 'conversation.clickNewChat',
   ALL_CHATS = 'conversation.allChats',
   SHARED = 'conversation.shared',

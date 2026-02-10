@@ -73,6 +73,7 @@ import { generateConversation } from '../../utils/generate-conversation';
 
 import { ABORT_ERROR } from '../../constants/errors';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { useChatMessages } from '../../context/ChatMessagesContext';
 import { OnboardingElements } from '../../constants/onboarding-elements';
 import { getOnboardingInfoForAdvancedView } from '../../utils/get-tooltip-data.by-element';
 import { AttachmentsConfig } from '../../models/attachments';
@@ -141,7 +142,7 @@ export const ConversationView: FC<Props> = ({
     useState<AbortController | null>(null);
   const [isReadonlyConversation, setIsReadonlyConversation] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isStreaming, setIsStreaming] = useState(false);
+  const { isStreaming, setIsStreaming } = useChatMessages();
   const { isOpenedAdvancedView } = useAdvancedView();
   const {
     onboardingFileSchema,
@@ -484,6 +485,7 @@ export const ConversationView: FC<Props> = ({
     },
     [
       isStreaming,
+      setIsStreaming,
       addUserMessageToConversation,
       initializeAssistantMessage,
       handleStreamingResponse,
@@ -527,6 +529,7 @@ export const ConversationView: FC<Props> = ({
       }
     },
     [
+      setIsStreaming,
       finalizeConversation,
       handleStreamingProcessError,
       handleStreamingResponse,
