@@ -55,18 +55,18 @@
       @apply underline;
     }
   }
+}
 
-  .flatpickr-input {
-    @apply text-neutrals-1000 border-b-2 border-solid border-b-primary w-full h-[40px] py-[8px] px-[6px];
+.flatpickr-input {
+  @apply text-neutrals-1000 border-b-2 border-solid border-b-primary w-full h-[40px] py-[8px] px-[6px];
 
-    &:focus-visible {
-      @apply outline-none;
-    }
+  &:focus-visible {
+    @apply outline-none;
+  }
 
-    &:hover,
-    &:active {
-      @apply border-neutrals-1000;
-    }
+  &:hover,
+  &:active {
+    @apply border-neutrals-1000;
   }
 }
 
