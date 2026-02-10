@@ -1,23 +1,12 @@
 /* eslint-disable no-console */
 import { Account, CallbacksOptions, Profile } from 'next-auth';
 
-import { decodeJwt } from 'jose';
 import { TokenSet } from 'openid-client';
 import { Token, UserSession } from '../../models/auth';
 import { logTokenExpiration } from './log-token-info';
 import NextClient, { RefreshToken } from './nextauth-client';
 
 const waitRefreshTokenTimeout = 5;
-
-export const safeDecodeJwt = (accessToken: string) => {
-  try {
-    return decodeJwt(accessToken);
-  } catch (err) {
-    console.error("Token couldn't be parsed as JWT", err);
-    // TODO: read roles from GCP token format
-    return {};
-  }
-};
 
 /**
  * Takes a token, and returns a new token with updated
