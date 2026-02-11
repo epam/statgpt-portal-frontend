@@ -17,3 +17,9 @@ export { Dropdown } from './Dropdown/Dropdown';
 export { DownloadFormatMessage } from './DownloadFormatMessage/DownloadFormatMessage';
 export { RequestLimitMessage } from './RequestLimit/RequestLimit';
 export type { LimitMessages } from './RequestLimit/RequestLimit';
+export { InlineAlert } from './InlineAlert/InlineAlert';
+export { InlineAlertProvider } from './InlineAlert/InlineAlertContext';
+export {
+  InlineAlertVariant,
+  type InlineAlertConfig,
+} from './InlineAlert/types';
