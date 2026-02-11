@@ -95,7 +95,8 @@
     "rename": "Rename",
     "renameTitle": "Rename conversation",
     "save": "Save",
-    "noActionsAllowed": "You can't leave the chat while the AI is generating a response"
+    "noActionsAllowed": "You can't leave the chat while the AI is generating a response",
+    "agentUnavailable": "The AI Assistant is unavailable. To gain access, please contact Support."
   },
   "attachments": {
     "download": "Download",
@@ -125,12 +126,10 @@
     "lastWeek": "Last 7 days",
     "earlier": "Earlier"
   },
-
   "welcome": {
     "title": "How can I help you?",
     "askAnything": "Ask anything..."
   },
-
   "download": {
     "download": "Download",
     "downloadType": "Download type",

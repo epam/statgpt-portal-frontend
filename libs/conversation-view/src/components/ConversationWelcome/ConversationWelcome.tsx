@@ -36,6 +36,7 @@ import { ChatOnboardingFooter } from '../ChatOnboardingFooter/ChatOnboardingFoot
 import { useOnboarding } from '../../context/OnboardingContext';
 import { PutOnboardingFile } from '../../types/actions';
 import { ChatFooter } from '../ChatFooter/ChatFooter';
+import { useConversationViewMessages } from '../../context/ConversationViewMessagesContext';
 
 interface ConversationListActions {
   getBucket: () => Promise<{ bucket: string }>;
@@ -95,6 +96,7 @@ export const ConversationWelcome: FC<Props> = ({
   } = useOnboarding();
 
   const { isAgentAvailable } = useAgentAvailability();
+  const { statusMessages } = useConversationViewMessages();
 
   useEffect(() => {
     const loadData = async () => {
@@ -226,8 +228,7 @@ export const ConversationWelcome: FC<Props> = ({
     if (!isAgentAvailable) {
       return (
         <InlineAlert variant={InlineAlertVariant.Error}>
-          The AI Assistant is unavailable. To gain access, please contact
-          Support.
+          {statusMessages.assistantUnavailable}
         </InlineAlert>
       );
     }

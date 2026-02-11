@@ -115,6 +115,7 @@ export enum ConversationI18nKeys {
   RENAME = 'conversation.rename',
   RENAME_TITLE = 'conversation.renameTitle',
   SAVE = 'conversation.save',
+  AGENT_UNAVAILABLE = 'conversation.agentUnavailable',
 }
 
 export enum AttachmentsI18nKeys {

@@ -85,6 +85,7 @@ import { OnboardingElements } from '../../constants/onboarding-elements';
 import { getOnboardingInfoForAdvancedView } from '../../utils/get-tooltip-data.by-element';
 import { AttachmentsConfig } from '../../models/attachments';
 import { merge } from 'lodash';
+import { useConversationViewMessages } from '../../context/ConversationViewMessagesContext';
 
 interface Props {
   conversationKey: string;
@@ -153,6 +154,7 @@ export const ConversationView: FC<Props> = ({
   const { isOpenedAdvancedView } = useAdvancedView();
 
   const { isAgentAvailable } = useAgentAvailability();
+  const { statusMessages } = useConversationViewMessages();
 
   const {
     onboardingFileSchema,
@@ -651,8 +653,7 @@ export const ConversationView: FC<Props> = ({
     if (!isAgentAvailable) {
       return (
         <InlineAlert variant={InlineAlertVariant.Error}>
-          The AI Assistant is unavailable. To gain access, please contact
-          Support.
+          {statusMessages.assistantUnavailable}
         </InlineAlert>
       );
     }
