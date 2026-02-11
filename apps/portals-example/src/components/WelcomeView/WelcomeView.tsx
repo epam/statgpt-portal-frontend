@@ -13,7 +13,7 @@ import {
 import { getSharedConversationsApi } from '../../app/api/share/client';
 import { ApplicationRoute } from '../../types/application-routes';
 import { useRouter } from 'next/navigation';
-import { FC, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useConversationList } from '../../context/ConversationListContext';
 import { IconSend } from '@tabler/icons-react';
 import {
