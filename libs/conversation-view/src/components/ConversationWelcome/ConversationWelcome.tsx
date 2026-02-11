@@ -16,8 +16,15 @@ import {
   SharedConversations,
   ShareTarget,
 } from '@epam/statgpt-dial-toolkit';
-import { cleanConversationNames } from '@epam/statgpt-shared-toolkit';
-import { Loader } from '@epam/statgpt-ui-components';
+import {
+  cleanConversationNames,
+  useAgentAvailability,
+} from '@epam/statgpt-shared-toolkit';
+import {
+  InlineAlert,
+  InlineAlertVariant,
+  Loader,
+} from '@epam/statgpt-ui-components';
 import { Tag } from '@epam/statgpt-ui-components';
 import { transformSharedConversations } from '@epam/statgpt-conversation-list';
 import { getCreateConversationRequest } from '../../utils/conversation-request';
@@ -86,6 +93,8 @@ export const ConversationWelcome: FC<Props> = ({
     setIsShowOnboarding,
     setOnboardingFileSchema,
   } = useOnboarding();
+
+  const { isAgentAvailable } = useAgentAvailability();
 
   useEffect(() => {
     const loadData = async () => {
@@ -213,6 +222,51 @@ export const ConversationWelcome: FC<Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bucket, prompt]);
 
+  const getContent = () => {
+    if (!isAgentAvailable) {
+      return (
+        <InlineAlert variant={InlineAlertVariant.Error}>
+          The AI Assistant is unavailable. To gain access, please contact
+          Support.
+        </InlineAlert>
+      );
+    }
+
+    return (
+      <>
+        <InputForAsk
+          containerClasses={classNames(
+            inputMessageStyles.inputContainerClass,
+            isBottomInputPosition && 'order-3 mt-auto',
+          )}
+          inputClasses="mr-2"
+          placeholder={titles?.askAnything ?? 'Ask anything...'}
+          sendMessageIcon={inputMessageStyles.sendMessageIcon}
+          onSendMessage={createConversation}
+        />
+        <div className="max-w-full overflow-x-auto no-scrollbar">
+          <div
+            className={classNames(
+              'flex flex-wrap justify-center gap-2 sm:flex-nowrap',
+              'tags-container',
+            )}
+          >
+            {suggestionsList.map((item) => (
+              <Tag
+                key={item.title}
+                title={item.title}
+                text={
+                  item[DialSchemaProperties.DialWidgetOptions]?.populateText
+                }
+                onClick={createConversation}
+              />
+            ))}
+          </div>
+        </div>
+      </>
+    );
+  };
+
   return (
     <div className="flex flex-col h-full w-full">
       {prompt || isCreatingConversation ? (
@@ -242,35 +296,7 @@ export const ConversationWelcome: FC<Props> = ({
               {welcomeText ?? titles?.welcomeTitle ?? 'How can I help you?'}
             </h1>
           </div>
-          <InputForAsk
-            containerClasses={classNames(
-              inputMessageStyles.inputContainerClass,
-              isBottomInputPosition && 'order-3 mt-auto',
-            )}
-            inputClasses="mr-2"
-            placeholder={titles?.askAnything ?? 'Ask anything...'}
-            sendMessageIcon={inputMessageStyles.sendMessageIcon}
-            onSendMessage={createConversation}
-          />
-          <div className="max-w-full overflow-x-auto no-scrollbar">
-            <div
-              className={classNames(
-                'flex flex-wrap justify-center gap-2 sm:flex-nowrap',
-                'tags-container',
-              )}
-            >
-              {suggestionsList.map((item) => (
-                <Tag
-                  key={item.title}
-                  title={item.title}
-                  text={
-                    item[DialSchemaProperties.DialWidgetOptions]?.populateText
-                  }
-                  onClick={createConversation}
-                />
-              ))}
-            </div>
-          </div>
+          {getContent()}
         </div>
       )}
       {isShowOnboarding && (

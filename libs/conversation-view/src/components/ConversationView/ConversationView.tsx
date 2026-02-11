@@ -64,8 +64,15 @@ import {
   cleanConversationNames,
   DataQuery,
   FormatNumbersType,
+  useAgentAvailability,
 } from '@epam/statgpt-shared-toolkit';
-import { Button, Loader, LimitMessages } from '@epam/statgpt-ui-components';
+import {
+  Button,
+  Loader,
+  LimitMessages,
+  InlineAlert,
+  InlineAlertVariant,
+} from '@epam/statgpt-ui-components';
 import { MetadataSettings } from '../../models/metadata';
 import { ConversationViewTitles } from '../../models/titles';
 import { getRedirectConversationPath } from '../../utils/get-conversation-path';
@@ -144,6 +151,9 @@ export const ConversationView: FC<Props> = ({
   const [isLoading, setIsLoading] = useState(true);
   const { isStreaming, setIsStreaming } = useChatMessages();
   const { isOpenedAdvancedView } = useAdvancedView();
+
+  const { isAgentAvailable } = useAgentAvailability();
+
   const {
     onboardingFileSchema,
     onboardingFilePath,
@@ -637,6 +647,31 @@ export const ConversationView: FC<Props> = ({
     return <Loader />;
   }
 
+  const getInput = () => {
+    if (!isAgentAvailable) {
+      return (
+        <InlineAlert variant={InlineAlertVariant.Error}>
+          The AI Assistant is unavailable. To gain access, please contact
+          Support.
+        </InlineAlert>
+      );
+    }
+
+    return (
+      <InputForAsk
+        onSendMessage={(message) =>
+          sendMessageToConversation(message, conversation)
+        }
+        onStopStreaming={onStopStreaming}
+        inProcess={isStreaming}
+        sendMessageIcon={inputMessageStyles.sendMessageIcon}
+        placeholder={titles?.askAnything ?? 'Ask anything...'}
+        containerClasses="mt-4"
+        inputClasses="border-neutrals-600 mr-2"
+      />
+    );
+  };
+
   return (
     <div
       className={classNames(
@@ -696,17 +731,7 @@ export const ConversationView: FC<Props> = ({
       </div>
       {isShowOnboarding ? null : !isReadonlyConversation ? (
         <div className={classNames(inputMessageStyles.inputContainerClass)}>
-          <InputForAsk
-            onSendMessage={(message) =>
-              sendMessageToConversation(message, conversation)
-            }
-            onStopStreaming={onStopStreaming}
-            inProcess={isStreaming}
-            sendMessageIcon={inputMessageStyles.sendMessageIcon}
-            placeholder={titles?.askAnything ?? 'Ask anything...'}
-            containerClasses="mt-4"
-            inputClasses="border-neutrals-600 mr-2"
-          />
+          {getInput()}
         </div>
       ) : (
         <div className="flex items-center justify-center mt-4">
