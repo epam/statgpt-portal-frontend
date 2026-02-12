@@ -46,7 +46,7 @@ import { getBucketApi } from '../../app/api/bucket/client';
 import { getDataSetApi, getDataSetDataApi } from '../../app/api/dataset/client';
 import { rateResponseApi } from '../../app/api/rate/client';
 import AdvancedModeIcon from '../../../public/images/advanced-mode.svg';
-import WarningIcon from '../../../public/images/states/warning.svg';
+import WarningIcon from '../../../public/images/statuses/warning.svg';
 import UnfoldIcon from '../../../public/images/unfold.svg';
 import DownloadIcon from '../../../public/images/chat/download.svg';
 import SuccessIcon from '../../../public/images/chat/success.svg';
