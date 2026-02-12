@@ -14,7 +14,6 @@
   "module": "./index.mjs",
   "types": "./index.d.ts",
   "dependencies": {
-    "@epam/ai-dial-shared": "^0.34.0",
-    "react": "^19.2.1"
+    "@epam/ai-dial-shared": "^0.34.0"
   }
 }

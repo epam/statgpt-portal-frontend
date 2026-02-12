@@ -19,8 +19,8 @@ import { conversationApi, dialApiClient } from '../api/api';
 import { DIAL_API_ROUTES } from '@epam/statgpt-dial-toolkit';
 import { NoAccessView } from '../../components/NoAccessView';
 import { ComponentsConfig } from '../../components/ComponentsConfig/ComponentsConfig';
-import { AgentAvailabilityProvider } from '@epam/statgpt-shared-toolkit';
 import { TextsConfig } from '../../components/TextsConfig/TextsConfig';
+import { ClientProvidersWrapper } from '../../components/ClientProvidersWrapper/ClientProvidersWrapper';
 
 export default async function LocaleLayout({
   children,
@@ -69,7 +69,7 @@ export default async function LocaleLayout({
 
     return (
       <DeploymentConfigProvider config={configuration.data}>
-        <AgentAvailabilityProvider isAgentAvailable={configuration.success}>
+        <ClientProvidersWrapper isAgentAvailable={configuration.success}>
           <OnboardingProvider>
             <AdvancedViewProvider>
               <ConversationListProvider>
@@ -80,7 +80,7 @@ export default async function LocaleLayout({
               </ConversationListProvider>
             </AdvancedViewProvider>
           </OnboardingProvider>
-        </AgentAvailabilityProvider>
+        </ClientProvidersWrapper>
       </DeploymentConfigProvider>
     );
   };

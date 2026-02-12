@@ -2,7 +2,7 @@ import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import classNames from 'classnames';
 import { FC } from 'react';
 import { MessageActionIcons } from '../../../models/message';
-import { useAgentAvailability } from '@epam/statgpt-shared-toolkit';
+import { useAgentAvailability } from '@epam/statgpt-ui-components';
 
 interface Props {
   message: MessageType;

@@ -64,7 +64,6 @@ import {
   cleanConversationNames,
   DataQuery,
   FormatNumbersType,
-  useAgentAvailability,
 } from '@epam/statgpt-shared-toolkit';
 import {
   Button,
@@ -72,6 +71,7 @@ import {
   LimitMessages,
   InlineAlert,
   InlineAlertVariant,
+  useAgentAvailability,
 } from '@epam/statgpt-ui-components';
 import { MetadataSettings } from '../../models/metadata';
 import { ConversationViewTitles } from '../../models/titles';

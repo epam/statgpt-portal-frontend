@@ -16,14 +16,12 @@ import {
   SharedConversations,
   ShareTarget,
 } from '@epam/statgpt-dial-toolkit';
-import {
-  cleanConversationNames,
-  useAgentAvailability,
-} from '@epam/statgpt-shared-toolkit';
+import { cleanConversationNames } from '@epam/statgpt-shared-toolkit';
 import {
   InlineAlert,
   InlineAlertVariant,
   Loader,
+  useAgentAvailability,
 } from '@epam/statgpt-ui-components';
 import { Tag } from '@epam/statgpt-ui-components';
 import { transformSharedConversations } from '@epam/statgpt-conversation-list';

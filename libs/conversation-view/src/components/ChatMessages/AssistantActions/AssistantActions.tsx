@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { FC, useState } from 'react';
 import { MessageActionIcons } from '../../../models/message';
 import { LikeState } from '@epam/ai-dial-shared';
-import { useAgentAvailability } from '@epam/statgpt-shared-toolkit';
+import { useAgentAvailability } from '@epam/statgpt-ui-components';
 
 interface Props {
   message: MessageType;
