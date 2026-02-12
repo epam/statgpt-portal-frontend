@@ -42,23 +42,29 @@ export default async function LocaleLayout({
   let isAnyConversationAvailable = false;
 
   if (!configuration.success || !configuration.data) {
-    const bucket = await dialApiClient.getRequest<{ bucket: string }>(
-      DIAL_API_ROUTES.BUCKET,
-      token?.access_token as string,
-    );
+    try {
+      const bucket = await dialApiClient.getRequest<{ bucket: string }>(
+        DIAL_API_ROUTES.BUCKET,
+        token?.access_token as string,
+      );
 
-    const conversations = await conversationApi.getConversations(
-      token?.access_token as string,
-      bucket.bucket,
-      locale,
-    );
+      const conversations = await conversationApi.getConversations(
+        token?.access_token as string,
+        bucket.bucket,
+        locale,
+      );
 
-    isAnyConversationAvailable = conversations.length === 0;
+      isAnyConversationAvailable = conversations.length === 0;
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+    }
   }
+
+  const clientContactSupportUrl = process.env.CLIENT_CONTACT_SUPPORT_URL;
 
   const getContent = () => {
     if (!configuration.success && !isAnyConversationAvailable) {
-      return <NoAccessView />;
+      return <NoAccessView clientContactSupportUrl={clientContactSupportUrl} />;
     }
 
     return (
@@ -83,9 +89,7 @@ export default async function LocaleLayout({
     <I18nProvider locale={locale}>
       <div className="flex h-full flex-row w-full main-layout">
         <ComponentsConfig>
-          <TextsConfig
-            clientContactSupportUrl={process.env.CLIENT_CONTACT_SUPPORT_URL}
-          >
+          <TextsConfig clientContactSupportUrl={clientContactSupportUrl}>
             {getContent()}
           </TextsConfig>
         </ComponentsConfig>

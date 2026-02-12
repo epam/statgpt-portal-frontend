@@ -8,7 +8,7 @@ export const { useI18n, I18nProviderClient, useCurrentLocale } =
     en: () => import('./en/common.json'),
   });
 
-export type I18nTranslateFn = (
+export type TranslateI18nFn = (
   key: string,
   options?: Record<string, unknown>,
 ) => string;

@@ -20,7 +20,7 @@ import { formatNumbers } from '../../constants/format-numbers';
 import { SHARE_CONVERSATION_PROPS } from '../../constants/share-conversation';
 import { ApplicationRoute } from '../../types/application-routes';
 import Dataset from '../../../public/images/chat/data-set.svg';
-import { I18nTranslateFn, useI18n } from '../../locales/client';
+import { TranslateI18nFn, useI18n } from '../../locales/client';
 import {
   AdvancedViewI18nKeys,
   AppI18nKeys,
@@ -114,7 +114,7 @@ const ConversationViewWrapper: FC<Props> = ({
     [ChartingIcon.PREVIOUS]: <ChevronLeft width={20} height={20} />,
   };
 
-  const t = useI18n() as I18nTranslateFn;
+  const t = useI18n() as TranslateI18nFn;
 
   const conversationKey = useMemo(
     () => `${bucketId}/${locale}/${conversationId}`,

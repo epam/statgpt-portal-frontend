@@ -2,12 +2,16 @@
 
 import { Button } from '@epam/statgpt-ui-components';
 import { signOut } from 'next-auth/react';
-import { useI18n } from '../locales/client';
-import { I18nKeys } from '../constants/i18n-keys';
+import { TranslateI18nFn, useI18n } from '../locales/client';
+import { I18nKeys, StatusMessagesI18nKeys } from '../constants/i18n-keys';
 import LogoIcon from '../../public/images/logo.svg';
 
-export const NoAccessView = () => {
-  const t = useI18n();
+export const NoAccessView = ({
+  clientContactSupportUrl,
+}: {
+  clientContactSupportUrl?: string;
+}) => {
+  const t = useI18n() as TranslateI18nFn;
 
   return (
     <div className="size-full flex">
@@ -28,8 +32,23 @@ export const NoAccessView = () => {
       </div>
       <div className="flex items-center justify-center size-full">
         <div className="flex flex-col gap-5">
-          <h1 className="h1">No access to AI assistant</h1>
-          <p className="body-1">To get an access contact support.</p>
+          <h1 className="h1">
+            {t(StatusMessagesI18nKeys.AGENT_UNAVAILABLE_TITLE)}
+          </h1>
+          <p className="body-1">
+            {t(StatusMessagesI18nKeys.AGENT_UNAVAILABLE_TEXT, {
+              link: (
+                <a
+                  className="text-primary"
+                  href={clientContactSupportUrl || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t(StatusMessagesI18nKeys.CONTACT_SUPPORT)}
+                </a>
+              ),
+            })}
+          </p>
           <Button
             buttonClassName="text-button-secondary w-fit !py-[14px] !px-[45px]"
             title="Log out"

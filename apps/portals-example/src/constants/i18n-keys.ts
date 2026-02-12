@@ -115,8 +115,13 @@ export enum ConversationI18nKeys {
   RENAME = 'conversation.rename',
   RENAME_TITLE = 'conversation.renameTitle',
   SAVE = 'conversation.save',
-  AGENT_UNAVAILABLE = 'conversation.agentUnavailable',
-  CONTACT_SUPPORT = 'conversation.contactSupport',
+}
+
+export enum StatusMessagesI18nKeys {
+  AGENT_UNAVAILABLE_TITLE = 'statusMessages.agentUnavailable.title',
+  AGENT_UNAVAILABLE_TEXT = 'statusMessages.agentUnavailable.text',
+  AGENT_UNAVAILABLE_ALERT = 'statusMessages.agentUnavailable.alert',
+  CONTACT_SUPPORT = 'statusMessages.contactSupport',
 }
 
 export enum AttachmentsI18nKeys {
