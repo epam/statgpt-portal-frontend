@@ -1,5 +1,7 @@
+import { ReactNode } from 'react';
+
 export interface ConversationViewMessages {
   statusMessages: {
-    assistantUnavailable: string;
+    assistantUnavailable: ReactNode;
   };
 }

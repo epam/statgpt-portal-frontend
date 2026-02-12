@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  Button,
-  InlineAlert,
-  InlineAlertVariant,
-} from '@epam/statgpt-ui-components';
+import { Button } from '@epam/statgpt-ui-components';
 import { signOut } from 'next-auth/react';
 import { useI18n } from '../locales/client';
 import { I18nKeys } from '../constants/i18n-keys';
@@ -39,19 +35,6 @@ export const NoAccessView = () => {
             title="Log out"
             onClick={() => signOut()}
           />
-
-          <div className="flex flex-col gap-3">
-            <InlineAlert variant={InlineAlertVariant.Error}>
-              The AI Assistant is unavailable. To gain access, please contact
-              Support.
-            </InlineAlert>
-            <InlineAlert variant={InlineAlertVariant.Info}>
-              Access to the AI Assistant will be restored on 14/11/2025 at 11:43
-            </InlineAlert>
-            <InlineAlert variant={InlineAlertVariant.Warning}>
-              Daily token limit exceeded
-            </InlineAlert>
-          </div>
         </div>
       </div>
     </div>

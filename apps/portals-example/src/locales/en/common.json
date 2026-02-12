@@ -96,7 +96,8 @@
     "renameTitle": "Rename conversation",
     "save": "Save",
     "noActionsAllowed": "You can't leave the chat while the AI is generating a response",
-    "agentUnavailable": "The AI Assistant is unavailable. To gain access, please contact Support."
+    "agentUnavailable": "The AI Assistant is unavailable. To gain access, please {link}.",
+    "contactSupport": "contact Support"
   },
   "attachments": {
     "download": "Download",

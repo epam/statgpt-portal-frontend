@@ -57,7 +57,7 @@ export default async function LocaleLayout({
   }
 
   const getContent = () => {
-    if (!isAnyConversationAvailable) {
+    if (!configuration.success && !isAnyConversationAvailable) {
       return <NoAccessView />;
     }
 
@@ -83,7 +83,11 @@ export default async function LocaleLayout({
     <I18nProvider locale={locale}>
       <div className="flex h-full flex-row w-full main-layout">
         <ComponentsConfig>
-          <TextsConfig>{getContent()}</TextsConfig>
+          <TextsConfig
+            clientContactSupportUrl={process.env.CLIENT_CONTACT_SUPPORT_URL}
+          >
+            {getContent()}
+          </TextsConfig>
         </ComponentsConfig>
       </div>
     </I18nProvider>

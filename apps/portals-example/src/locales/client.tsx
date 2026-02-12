@@ -7,6 +7,12 @@ export const { useI18n, I18nProviderClient, useCurrentLocale } =
   createI18nClient({
     en: () => import('./en/common.json'),
   });
+
+export type I18nTranslateFn = (
+  key: string,
+  options?: Record<string, unknown>,
+) => string;
+
 interface Props {
   locale: string;
   children: ReactNode;
