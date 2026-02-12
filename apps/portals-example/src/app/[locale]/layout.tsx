@@ -41,7 +41,7 @@ export default async function LocaleLayout({
   const configuration = await getDeploymentConfiguration();
   let isAnyConversationAvailable = false;
 
-  if (!configuration.success || !configuration.data) {
+  if (!configuration.success) {
     try {
       const bucket = await dialApiClient.getRequest<{ bucket: string }>(
         DIAL_API_ROUTES.BUCKET,
@@ -54,7 +54,7 @@ export default async function LocaleLayout({
         locale,
       );
 
-      isAnyConversationAvailable = conversations.length === 0;
+      isAnyConversationAvailable = conversations.length > 0;
     } catch (error) {
       console.error('Error fetching conversations:', error);
     }
