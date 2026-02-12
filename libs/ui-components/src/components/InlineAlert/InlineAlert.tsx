@@ -28,6 +28,51 @@ const DEFAULT_VARIANTS: Record<InlineAlertVariant, string> = {
 const DEFAULT_ICON_CLASS = 'shrink-0';
 const DEFAULT_CONTENT_CLASS = 'min-w-0 body-2';
 
+/**
+ * InlineAlert displays inline status feedback such as informational messages,
+ * warnings, or errors. It supports theme-based customization via
+ * `InlineAlertProvider` and allows per-instance overrides.
+ *
+ * By default, the component applies base layout styles and variant-specific
+ * colors. Icons and classes can be customized globally through context
+ * or locally via props.
+ *
+ * @example
+ * Basic usage without provider
+ * ```tsx
+ * <InlineAlert variant={InlineAlertVariant.Error}>
+ *   The AI Assistant is unavailable.
+ * </InlineAlert>
+ * ```
+ *
+ * @example
+ * Usage with InlineAlertProvider customization
+ * ```tsx
+ * <InlineAlertProvider
+ *   value={{
+ *     icons: {
+ *       [InlineAlertVariant.Error]: <ErrorIcon />,
+ *     },
+ *     classes: {
+ *       base: 'border rounded-lg p-4',
+ *       variants: {
+ *         [InlineAlertVariant.Error]: 'bg-red-50 border-red-400',
+ *       },
+ *     },
+ *   }}
+ * >
+ *   <InlineAlert variant={InlineAlertVariant.Error}>
+ *     Something went wrong.
+ *   </InlineAlert>
+ * </InlineAlertProvider>
+ * ```
+ *
+ * @param variant - Visual intent of the alert (info, error, warning).
+ * @param icon - Optional icon element. Overrides provider-configured icon if supplied.
+ * @param children - Alert content rendered inside the message container.
+ * @param className - Additional classes applied to the root container.
+ * @param contentClassName - Additional classes applied to the content wrapper.
+ */
 export function InlineAlert({
   variant,
   icon,
