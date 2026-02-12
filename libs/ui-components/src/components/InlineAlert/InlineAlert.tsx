@@ -13,7 +13,7 @@ export interface InlineAlertProps {
   contentClassName?: string;
 }
 
-const DEFAULT_BASE =
+const DEFAULT_CONTAINER =
   'flex items-start gap-2 min-w-0 border-l-2 rounded py-2 px-4 items-center';
 
 const DEFAULT_VARIANTS: Record<InlineAlertVariant, string> = {
@@ -54,7 +54,7 @@ const DEFAULT_CONTENT_CLASS = 'min-w-0 body-2';
  *       [InlineAlertVariant.Error]: <ErrorIcon />,
  *     },
  *     classes: {
- *       base: 'border rounded-lg p-4',
+ *       container: 'border rounded-lg p-4',
  *       variants: {
  *         [InlineAlertVariant.Error]: 'bg-red-50 border-red-400',
  *       },
@@ -83,11 +83,11 @@ export function InlineAlert({
   const cfg = useInlineAlertConfig();
 
   const resolvedIcon = icon ?? cfg?.icons?.[variant];
-  const base = cfg?.classes?.base ?? DEFAULT_BASE;
+  const containerBase = cfg?.classes?.container ?? DEFAULT_CONTAINER;
   const variantClass =
     cfg?.classes?.variants?.[variant] ?? DEFAULT_VARIANTS[variant];
 
-  const container = mergeClasses(base, variantClass, className);
+  const containerClass = mergeClasses(containerBase, variantClass, className);
   const iconClass = mergeClasses(DEFAULT_ICON_CLASS, cfg?.classes?.icon);
   const contentClass = mergeClasses(
     DEFAULT_CONTENT_CLASS,
@@ -96,7 +96,7 @@ export function InlineAlert({
   );
 
   return (
-    <div data-variant={variant} className={container}>
+    <div data-variant={variant} className={containerClass}>
       {resolvedIcon ? <span className={iconClass}>{resolvedIcon}</span> : null}
       {children ? <div className={contentClass}>{children}</div> : null}
     </div>

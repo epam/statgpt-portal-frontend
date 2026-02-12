@@ -85,7 +85,7 @@ describe('InlineAlert', () => {
       <InlineAlertProvider
         value={{
           classes: {
-            base: 'p-4 gap-3',
+            container: 'p-4 gap-3',
             variants: {
               [InlineAlertVariant.Info]: 'bg-blue-50',
             },

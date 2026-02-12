@@ -18,7 +18,7 @@ export interface InlineAlertConfig {
 }
 
 export interface InlineAlertClassesConfig {
-  base?: string;
+  container?: string;
   variants?: Partial<Record<InlineAlertVariant, string>>;
   icon?: string;
   content?: string;
