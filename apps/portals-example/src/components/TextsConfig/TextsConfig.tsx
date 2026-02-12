@@ -20,9 +20,6 @@ export const TextsConfig = ({
   const assistantUnavailable = useMemo(() => {
     const href = clientContactSupportUrl || '#';
 
-    const linkText =
-      t(StatusMessagesI18nKeys.CONTACT_SUPPORT) ?? 'contact Support';
-
     return t(StatusMessagesI18nKeys.AGENT_UNAVAILABLE_ALERT, {
       link: (
         <a
@@ -31,7 +28,7 @@ export const TextsConfig = ({
           target="_blank"
           rel="noopener noreferrer"
         >
-          {linkText}
+          {t(StatusMessagesI18nKeys.CONTACT_SUPPORT)}
         </a>
       ),
     });
