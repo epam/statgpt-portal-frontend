@@ -3,7 +3,11 @@
 import { Button } from '@epam/statgpt-ui-components';
 import { signOut } from 'next-auth/react';
 import { TranslateI18nFn, useI18n } from '../locales/client';
-import { I18nKeys, StatusMessagesI18nKeys } from '../constants/i18n-keys';
+import {
+  AuthI18nKeys,
+  I18nKeys,
+  StatusMessagesI18nKeys,
+} from '../constants/i18n-keys';
 import LogoIcon from '../../public/images/logo.svg';
 
 export const NoAccessView = ({
@@ -51,7 +55,7 @@ export const NoAccessView = ({
           </p>
           <Button
             buttonClassName="text-button-secondary w-fit !py-[14px] !px-[45px]"
-            title="Log out"
+            title={t(AuthI18nKeys.SIGN_OUT)}
             onClick={() => signOut()}
           />
         </div>
