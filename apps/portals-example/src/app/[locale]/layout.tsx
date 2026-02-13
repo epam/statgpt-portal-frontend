@@ -32,11 +32,12 @@ export default async function LocaleLayout({
   const isEnableAuth = getIsEnableAuthToggle();
   const token = await getUserToken(isEnableAuth, headers(), cookies());
   const isInvalidSession = await getIsInvalidSession(isEnableAuth, token);
-  const locale = (await params).locale;
 
   if (isInvalidSession) {
     return redirect(SIGN_IN_LINK);
   }
+
+  const { locale } = await params;
 
   const configuration = await getDeploymentConfiguration();
   let isAnyConversationAvailable = false;
