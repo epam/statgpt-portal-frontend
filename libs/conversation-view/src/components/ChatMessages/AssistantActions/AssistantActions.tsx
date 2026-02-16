@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { FC, useState } from 'react';
 import { MessageActionIcons } from '../../../models/message';
 import { LikeState } from '@epam/ai-dial-shared';
+import { useAgentAvailability } from '@epam/statgpt-ui-components';
 
 interface Props {
   message: MessageType;
@@ -29,6 +30,7 @@ export const AssistantActionsPanel: FC<Props> = ({
   const [rate, setRate] = useState<LikeState>(
     message.like ?? LikeState.NoState,
   );
+  const { isAgentAvailable } = useAgentAvailability();
 
   const handleRateResponse = (rate: LikeState) => {
     if (message.responseId) {
@@ -46,9 +48,14 @@ export const AssistantActionsPanel: FC<Props> = ({
       )}
       {regenerate && !isReadOnly && !isStreaming && (
         <p
-          onClick={() => {
-            regenerateMessage?.(message);
-          }}
+          onClick={
+            isAgentAvailable ? () => regenerateMessage?.(message) : undefined
+          }
+          aria-disabled={!isAgentAvailable}
+          className={classNames(
+            !isAgentAvailable &&
+              'opacity-50 !cursor-not-allowed pointer-events-none',
+          )}
         >
           {regenerate}
         </p>

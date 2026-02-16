@@ -13,6 +13,14 @@ import { getIsInvalidSession } from '../../utils/auth/is-valid-session';
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ReactNode } from 'react';
+import { getDeploymentConfiguration } from '../actions/configuration';
+import { DeploymentConfigProvider } from '../../context/DeploymentConfigProvider';
+import { conversationApi, dialApiClient } from '../api/api';
+import { DIAL_API_ROUTES } from '@epam/statgpt-dial-toolkit';
+import { NoAccessView } from '../../components/NoAccessView';
+import { ComponentsConfig } from '../../components/configs/ComponentsConfig/ComponentsConfig';
+import { TextsConfig } from '../../components/configs/TextsConfig/TextsConfig';
+import { ClientProvidersWrapper } from '../../components/ClientProvidersWrapper/ClientProvidersWrapper';
 
 export default async function LocaleLayout({
   children,
@@ -28,19 +36,64 @@ export default async function LocaleLayout({
   if (isInvalidSession) {
     return redirect(SIGN_IN_LINK);
   }
+
+  const { locale } = await params;
+
+  const configuration = await getDeploymentConfiguration();
+  let isAnyConversationAvailable = false;
+
+  if (!configuration.success) {
+    try {
+      const bucket = await dialApiClient.getRequest<{ bucket: string }>(
+        DIAL_API_ROUTES.BUCKET,
+        token?.access_token as string,
+      );
+
+      const conversations = await conversationApi.getConversations(
+        token?.access_token as string,
+        bucket.bucket,
+        locale,
+      );
+
+      isAnyConversationAvailable = conversations.length > 0;
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+    }
+  }
+
+  const clientContactSupportUrl = process.env.CLIENT_CONTACT_SUPPORT_URL;
+
+  const getContent = () => {
+    if (!configuration.success && !isAnyConversationAvailable) {
+      return <NoAccessView clientContactSupportUrl={clientContactSupportUrl} />;
+    }
+
+    return (
+      <DeploymentConfigProvider config={configuration.data}>
+        <ClientProvidersWrapper isAgentAvailable={configuration.success}>
+          <OnboardingProvider>
+            <AdvancedViewProvider>
+              <ConversationListProvider>
+                <ChatMessagesProvider>
+                  <ConversationListWrapper />
+                  <main className="flex-1 h-full min-w-0">{children}</main>
+                </ChatMessagesProvider>
+              </ConversationListProvider>
+            </AdvancedViewProvider>
+          </OnboardingProvider>
+        </ClientProvidersWrapper>
+      </DeploymentConfigProvider>
+    );
+  };
+
   return (
-    <I18nProvider locale={(await params).locale}>
+    <I18nProvider locale={locale}>
       <div className="flex h-full flex-row w-full main-layout">
-        <OnboardingProvider>
-          <AdvancedViewProvider>
-            <ConversationListProvider>
-              <ChatMessagesProvider>
-                <ConversationListWrapper />
-                <main className="flex-1 h-full min-w-0">{children}</main>
-              </ChatMessagesProvider>
-            </ConversationListProvider>
-          </AdvancedViewProvider>
-        </OnboardingProvider>
+        <ComponentsConfig>
+          <TextsConfig clientContactSupportUrl={clientContactSupportUrl}>
+            {getContent()}
+          </TextsConfig>
+        </ComponentsConfig>
       </div>
     </I18nProvider>
   );

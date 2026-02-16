@@ -1,6 +1,5 @@
 'use client';
 
-import { FormSchemaButtonOption } from '@epam/ai-dial-shared';
 import {
   ConversationWelcome,
   ConversationViewTitles,
@@ -14,7 +13,7 @@ import {
 import { getSharedConversationsApi } from '../../app/api/share/client';
 import { ApplicationRoute } from '../../types/application-routes';
 import { useRouter } from 'next/navigation';
-import { FC, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useConversationList } from '../../context/ConversationListContext';
 import { IconSend } from '@tabler/icons-react';
 import {
@@ -30,17 +29,14 @@ import {
 } from '../../constants/i18n-keys';
 import { SIGN_IN_LINK } from '../../constants/auth';
 import { wrapWithAuthHandler } from '../../utils/auth/requests-wrapper';
+import { useDeploymentConfig } from '../../context/DeploymentConfigProvider';
 
-interface Props {
-  suggestionsList: FormSchemaButtonOption[];
-  welcomeText: string;
-}
-
-const WelcomeView: FC<Props> = ({ suggestionsList, welcomeText }) => {
+const WelcomeView = () => {
   const t = useI18n();
   const router = useRouter();
   const { setConversations, setSharedConversations } = useConversationList();
   const locale = useCurrentLocale();
+  const { suggestionsList, welcomeText } = useDeploymentConfig();
 
   const authHandler = useCallback(
     function <Args extends any[], T>(

@@ -17,7 +17,12 @@ import {
   ShareTarget,
 } from '@epam/statgpt-dial-toolkit';
 import { cleanConversationNames } from '@epam/statgpt-shared-toolkit';
-import { Loader } from '@epam/statgpt-ui-components';
+import {
+  InlineAlert,
+  InlineAlertType,
+  Loader,
+  useAgentAvailability,
+} from '@epam/statgpt-ui-components';
 import { Tag } from '@epam/statgpt-ui-components';
 import { transformSharedConversations } from '@epam/statgpt-conversation-list';
 import { getCreateConversationRequest } from '../../utils/conversation-request';
@@ -29,6 +34,7 @@ import { ChatOnboardingFooter } from '../ChatOnboardingFooter/ChatOnboardingFoot
 import { useOnboarding } from '../../context/OnboardingContext';
 import { PutOnboardingFile } from '../../types/actions';
 import { ChatFooter } from '../ChatFooter/ChatFooter';
+import { useConversationViewMessages } from '../../context/ConversationViewMessagesContext';
 
 interface ConversationListActions {
   getBucket: () => Promise<{ bucket: string }>;
@@ -86,6 +92,9 @@ export const ConversationWelcome: FC<Props> = ({
     setIsShowOnboarding,
     setOnboardingFileSchema,
   } = useOnboarding();
+
+  const { isAgentAvailable } = useAgentAvailability();
+  const { statusMessages } = useConversationViewMessages();
 
   useEffect(() => {
     const loadData = async () => {
@@ -213,6 +222,50 @@ export const ConversationWelcome: FC<Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bucket, prompt]);
 
+  const getContent = () => {
+    if (!isAgentAvailable) {
+      return (
+        <InlineAlert type={InlineAlertType.Error}>
+          {statusMessages.assistantUnavailable}
+        </InlineAlert>
+      );
+    }
+
+    return (
+      <>
+        <InputForAsk
+          containerClasses={classNames(
+            inputMessageStyles.inputContainerClass,
+            isBottomInputPosition && 'order-3 mt-auto',
+          )}
+          inputClasses="mr-2"
+          placeholder={titles?.askAnything ?? 'Ask anything...'}
+          sendMessageIcon={inputMessageStyles.sendMessageIcon}
+          onSendMessage={createConversation}
+        />
+        <div className="max-w-full overflow-x-auto no-scrollbar">
+          <div
+            className={classNames(
+              'flex flex-wrap justify-center gap-2 sm:flex-nowrap',
+              'tags-container',
+            )}
+          >
+            {suggestionsList.map((item) => (
+              <Tag
+                key={item.title}
+                title={item.title}
+                text={
+                  item[DialSchemaProperties.DialWidgetOptions]?.populateText
+                }
+                onClick={createConversation}
+              />
+            ))}
+          </div>
+        </div>
+      </>
+    );
+  };
+
   return (
     <div className="flex flex-col h-full w-full">
       {prompt || isCreatingConversation ? (
@@ -242,35 +295,7 @@ export const ConversationWelcome: FC<Props> = ({
               {welcomeText ?? titles?.welcomeTitle ?? 'How can I help you?'}
             </h1>
           </div>
-          <InputForAsk
-            containerClasses={classNames(
-              inputMessageStyles.inputContainerClass,
-              isBottomInputPosition && 'order-3 mt-auto',
-            )}
-            inputClasses="mr-2"
-            placeholder={titles?.askAnything ?? 'Ask anything...'}
-            sendMessageIcon={inputMessageStyles.sendMessageIcon}
-            onSendMessage={createConversation}
-          />
-          <div className="max-w-full overflow-x-auto no-scrollbar">
-            <div
-              className={classNames(
-                'flex flex-wrap justify-center gap-2 sm:flex-nowrap',
-                'tags-container',
-              )}
-            >
-              {suggestionsList.map((item) => (
-                <Tag
-                  key={item.title}
-                  title={item.title}
-                  text={
-                    item[DialSchemaProperties.DialWidgetOptions]?.populateText
-                  }
-                  onClick={createConversation}
-                />
-              ))}
-            </div>
-          </div>
+          {getContent()}
         </div>
       )}
       {isShowOnboarding && (
