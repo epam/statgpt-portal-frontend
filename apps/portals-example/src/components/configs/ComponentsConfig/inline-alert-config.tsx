@@ -1,8 +1,8 @@
 import { InlineAlertConfig } from '@epam/statgpt-ui-components';
 
-import ErrorIcon from '../../../public/images/statuses/error.svg';
-import WarningIcon from '../../../public/images/statuses/warning.svg';
-import InfoIcon from '../../../public/images/statuses/info.svg';
+import ErrorIcon from '../../../../public/images/statuses/error.svg';
+import WarningIcon from '../../../../public/images/statuses/warning.svg';
+import InfoIcon from '../../../../public/images/statuses/info.svg';
 
 export const InlineAlertCustomConfig: InlineAlertConfig = {
   icons: {

@@ -5,8 +5,8 @@ import {
   ConversationViewMessagesProvider,
 } from '@epam/statgpt-conversation-view';
 import { ReactNode, useMemo } from 'react';
-import { TranslateI18nFn, useI18n } from '../../locales/client';
-import { StatusMessagesI18nKeys } from '../../constants/i18n-keys';
+import { TranslateI18nFn, useI18n } from '../../../locales/client';
+import { StatusMessagesI18nKeys } from '../../../constants/i18n-keys';
 
 export const TextsConfig = ({
   children,

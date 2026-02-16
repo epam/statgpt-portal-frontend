@@ -18,8 +18,8 @@ import { DeploymentConfigProvider } from '../../context/DeploymentConfigProvider
 import { conversationApi, dialApiClient } from '../api/api';
 import { DIAL_API_ROUTES } from '@epam/statgpt-dial-toolkit';
 import { NoAccessView } from '../../components/NoAccessView';
-import { ComponentsConfig } from '../../components/ComponentsConfig/ComponentsConfig';
-import { TextsConfig } from '../../components/TextsConfig/TextsConfig';
+import { ComponentsConfig } from '../../components/configs/ComponentsConfig/ComponentsConfig';
+import { TextsConfig } from '../../components/configs/TextsConfig/TextsConfig';
 import { ClientProvidersWrapper } from '../../components/ClientProvidersWrapper/ClientProvidersWrapper';
 
 export default async function LocaleLayout({
