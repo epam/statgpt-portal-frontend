@@ -6,7 +6,11 @@ export {
   ChatMessagesProvider,
   useChatMessages,
 } from './context/ChatMessagesContext';
-
+export {
+  ConversationViewMessagesProvider,
+  useConversationViewMessages,
+} from './context/ConversationViewMessagesContext';
+export type { ConversationViewMessages } from './types/texts';
 export { OnboardingProvider, useOnboarding } from './context/OnboardingContext';
 export * from './models/actions';
 export * from './models/titles';
