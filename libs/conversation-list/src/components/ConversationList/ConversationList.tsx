@@ -48,6 +48,7 @@ interface Props {
   actions: ConversationListActions;
   children?: ReactNode;
   isCollapsed: boolean;
+  isStreaming?: boolean;
   locale: string;
   conversationStyles: ConversationStyles;
   conversations: ConversationInfo[];
@@ -65,6 +66,7 @@ export const ConversationList: FC<Props> = ({
   actions,
   children,
   isCollapsed,
+  isStreaming,
   conversationStyles,
   conversations,
   locale,
@@ -262,6 +264,7 @@ export const ConversationList: FC<Props> = ({
                   conversations?.length > 0 && (
                     <ConversationsGroup
                       locale={locale}
+                      isDisabled={isStreaming}
                       key={groupLabel}
                       groupLabel={groupLabel}
                       conversationStyles={conversationStyles}

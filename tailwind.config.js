@@ -46,6 +46,7 @@ module.exports = {
         },
         semantic: {
           error: 'var(--semantic-error, #D6323E)',
+          'error-light': 'var(--semantic-error-light, #FBEAEC)',
           warning: 'var(--semantic-warning, #D4C000)',
           'warning-light': 'var(--semantic-warning-light, #FBF9E5)',
           success: 'var(--semantic-success, #00CC6F)',

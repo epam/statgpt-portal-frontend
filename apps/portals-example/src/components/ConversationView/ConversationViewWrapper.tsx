@@ -20,7 +20,7 @@ import { formatNumbers } from '../../constants/format-numbers';
 import { SHARE_CONVERSATION_PROPS } from '../../constants/share-conversation';
 import { ApplicationRoute } from '../../types/application-routes';
 import Dataset from '../../../public/images/chat/data-set.svg';
-import { useI18n } from '../../locales/client';
+import { TranslateI18nFn, useI18n } from '../../locales/client';
 import {
   AdvancedViewI18nKeys,
   AppI18nKeys,
@@ -46,7 +46,7 @@ import { getBucketApi } from '../../app/api/bucket/client';
 import { getDataSetApi, getDataSetDataApi } from '../../app/api/dataset/client';
 import { rateResponseApi } from '../../app/api/rate/client';
 import AdvancedModeIcon from '../../../public/images/advanced-mode.svg';
-import WarningIcon from '../../../public/images/warning.svg';
+import WarningIcon from '../../../public/images/statuses/warning.svg';
 import UnfoldIcon from '../../../public/images/unfold.svg';
 import DownloadIcon from '../../../public/images/chat/download.svg';
 import SuccessIcon from '../../../public/images/chat/success.svg';
@@ -114,10 +114,7 @@ const ConversationViewWrapper: FC<Props> = ({
     [ChartingIcon.PREVIOUS]: <ChevronLeft width={20} height={20} />,
   };
 
-  const t = useI18n() as (
-    key: string,
-    options?: Record<string, number>,
-  ) => string;
+  const t = useI18n() as TranslateI18nFn;
 
   const conversationKey = useMemo(
     () => `${bucketId}/${locale}/${conversationId}`,

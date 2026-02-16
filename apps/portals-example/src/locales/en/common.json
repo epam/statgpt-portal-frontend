@@ -94,7 +94,8 @@
     "send": "Submit",
     "rename": "Rename",
     "renameTitle": "Rename conversation",
-    "save": "Save"
+    "save": "Save",
+    "noActionsAllowed": "You can't leave the chat while the AI is generating a response"
   },
   "attachments": {
     "download": "Download",
@@ -124,12 +125,10 @@
     "lastWeek": "Last 7 days",
     "earlier": "Earlier"
   },
-
   "welcome": {
     "title": "How can I help you?",
     "askAnything": "Ask anything..."
   },
-
   "download": {
     "download": "Download",
     "downloadType": "Download type",
@@ -156,5 +155,13 @@
     "popupText": "Are you sure you want to log out of your account?",
     "popupApply": "Log out",
     "popupCancel": "Cancel"
+  },
+  "statusMessages": {
+    "agentUnavailable": {
+      "title": "No access to AI assistant",
+      "text": "To get an access {link}.",
+      "alert": "The AI Assistant is unavailable. To gain access, please {link}."
+    },
+    "contactSupport": "contact Support"
   }
 }

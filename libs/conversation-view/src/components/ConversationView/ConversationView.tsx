@@ -65,7 +65,14 @@ import {
   DataQuery,
   FormatNumbersType,
 } from '@epam/statgpt-shared-toolkit';
-import { Button, Loader, LimitMessages } from '@epam/statgpt-ui-components';
+import {
+  Button,
+  Loader,
+  LimitMessages,
+  InlineAlert,
+  InlineAlertType,
+  useAgentAvailability,
+} from '@epam/statgpt-ui-components';
 import { MetadataSettings } from '../../models/metadata';
 import { ConversationViewTitles } from '../../models/titles';
 import { getRedirectConversationPath } from '../../utils/get-conversation-path';
@@ -73,10 +80,12 @@ import { generateConversation } from '../../utils/generate-conversation';
 
 import { ABORT_ERROR } from '../../constants/errors';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { useChatMessages } from '../../context/ChatMessagesContext';
 import { OnboardingElements } from '../../constants/onboarding-elements';
 import { getOnboardingInfoForAdvancedView } from '../../utils/get-tooltip-data.by-element';
 import { AttachmentsConfig } from '../../models/attachments';
 import { merge } from 'lodash';
+import { useConversationViewMessages } from '../../context/ConversationViewMessagesContext';
 
 interface Props {
   conversationKey: string;
@@ -141,8 +150,12 @@ export const ConversationView: FC<Props> = ({
     useState<AbortController | null>(null);
   const [isReadonlyConversation, setIsReadonlyConversation] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isStreaming, setIsStreaming] = useState(false);
+  const { isStreaming, setIsStreaming } = useChatMessages();
   const { isOpenedAdvancedView } = useAdvancedView();
+
+  const { isAgentAvailable } = useAgentAvailability();
+  const { statusMessages } = useConversationViewMessages();
+
   const {
     onboardingFileSchema,
     onboardingFilePath,
@@ -484,6 +497,7 @@ export const ConversationView: FC<Props> = ({
     },
     [
       isStreaming,
+      setIsStreaming,
       addUserMessageToConversation,
       initializeAssistantMessage,
       handleStreamingResponse,
@@ -527,6 +541,7 @@ export const ConversationView: FC<Props> = ({
       }
     },
     [
+      setIsStreaming,
       finalizeConversation,
       handleStreamingProcessError,
       handleStreamingResponse,
@@ -634,6 +649,30 @@ export const ConversationView: FC<Props> = ({
     return <Loader />;
   }
 
+  const getInput = () => {
+    if (!isAgentAvailable) {
+      return (
+        <InlineAlert type={InlineAlertType.Error}>
+          {statusMessages.assistantUnavailable}
+        </InlineAlert>
+      );
+    }
+
+    return (
+      <InputForAsk
+        onSendMessage={(message) =>
+          sendMessageToConversation(message, conversation)
+        }
+        onStopStreaming={onStopStreaming}
+        inProcess={isStreaming}
+        sendMessageIcon={inputMessageStyles.sendMessageIcon}
+        placeholder={titles?.askAnything ?? 'Ask anything...'}
+        containerClasses="mt-4"
+        inputClasses="border-neutrals-600 mr-2"
+      />
+    );
+  };
+
   return (
     <div
       className={classNames(
@@ -693,17 +732,7 @@ export const ConversationView: FC<Props> = ({
       </div>
       {isShowOnboarding ? null : !isReadonlyConversation ? (
         <div className={classNames(inputMessageStyles.inputContainerClass)}>
-          <InputForAsk
-            onSendMessage={(message) =>
-              sendMessageToConversation(message, conversation)
-            }
-            onStopStreaming={onStopStreaming}
-            inProcess={isStreaming}
-            sendMessageIcon={inputMessageStyles.sendMessageIcon}
-            placeholder={titles?.askAnything ?? 'Ask anything...'}
-            containerClasses="mt-4"
-            inputClasses="border-neutrals-600 mr-2"
-          />
+          {getInput()}
         </div>
       ) : (
         <div className="flex items-center justify-center mt-4">
