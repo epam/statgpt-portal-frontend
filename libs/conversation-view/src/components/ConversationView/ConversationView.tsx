@@ -70,7 +70,7 @@ import {
   Loader,
   LimitMessages,
   InlineAlert,
-  InlineAlertVariant,
+  InlineAlertType,
   useAgentAvailability,
 } from '@epam/statgpt-ui-components';
 import { MetadataSettings } from '../../models/metadata';
@@ -652,7 +652,7 @@ export const ConversationView: FC<Props> = ({
   const getInput = () => {
     if (!isAgentAvailable) {
       return (
-        <InlineAlert variant={InlineAlertVariant.Error}>
+        <InlineAlert type={InlineAlertType.Error}>
           {statusMessages.assistantUnavailable}
         </InlineAlert>
       );

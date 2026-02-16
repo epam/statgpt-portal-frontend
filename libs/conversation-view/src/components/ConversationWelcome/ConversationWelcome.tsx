@@ -19,7 +19,7 @@ import {
 import { cleanConversationNames } from '@epam/statgpt-shared-toolkit';
 import {
   InlineAlert,
-  InlineAlertVariant,
+  InlineAlertType,
   Loader,
   useAgentAvailability,
 } from '@epam/statgpt-ui-components';
@@ -225,7 +225,7 @@ export const ConversationWelcome: FC<Props> = ({
   const getContent = () => {
     if (!isAgentAvailable) {
       return (
-        <InlineAlert variant={InlineAlertVariant.Error}>
+        <InlineAlert type={InlineAlertType.Error}>
           {statusMessages.assistantUnavailable}
         </InlineAlert>
       );

@@ -1,15 +1,15 @@
 import { ReactNode } from 'react';
 
-export enum InlineAlertVariant {
+export enum InlineAlertType {
   Info = 'info',
   Error = 'error',
   Warning = 'warning',
 }
 
 export interface InlineAlertIconsConfig {
-  [InlineAlertVariant.Info]?: ReactNode;
-  [InlineAlertVariant.Error]?: ReactNode;
-  [InlineAlertVariant.Warning]?: ReactNode;
+  [InlineAlertType.Info]?: ReactNode;
+  [InlineAlertType.Error]?: ReactNode;
+  [InlineAlertType.Warning]?: ReactNode;
 }
 
 export interface InlineAlertConfig {
@@ -19,7 +19,7 @@ export interface InlineAlertConfig {
 
 export interface InlineAlertClassesConfig {
   container?: string;
-  variants?: Partial<Record<InlineAlertVariant, string>>;
+  types?: Partial<Record<InlineAlertType, string>>;
   icon?: string;
   content?: string;
 }

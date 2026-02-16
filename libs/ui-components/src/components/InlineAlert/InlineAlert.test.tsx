@@ -2,37 +2,35 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { InlineAlert } from './InlineAlert';
 import { InlineAlertProvider } from './InlineAlertContext';
-import { InlineAlertVariant } from './types';
+import { InlineAlertType } from './types';
 
 describe('InlineAlert', () => {
   it('renders children', () => {
-    render(<InlineAlert variant={InlineAlertVariant.Info}>Hello</InlineAlert>);
+    render(<InlineAlert type={InlineAlertType.Info}>Hello</InlineAlert>);
 
     expect(screen.getByText('Hello')).toBeTruthy();
   });
 
   it('does not render content wrapper when children is not provided', () => {
-    const { container } = render(
-      <InlineAlert variant={InlineAlertVariant.Info} />,
-    );
+    const { container } = render(<InlineAlert type={InlineAlertType.Info} />);
 
-    expect(container.querySelector('[data-variant="info"]')).toBeTruthy();
-    expect(container.querySelector('[data-variant="info"] > div')).toBeNull();
+    expect(container.querySelector('[data-type="info"]')).toBeTruthy();
+    expect(container.querySelector('[data-type="info"] > div')).toBeNull();
   });
 
-  it('sets data-variant attribute', () => {
+  it('sets data-type attribute', () => {
     const { container } = render(
-      <InlineAlert variant={InlineAlertVariant.Warning}>Test</InlineAlert>,
+      <InlineAlert type={InlineAlertType.Warning}>Test</InlineAlert>,
     );
 
-    const root = container.querySelector('[data-variant="warning"]');
+    const root = container.querySelector('[data-type="warning"]');
     expect(root).toBeTruthy();
   });
 
   it('renders icon prop when provided', () => {
     render(
       <InlineAlert
-        variant={InlineAlertVariant.Info}
+        type={InlineAlertType.Info}
         icon={<span data-testid="icon">I</span>}
       >
         Text
@@ -47,11 +45,11 @@ describe('InlineAlert', () => {
       <InlineAlertProvider
         value={{
           icons: {
-            [InlineAlertVariant.Error]: <span data-testid="cfg-icon">CFG</span>,
+            [InlineAlertType.Error]: <span data-testid="cfg-icon">CFG</span>,
           },
         }}
       >
-        <InlineAlert variant={InlineAlertVariant.Error}>Text</InlineAlert>
+        <InlineAlert type={InlineAlertType.Error}>Text</InlineAlert>
       </InlineAlertProvider>,
     );
 
@@ -63,12 +61,12 @@ describe('InlineAlert', () => {
       <InlineAlertProvider
         value={{
           icons: {
-            [InlineAlertVariant.Error]: <span data-testid="cfg-icon">CFG</span>,
+            [InlineAlertType.Error]: <span data-testid="cfg-icon">CFG</span>,
           },
         }}
       >
         <InlineAlert
-          variant={InlineAlertVariant.Error}
+          type={InlineAlertType.Error}
           icon={<span data-testid="prop-icon">PROP</span>}
         >
           Text
@@ -86,8 +84,8 @@ describe('InlineAlert', () => {
         value={{
           classes: {
             container: 'p-4 gap-3',
-            variants: {
-              [InlineAlertVariant.Info]: 'bg-blue-50',
+            types: {
+              [InlineAlertType.Info]: 'bg-blue-50',
             },
             icon: 'w-6',
             content: 'text-sm',
@@ -95,7 +93,7 @@ describe('InlineAlert', () => {
         }}
       >
         <InlineAlert
-          variant={InlineAlertVariant.Info}
+          type={InlineAlertType.Info}
           icon={<span data-testid="icon">I</span>}
           className="p-2"
           contentClassName="text-lg"
@@ -105,9 +103,7 @@ describe('InlineAlert', () => {
       </InlineAlertProvider>,
     );
 
-    const root = container.querySelector(
-      '[data-variant="info"]',
-    ) as HTMLElement;
+    const root = container.querySelector('[data-type="info"]') as HTMLElement;
     expect(root).toBeTruthy();
 
     expect(root.className).toContain('gap-3');
@@ -125,7 +121,7 @@ describe('InlineAlert', () => {
   it('InlineAlertProvider works with omitted value', () => {
     render(
       <InlineAlertProvider>
-        <InlineAlert variant={InlineAlertVariant.Info}>Text</InlineAlert>
+        <InlineAlert type={InlineAlertType.Info}>Text</InlineAlert>
       </InlineAlertProvider>,
     );
 
