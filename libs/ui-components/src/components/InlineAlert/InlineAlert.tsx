@@ -13,9 +13,6 @@ export interface InlineAlertProps {
   contentClassName?: string;
 }
 
-const DEFAULT_CONTAINER =
-  'flex items-start gap-2 min-w-0 border-l-2 rounded py-2 px-4 items-center';
-
 const DEFAULT_TYPES: Record<InlineAlertType, string> = {
   [InlineAlertType.Info]:
     'border-neutrals-800 bg-neutrals-300 text-neutrals-1000',
@@ -27,6 +24,8 @@ const DEFAULT_TYPES: Record<InlineAlertType, string> = {
 
 const DEFAULT_ICON_CLASS = 'shrink-0';
 const DEFAULT_CONTENT_CLASS = 'min-w-0 body-2';
+const DEFAULT_CONTAINER_CLASS =
+  'flex items-start gap-2 min-w-0 border-l-2 rounded py-2 px-4 items-center';
 
 /**
  * InlineAlert displays inline status feedback such as informational messages,
@@ -80,17 +79,17 @@ export function InlineAlert({
   className,
   contentClassName,
 }: InlineAlertProps) {
-  const cfg = useInlineAlertConfig();
+  const config = useInlineAlertConfig();
 
-  const resolvedIcon = icon ?? cfg?.icons?.[type];
-  const containerBase = cfg?.classes?.container ?? DEFAULT_CONTAINER;
-  const typeClass = cfg?.classes?.types?.[type] ?? DEFAULT_TYPES[type];
+  const resolvedIcon = icon ?? config?.icons?.[type];
+  const containerBase = config?.classes?.container ?? DEFAULT_CONTAINER_CLASS;
+  const typeClass = config?.classes?.types?.[type] ?? DEFAULT_TYPES[type];
 
   const containerClass = mergeClasses(containerBase, typeClass, className);
-  const iconClass = mergeClasses(DEFAULT_ICON_CLASS, cfg?.classes?.icon);
+  const iconClass = mergeClasses(DEFAULT_ICON_CLASS, config?.classes?.icon);
   const contentClass = mergeClasses(
     DEFAULT_CONTENT_CLASS,
-    cfg?.classes?.content,
+    config?.classes?.content,
     contentClassName,
   );
 
