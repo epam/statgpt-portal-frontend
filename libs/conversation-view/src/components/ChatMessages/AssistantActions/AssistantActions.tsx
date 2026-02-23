@@ -2,15 +2,18 @@ import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import classNames from 'classnames';
 import { FC, useState } from 'react';
 import { MessageActionIcons } from '../../../models/message';
+import { LikeState } from '@epam/ai-dial-shared';
+import { useAgentAvailability } from '@epam/statgpt-ui-components';
 
 interface Props {
   message: MessageType;
   regenerateMessage?: (message: MessageType) => void;
   messageActionsIcons?: MessageActionIcons;
-  rateResponse: (responseId: string, rate: boolean) => void;
+  rateResponse: (responseId: string, rate: LikeState) => void;
   isStreaming?: boolean;
   isReadOnly?: boolean;
 }
+
 export const AssistantActionsPanel: FC<Props> = ({
   message,
   regenerateMessage,
@@ -24,11 +27,14 @@ export const AssistantActionsPanel: FC<Props> = ({
   const thumbUp = messageActionsIcons?.thumbUp;
   const thumbDown = messageActionsIcons?.thumbDown;
   const thumbPressed = messageActionsIcons?.thumbPressed;
-  const [messageRate, setMessageRate] = useState<boolean | null>(null);
+  const [rate, setRate] = useState<LikeState>(
+    message.like ?? LikeState.NoState,
+  );
+  const { isAgentAvailable } = useAgentAvailability();
 
-  const handleRateResponse = (rate: boolean) => {
+  const handleRateResponse = (rate: LikeState) => {
     if (message.responseId) {
-      setMessageRate(rate);
+      setRate(rate);
       rateResponse(message.responseId || '', rate);
     }
   };
@@ -42,26 +48,33 @@ export const AssistantActionsPanel: FC<Props> = ({
       )}
       {regenerate && !isReadOnly && !isStreaming && (
         <p
-          onClick={() => {
-            regenerateMessage?.(message);
-          }}
+          onClick={
+            isAgentAvailable ? () => regenerateMessage?.(message) : undefined
+          }
+          aria-disabled={!isAgentAvailable}
+          className={classNames(
+            !isAgentAvailable &&
+              'opacity-50 !cursor-not-allowed pointer-events-none',
+          )}
         >
           {regenerate}
         </p>
       )}
       {thumbUp &&
         !isReadOnly &&
-        messageRate !== false &&
-        (messageRate === null ? (
-          <p onClick={() => handleRateResponse(true)}>{thumbUp}</p>
+        rate !== LikeState.Disliked &&
+        (rate === LikeState.NoState ? (
+          <p onClick={() => handleRateResponse(LikeState.Liked)}>{thumbUp}</p>
         ) : (
           <p>{thumbPressed}</p>
         ))}
       {thumbDown &&
         !isReadOnly &&
-        messageRate !== true &&
-        (messageRate === null ? (
-          <p onClick={() => handleRateResponse(false)}>{thumbDown}</p>
+        rate !== LikeState.Liked &&
+        (rate === LikeState.NoState ? (
+          <p onClick={() => handleRateResponse(LikeState.Disliked)}>
+            {thumbDown}
+          </p>
         ) : (
           <p className="rotate-180">{thumbPressed}</p>
         ))}

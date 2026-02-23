@@ -16,3 +16,7 @@ export enum AuthUiMode {
   Tab = 'tab',
   SameWindow = 'sameWindow',
 }
+
+export interface AuthParams {
+  token: JWT;
+}

@@ -23,6 +23,7 @@ interface Props {
   conversationStyles: ConversationStyles;
   actions: ConversationListActions;
   locale: string;
+  isDisabled?: boolean;
   shareConversationProps?: ShareConversationProps;
   handleConversationClick: (folder: string, conversationId: string) => void;
 }
@@ -36,6 +37,7 @@ const ConversationsGroup: FC<Props> = ({
   groupedConversations,
   shareConversationProps,
   locale,
+  isDisabled,
 }) => {
   const [isGroupCollapsed, setIsGroupCollapsed] = useState<boolean>(false);
 
@@ -70,6 +72,7 @@ const ConversationsGroup: FC<Props> = ({
             (conversation) => (
               <ConversationItem
                 locale={locale}
+                isDisabled={isDisabled}
                 key={conversation.id || conversation.name}
                 conversationStyles={conversationStyles}
                 conversation={conversation}

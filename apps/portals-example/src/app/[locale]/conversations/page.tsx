@@ -1,8 +1,5 @@
-import { FormSchemaButtonOption } from '@epam/ai-dial-shared';
 import Footer from '../../../components/Footer/Footer';
 import WelcomeView from '../../../components/WelcomeView/WelcomeView';
-import { apiLogger } from '../../../core/logger';
-import { getDeploymentConfiguration } from '../../actions/configuration';
 import { SIGN_IN_LINK } from '../../../constants/auth';
 import { getUserToken } from '../../../utils/auth/auth-request';
 import { getIsEnableAuthToggle } from '../../../utils/auth/get-auth-toggle';
@@ -21,24 +18,10 @@ export default async function Page() {
     return redirect(SIGN_IN_LINK);
   }
 
-  let suggestionsList: FormSchemaButtonOption[] = [];
-  let welcomeText = '';
-
-  try {
-    const configuration = await getDeploymentConfiguration();
-    suggestionsList = configuration.suggestionsList;
-    welcomeText = configuration.welcomeText;
-  } catch (error) {
-    apiLogger.error(`Failed to fetch deployment configuration: ${error}`);
-  }
-
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 min-h-0">
-        <WelcomeView
-          suggestionsList={suggestionsList}
-          welcomeText={welcomeText}
-        />
+        <WelcomeView />
       </div>
       <Footer />
     </div>

@@ -2,6 +2,7 @@ import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import classNames from 'classnames';
 import { FC } from 'react';
 import { MessageActionIcons } from '../../../models/message';
+import { useAgentAvailability } from '@epam/statgpt-ui-components';
 
 interface Props {
   message: MessageType;
@@ -19,6 +20,7 @@ export const RequestActionsPanel: FC<Props> = ({
 }) => {
   const copy = messageActionsIcons?.copy;
   const regenerate = messageActionsIcons?.edit;
+  const { isAgentAvailable } = useAgentAvailability();
 
   return (
     <div className={classNames('message-actions', 'flex gap-x-2 pt-2 ml-12')}>
@@ -28,7 +30,16 @@ export const RequestActionsPanel: FC<Props> = ({
         </p>
       )}
       {regenerate && !isStreaming && !isReadOnly && (
-        <p onClick={onEditClick}>{regenerate}</p>
+        <p
+          onClick={isAgentAvailable ? onEditClick : undefined}
+          className={classNames(
+            !isAgentAvailable &&
+              'opacity-50 !cursor-not-allowed pointer-events-none',
+          )}
+          aria-disabled={!isAgentAvailable}
+        >
+          {regenerate}
+        </p>
       )}
     </div>
   );

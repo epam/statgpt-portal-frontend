@@ -11,7 +11,10 @@ import {
   User,
 } from '@epam/statgpt-conversation-list';
 import MessageIcon from '../../../public/images/message-dots.svg';
-import { useAdvancedView } from '@epam/statgpt-conversation-view';
+import {
+  useAdvancedView,
+  useChatMessages,
+} from '@epam/statgpt-conversation-view';
 import Logo from '../../../public/images/logo.svg';
 import Collapse from '../../../public/images/menu/collapse.svg';
 import Share from '../../../public/images/chat/share.svg';
@@ -22,14 +25,14 @@ import Rename from '../../../public/images/chat/rename.svg';
 import SignOut from '../../../public/images/sign-out.svg';
 
 import { SHARE_CONVERSATION_PROPS } from '../../constants/share-conversation';
-import { getFileBlob } from '../../app/actions/attachments';
+import { getFileBlobApi } from '../../app/api/files/client';
 import {
-  deleteConversation,
-  getConversations,
-  getConversation,
-  getSharedConversations,
-  renameConversation,
-} from '../../app/actions/conversations';
+  deleteConversationApi,
+  getConversationsApi,
+  getConversationApi,
+  renameConversationApi,
+} from '../../app/api/conversations/client';
+import { getSharedConversationsApi } from '../../app/api/share/client';
 import { ApplicationRoute } from '../../types/application-routes';
 import { useCurrentLocale, useI18n } from '../../locales/client';
 import {
@@ -68,6 +71,7 @@ const ConversationListWrapper = () => {
   } = useConversationList();
   const locale = useCurrentLocale();
   const { data: session } = useSession();
+  const { isStreaming } = useChatMessages();
 
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -84,14 +88,14 @@ const ConversationListWrapper = () => {
 
   const actions = useMemo(
     () => ({
-      getConversations: authHandler(getConversations),
-      getSharedConversations: authHandler(getSharedConversations),
-      deleteConversation: authHandler(deleteConversation),
-      getConversation: authHandler(getConversation),
-      getFileBlob: authHandler(getFileBlob),
+      getConversations: authHandler(getConversationsApi),
+      getSharedConversations: authHandler(getSharedConversationsApi),
+      deleteConversation: authHandler(deleteConversationApi),
+      getConversation: authHandler(getConversationApi),
+      getFileBlob: authHandler(getFileBlobApi),
       renameConversation: authHandler(
         (source: string, destination: string): any => {
-          renameConversation(source, destination).then(() =>
+          renameConversationApi(source, destination).then(() =>
             router.push(`/${destination.replace(locale, '')}`),
           );
         },
@@ -102,6 +106,7 @@ const ConversationListWrapper = () => {
 
   const titles: ConversationListTitles = {
     noConversation: t(ConversationI18nKeys.NO_CONVERSATIONS),
+    noActionsAllowed: t(ConversationI18nKeys.NO_ACTIONS_ALLOWED),
     clickNewChat: t(ConversationI18nKeys.CLICK_NEW_CHAT),
     allChats: t(ConversationI18nKeys.ALL_CHATS),
     share: t(ChatI18nKeys.SHARE),
@@ -135,7 +140,7 @@ const ConversationListWrapper = () => {
         setIsOpenedAdvancedView(false);
       }
       const navPath = getConversationNavPath(folderId, conversationKey);
-      router.push(`/${locale}/${ApplicationRoute.Conversations}/${navPath}`);
+      router.push(`/${locale}${ApplicationRoute.Conversations}/${navPath}`);
     },
     [locale, isOpenedAdvancedView, router, setIsOpenedAdvancedView],
   );
@@ -247,9 +252,11 @@ const ConversationListWrapper = () => {
               iconBefore={<IconPlus width={20} height={20} />}
               title={isCollapsed ? '' : t(I18nKeys.Nav.NEW_CHAT)}
               onClick={handleOpeningOfNewConversation}
+              disabled={isStreaming}
               buttonClassName={classNames(
                 'text-button-client',
                 isCollapsed && 'p-2',
+                isStreaming && 'cursor-not-allowed',
               )}
             />
           </div>
@@ -264,6 +271,7 @@ const ConversationListWrapper = () => {
               ...shareTitles,
               id,
             }}
+            isStreaming={isStreaming}
             conversations={conversations}
             sharedConversations={sharedConversations}
             setConversations={setConversations}
@@ -292,7 +300,7 @@ const ConversationListWrapper = () => {
       {session?.user && (
         <div
           className={classNames(
-            'w-full bg-neutrals-200 flex items-center p-6 sm:p-4 pt-0 sm:pt-0',
+            'w-full bg-neutrals-200 flex items-center p-6 sm:p-4 sticky bottom-0',
             isCollapsed && '!p-0 !w-fit !self-center mb-6',
           )}
         >

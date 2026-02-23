@@ -105,6 +105,7 @@ export enum ConversationI18nKeys {
   DELETE_TITLE = 'conversation.deleteTitle',
   DELETE_CONFIRM = 'conversation.deleteConfirm',
   NO_CONVERSATIONS = 'conversation.noConversations',
+  NO_ACTIONS_ALLOWED = 'conversation.noActionsAllowed',
   CLICK_NEW_CHAT = 'conversation.clickNewChat',
   ALL_CHATS = 'conversation.allChats',
   SHARED = 'conversation.shared',
@@ -114,6 +115,13 @@ export enum ConversationI18nKeys {
   RENAME = 'conversation.rename',
   RENAME_TITLE = 'conversation.renameTitle',
   SAVE = 'conversation.save',
+}
+
+export enum StatusMessagesI18nKeys {
+  AGENT_UNAVAILABLE_TITLE = 'statusMessages.agentUnavailable.title',
+  AGENT_UNAVAILABLE_TEXT = 'statusMessages.agentUnavailable.text',
+  AGENT_UNAVAILABLE_ALERT = 'statusMessages.agentUnavailable.alert',
+  CONTACT_SUPPORT = 'statusMessages.contactSupport',
 }
 
 export enum AttachmentsI18nKeys {
