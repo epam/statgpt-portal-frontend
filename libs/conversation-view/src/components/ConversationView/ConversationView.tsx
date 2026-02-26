@@ -707,6 +707,7 @@ export const ConversationView: FC<Props> = ({
         onStopStreaming={onStopStreaming}
         inProcess={isStreaming}
         sendMessageIcon={inputMessageStyles.sendMessageIcon}
+        retryIcon={inputMessageStyles.retryIcon}
         placeholder={titles?.askAnything ?? 'Ask anything...'}
         containerClasses="mt-4"
         inputClasses="border-neutrals-600 mr-2"

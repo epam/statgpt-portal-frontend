@@ -19,6 +19,7 @@ interface Props {
   onSendMessage: (message: string) => void;
   onStopStreaming?: () => void;
   onRetryFailed?: () => Promise<void>;
+  retryIcon?: ReactNode;
 }
 
 const InputForAsk: FC<Props> = ({
@@ -28,6 +29,7 @@ const InputForAsk: FC<Props> = ({
   placeholder,
   sendMessageIcon,
   isLastFailed,
+  retryIcon,
   onSendMessage,
   onStopStreaming,
   onRetryFailed,
@@ -66,7 +68,7 @@ const InputForAsk: FC<Props> = ({
         <IconButton
           buttonClassName="input-for-ask-button"
           onClick={() => onRetryFailed?.()}
-          icon={<IconRefresh />}
+          icon={retryIcon ? retryIcon : <IconRefresh />}
         />
       );
     }
