@@ -6,7 +6,11 @@
  * error handling, and streaming lifecycle management.
  */
 import { Message } from '../models/message';
-import { API_ROUTES, getHeaders } from '@epam/statgpt-shared-toolkit';
+import {
+  API_ROUTES,
+  getHeaders,
+  HttpError,
+} from '@epam/statgpt-shared-toolkit';
 import {
   CustomFields,
   MessageStreamResponse,
@@ -71,14 +75,25 @@ export class ChatStreamSSEClient {
     );
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        JSON.stringify({ status: response.status, message: errorText }),
-      );
+      const errorResponse = await response.text();
+      let errorObject: { message?: string } = {};
+      try {
+        errorObject = JSON.parse(errorResponse);
+      } catch {
+        errorObject.message = 'Failed to parse error body';
+      }
+
+      throw new HttpError({
+        status: response.status,
+        message: errorObject.message ?? 'No response body',
+      });
     }
 
     if (!response.body) {
-      throw new Error('No response body');
+      throw new HttpError({
+        message: 'No response body',
+        status: response.status,
+      });
     }
 
     return response.body.getReader();

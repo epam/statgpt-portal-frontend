@@ -5,7 +5,7 @@ import {
   InputWithIcon,
   KeyboardKey,
 } from '@epam/statgpt-ui-components';
-import { IconPlayerStopFilled } from '@tabler/icons-react';
+import { IconPlayerStopFilled, IconRefresh } from '@tabler/icons-react';
 import { FC, KeyboardEvent, ReactNode, useCallback, useState } from 'react';
 import classNames from 'classnames';
 
@@ -15,8 +15,10 @@ interface Props {
   inProcess?: boolean;
   placeholder?: string;
   sendMessageIcon?: ReactNode;
+  isLastFailed?: boolean;
   onSendMessage: (message: string) => void;
   onStopStreaming?: () => void;
+  onRetryFailed?: () => Promise<void>;
 }
 
 const InputForAsk: FC<Props> = ({
@@ -25,8 +27,10 @@ const InputForAsk: FC<Props> = ({
   inputClasses,
   placeholder,
   sendMessageIcon,
+  isLastFailed,
   onSendMessage,
   onStopStreaming,
+  onRetryFailed,
 }) => {
   const [inputData, setInputData] = useState<string>('');
 
@@ -48,8 +52,44 @@ const InputForAsk: FC<Props> = ({
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === KeyboardKey.Enter && !event.shiftKey) {
-      onSend(inputData.trim());
+      if (isLastFailed) {
+        onRetryFailed?.();
+      } else {
+        onSend(inputData.trim());
+      }
     }
+  };
+
+  const getIcon = () => {
+    if (isLastFailed) {
+      return (
+        <IconButton
+          buttonClassName="input-for-ask-button"
+          onClick={() => onRetryFailed?.()}
+          icon={<IconRefresh />}
+        />
+      );
+    }
+
+    if (!inputData) return null;
+
+    if (inProcess) {
+      return (
+        <IconButton
+          buttonClassName="input-for-ask-button"
+          onClick={() => onStopStreaming?.()}
+          icon={<IconPlayerStopFilled />}
+        />
+      );
+    }
+
+    return (
+      <IconButton
+        buttonClassName="input-for-ask-button"
+        onClick={() => onSend(inputData)}
+        icon={sendMessageIcon}
+      />
+    );
   };
 
   return (
@@ -61,23 +101,7 @@ const InputForAsk: FC<Props> = ({
       onKeyDown={onKeyDown}
       cssClass={classNames(inputClasses, 'input-for-ask')}
       value={inputData}
-      iconAfterInput={
-        inputData ? (
-          inProcess ? (
-            <IconButton
-              buttonClassName="input-for-ask-button"
-              onClick={() => onStopStreaming?.()}
-              icon={<IconPlayerStopFilled />}
-            />
-          ) : (
-            <IconButton
-              buttonClassName="input-for-ask-button"
-              onClick={() => onSend(inputData)}
-              icon={sendMessageIcon}
-            />
-          )
-        ) : null
-      }
+      iconAfterInput={getIcon()}
     />
   );
 };

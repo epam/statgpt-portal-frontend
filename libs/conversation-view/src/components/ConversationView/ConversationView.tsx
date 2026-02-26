@@ -64,6 +64,8 @@ import {
   cleanConversationNames,
   DataQuery,
   FormatNumbersType,
+  HTTP_ERROR_CODES,
+  HttpError,
 } from '@epam/statgpt-shared-toolkit';
 import {
   Button,
@@ -109,7 +111,7 @@ interface Props {
   setConversations: (conversations: ConversationInfo[]) => void;
   openUrl: (url: string) => void;
   signOutAction?: () => void;
-  handleInvalidStreaming?: (error: string) => void;
+  handleInvalidStreaming?: (error: HttpError) => void;
   messageActionsIcons?: MessageActionIcons;
   editMessageTitles: EditMessageTitles;
   scrollBottomIcon?: ReactNode;
@@ -363,13 +365,43 @@ export const ConversationView: FC<Props> = ({
         token,
         conversation?.custom_fields as CustomFields,
       ).catch((error) => {
-        const message = error.message;
-        handleInvalidStreaming?.(message);
+        let finalErrorMessage = statusMessages.serverError;
+        let httpError;
+
+        if (error instanceof HttpError) {
+          httpError = error as HttpError;
+
+          finalErrorMessage =
+            httpError.status === HTTP_ERROR_CODES.SERVICE_UNAVAILABLE
+              ? statusMessages.serverOverloaded
+              : statusMessages.serverError;
+        } else {
+          httpError = new HttpError({
+            status: HTTP_ERROR_CODES.INTERNAL_SERVER_ERROR,
+            message: finalErrorMessage,
+          });
+        }
+        if (currentAssistantMessage) {
+          currentAssistantMessage = updateAssistantMessage(
+            currentAssistantMessage,
+            {
+              errorMessage: finalErrorMessage,
+            },
+          );
+        }
+
+        handleInvalidStreaming?.(httpError);
       });
 
       return currentAssistantMessage;
     },
-    [updateAssistantMessage, handleInvalidStreaming, token],
+    [
+      token,
+      updateAssistantMessage,
+      handleInvalidStreaming,
+      statusMessages.serverOverloaded,
+      statusMessages.serverError,
+    ],
   );
 
   const finalizeConversation = useCallback(
@@ -574,6 +606,15 @@ export const ConversationView: FC<Props> = ({
     [setConversation, processMessageRequest],
   );
 
+  const { isLastMessageFailed, regenerateLastMessage } = useMemo(() => {
+    const lastMessage = conversation?.messages?.at(-1);
+    const isLastMessageFailed = !!lastMessage?.errorMessage;
+    const regenerateLastMessage =
+      lastMessage && (() => regenerateMessage(lastMessage, conversation));
+
+    return { isLastMessageFailed, regenerateLastMessage };
+  }, [conversation, regenerateMessage]);
+
   const editMessage = useCallback(
     async (message: Message, data: Conversation | null) => {
       if (!data || !message) {
@@ -669,6 +710,8 @@ export const ConversationView: FC<Props> = ({
         placeholder={titles?.askAnything ?? 'Ask anything...'}
         containerClasses="mt-4"
         inputClasses="border-neutrals-600 mr-2"
+        isLastFailed={isLastMessageFailed}
+        onRetryFailed={regenerateLastMessage}
       />
     );
   };

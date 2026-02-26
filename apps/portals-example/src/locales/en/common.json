@@ -162,6 +162,8 @@
       "text": "To get an access {link}.",
       "alert": "The AI Assistant is unavailable. To gain access, please {link}."
     },
-    "contactSupport": "contact Support"
+    "contactSupport": "contact Support",
+    "serverError": "We couldn't process your request due to a server error. Please try again later.",
+    "serverOverloaded": "The system is currently overloaded. Please try again later."
   }
 }
