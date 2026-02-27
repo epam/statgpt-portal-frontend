@@ -199,7 +199,7 @@ const ConversationListWrapper = () => {
         isCollapsed ? 'w-[64px]' : 'w-[362px]',
       )}
     >
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-[calc(100%-108px)] sm:h-[calc(100%-80px)]">
         <div
           className={classNames(
             'flex flex-row items-center py-[14px]',
