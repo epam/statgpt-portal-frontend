@@ -122,6 +122,8 @@ export enum StatusMessagesI18nKeys {
   AGENT_UNAVAILABLE_TEXT = 'statusMessages.agentUnavailable.text',
   AGENT_UNAVAILABLE_ALERT = 'statusMessages.agentUnavailable.alert',
   CONTACT_SUPPORT = 'statusMessages.contactSupport',
+  SERVER_ERROR = 'statusMessages.serverError',
+  SERVER_OVERLOADED = 'statusMessages.serverOverloaded',
 }
 
 export enum AttachmentsI18nKeys {

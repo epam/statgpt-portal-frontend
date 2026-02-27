@@ -12,6 +12,7 @@ interface Props {
   rateResponse: (responseId: string, rate: LikeState) => void;
   isStreaming?: boolean;
   isReadOnly?: boolean;
+  isRegenerateAvailable?: boolean;
 }
 
 export const AssistantActionsPanel: FC<Props> = ({
@@ -21,6 +22,7 @@ export const AssistantActionsPanel: FC<Props> = ({
   rateResponse,
   isStreaming = false,
   isReadOnly = false,
+  isRegenerateAvailable = false,
 }) => {
   const copy = messageActionsIcons?.copy;
   const regenerate = messageActionsIcons?.regenerate;
@@ -46,7 +48,7 @@ export const AssistantActionsPanel: FC<Props> = ({
           {copy}
         </p>
       )}
-      {regenerate && !isReadOnly && !isStreaming && (
+      {isRegenerateAvailable && regenerate && !isReadOnly && !isStreaming && (
         <p
           onClick={
             isAgentAvailable ? () => regenerateMessage?.(message) : undefined

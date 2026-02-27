@@ -10,7 +10,12 @@
 
 import { FC, ReactNode, useEffect, useRef, useState } from 'react';
 import { LikeState, Role } from '@epam/ai-dial-shared';
-import { useDebounce, LimitMessages } from '@epam/statgpt-ui-components';
+import {
+  useDebounce,
+  LimitMessages,
+  InlineAlert,
+  InlineAlertType,
+} from '@epam/statgpt-ui-components';
 import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import Message from './Message/Message';
@@ -132,28 +137,43 @@ const ChatMessages: FC<Props> = ({
   return (
     <div ref={containerRef} className="h-full w-full">
       <div className="flex flex-col gap-y-6 max-w-full">
-        {messages.map((message, index) => (
-          <Message
-            key={message.id || index}
-            message={message}
-            previousMessage={getPreviousMessageWithAttachment(messages, index)}
-            onAdvancedViewOpen={onAdvancedViewOpen}
-            isStreaming={isStreaming}
-            isCurrentMessageStreaming={
-              isStreaming &&
-              index === messages.length - 1 &&
-              message.role === Role.Assistant
-            }
-            showAdvancedView={
-              index === getLastMessageWithAttachmentIndex(messages) &&
-              !isReadOnly
-            }
-            isNotLastUserMessage={
-              index === messages.length - 1 && message.role !== Role.User
-            }
-            {...props}
-          />
-        ))}
+        {messages.map((message, index) => {
+          const key = message.id ?? index;
+
+          if (message.errorMessage) {
+            return (
+              <InlineAlert key={key} type={InlineAlertType.Error}>
+                <div className="flex flex-col">{message.errorMessage}</div>
+              </InlineAlert>
+            );
+          }
+
+          const isLast = index === messages.length - 1;
+          const previousMessage = getPreviousMessageWithAttachment(
+            messages,
+            index,
+          );
+          const lastMessageWithAttachmentIndex =
+            getLastMessageWithAttachmentIndex(messages);
+
+          return (
+            <Message
+              key={key}
+              message={message}
+              previousMessage={previousMessage}
+              onAdvancedViewOpen={onAdvancedViewOpen}
+              isStreaming={isStreaming}
+              isCurrentMessageStreaming={
+                isStreaming && isLast && message.role === Role.Assistant
+              }
+              showAdvancedView={
+                index === lastMessageWithAttachmentIndex && !isReadOnly
+              }
+              isLastNotUserMessage={isLast && message.role !== Role.User}
+              {...props}
+            />
+          );
+        })}
         <div ref={messagesEndRef} className="h-4" />
       </div>
       <div

@@ -78,7 +78,7 @@ interface Props {
   rateResponse: (responseId: string, rate: LikeState) => void;
   editMessageTitles: EditMessageTitles;
   isReadOnlyConversation?: boolean;
-  isNotLastUserMessage?: boolean;
+  isLastNotUserMessage?: boolean;
   limitMessages: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
 }
@@ -106,7 +106,7 @@ const Message: FC<Props> = ({
   editMessage,
   editMessageTitles,
   isReadOnlyConversation,
-  isNotLastUserMessage,
+  isLastNotUserMessage,
   limitMessages,
   attachmentsConfig,
 }) => {
@@ -185,11 +185,11 @@ const Message: FC<Props> = ({
 
   useEffect(() => {
     const properties = message.custom_content?.form_schema?.properties;
-    const choiceButtons = isNotLastUserMessage
+    const choiceButtons = isLastNotUserMessage
       ? properties?.choice?.oneOf || properties?.completion?.oneOf
       : [];
     setChoiceButtons(choiceButtons || []);
-  }, [message, isNotLastUserMessage]);
+  }, [message, isLastNotUserMessage]);
 
   useEffect(() => {
     const attachments = parseMessageAttachments(message);
@@ -400,6 +400,7 @@ const Message: FC<Props> = ({
                     regenerateMessage={regenerateMessage}
                     rateResponse={rateResponse}
                     isReadOnly={isReadOnlyConversation}
+                    isRegenerateAvailable={isLastNotUserMessage}
                   />
                 ))}
               {!isOpenedAdvancedView && !isLoadingGridData && (

@@ -11,6 +11,7 @@ export interface MessageStyles {
 export interface InputMessageStyles {
   inputContainerClass?: string;
   sendMessageIcon?: ReactNode;
+  retryIcon?: ReactNode;
 }
 
 export interface MessageActionIcons {

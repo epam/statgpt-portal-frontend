@@ -11,6 +11,7 @@ import {
   CUSTOM_PERIOD,
   DataQuery,
   HTTP_ERROR_CODES,
+  HttpError,
   TimeRangeOptions,
 } from '@epam/statgpt-shared-toolkit';
 import { useConversationList } from '../../context/ConversationListContext';
@@ -314,8 +315,8 @@ const ConversationViewWrapper: FC<Props> = ({
     signOut();
   };
 
-  const handleInvalidStreaming = useCallback((error: string) => {
-    const status = JSON.parse(error).status;
+  const handleInvalidStreaming = useCallback((error: HttpError) => {
+    const status = error.status;
     if (status === HTTP_ERROR_CODES.UNAUTHORIZED) {
       signOut();
     }

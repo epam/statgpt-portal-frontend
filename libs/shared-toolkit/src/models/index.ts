@@ -7,3 +7,4 @@ export * from './request-options';
 export * from './time-range';
 export * from './onboarding-schema';
 export * from './format-numbers-type';
+export * from './errors/http-error';
