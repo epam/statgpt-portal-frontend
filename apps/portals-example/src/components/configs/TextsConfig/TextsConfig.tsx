@@ -37,6 +37,8 @@ export const TextsConfig = ({
   const conversationViewMessagesCustomConfig: ConversationViewMessages = {
     statusMessages: {
       assistantUnavailable,
+      serverError: t(StatusMessagesI18nKeys.SERVER_ERROR),
+      serverOverloaded: t(StatusMessagesI18nKeys.SERVER_OVERLOADED),
     },
   };
 
