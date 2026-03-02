@@ -66,6 +66,7 @@ import {
   FormatNumbersType,
   HTTP_ERROR_CODES,
   HttpError,
+  isHttpError,
 } from '@epam/statgpt-shared-toolkit';
 import {
   Button,
@@ -368,7 +369,7 @@ export const ConversationView: FC<Props> = ({
         let finalErrorMessage = statusMessages.serverError;
         let httpError;
 
-        if (error instanceof HttpError) {
+        if (isHttpError(error)) {
           httpError = error as HttpError;
 
           finalErrorMessage =
