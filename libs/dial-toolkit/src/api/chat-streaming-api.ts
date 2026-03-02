@@ -76,16 +76,16 @@ export class ChatStreamSSEClient {
 
     if (!response.ok) {
       const errorResponse = await response.text();
-      let errorObject: { message?: string } = {};
+      let errorObject: { error?: string } = {};
       try {
         errorObject = JSON.parse(errorResponse);
       } catch {
-        errorObject.message = 'Failed to parse error body';
+        errorObject.error = 'Failed to parse error body';
       }
 
       throw new HttpError({
         status: response.status,
-        message: errorObject.message ?? 'No response body',
+        message: errorObject.error ?? 'No response body',
       });
     }
 

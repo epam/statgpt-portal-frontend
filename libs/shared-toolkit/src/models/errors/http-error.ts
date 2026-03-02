@@ -7,6 +7,7 @@ export interface HttpErrorPayload<D = unknown> {
 export class HttpError<D = unknown> extends Error {
   readonly status: number;
   readonly details?: D;
+  readonly isHttpError = true;
 
   constructor(payload: HttpErrorPayload<D>) {
     super(payload.message);
@@ -14,4 +15,14 @@ export class HttpError<D = unknown> extends Error {
     this.status = payload.status;
     this.details = payload.details;
   }
+}
+
+export function isHttpError(e: unknown): e is HttpError {
+  return (
+    typeof e === 'object' &&
+    e !== null &&
+    (e as any).isHttpError === true &&
+    typeof (e as any).status === 'number' &&
+    typeof (e as any).message === 'string'
+  );
 }
