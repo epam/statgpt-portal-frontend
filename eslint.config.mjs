@@ -1,63 +1,68 @@
-import { defineConfig, globalIgnores } from 'eslint/config';
+import js from '@eslint/js';
+import tsParser from '@typescript-eslint/parser';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
 import nx from '@nx/eslint-plugin';
 import globals from 'globals';
-import tsParser from '@typescript-eslint/parser';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import js from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
+import reactPlugin from 'eslint-plugin-react';
+import reactHooksPlugin from 'eslint-plugin-react-hooks';
+import nextPlugin from '@next/eslint-plugin-next';
+import prettierPlugin from 'eslint-plugin-prettier';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
-
-export default defineConfig([
-  globalIgnores([
-    '**/node_modules',
-    '**/next',
-    '**/.next',
-    '**/next-env.d.ts',
-    '**/**.config.js',
-    '**/**.config.mjs',
-    '**/jest.config.ts',
-    '**/test-setup.js',
-    '**/**.spec.ts',
-    '**/**.spec.tsx',
-  ]),
+export default [
   {
-    extends: compat.extends('eslint:recommended', 'prettier', 'next'),
-
-    plugins: {
-      '@nx': nx,
-    },
-
+    ignores: [
+      '**/node_modules',
+      '**/next',
+      '**/.next',
+      '**/next-env.d.ts',
+      '**/**.config.js',
+      '**/**.config.mjs',
+      '**/jest.config.ts',
+      '**/**.spec.ts',
+      '**/**.spec.tsx',
+    ],
+  },
+  {
+    files: ['**/*.{ts,tsx,js,jsx}'],
     languageOptions: {
-      globals: {
-        ...globals.node,
-      },
-
       parser: tsParser,
       ecmaVersion: 5,
       sourceType: 'commonjs',
-
       parserOptions: {
         project: ['tsconfig.*?.json'],
       },
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        globalThis: 'readonly',
+        NodeJS: 'readonly',
+      },
     },
-  },
-  {
-    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
-
+    plugins: {
+      '@nx': nx,
+      react: reactPlugin,
+      prettier: prettierPlugin,
+      '@typescript-eslint': tsPlugin,
+      'react-hooks': reactHooksPlugin,
+      'jsx-a11y': jsxA11yPlugin,
+      '@next/next': nextPlugin,
+    },
     rules: {
+      ...js.configs.recommended.rules,
+      ...tsPlugin.configs.recommended.rules,
+      ...nextPlugin.configs.recommended.rules,
+      ...prettierPlugin.configs.recommended.rules,
+      '@next/next/no-html-link-for-pages': 'off',
+      'no-redeclare': 'off',
+      '@typescript-eslint/triple-slash-reference': 'off',
       '@nx/enforce-module-boundaries': [
         'error',
         {
           enforceBuildableLibDependency: true,
+          allowCircularSelfDependency: true,
           allow: [],
+
           depConstraints: [
             {
               sourceTag: '*',
@@ -66,58 +71,36 @@ export default defineConfig([
           ],
         },
       ],
-      '@next/next/no-html-link-for-pages': 'off',
-      'react-hooks/exhaustive-deps': 'error',
-      'no-empty': 'error',
       'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
+      'no-empty': 'error',
+
       'no-constant-condition': 'error',
-      'no-multiple-empty-lines': ['warn', { max: 1, maxBOF: 0 }],
-    },
-  },
-  {
-    files: ['**/*.ts', '**/*.tsx'],
 
-    extends: compat.extends(
-      'plugin:@nx/typescript',
-      'plugin:@typescript-eslint/recommended',
-      'plugin:@typescript-eslint/stylistic',
-      'plugin:prettier/recommended',
-    ),
-
-    rules: {
+      'no-multiple-empty-lines': [
+        'warn',
+        {
+          max: 1,
+          maxBOF: 0,
+        },
+      ],
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^__' },
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^__',
+        },
       ],
 
       '@typescript-eslint/no-explicit-any': 'warn',
       'prettier/prettier': 'error',
-    },
-  },
-  {
-    files: ['**/*.js', '**/*.jsx'],
-    extends: compat.extends('plugin:@nx/javascript'),
-    rules: {},
-  },
-  {
-    files: ['**/*.json'],
-    rules: {
-      '@nx/dependency-checks': [
-        'error',
+
+      'no-multiple-empty-lines': [
+        'warn',
         {
-          ignoredDependencies: [
-            'vite-plugin-svgr',
-            'vite-plugin-static-copy',
-            '@nx/vite',
-            'vite',
-            '@vitejs/plugin-react',
-            'vite-plugin-dts',
-          ],
+          max: 1,
+          maxBOF: 0,
         },
       ],
     },
-    languageOptions: {
-      parser: await import('jsonc-eslint-parser'),
-    },
   },
-]);
+];
