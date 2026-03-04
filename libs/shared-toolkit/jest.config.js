@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   displayName: 'shared-toolkit',
   preset: '../../jest.preset.js',
   transform: {

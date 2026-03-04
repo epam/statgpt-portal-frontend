@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   displayName: 'sdmx-toolkit',
   preset: '../../jest.preset.js',
   transform: {

@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   displayName: 'download-panel',
   preset: '../../jest.preset.js',
   transform: {
