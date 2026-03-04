@@ -13,6 +13,15 @@ export interface MessageStreamResponse {
   id?: string;
   content?: string;
   choices: MessageChoices[];
+  error?: MessageStreamError;
+}
+
+export interface MessageStreamError {
+  message: string;
+  type?: string;
+  param?: string;
+  code?: string;
+  status?: number;
 }
 
 export interface CustomFields {

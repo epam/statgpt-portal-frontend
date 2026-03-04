@@ -164,6 +164,7 @@
     },
     "contactSupport": "contact Support",
     "serverError": "We couldn't process your request due to a server error. Please try again later.",
-    "serverOverloaded": "The system is currently overloaded. Please try again later."
+    "serverOverloaded": "The system is currently overloaded. Please try again later.",
+    "contentFilterError": "This request is blocked in accordance with the Azure OpenAI content management policy {link}."
   }
 }

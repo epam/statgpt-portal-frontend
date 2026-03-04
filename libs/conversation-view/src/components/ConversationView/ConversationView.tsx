@@ -56,6 +56,7 @@ import { validateAndPrepareMessage } from '../../utils/validate-message';
 
 import {
   CustomFields,
+  DIAL_ERROR_CODES,
   mergeMessages,
   Message,
   streamChatResponse,
@@ -323,6 +324,46 @@ export const ConversationView: FC<Props> = ({
     [actions, conversation, saveConversation],
   );
 
+  const handleStreamingError = useCallback(
+    (error: any, assistantMessage?: Message) => {
+      let finalErrorMessage = statusMessages.serverError;
+      let httpError;
+
+      if (isHttpError(error)) {
+        httpError = error as HttpError;
+
+        if (httpError.code === DIAL_ERROR_CODES.CONTENT_FILTER) {
+          finalErrorMessage =
+            statusMessages.contentFilterError || httpError.message;
+        } else {
+          finalErrorMessage =
+            httpError.status === HTTP_ERROR_CODES.SERVICE_UNAVAILABLE
+              ? statusMessages.serverOverloaded
+              : statusMessages.serverError;
+        }
+      } else {
+        httpError = new HttpError({
+          status: HTTP_ERROR_CODES.INTERNAL_SERVER_ERROR,
+          message: finalErrorMessage,
+        });
+      }
+      if (assistantMessage) {
+        assistantMessage = updateAssistantMessage(assistantMessage, {
+          errorMessage: finalErrorMessage,
+        });
+      }
+
+      handleInvalidStreaming?.(httpError);
+    },
+    [
+      handleInvalidStreaming,
+      statusMessages.serverError,
+      statusMessages.serverOverloaded,
+      statusMessages.contentFilterError,
+      updateAssistantMessage,
+    ],
+  );
+
   const handleStreamingResponse = useCallback(
     async (
       assistantMessage: Message,
@@ -343,6 +384,14 @@ export const ConversationView: FC<Props> = ({
           model: conversation.model,
           signal: abortController?.signal,
           onMessage: (data) => {
+            if (data.error) {
+              throw new HttpError({
+                message: data.error.message,
+                status: data.error.status ?? HTTP_ERROR_CODES.BAD_REQUEST,
+                code: data.error.code,
+              });
+            }
+
             const partialMessage = extractPartialMessageData(data);
 
             if (
@@ -366,43 +415,12 @@ export const ConversationView: FC<Props> = ({
         token,
         conversation?.custom_fields as CustomFields,
       ).catch((error) => {
-        let finalErrorMessage = statusMessages.serverError;
-        let httpError;
-
-        if (isHttpError(error)) {
-          httpError = error as HttpError;
-
-          finalErrorMessage =
-            httpError.status === HTTP_ERROR_CODES.SERVICE_UNAVAILABLE
-              ? statusMessages.serverOverloaded
-              : statusMessages.serverError;
-        } else {
-          httpError = new HttpError({
-            status: HTTP_ERROR_CODES.INTERNAL_SERVER_ERROR,
-            message: finalErrorMessage,
-          });
-        }
-        if (currentAssistantMessage) {
-          currentAssistantMessage = updateAssistantMessage(
-            currentAssistantMessage,
-            {
-              errorMessage: finalErrorMessage,
-            },
-          );
-        }
-
-        handleInvalidStreaming?.(httpError);
+        handleStreamingError(error, currentAssistantMessage);
       });
 
       return currentAssistantMessage;
     },
-    [
-      token,
-      updateAssistantMessage,
-      handleInvalidStreaming,
-      statusMessages.serverOverloaded,
-      statusMessages.serverError,
-    ],
+    [token, updateAssistantMessage, handleStreamingError],
   );
 
   const finalizeConversation = useCallback(

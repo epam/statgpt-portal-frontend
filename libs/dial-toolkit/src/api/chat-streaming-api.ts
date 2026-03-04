@@ -156,12 +156,14 @@ export class ChatStreamSSEClient {
         return;
       }
 
+      let parsed;
       try {
-        const parsed = JSON.parse(data);
-        onMessage?.(parsed);
+        parsed = JSON.parse(data);
       } catch (error) {
         console.error(`Failed to parse SSE data: ${data} ${error}`);
       }
+
+      onMessage?.(parsed);
     }
   }
 }

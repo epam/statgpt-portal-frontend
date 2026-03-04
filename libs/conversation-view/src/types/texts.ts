@@ -5,5 +5,6 @@ export interface ConversationViewMessages {
     assistantUnavailable: ReactNode;
     serverError: string;
     serverOverloaded: string;
+    contentFilterError: string;
   };
 }
