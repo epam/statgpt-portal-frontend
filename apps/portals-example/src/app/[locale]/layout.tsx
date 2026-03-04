@@ -86,11 +86,17 @@ export default async function LocaleLayout({
     );
   };
 
+  const azureContentManagementPolicyUrl =
+    process.env.AZURE_CONTENT_MANAGEMENT_POLICY_URL;
+
   return (
     <I18nProvider locale={locale}>
       <div className="flex h-full flex-row w-full main-layout">
         <ComponentsConfig>
-          <TextsConfig clientContactSupportUrl={clientContactSupportUrl}>
+          <TextsConfig
+            clientContactSupportUrl={clientContactSupportUrl}
+            azureContentManagementPolicyUrl={azureContentManagementPolicyUrl}
+          >
             {getContent()}
           </TextsConfig>
         </ComponentsConfig>

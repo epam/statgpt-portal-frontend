@@ -124,6 +124,7 @@ export enum StatusMessagesI18nKeys {
   CONTACT_SUPPORT = 'statusMessages.contactSupport',
   SERVER_ERROR = 'statusMessages.serverError',
   SERVER_OVERLOADED = 'statusMessages.serverOverloaded',
+  CONTENT_FILTER_ERROR = 'statusMessages.contentFilterError',
 }
 
 export enum AttachmentsI18nKeys {

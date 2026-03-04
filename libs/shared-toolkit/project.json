@@ -31,6 +31,20 @@
         ]
       }
     },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared-toolkit/jest.config.js",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "coverageReporters": ["text"]
+        }
+      }
+    },
     "publish": {
       "command": "node tools/publish-lib.mjs shared-toolkit --version={args.ver} --dry={args.dry} --tag={args.tag} --development={args.development}"
     }
