@@ -3,17 +3,37 @@ type LinkifiedPart =
   | { type: 'link'; value: string };
 
 // Common punctuation that often follows a URL in prose and shouldn't be part of the link.
-const TRAILING_PUNCTUATION_RE = /[)\]}>,.!?:;]+$/;
+const TRAILING_PUNCTUATION = new Set([
+  ')',
+  ']',
+  '}',
+  '>',
+  ',',
+  '.',
+  '!',
+  '?',
+  ':',
+  ';',
+]);
 
-function splitTrailingPunctuation(url: string): {
+export function splitTrailingPunctuation(url: string): {
   cleanUrl: string;
   trailing: string;
 } {
-  const match = url.match(TRAILING_PUNCTUATION_RE);
-  if (!match) return { cleanUrl: url, trailing: '' };
-  const trailing = match[0];
-  const cleanUrl = url.slice(0, -trailing.length);
-  return { cleanUrl, trailing };
+  let end = url.length;
+
+  while (end > 0 && TRAILING_PUNCTUATION.has(url[end - 1])) {
+    end--;
+  }
+
+  if (end === url.length) {
+    return { cleanUrl: url, trailing: '' };
+  }
+
+  return {
+    cleanUrl: url.slice(0, end),
+    trailing: url.slice(end),
+  };
 }
 
 /**
