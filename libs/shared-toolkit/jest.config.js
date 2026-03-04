@@ -7,4 +7,5 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/libs/shared-toolkit',
+  setupFilesAfterEnv: ['./test-setup.js'],
 };
