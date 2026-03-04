@@ -8,7 +8,15 @@
 
 'use client';
 
-import { FC, ReactNode, useEffect, useRef, useState } from 'react';
+import {
+  FC,
+  Fragment,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { LikeState, Role } from '@epam/ai-dial-shared';
 import {
   useDebounce,
@@ -17,7 +25,11 @@ import {
   InlineAlertType,
 } from '@epam/statgpt-ui-components';
 import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
-import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
+import {
+  DataQuery,
+  FormatNumbersType,
+  linkifyText,
+} from '@epam/statgpt-shared-toolkit';
 import Message from './Message/Message';
 import {
   EditMessageTitles,
@@ -35,6 +47,7 @@ import {
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 import classNames from 'classnames';
 import { AttachmentsConfig } from '../../models/attachments';
+import { IconExternalLink } from '@tabler/icons-react';
 
 interface Props {
   messages: MessageType[];
@@ -134,6 +147,30 @@ const ChatMessages: FC<Props> = ({
       container?.removeEventListener('scroll', handleScrollWithDelay);
   }, [handleScrollWithDelay]);
 
+  const processErrorMessage = useCallback((message: string) => {
+    const parts = linkifyText(message);
+
+    return (
+      <div className="whitespace-pre-wrap break-words">
+        {parts.map((p, i) => {
+          if (p.type === 'text') return <Fragment key={i}>{p.value}</Fragment>;
+
+          return (
+            <a
+              key={i}
+              href={p.value}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center align-middle"
+            >
+              <IconExternalLink className="text-primary cursor-pointer w-4 h-4 shrink-0" />
+            </a>
+          );
+        })}
+      </div>
+    );
+  }, []);
+
   return (
     <div ref={containerRef} className="h-full w-full">
       <div className="flex flex-col gap-y-6 max-w-full">
@@ -143,7 +180,9 @@ const ChatMessages: FC<Props> = ({
           if (message.errorMessage) {
             return (
               <InlineAlert key={key} type={InlineAlertType.Error}>
-                <div className="flex flex-col">{message.errorMessage}</div>
+                <div className="flex flex-col">
+                  {processErrorMessage(message.errorMessage)}
+                </div>
               </InlineAlert>
             );
           }

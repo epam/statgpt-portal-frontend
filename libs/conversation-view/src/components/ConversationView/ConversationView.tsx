@@ -325,7 +325,7 @@ export const ConversationView: FC<Props> = ({
   );
 
   const handleStreamingError = useCallback(
-    (error: any, assistantMessage?: Message) => {
+    (error: any, assistantMessage?: Message): Message | undefined => {
       let finalErrorMessage = statusMessages.serverError;
       let httpError;
 
@@ -347,6 +347,7 @@ export const ConversationView: FC<Props> = ({
           message: finalErrorMessage,
         });
       }
+
       if (assistantMessage) {
         assistantMessage = updateAssistantMessage(assistantMessage, {
           errorMessage: finalErrorMessage,
@@ -354,6 +355,8 @@ export const ConversationView: FC<Props> = ({
       }
 
       handleInvalidStreaming?.(httpError);
+
+      return assistantMessage;
     },
     [
       handleInvalidStreaming,
@@ -415,7 +418,10 @@ export const ConversationView: FC<Props> = ({
         token,
         conversation?.custom_fields as CustomFields,
       ).catch((error) => {
-        handleStreamingError(error, currentAssistantMessage);
+        currentAssistantMessage = handleStreamingError(
+          error,
+          currentAssistantMessage,
+        );
       });
 
       return currentAssistantMessage;
