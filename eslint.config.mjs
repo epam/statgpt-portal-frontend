@@ -21,6 +21,7 @@ export default [
       '**/jest.config.ts',
       '**/**.spec.ts',
       '**/**.spec.tsx',
+      '**/test-setup.js',
     ],
   },
   {
