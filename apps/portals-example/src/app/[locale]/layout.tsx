@@ -21,6 +21,8 @@ import { NoAccessView } from '../../components/NoAccessView';
 import { ComponentsConfig } from '../../components/configs/ComponentsConfig/ComponentsConfig';
 import { TextsConfig } from '../../components/configs/TextsConfig/TextsConfig';
 import { ClientProvidersWrapper } from '../../components/ClientProvidersWrapper/ClientProvidersWrapper';
+import { getDatasetsMetadata } from '../actions/datasets-metadata';
+import { buildUrnDimensionsIndex } from '@epam/statgpt-sdmx-toolkit';
 
 export default async function LocaleLayout({
   children,
@@ -63,6 +65,11 @@ export default async function LocaleLayout({
 
   const clientContactSupportUrl = process.env.CLIENT_CONTACT_SUPPORT_URL;
 
+  const metadata = await getDatasetsMetadata();
+  const urnDimensionIndex = metadata.data
+    ? buildUrnDimensionsIndex(metadata.data)
+    : {};
+
   const getContent = () => {
     if (!configuration.success && !isAnyConversationAvailable) {
       return <NoAccessView clientContactSupportUrl={clientContactSupportUrl} />;
@@ -70,7 +77,10 @@ export default async function LocaleLayout({
 
     return (
       <DeploymentConfigProvider config={configuration.data}>
-        <ClientProvidersWrapper isAgentAvailable={configuration.success}>
+        <ClientProvidersWrapper
+          isAgentAvailable={configuration.success}
+          urnDimensionIndex={urnDimensionIndex}
+        >
           <OnboardingProvider>
             <AdvancedViewProvider>
               <ConversationListProvider>

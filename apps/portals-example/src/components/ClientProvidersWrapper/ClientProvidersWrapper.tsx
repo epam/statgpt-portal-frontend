@@ -1,17 +1,26 @@
 'use client';
 
-import { AgentAvailabilityProvider } from '@epam/statgpt-ui-components';
+import { UrnDimensionsIndex } from '@epam/statgpt-sdmx-toolkit';
+import {
+  AgentAvailabilityProvider,
+  UrnDimensionsProvider,
+} from '@epam/statgpt-ui-components';
+import { ReactNode } from 'react';
 
 export const ClientProvidersWrapper = ({
   children,
   isAgentAvailable,
+  urnDimensionIndex,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   isAgentAvailable: boolean;
+  urnDimensionIndex: UrnDimensionsIndex;
 }) => {
   return (
     <AgentAvailabilityProvider isAgentAvailable={isAgentAvailable}>
-      {children}
+      <UrnDimensionsProvider index={urnDimensionIndex}>
+        {children}
+      </UrnDimensionsProvider>
     </AgentAvailabilityProvider>
   );
 };

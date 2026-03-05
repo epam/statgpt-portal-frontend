@@ -12,3 +12,4 @@ export * from './structural-metadata/data-structure';
 export * from './structural-metadata/dataflow';
 export * from './structural-metadata/representation';
 export * from './structural-metadata-base';
+export * from './datasets-metadata';
