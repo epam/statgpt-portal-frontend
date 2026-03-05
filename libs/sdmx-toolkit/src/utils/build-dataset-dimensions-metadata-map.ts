@@ -1,7 +1,7 @@
 import {
   Dataset,
   DeploymentDatasetsResponseData,
-  UrnDimensionsIndex,
+  DatasetDimensionsMetadataMap,
 } from '../models';
 import { generateShortUrn } from './urn';
 
@@ -10,17 +10,17 @@ function datasetToShortUrn(dataset: Dataset): string {
   return generateShortUrn(urn.resourceId, urn.version, urn.agencyId);
 }
 
-export function buildUrnDimensionsIndex(
+export function buildDatasetDimensionsMetadataMap(
   data: DeploymentDatasetsResponseData,
-): UrnDimensionsIndex {
-  const index: UrnDimensionsIndex = {};
+): DatasetDimensionsMetadataMap {
+  const map: DatasetDimensionsMetadataMap = {};
 
   for (const cd of data.datasets) {
     const dataset = cd.dataset;
     const urn = datasetToShortUrn(dataset);
 
-    index[urn] = dataset.details.dimensions;
+    map[urn] = dataset.details.dimensions;
   }
 
-  return index;
+  return map;
 }

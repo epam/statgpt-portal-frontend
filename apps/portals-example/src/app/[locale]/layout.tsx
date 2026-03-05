@@ -22,7 +22,7 @@ import { ComponentsConfig } from '../../components/configs/ComponentsConfig/Comp
 import { TextsConfig } from '../../components/configs/TextsConfig/TextsConfig';
 import { ClientProvidersWrapper } from '../../components/ClientProvidersWrapper/ClientProvidersWrapper';
 import { getDatasetsMetadata } from '../actions/datasets-metadata';
-import { buildUrnDimensionsIndex } from '@epam/statgpt-sdmx-toolkit';
+import { buildDatasetDimensionsMetadataMap } from '@epam/statgpt-sdmx-toolkit';
 
 export default async function LocaleLayout({
   children,
@@ -66,8 +66,8 @@ export default async function LocaleLayout({
   const clientContactSupportUrl = process.env.CLIENT_CONTACT_SUPPORT_URL;
 
   const metadata = await getDatasetsMetadata();
-  const urnDimensionIndex = metadata.data
-    ? buildUrnDimensionsIndex(metadata.data)
+  const datasetDimensionsMetadataMap = metadata.data
+    ? buildDatasetDimensionsMetadataMap(metadata.data)
     : {};
 
   const getContent = () => {
@@ -79,7 +79,7 @@ export default async function LocaleLayout({
       <DeploymentConfigProvider config={configuration.data}>
         <ClientProvidersWrapper
           isAgentAvailable={configuration.success}
-          urnDimensionIndex={urnDimensionIndex}
+          datasetDimensionsMetadataMap={datasetDimensionsMetadataMap}
         >
           <OnboardingProvider>
             <AdvancedViewProvider>

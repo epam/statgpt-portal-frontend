@@ -29,7 +29,7 @@ export type { ShareConversationProps } from '../../share-conversation/src/models
 export type { DatasetInfoOptions } from './components/AdvancedView/DatasetInfo';
 
 export {
-  UrnDimensionsProvider,
-  useUrnDimensions,
-  useUrnDimensionsOptional,
-} from './context/UrnDimensionsContext';
+  DatasetDimensionsMetadataMapProvider,
+  useDatasetDimensionsMetadataMap,
+  useDatasetDimensionsMetadataMapOptional,
+} from './context/DatasetDimensionsMetadataMapContext';

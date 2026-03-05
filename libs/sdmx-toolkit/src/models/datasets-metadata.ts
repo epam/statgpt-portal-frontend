@@ -42,7 +42,7 @@ export interface DimensionAllValues {
 
 export type ShortUrn = string;
 export type DimensionKey = string;
-export type UrnDimensionsIndex = Record<
+export type DatasetDimensionsMetadataMap = Record<
   ShortUrn,
   Record<DimensionKey, DimensionConfig>
 >;

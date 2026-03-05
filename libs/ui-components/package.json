@@ -6,7 +6,6 @@
     "react-flatpickr": "^4.0.11",
     "classnames": "^2.5.1",
     "@epam/statgpt-shared-toolkit": "*",
-    "@epam/statgpt-sdmx-toolkit": "*",
     "@tabler/icons-react": "^3.34.1",
     "@floating-ui/react": "^0.27.14",
     "tailwind-merge": "^3.4.0"

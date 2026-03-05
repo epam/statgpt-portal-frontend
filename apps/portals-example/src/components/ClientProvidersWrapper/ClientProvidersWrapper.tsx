@@ -1,24 +1,24 @@
 'use client';
 
-import { UrnDimensionsProvider } from '@epam/statgpt-conversation-view';
-import { UrnDimensionsIndex } from '@epam/statgpt-sdmx-toolkit';
+import { DatasetDimensionsMetadataMapProvider } from '@epam/statgpt-conversation-view';
+import { DatasetDimensionsMetadataMap } from '@epam/statgpt-sdmx-toolkit';
 import { AgentAvailabilityProvider } from '@epam/statgpt-ui-components';
 import { ReactNode } from 'react';
 
 export const ClientProvidersWrapper = ({
   children,
   isAgentAvailable,
-  urnDimensionIndex,
+  datasetDimensionsMetadataMap,
 }: {
   children: ReactNode;
   isAgentAvailable: boolean;
-  urnDimensionIndex: UrnDimensionsIndex;
+  datasetDimensionsMetadataMap: DatasetDimensionsMetadataMap;
 }) => {
   return (
     <AgentAvailabilityProvider isAgentAvailable={isAgentAvailable}>
-      <UrnDimensionsProvider index={urnDimensionIndex}>
+      <DatasetDimensionsMetadataMapProvider map={datasetDimensionsMetadataMap}>
         {children}
-      </UrnDimensionsProvider>
+      </DatasetDimensionsMetadataMapProvider>
     </AgentAvailabilityProvider>
   );
 };
