@@ -8,9 +8,3 @@ export {
   AgentAvailabilityProvider,
   useAgentAvailability,
 } from './contexts/AgentAvailabilityContext';
-
-export {
-  UrnDimensionsProvider,
-  useUrnDimensions,
-  useUrnDimensionsOptional,
-} from './contexts/UrnDimensionsContext';

@@ -1,10 +1,8 @@
 'use client';
 
+import { UrnDimensionsProvider } from '@epam/statgpt-conversation-view';
 import { UrnDimensionsIndex } from '@epam/statgpt-sdmx-toolkit';
-import {
-  AgentAvailabilityProvider,
-  UrnDimensionsProvider,
-} from '@epam/statgpt-ui-components';
+import { AgentAvailabilityProvider } from '@epam/statgpt-ui-components';
 import { ReactNode } from 'react';
 
 export const ClientProvidersWrapper = ({
