@@ -20,3 +20,4 @@ export * from './download';
 export * from './get-filtered-items';
 export * from './query-filters';
 export * from './get-periods';
+export * from './build-dataset-dimensions-metadata-map';
