@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   displayName: 'shared-toolkit',
   preset: '../../jest.preset.js',
   transform: {
@@ -7,5 +7,4 @@ export default {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/libs/shared-toolkit',
-  setupFilesAfterEnv: ['./test-setup.js'],
 };

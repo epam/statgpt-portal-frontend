@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   displayName: 'conversation-list',
   preset: '../../jest.preset.js',
   transform: {

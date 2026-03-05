@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   displayName: 'user-info',
   preset: '../../jest.preset.js',
   transform: {

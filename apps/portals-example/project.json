@@ -60,7 +60,7 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/portals-example/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["apps/portals-example/src/**/*.{ts,tsx,js,jsx}"]
       }
     },
     "typecheck": {
