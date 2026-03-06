@@ -9,7 +9,7 @@ import {
   ToggleExpandedEvent,
 } from '@epam/statgpt-ui-components';
 
-export default function DraggableListExample() {
+export const DraggableListExample = () => {
   const [items, setItems] = useState<DraggableListNode[]>([
     {
       type: 'item',
@@ -182,7 +182,7 @@ export default function DraggableListExample() {
       />
     </div>
   );
-}
+};
 
 function updateAtPath(
   nodes: DraggableListNode[],
