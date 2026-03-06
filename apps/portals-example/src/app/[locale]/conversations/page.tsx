@@ -1,3 +1,4 @@
+import DraggableListExample from '@statgpt/portals-example/src/components/DraggableListExample/DraggableListExample';
 import Footer from '../../../components/Footer/Footer';
 import WelcomeView from '../../../components/WelcomeView/WelcomeView';
 import { SIGN_IN_LINK } from '../../../constants/auth';
@@ -21,7 +22,8 @@ export default async function Page() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 min-h-0">
-        <WelcomeView />
+        {/* <WelcomeView /> */}
+        <DraggableListExample />
       </div>
       <Footer />
     </div>
