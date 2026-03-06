@@ -1,19 +1,19 @@
 import { CSSProperties, ReactNode } from 'react';
-import {
-  DraggableListItem,
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { IconChevronRight, IconGripVertical } from '@tabler/icons-react';
+import classNames from 'classnames';
+
+import type {
+  DraggableListItemNode,
   ItemClickEvent,
   ToggleCheckedEvent,
   ToggleExpandedEvent,
 } from './types';
-import { useSortable } from '@dnd-kit/sortable';
-import { IconChevronRight, IconGripVertical } from '@tabler/icons-react';
-import { CSS } from '@dnd-kit/utilities';
 import { itemKey } from './utils';
-import classNames from 'classnames';
 import { Checkbox } from '../Checkbox/Checkbox';
 
 export function DraggableListRow({
-  sectionId,
   parentPath,
   item,
   showDragHandle,
@@ -23,14 +23,13 @@ export function DraggableListRow({
   onToggleExpanded,
   onToggleChecked,
 }: {
-  sectionId: string;
   parentPath: string[];
-  item: DraggableListItem;
+  item: DraggableListItemNode;
 
   showDragHandle: boolean;
   showCheckbox: boolean;
 
-  renderLabel?: (item: DraggableListItem) => ReactNode;
+  renderLabel?: (item: DraggableListItemNode) => ReactNode;
 
   onItemClick?: (e: ItemClickEvent) => void;
   onToggleExpanded?: (e: ToggleExpandedEvent) => void;
@@ -42,7 +41,7 @@ export function DraggableListRow({
   const draggable = item.isDisabled ? false : (item.draggable ?? true);
   const checkable = item.isDisabled ? false : (item.checkable ?? true);
 
-  const id = itemKey(sectionId, parentPath, item.id);
+  const id = itemKey(parentPath, item.id);
 
   const {
     attributes,
@@ -61,6 +60,7 @@ export function DraggableListRow({
   };
 
   const disabled = !!item.isDisabled;
+  const path = [...parentPath, item.id];
 
   return (
     <div
@@ -103,9 +103,8 @@ export function DraggableListRow({
         disabled={disabled}
         onClick={(e) =>
           onItemClick?.({
-            sectionId,
             itemId: item.id,
-            path: [...parentPath, item.id],
+            path,
             nativeEvent: e,
           })
         }
@@ -118,16 +117,15 @@ export function DraggableListRow({
       >
         {showCheckbox ? (
           <Checkbox
-            id={`draggable-list-${sectionId}-${[...parentPath, item.id].join('-')}`}
+            id={`draggable-list-${path.join('-')}`}
             checked={!!item.isChecked}
             disabled={!checkable}
             className="p-0"
             stopPropagation
             onChange={(_, nextChecked) =>
               onToggleChecked?.({
-                sectionId,
                 itemId: item.id,
-                path: [...parentPath, item.id],
+                path,
                 nextChecked: !!nextChecked,
               })
             }
@@ -146,9 +144,8 @@ export function DraggableListRow({
           onClick={(e) => {
             e.stopPropagation();
             onToggleExpanded?.({
-              sectionId,
               itemId: item.id,
-              path: [...parentPath, item.id],
+              path,
               nextExpanded: !isExpanded,
             });
           }}

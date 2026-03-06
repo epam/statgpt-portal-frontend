@@ -2,30 +2,27 @@ import { MouseEvent } from 'react';
 
 export type TreePath = readonly string[];
 
-export interface DraggableListItem {
+interface DraggableListBaseNode {
   id: string;
   label: string;
-  items?: DraggableListItem[];
+  isDisabled?: boolean;
+}
+
+export interface DraggableListItemNode extends DraggableListBaseNode {
+  type: 'item';
+  items?: DraggableListNode[];
   isExpanded?: boolean;
   isChecked?: boolean;
-  isIndeterminate?: boolean;
-  isDisabled?: boolean;
   draggable?: boolean;
   checkable?: boolean;
 }
 
-export type DraggableListSection =
-  | {
-      type: 'items';
-      id: string;
-      items: DraggableListItem[];
-    }
-  | {
-      type: 'group';
-      id: string;
-      title: string;
-      items: DraggableListItem[];
-    };
+export interface DraggableListGroupNode extends DraggableListBaseNode {
+  type: 'group';
+  items: DraggableListNode[];
+}
+
+export type DraggableListNode = DraggableListItemNode | DraggableListGroupNode;
 
 export type DndPosition = 'before' | 'after' | 'inside';
 
@@ -42,25 +39,22 @@ export interface DragTarget {
   position: DndPosition;
 }
 
+export interface ItemClickEvent {
+  itemId: string;
+  path: TreePath;
+  nativeEvent: MouseEvent<HTMLElement>;
+}
+
 export interface ToggleExpandedEvent {
-  sectionId: string;
   itemId: string;
   path: TreePath;
   nextExpanded: boolean;
 }
 
 export interface ToggleCheckedEvent {
-  sectionId: string;
   itemId: string;
   path: TreePath;
   nextChecked: boolean;
-}
-
-export interface ItemClickEvent {
-  sectionId: string;
-  itemId: string;
-  path: TreePath;
-  nativeEvent: MouseEvent<HTMLElement>;
 }
 
 export type ItemKey = string;

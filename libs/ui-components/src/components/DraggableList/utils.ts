@@ -1,86 +1,82 @@
-import { DraggableListItem, DraggableListSection, ItemKey } from './types';
+import type {
+  DraggableListItemNode,
+  DraggableListNode,
+  TreePath,
+} from './types';
 
-export function itemKey(
-  sectionId: string,
-  parentPath: readonly string[],
-  itemId: string,
-): ItemKey {
-  return `i:${sectionId}:${parentPath.join('/')}:${itemId}`;
+export function itemKey(parentPath: readonly string[], itemId: string): string {
+  return `i:${[...parentPath, itemId].join('/')}`;
 }
 
 export function parseItemKey(
-  k: string,
-): { sectionId: string; parentPath: string[]; itemId: string } | null {
-  if (!k.startsWith('i:')) return null;
+  key: string,
+): { parentPath: string[]; itemId: string } | null {
+  if (!key.startsWith('i:')) return null;
 
-  const rest = k.slice(2);
-  const parts = rest.split(':');
-  if (parts.length < 3) return null;
+  const rest = key.slice(2);
+  const parts = rest.split('/').filter(Boolean);
+  if (!parts.length) return null;
 
-  const sectionId = parts[0];
-  const parentPathJoined = parts.slice(1, -1).join(':');
-  const itemId = parts[parts.length - 1];
+  return {
+    parentPath: parts.slice(0, -1),
+    itemId: parts[parts.length - 1],
+  };
+}
 
-  const parentPath = parentPathJoined
-    ? parentPathJoined.split('/').filter(Boolean)
-    : [];
+export function findItemNode(
+  nodes: DraggableListNode[],
+  parentPath: readonly string[],
+  itemId: string,
+): DraggableListItemNode | null {
+  const siblings = getSortableItemSiblings(nodes, parentPath);
+  if (!siblings) return null;
+  return siblings.find((node) => node.id === itemId) ?? null;
+}
 
-  return { sectionId, parentPath, itemId };
+export function getNodesAtPath(
+  nodes: DraggableListNode[],
+  path: readonly string[],
+): DraggableListNode[] | null {
+  if (path.length === 0) return nodes;
+
+  const [head, ...tail] = path;
+  const parent = nodes.find((node) => node.id === head);
+
+  if (!parent?.items) return null;
+
+  return getNodesAtPath(parent.items, tail);
+}
+
+export function getSortableItemSiblings(
+  nodes: DraggableListNode[],
+  parentPath: readonly string[],
+): DraggableListItemNode[] | null {
+  const levelNodes = getNodesAtPath(nodes, parentPath);
+  if (!levelNodes) return null;
+
+  return levelNodes.filter(
+    (node): node is DraggableListItemNode => node.type === 'item',
+  );
 }
 
 export function updateItemsAtParent(
-  sections: DraggableListSection[],
-  sectionId: string,
-  parentPath: readonly string[],
-  updater: (items: DraggableListItem[]) => DraggableListItem[],
-): DraggableListSection[] {
-  return sections.map((s) => {
-    if (s.id !== sectionId) return s;
-
-    const updateRec = (
-      items: DraggableListItem[],
-      path: readonly string[],
-    ): DraggableListItem[] => {
-      if (path.length === 0) return updater(items);
-
-      const [head, ...tail] = path;
-      return items.map((it) => {
-        if (it.id !== head) return it;
-        return {
-          ...it,
-          items: updateRec(it.items ?? [], tail),
-        };
-      });
-    };
-
-    return { ...s, items: updateRec(s.items, parentPath) };
-  });
-}
-
-export function getSiblings(
-  sections: DraggableListSection[],
-  sectionId: string,
-  parentPath: readonly string[],
-): DraggableListItem[] | null {
-  const section = sections.find((s) => s.id === sectionId);
-  if (!section) return null;
-
-  let items = section.items;
-  for (const pid of parentPath) {
-    const parent = items.find((x) => x.id === pid);
-    if (!parent) return null;
-    items = parent.items ?? [];
+  nodes: DraggableListNode[],
+  parentPath: TreePath,
+  updater: (nodes: DraggableListNode[]) => DraggableListNode[],
+): DraggableListNode[] {
+  if (parentPath.length === 0) {
+    return updater(nodes);
   }
-  return items;
-}
 
-export function findItem(
-  sections: DraggableListSection[],
-  sectionId: string,
-  parentPath: readonly string[],
-  itemId: string,
-): DraggableListItem | null {
-  const siblings = getSiblings(sections, sectionId, parentPath);
-  if (!siblings) return null;
-  return siblings.find((x) => x.id === itemId) ?? null;
+  const [head, ...tail] = parentPath;
+
+  return nodes.map((node) => {
+    if (node.id !== head) return node;
+    if (!node.items) return node;
+
+    return {
+      ...node,
+      items: updateItemsAtParent(node.items, tail, updater),
+    };
+  });
 }

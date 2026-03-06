@@ -3,101 +3,179 @@
 import { useCallback, useState } from 'react';
 import {
   DraggableList,
-  DraggableListSection,
+  DraggableListNode,
   ItemClickEvent,
   ToggleCheckedEvent,
   ToggleExpandedEvent,
-  DraggableListItem,
 } from '@epam/statgpt-ui-components';
 
 export default function DraggableListExample() {
-  const [sections, setSections] = useState<DraggableListSection[]>([
+  const [items, setItems] = useState<DraggableListNode[]>([
     {
-      type: 'items',
-      id: 'top',
-      items: [
-        { id: 'agency', label: 'Agency', isChecked: true },
-        { id: 'dataset', label: 'Dataset', isChecked: true },
-        { id: 'country', label: 'Country dimensions', isChecked: true },
-      ],
+      type: 'item',
+      id: 'agency',
+      label: 'Agency',
+      isChecked: true,
     },
     {
-      type: 'group',
-      id: 'indicator-group',
-      title: 'Indicator dimensions',
+      type: 'item',
+      id: 'dataset',
+      label: 'Dataset',
+      isChecked: true,
+    },
+    {
+      type: 'item',
+      id: 'country-dimensions',
+      label: 'Country dimensions',
+      isChecked: true,
+    },
+    {
+      type: 'item',
+      id: 'indicator-dimensions',
+      label: 'Indicator dimensions',
+      isChecked: true,
+      isExpanded: true,
       items: [
         {
-          id: 'weo',
+          type: 'group',
+          id: 'world-economic-outlook-group',
           label: 'World Economic Outlook (WEO)',
-          isExpanded: true,
           items: [
-            { id: 'indicator', label: 'Indicator', isChecked: true },
-            { id: 'scale', label: 'Scale', isChecked: true },
-            { id: 'unit', label: 'Unit of measure', isChecked: true },
+            {
+              type: 'item',
+              id: 'indicator',
+              label: 'Indicator',
+              isChecked: true,
+            },
+            {
+              type: 'item',
+              id: 'scale',
+              label: 'Scale',
+              isChecked: true,
+            },
+            {
+              type: 'item',
+              id: 'unit-of-measure',
+              label: 'Unit of measure',
+              isChecked: true,
+            },
           ],
         },
         {
-          id: 'imf',
-          label: 'IMF: Production Indexes',
-          isExpanded: true,
+          type: 'group',
+          id: 'imf-group',
+          label: 'IMF: Production Indexes, World and Country Group Aggregates',
           items: [
-            { id: 'prod-index', label: 'Production index', isChecked: true },
             {
-              id: 'transform',
+              type: 'item',
+              id: 'production-index',
+              label: 'Production index',
+              isChecked: true,
+            },
+            {
+              type: 'item',
+              id: 'type-transaction',
               label: 'Type of Transformation',
               isChecked: true,
             },
-            { id: 'unit2', label: 'Unit of measure', isChecked: true },
+            {
+              type: 'item',
+              id: 'unit-of-measure',
+              label: 'Unit of measure',
+              isChecked: true,
+            },
+          ],
+        },
+        {
+          type: 'group',
+          id: 'gdp-group',
+          label: 'GDP per capita in PPS',
+          items: [
+            {
+              type: 'item',
+              id: 'account-indicator',
+              label: 'National account indicator',
+              isChecked: true,
+            },
+            {
+              type: 'item',
+              id: 'seasonal-adjustment',
+              label: 'Seasonal adjustment',
+              isChecked: true,
+            },
+            {
+              type: 'item',
+              id: 'unit-of-measure',
+              label: 'Unit of measure',
+              isChecked: true,
+            },
           ],
         },
       ],
+    },
+    {
+      type: 'item',
+      id: 'frequency',
+      label: 'Frequency',
+      isChecked: true,
+    },
+    {
+      type: 'item',
+      id: 'time-period',
+      label: 'Time period',
+      isChecked: true,
     },
   ]);
 
   const handleToggleChecked = useCallback((e: ToggleCheckedEvent) => {
-    setSections((prev) =>
-      prev.map((section) => ({
-        ...section,
-        items: updateAtPath(section.items, e.path, (node) => ({
+    setItems((prev) =>
+      updateAtPath(prev, e.path, (node) => {
+        if (node.type !== 'item') return node;
+
+        return {
           ...node,
           isChecked: e.nextChecked,
-        })),
-      })),
+        };
+      }),
     );
   }, []);
 
   const handleToggleExpanded = useCallback((e: ToggleExpandedEvent) => {
-    setSections((prev) =>
-      prev.map((section) => ({
-        ...section,
-        items: updateAtPath(section.items, e.path, (node) => ({
+    setItems((prev) =>
+      updateAtPath(prev, e.path, (node) => {
+        if (node.type !== 'item') return node;
+
+        return {
           ...node,
           isExpanded: e.nextExpanded,
-        })),
-      })),
+        };
+      }),
     );
   }, []);
 
   const handleItemClick = useCallback((e: ItemClickEvent) => {
-    setSections((prev) =>
-      prev.map((section) => ({
-        ...section,
-        items: updateAtPath(section.items, e.path, (node) => {
-          const isDisabled = !!node.isDisabled;
-          const checkable = isDisabled ? false : (node.checkable ?? true);
-          if (!checkable) return node;
+    setItems((prev) =>
+      updateAtPath(prev, e.path, (node) => {
+        if (node.type !== 'item') return node;
 
-          return { ...node, isChecked: !node.isChecked };
-        }),
-      })),
+        const isDisabled = !!node.isDisabled;
+        const checkable = isDisabled ? false : (node.checkable ?? true);
+
+        if (!checkable) return node;
+
+        return {
+          ...node,
+          isChecked: !node.isChecked,
+        };
+      }),
     );
   }, []);
 
   return (
     <div className="max-w-md p-4">
       <DraggableList
-        sections={sections}
-        onSectionsChange={setSections}
+        items={items}
+        onItemsChange={setItems}
         onToggleChecked={handleToggleChecked}
         onToggleExpanded={handleToggleExpanded}
         onItemClick={handleItemClick}
@@ -107,24 +185,26 @@ export default function DraggableListExample() {
 }
 
 function updateAtPath(
-  items: DraggableListItem[],
+  nodes: DraggableListNode[],
   path: readonly string[],
-  updater: (node: DraggableListItem) => DraggableListItem,
-): DraggableListItem[] {
-  if (path.length === 0) return items;
+  updater: (node: DraggableListNode) => DraggableListNode,
+): DraggableListNode[] {
+  if (path.length === 0) return nodes;
 
   const [head, ...tail] = path;
 
-  return items.map((it) => {
-    if (it.id !== head) return it;
+  return nodes.map((node) => {
+    if (node.id !== head) return node;
 
     if (tail.length === 0) {
-      return updater(it);
+      return updater(node);
     }
 
+    if (!node.items) return node;
+
     return {
-      ...it,
-      items: updateAtPath(it.items ?? [], tail, updater),
+      ...node,
+      items: updateAtPath(node.items, tail, updater),
     };
   });
 }

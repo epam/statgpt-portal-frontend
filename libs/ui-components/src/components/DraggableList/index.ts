@@ -1,8 +1,9 @@
 export { DraggableList } from './DraggableList';
 
 export type {
-  DraggableListItem,
-  DraggableListSection,
+  DraggableListNode,
+  DraggableListGroupNode,
+  DraggableListItemNode,
   ToggleCheckedEvent,
   ToggleExpandedEvent,
   ItemClickEvent,

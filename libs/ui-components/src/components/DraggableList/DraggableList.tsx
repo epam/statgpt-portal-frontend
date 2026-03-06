@@ -16,9 +16,11 @@ import {
   arrayMove,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { IconDatabase } from '@tabler/icons-react';
+
 import type {
-  DraggableListItem,
-  DraggableListSection,
+  DraggableListItemNode,
+  DraggableListNode,
   ItemClickEvent,
   ToggleCheckedEvent,
   ToggleExpandedEvent,
@@ -26,13 +28,12 @@ import type {
 import { DraggableListOverlay } from './DraggableListOverlay';
 import { DraggableListRow } from './DraggableListRow';
 import {
-  findItem,
-  getSiblings,
+  findItemNode,
+  getSortableItemSiblings,
   itemKey,
   parseItemKey,
   updateItemsAtParent,
 } from './utils';
-import { IconDatabase } from '@tabler/icons-react';
 
 type ItemKey = string;
 
@@ -45,27 +46,27 @@ type ActiveDrag = {
 };
 
 export interface DraggableListProps {
-  sections: DraggableListSection[];
+  items: DraggableListNode[];
 
   showDragHandle?: boolean;
   showCheckbox?: boolean;
 
-  onSectionsChange: (next: DraggableListSection[]) => void;
+  onItemsChange: (next: DraggableListNode[]) => void;
 
   onToggleExpanded?: (e: ToggleExpandedEvent) => void;
   onToggleChecked?: (e: ToggleCheckedEvent) => void;
   onItemClick?: (e: ItemClickEvent) => void;
 
-  renderLabel?: (item: DraggableListItem) => React.ReactNode;
+  renderLabel?: (item: DraggableListItemNode) => React.ReactNode;
 
   ariaLabel?: string;
 }
 
 export function DraggableList({
-  sections,
+  items,
   showDragHandle = true,
   showCheckbox = true,
-  onSectionsChange,
+  onItemsChange,
   onToggleExpanded,
   onToggleChecked,
   onItemClick,
@@ -83,19 +84,15 @@ export function DraggableList({
     const parsed = parseItemKey(id);
     if (!parsed) return;
 
-    const item = findItem(
-      sections,
-      parsed.sectionId,
-      parsed.parentPath,
-      parsed.itemId,
-    );
+    const item = findItemNode(items, parsed.parentPath, parsed.itemId);
+    if (!item || item.type !== 'item') return;
 
     setActive({
       id,
-      label: item?.label ?? parsed.itemId,
-      hasChildren: !!item?.items?.length,
-      isChecked: item?.isChecked,
-      isExpanded: item?.isExpanded,
+      label: item.label,
+      hasChildren: !!item.items?.length,
+      isChecked: item.isChecked,
+      isExpanded: item.isExpanded,
     });
   };
 
@@ -109,56 +106,90 @@ export function DraggableList({
     const dst = parseItemKey(String(over.id));
     if (!src || !dst) return;
 
-    if (src.sectionId !== dst.sectionId) return;
     if (src.parentPath.join('/') !== dst.parentPath.join('/')) return;
 
-    const siblings = getSiblings(sections, src.sectionId, src.parentPath);
+    const siblings = getSortableItemSiblings(items, src.parentPath);
     if (!siblings) return;
 
     const oldIndex = siblings.findIndex((x) => x.id === src.itemId);
     const newIndex = siblings.findIndex((x) => x.id === dst.itemId);
+
     if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return;
 
-    const next = updateItemsAtParent(
-      sections,
-      src.sectionId,
-      src.parentPath,
-      (items) => arrayMove(items, oldIndex, newIndex),
-    );
+    const next = updateItemsAtParent(items, src.parentPath, (nodes) => {
+      const sortableItems = nodes.filter(
+        (node): node is DraggableListItemNode => node.type === 'item',
+      );
 
-    onSectionsChange(next);
+      const moved = arrayMove(sortableItems, oldIndex, newIndex);
+
+      let itemIndex = 0;
+
+      return nodes.map((node) => {
+        if (node.type !== 'item') return node;
+        const nextNode = moved[itemIndex];
+        itemIndex += 1;
+        return nextNode;
+      });
+    });
+
+    onItemsChange(next);
   };
 
-  const renderItems = (
-    sectionId: string,
-    items: DraggableListItem[],
+  const renderNodes = (
+    nodes: DraggableListNode[],
     parentPath: string[] = [],
-  ) => {
-    const ids = items.map((it) => itemKey(sectionId, parentPath, it.id));
+  ): React.ReactNode => {
+    const sortableIds = nodes
+      .filter((node): node is DraggableListItemNode => node.type === 'item')
+      .map((node) => itemKey(parentPath, node.id));
 
     return (
-      <SortableContext items={ids} strategy={verticalListSortingStrategy}>
-        <ul className="m-0 list-none p-0 flex flex-col gap-2">
-          {items.map((item) => (
-            <li key={item.id} className="m-0 p-0 flex flex-col gap-2">
-              <DraggableListRow
-                sectionId={sectionId}
-                parentPath={parentPath}
-                item={item}
-                showDragHandle={showDragHandle}
-                showCheckbox={showCheckbox}
-                renderLabel={renderLabel}
-                onItemClick={onItemClick}
-                onToggleExpanded={onToggleExpanded}
-                onToggleChecked={onToggleChecked}
-              />
-              {item.items?.length && item.isExpanded ? (
-                <div className="pl-4">
-                  {renderItems(sectionId, item.items, [...parentPath, item.id])}
-                </div>
-              ) : null}
-            </li>
-          ))}
+      <SortableContext
+        items={sortableIds}
+        strategy={verticalListSortingStrategy}
+      >
+        <ul className="m-0 flex list-none flex-col gap-2 p-0">
+          {nodes.map((node) => {
+            if (node.type === 'group') {
+              return (
+                <li
+                  key={node.id}
+                  className="m-0 mt-2 first:mt-0 flex flex-col gap-2 p-0"
+                >
+                  <div className="text-neutrals-1000 h5 flex items-center gap-2 py-1">
+                    <IconDatabase size={12} className="shrink-0" />
+                    {node.label}
+                  </div>
+
+                  <div className="pl-2 border-l border-neutral-600">
+                    {renderNodes(node.items, [...parentPath, node.id])}
+                  </div>
+                </li>
+              );
+            }
+
+            return (
+              <li key={node.id} className="m-0 flex flex-col gap-2 p-0">
+                <DraggableListRow
+                  parentPath={parentPath}
+                  item={node}
+                  showDragHandle={showDragHandle}
+                  showCheckbox={showCheckbox}
+                  renderLabel={renderLabel}
+                  onItemClick={onItemClick}
+                  onToggleExpanded={onToggleExpanded}
+                  onToggleChecked={onToggleChecked}
+                />
+
+                {node.items?.length && node.isExpanded ? (
+                  <div className="pl-7">
+                    {renderNodes(node.items, [...parentPath, node.id])}
+                  </div>
+                ) : null}
+              </li>
+            );
+          })}
         </ul>
       </SortableContext>
     );
@@ -172,19 +203,7 @@ export function DraggableList({
       onDragEnd={handleDragEnd}
       aria-label={ariaLabel}
     >
-      <div className="flex flex-col">
-        {sections.map((s) => (
-          <section key={s.id}>
-            {s.type === 'group' ? (
-              <div className="h5 text-neutrals-1000 flex gap-2 items-center">
-                <IconDatabase size={12} />
-                {s.title}
-              </div>
-            ) : null}
-            {renderItems(s.id, s.items)}
-          </section>
-        ))}
-      </div>
+      <div className="flex flex-col">{renderNodes(items)}</div>
 
       <DragOverlay>
         {active ? (
