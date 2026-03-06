@@ -62,6 +62,61 @@ export interface DraggableListProps {
   ariaLabel?: string;
 }
 
+/**
+ * DraggableList renders a hierarchical list of items that can be reordered
+ * via drag and drop. Items may contain nested items and groups, allowing
+ * complex tree-like structures such as column managers, dataset dimensions,
+ * or configuration panels.
+ *
+ * Only nodes with `type: 'item'` are draggable and sortable. Nodes with
+ * `type: 'group'` act as labeled containers and cannot be dragged.
+ *
+ * The component is fully controlled: state changes such as reordering,
+ * checkbox toggles, or expansion are reported through callbacks and
+ * should be handled by the parent component.
+ *
+ * @example
+ * Basic usage
+ * ```tsx
+ * const [items, setItems] = useState<DraggableListNode[]>([
+ *   { type: 'item', id: 'agency', label: 'Agency', isChecked: true },
+ *   {
+ *     type: 'group',
+ *     id: 'indicator-group',
+ *     label: 'Indicator dimensions',
+ *     items: [
+ *       {
+ *         type: 'item',
+ *         id: 'weo',
+ *         label: 'World Economic Outlook',
+ *         isExpanded: true,
+ *         items: [
+ *           { type: 'item', id: 'indicator', label: 'Indicator' },
+ *           { type: 'item', id: 'scale', label: 'Scale' },
+ *         ],
+ *       },
+ *     ],
+ *   },
+ * ]);
+ *
+ * <DraggableList
+ *   items={items}
+ *   onItemsChange={setItems}
+ *   onToggleChecked={(e) => console.log(e)}
+ *   onToggleExpanded={(e) => console.log(e)}
+ * />
+ * ```
+ *
+ * @param items - Hierarchical list of nodes to render. Nodes may be `item` or `group`.
+ * @param showDragHandle - Whether the drag handle icon should be displayed for draggable items.
+ * @param showCheckbox - Whether item checkboxes should be rendered.
+ * @param onItemsChange - Called when items are reordered via drag and drop.
+ * @param onToggleExpanded - Called when an item's expanded state changes.
+ * @param onToggleChecked - Called when an item's checkbox state changes.
+ * @param onItemClick - Called when the main item row is clicked.
+ * @param renderLabel - Optional custom renderer for item labels.
+ * @param ariaLabel - Optional accessible label for the drag-and-drop container.
+ */
 export function DraggableList({
   items,
   showDragHandle = true,
