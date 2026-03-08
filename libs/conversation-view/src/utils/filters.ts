@@ -150,6 +150,7 @@ export const getFiltersAfterClear = (filters: Filter[]): Filter[] => {
   return filters?.map((filter) => clearFilterValues(filter));
 };
 
+// review
 export const getFiltersPreselectedByDataQuery = (
   filters: Filter[],
   attachmentsFilters?: DataQuery,
