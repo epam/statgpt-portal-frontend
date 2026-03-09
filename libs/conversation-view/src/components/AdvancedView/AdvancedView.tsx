@@ -24,6 +24,7 @@ import {
   DatasetQueryFilters,
 } from '@epam/statgpt-sdmx-toolkit';
 import { getExternalLink } from '../../utils/attachments-details';
+import { TableSettingsPanel } from './TableSettings/TableSettingsPanel';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -153,35 +154,38 @@ export const AdvancedView: FC<Props> = ({
                 getDatasetUpdatedTime={getDatasetUpdatedTime}
                 externalLink={externalLink}
               />
-              <div
-                className={classNames(
-                  'flex-1 min-h-0 overflow-auto',
-                  'advanced-view-filters',
-                )}
-              >
-                <DataDetails
-                  {...props}
-                  titles={titles}
-                  actions={actions}
-                  attachments={dataSetAttachments}
-                  attachmentsDataQuery={attachmentsProps.currentDataQuery}
-                  dataQueries={attachmentsProps?.dataQueries}
-                  dimensions={dimensions}
-                  attachmentsStyles={attachmentsProps.styles}
-                  isDataLoading={isLoadingGridData}
-                  locale={locale}
-                  filtersProps={{
-                    ...props?.filtersProps,
-                    structureDimensions,
-                    structures,
-                    onFiltersChange,
-                    initialConstraints: constraints,
-                  }}
-                  setIsFiltering={setIsFiltering}
-                  attachmentsConfig={attachmentsConfig}
-                  filters={filters}
-                  onFiltersChange={handleFiltersChange}
-                />
+              <div className="flex flex-1 min-h-0 overflow-auto border-t border-neutrals-500">
+                <div
+                  className={classNames(
+                    'flex-1 min-h-0 overflow-auto',
+                    'advanced-view-filters',
+                  )}
+                >
+                  <DataDetails
+                    {...props}
+                    titles={titles}
+                    actions={actions}
+                    attachments={dataSetAttachments}
+                    attachmentsDataQuery={attachmentsProps.currentDataQuery}
+                    dataQueries={attachmentsProps?.dataQueries}
+                    dimensions={dimensions}
+                    attachmentsStyles={attachmentsProps.styles}
+                    isDataLoading={isLoadingGridData}
+                    locale={locale}
+                    filtersProps={{
+                      ...props?.filtersProps,
+                      structureDimensions,
+                      structures,
+                      onFiltersChange,
+                      initialConstraints: constraints,
+                    }}
+                    setIsFiltering={setIsFiltering}
+                    attachmentsConfig={attachmentsConfig}
+                    filters={filters}
+                    onFiltersChange={handleFiltersChange}
+                  />
+                </div>
+                <TableSettingsPanel />
               </div>
             </>
           )}

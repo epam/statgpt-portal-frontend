@@ -5,7 +5,7 @@ import {
   itemKey,
   parseItemKey,
   updateItemsAtParent,
-} from '../utils';
+} from '../utils/utils';
 import type { DraggableListNode } from '../types';
 
 describe('draggable-list utils', () => {

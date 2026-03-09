@@ -33,7 +33,7 @@ import {
   itemKey,
   parseItemKey,
   updateItemsAtParent,
-} from './utils';
+} from './utils/utils';
 
 type ItemKey = string;
 
@@ -217,7 +217,7 @@ export function DraggableList({
                     {node.label}
                   </div>
 
-                  <div className="pl-2 border-l border-neutral-600">
+                  <div className="pl-2 border-l border-neutrals-600">
                     {renderNodes(node.items, [...parentPath, node.id])}
                   </div>
                 </li>

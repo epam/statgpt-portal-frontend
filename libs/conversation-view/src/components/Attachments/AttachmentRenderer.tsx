@@ -52,6 +52,7 @@ import DownloadSettings from '@statgpt/download-panel/src/components/DownloadSet
 import { ConversationViewTitles } from '../../models/titles';
 import DatasetTabs from './Tabs/DatasetTabs/DatasetTabs';
 import { getExternalLink } from '../../utils/attachments-details';
+import { IconColumns3 } from '@tabler/icons-react';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -261,6 +262,14 @@ const AttachmentRenderer: FC<Props> = ({
                             />
                           </a>
                         )}
+                      {!showAdvancedView && (
+                        <Button
+                          buttonClassName="text-button-tertiary"
+                          iconBefore={<IconColumns3 size={16} />}
+                          title="Columns"
+                          onClick={() => console.log('columns')}
+                        />
+                      )}
                       {selectedAttachment &&
                         isCustomGridAttachment(selectedAttachment) && (
                           <Button

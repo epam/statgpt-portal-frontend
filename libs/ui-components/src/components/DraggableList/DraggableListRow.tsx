@@ -10,7 +10,7 @@ import type {
   ToggleCheckedEvent,
   ToggleExpandedEvent,
 } from './types';
-import { itemKey } from './utils';
+import { itemKey } from './utils/utils';
 import { Checkbox } from '../Checkbox/Checkbox';
 
 export function DraggableListRow({
@@ -76,7 +76,7 @@ export function DraggableListRow({
         <div
           className={classNames([
             'group/drag-handle flex w-6 items-center justify-center rounded',
-            disabled ? '' : 'hover:bg-neutral-100 cursor-grab',
+            disabled ? '' : 'hover:bg-neutrals-100 cursor-grab',
           ])}
         >
           <span
@@ -92,7 +92,7 @@ export function DraggableListRow({
           >
             <IconGripVertical
               size={16}
-              className="text-neutral-800 group-hover/drag-handle:text-primary"
+              className="text-neutrals-800 group-hover/drag-handle:text-primary"
             />
           </span>
         </div>
@@ -110,7 +110,7 @@ export function DraggableListRow({
         }
         className={classNames([
           'flex min-w-0 flex-1 items-center gap-2 p-1 text-left rounded',
-          disabled ? '' : 'hover:bg-neutral-100',
+          disabled ? '' : 'hover:bg-neutrals-100',
           disabled ? '' : 'hover:text-blue-700',
           'focus:outline-none',
         ])}
@@ -132,7 +132,7 @@ export function DraggableListRow({
           />
         ) : null}
 
-        <span className="truncate body-3 text-neutral-800">
+        <span className="truncate body-3 text-neutrals-800">
           {renderLabel ? renderLabel(item) : item.label}
         </span>
       </button>
@@ -152,7 +152,7 @@ export function DraggableListRow({
           aria-label={isExpanded ? 'Collapse' : 'Expand'}
           className={classNames([
             'flex w-8 items-center justify-center rounded',
-            disabled ? '' : 'hover:bg-neutral-100',
+            disabled ? '' : 'hover:bg-neutrals-100',
             'focus:outline-none',
           ])}
         >

@@ -67,42 +67,44 @@ const DataDetails: FC<Props> = ({
   }, [isDataLoading, setIsFiltering]);
 
   return (
-    <div className="bg-white rounded h-full min-h-0">
-      <div className="flex flex-col gap-4 h-full overflow-x-hidden">
-        <div className="data-details-header flex justify-between items-center">
-          <h2>{titles?.content ?? 'Content'}</h2>
-          <Filters
-            attachmentsDataQuery={attachmentsDataQuery}
-            dataQueries={dataQueries}
-            updateDataQueries={actions?.updateDataQueries}
-            locale={locale}
-            actions={constraintAction}
-            dimensions={dimensions}
-            titles={titles}
-            {...filtersProps}
-            onFiltersChange={onFiltersChange}
-            limitMessages={limitMessages}
-          />
-        </div>
-        <div className="advanced-view-attachments-container flex-1 min-h-0">
-          <AttachmentRenderer
-            titles={titles}
-            attachments={attachments}
-            attachmentsStyles={attachmentsStyles}
-            currentDataQuery={attachmentsDataQuery}
-            dimensions={dimensions}
-            actions={actions}
-            isShowAttachments={true}
-            isDataSetAttachments={true}
-            isDataLoading={isDataLoading}
-            locale={locale}
-            filters={filters}
-            limitMessages={limitMessages}
-            attachmentsConfig={attachmentsConfig}
-          />
+    <>
+      <div className="bg-white rounded h-full min-h-0">
+        <div className="flex flex-col gap-4 h-full overflow-x-hidden">
+          <div className="data-details-header flex justify-between items-center">
+            <h2>{titles?.content ?? 'Content'}</h2>
+            <Filters
+              attachmentsDataQuery={attachmentsDataQuery}
+              dataQueries={dataQueries}
+              updateDataQueries={actions?.updateDataQueries}
+              locale={locale}
+              actions={constraintAction}
+              dimensions={dimensions}
+              titles={titles}
+              {...filtersProps}
+              onFiltersChange={onFiltersChange}
+              limitMessages={limitMessages}
+            />
+          </div>
+          <div className="advanced-view-attachments-container flex-1 min-h-0">
+            <AttachmentRenderer
+              titles={titles}
+              attachments={attachments}
+              attachmentsStyles={attachmentsStyles}
+              currentDataQuery={attachmentsDataQuery}
+              dimensions={dimensions}
+              actions={actions}
+              isShowAttachments={true}
+              isDataSetAttachments={true}
+              isDataLoading={isDataLoading}
+              locale={locale}
+              filters={filters}
+              limitMessages={limitMessages}
+              attachmentsConfig={attachmentsConfig}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
