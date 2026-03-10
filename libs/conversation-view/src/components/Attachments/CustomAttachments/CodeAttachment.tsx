@@ -17,7 +17,6 @@ export const CodeAttachment = ({
         value={data}
         language={language}
         theme="vs-light"
-        loading="Loading code..."
         options={{
           readOnly: true,
           scrollBeyondLastLine: false,
