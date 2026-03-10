@@ -6,6 +6,7 @@ import {
   isCustomGridAttachment,
   isMarkdownAttachment,
   isUrlAttachment,
+  isCustomCodeSampleAttachment,
 } from '../../../../utils/attachments/attachment-parser';
 import { Attachment } from '@epam/ai-dial-shared';
 import ChartIcon from '../../../../assets/icons/chart.svg';
@@ -67,7 +68,10 @@ const AttachmentTab: FC<Props> = ({
         return <QueryIcon className={className} />;
       }
 
-      if (isMarkdownAttachment(attachment)) {
+      if (
+        isMarkdownAttachment(attachment) ||
+        isCustomCodeSampleAttachment(attachment)
+      ) {
         return <CodeIcon className={className} />;
       }
 
