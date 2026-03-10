@@ -24,7 +24,8 @@
     "react-flatpickr": "^4.0.11",
     "date-fns": "^4.1.0",
     "lodash": "^4.17.23",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "@monaco-editor/react": "^4.7.0"
   },
   "peerDependencies": {
     "react": "^19.2.1"

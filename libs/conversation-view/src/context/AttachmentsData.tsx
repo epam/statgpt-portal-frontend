@@ -21,6 +21,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   CustomChartAttachmentType,
+  CustomCodeAttachment,
   CustomGridAttachment,
 } from '../models/attachments';
 import {
@@ -36,6 +37,10 @@ import { ChartingStyles } from '../models/attachments-styles';
 import { MetadataSettings } from '../models/metadata';
 import { ConversationViewTitles } from '../models/titles';
 import { Filter } from '../models/filters';
+import { Attachment } from '@epam/ai-dial-shared';
+import { unwrapMarkdownCode } from '../utils/attachments/unwrap-markdown-code';
+
+const ALLOWED_CODE_SAMPLE_LANGUAGES = ['python'];
 
 export function useAttachmentsData(
   actions: {
@@ -50,6 +55,7 @@ export function useAttachmentsData(
   chartStyles?: ChartingStyles,
   metadataSettings?: MetadataSettings,
   titles?: ConversationViewTitles,
+  rawAttachments?: Attachment[],
 ) {
   const [dataMessage, setDataMessage] = useState<DataMessage | undefined>();
   const [dataset, setDataset] = useState<Dataflow | undefined>();
@@ -65,6 +71,9 @@ export function useAttachmentsData(
       title: titles?.chart || 'Chart',
       type: AttachmentType.CUSTOM_CHART,
     });
+  const [codeAttachments, setCodeAttachments] = useState<
+    CustomCodeAttachment[]
+  >([]);
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
   const [structureDimensions, setStructureDimensions] = useState<
     StructureItemBase[]
@@ -234,9 +243,30 @@ export function useAttachmentsData(
     }
   }, [structures, dataMessage, dataQuery, locale, chartStyles]);
 
+  useEffect(() => {
+    if (rawAttachments?.length) {
+      const mdParsedAttachments = rawAttachments
+        .filter((a) => a.type === AttachmentType.MARKDOWN)
+        .map((a) => {
+          const parsed = unwrapMarkdownCode(a.data ?? '');
+          return {
+            title: titles?.codeSamples ?? 'Code samples',
+            type: AttachmentType.CUSTOM_CODE_SAMPLE,
+            language: parsed.language,
+            data: parsed.code,
+          } as CustomCodeAttachment;
+        })
+        .filter((a) =>
+          ALLOWED_CODE_SAMPLE_LANGUAGES.includes(a.language ?? ''),
+        );
+
+      setCodeAttachments(mdParsedAttachments);
+    }
+  }, [rawAttachments, titles]);
+
   const attachments = useMemo(
-    () => [customGridAttachment, customChartAttachment],
-    [customGridAttachment, customChartAttachment],
+    () => [customGridAttachment, customChartAttachment, ...codeAttachments],
+    [customGridAttachment, customChartAttachment, codeAttachments],
   );
 
   return {

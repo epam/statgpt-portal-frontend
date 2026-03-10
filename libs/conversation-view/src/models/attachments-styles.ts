@@ -21,6 +21,9 @@ export interface AttachmentsStyles {
   isDisplayDatasetIcon?: boolean;
   isDownloadDescriptionVisible?: boolean;
   downloadTitles?: DownloadTitles;
+  codeAttachmentContainerClassName?: string;
+  copyTitle?: string;
+  copyIcon?: ReactNode;
 }
 
 export interface ChartingStyles {

@@ -75,6 +75,8 @@ export const AdvancedView: FC<Props> = ({
     attachmentsProps.styles?.chartingStyles,
     metadataSettings,
     titles,
+    props.filtersProps.conversation?.messages?.at(-1)?.custom_content
+      ?.attachments,
   );
   const [isFiltering, setIsFiltering] = useState<boolean>();
   const [filters, setFilters] = useState<DatasetQueryFilters>({
