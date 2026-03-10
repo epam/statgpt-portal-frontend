@@ -36,14 +36,11 @@ export const getAnnotationPeriod = (
 const idComparer = (nodeA: Codelist, nodeB: Codelist) =>
   (nodeA.id as string).localeCompare(nodeB.id);
 
-// review
-
 const membersComparer = (
   nodeA: MemberSelectionValue,
   nodeB: MemberSelectionValue,
 ) => (nodeA.memberValue as string).localeCompare(nodeB.memberValue);
 
-// review
 const filterElements = (
   source: Codelist[],
   available: MemberSelectionValue[],
@@ -79,7 +76,6 @@ const isHierarchicalCodes = (codes?: Code[]): boolean => {
   return !!codes?.some((code) => code.parent);
 };
 
-// review
 export const getAvailableCodesFromConstrains = (
   codes: Codelist[] | undefined,
   dimensionId: string | undefined,

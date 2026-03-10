@@ -156,7 +156,6 @@ const getStartAndEnd = (
 
 export const FREQUENCY_DIM_ID = ['FREQUENCY', 'FREQ'];
 
-// review
 export const getAdditionalColumns = (
   constraints: DataConstraints[],
   selectedTimePeriod: TimeRange,
