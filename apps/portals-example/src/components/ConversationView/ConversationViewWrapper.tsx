@@ -57,6 +57,7 @@ import ChevronLeft from '../../../public/images/chevron-left.svg';
 import ChevronSolidDownIcon from '../../../public/images/chevron-solid-down.svg';
 import Regenerate from '../../../public/images/messages/renew.svg';
 import Copy from '../../../public/images/messages/copy.svg';
+import CheckIcon from '../../../public/images/check.svg';
 import ThumbUp from '../../../public/images/messages/thumb-up.svg';
 import ThumbDown from '../../../public/images/messages/thumb-down.svg';
 import Edit from '../../../public/images/messages/edit.svg';
@@ -157,6 +158,7 @@ const ConversationViewWrapper: FC<Props> = ({
     duplicate: t(ChatI18nKeys.DUPLICATE_CHAT),
     close: t(AppI18nKeys.CLOSE),
     chart: t(AttachmentsI18nKeys.CHART),
+    codeSamples: t(AttachmentsI18nKeys.CODE_SAMPLES),
     noMetadata: t(AdvancedViewI18nKeys.NO_METADATA),
     explore: t(ChatI18nKeys.EXPLORE_DATA),
     apply: t(AdvancedViewI18nKeys.APPLY),
@@ -256,6 +258,10 @@ const ConversationViewWrapper: FC<Props> = ({
     errorDownloadIcon: <ErrorIcon className="w-6 h-6 text-semantic-error" />,
     datasetIcon: <Dataset className="w-5 h-5" />,
     chartingIcons,
+    copyTitle: t(ChatI18nKeys.COPY),
+    copiedTitle: t(ChatI18nKeys.SHARE_COPIED_LINK),
+    copyIcon: <Copy className="size-4" />,
+    copiedIcon: <CheckIcon className="size-4" />,
     downloadTitles: {
       partialDataset: t(DownloadI18nKeys.PARTIAL_DATASET),
       fullDataset: t(DownloadI18nKeys.FULL_DATASET),
@@ -365,6 +371,12 @@ const ConversationViewWrapper: FC<Props> = ({
                 />
               ),
               ...attachmentsStyles,
+              codeAttachmentContainerClassName: 'h-[350px]',
+              copyTitle: undefined,
+              copiedTitle: undefined,
+              copiedTooltip: t(ChatI18nKeys.SHARE_COPIED_LINK),
+              copyIcon: <Copy className="size-5" />,
+              copiedIcon: <CheckIcon className="size-5" />,
             }}
             inputMessageStyles={{
               inputContainerClass: !isOpenedAdvancedView
