@@ -10,6 +10,7 @@ export const DEFAULT_MODEL_ID = process.env.DEFAULT_MODEL || 'gpt-4-turbo';
 export const sdmxApiClient = new SdmxApiClient({
   apiUrl: process.env.SDMX_API_URL || '',
   constrainsApiUrl: process.env.CONSTRAINS_SDMX_API_URL || '',
+  sdmxProxyUrl: process.env.SDMX_PROXY_URL || '',
   apiKey: process.env.SDMX_AUTH_KEY,
 });
 

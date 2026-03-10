@@ -25,8 +25,12 @@ export class SdmxApiClient {
     return this.request(endpoint, { ...options, method: 'GET' });
   }
 
-  async postRequest<T>(endpoint: string, options?: RequestOptions): Promise<T> {
-    return this.request(endpoint, { ...options, method: 'POST' });
+  async postRequest<T>(
+    endpoint: string,
+    options?: RequestOptions,
+    apiUrl?: string,
+  ): Promise<T> {
+    return this.request(endpoint, { ...options, method: 'POST' }, apiUrl);
   }
 
   async streamRequest(
@@ -88,13 +92,14 @@ export class SdmxApiClient {
     return new Response(stream, { headers: responseHeaders });
   }
 
-  async request<T>(endpoint: string, options: RequestOptions): Promise<T> {
+  async request<T>(
+    endpoint: string,
+    options: RequestOptions,
+    apiUrl?: string,
+  ): Promise<T> {
     const startTime = Date.now();
 
-    const url =
-      endpoint.includes('availability') && !!this.config.constrainsApiUrl
-        ? `${this.config.constrainsApiUrl}/${endpoint}`
-        : `${this.config.apiUrl}/${endpoint}`;
+    const url = `${apiUrl || this.config.apiUrl}/${endpoint}`;
     const headers = {
       ...getHeaders(void 0, {
         jwt: this.config.jwt,
