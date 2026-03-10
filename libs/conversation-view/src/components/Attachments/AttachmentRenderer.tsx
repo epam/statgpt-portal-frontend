@@ -17,6 +17,7 @@ import {
   PopUpState,
   LimitMessages,
   RequestLimitMessage,
+  CopyButton,
 } from '@epam/statgpt-ui-components';
 import FileAttachment from './BaseAttachments/FileAttachment';
 import MarkdownAttachment from './BaseAttachments/MarkdownAttachment';
@@ -276,17 +277,17 @@ const AttachmentRenderer: FC<Props> = ({
                         )}
                       {selectedAttachment &&
                         isCustomCodeSampleAttachment(selectedAttachment) && (
-                          <Button
+                          <CopyButton
                             title={attachmentsStyles?.copyTitle}
-                            isSmallButton
-                            buttonClassName="text-button-tertiary small-icon-button !h-6 !p-0"
-                            textClassName="ml-1"
+                            copiedTitle={attachmentsStyles?.copiedTitle}
+                            tooltip={attachmentsStyles?.copiedTooltip}
+                            icon={attachmentsStyles?.copyIcon}
+                            copiedIcon={attachmentsStyles?.copiedIcon}
                             onClick={() =>
                               navigator.clipboard.writeText(
                                 selectedAttachment.data ?? '',
                               )
                             }
-                            iconBefore={attachmentsStyles?.copyIcon}
                           />
                         )}
                     </div>
