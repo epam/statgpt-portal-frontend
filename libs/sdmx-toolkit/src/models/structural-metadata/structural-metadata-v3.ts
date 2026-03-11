@@ -1,9 +1,6 @@
 import { Codelist } from './codelist';
 import { ConceptScheme } from './concept-scheme';
-import {
-  DataStructure,
-  MetadataStructure,
-} from './data-structure';
+import { DataStructure, MetadataStructure } from './data-structure';
 import { Dataflow } from './dataflow';
 import { DataConstraintsV3 } from './constraints-v3';
 
