@@ -1,17 +1,17 @@
 import {
-  CubeRegion,
-  DataConstraints,
-  MemberSelection,
-  MemberSelectionValue,
-  StructuralMetaData,
-  StructuralMetaDataV3,
-} from '@epam/statgpt-sdmx-toolkit';
-import {
   Component,
   ComponentValue,
   CubeRegionV3,
   DataConstraintsV3,
 } from '../models/structural-metadata/constraints-v3';
+import {
+  CubeRegion,
+  DataConstraints,
+  MemberSelection,
+  MemberSelectionValue,
+} from '../models/structural-metadata/constraints';
+import { StructuralMetaDataV3 } from '../models/structural-metadata-v3';
+import { StructuralMetaData } from '../models/structural-metadata';
 
 export function mapAvailabilityV3ToPlus(
   data: StructuralMetaDataV3,
