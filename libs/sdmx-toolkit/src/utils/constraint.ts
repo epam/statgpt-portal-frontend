@@ -2,7 +2,7 @@ import {
   DataConstraints,
   MemberSelectionValue,
 } from '../models/structural-metadata/constraints';
-import { Annotation } from '../models/structural-metadata-base';
+import { Annotation } from '../models/structural-metadata/structural-metadata-base';
 import { TimeRange, DataQuery } from '@epam/statgpt-shared-toolkit';
 import { getLocalizedName } from './get-localized-name';
 import { Code, Codelist } from '../models/structural-metadata/codelist';

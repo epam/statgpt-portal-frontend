@@ -1,8 +1,8 @@
-import { StructuralData } from '../models/structural-metadata';
+import { StructuralData } from '../models/structural-metadata/structural-metadata';
 import { Codelist } from '../models/structural-metadata/codelist';
 import { getDimensions } from './get-dimensions';
 import { DSDComponentConceptBase } from '../models/structural-metadata/data-structure';
-import { ElementBase } from '../models/structural-metadata-base';
+import { ElementBase } from '../models/structural-metadata/structural-metadata-base';
 import { getConcept } from './get-concept';
 import { getArtifactByUrnWithWildCard } from './wildcards';
 import { getConvertedMetaAttributes } from './get-converted-meta-attributes';
