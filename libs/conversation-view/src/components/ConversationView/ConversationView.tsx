@@ -76,6 +76,7 @@ import {
   InlineAlert,
   InlineAlertType,
   useAgentAvailability,
+  ScrollContainer,
 } from '@epam/statgpt-ui-components';
 import { MetadataSettings } from '../../models/metadata';
 import { ConversationViewTitles } from '../../models/titles';
@@ -745,7 +746,7 @@ export const ConversationView: FC<Props> = ({
   return (
     <div
       className={classNames(
-        'h-full flex flex-col bg-white',
+        'h-full flex flex-col bg-white conversation-view-wrapper',
         isOpenedAdvancedView && !showConversationHeaderAdvancedView
           ? 'p-4'
           : 'pr-2',
@@ -760,7 +761,7 @@ export const ConversationView: FC<Props> = ({
           shareConversationProps={shareConversationProps}
         />
       )}
-      <div
+      <ScrollContainer
         className={classNames(
           'flex-1 min-h-0 flex flex-col items-end overflow-y-auto',
           messageStyles?.messagesWrapperClass,
@@ -798,7 +799,7 @@ export const ConversationView: FC<Props> = ({
           limitMessages={limitMessages}
           attachmentsConfig={attachmentsConfig}
         />
-      </div>
+      </ScrollContainer>
       {isShowOnboarding ? null : !isReadonlyConversation ? (
         <div className={classNames(inputMessageStyles.inputContainerClass)}>
           {getInput()}

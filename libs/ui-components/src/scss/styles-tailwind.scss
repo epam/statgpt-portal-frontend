@@ -96,3 +96,29 @@
     }
   }
 }
+
+.scroll-container {
+  overflow-y: auto;
+  // scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+/* Firefox visible state */
+.scroll-container.scroll-visible {
+  scrollbar-color: theme('colors.gray.300') theme('colors.gray.100');
+}
+
+/* Chrome / Safari */
+.scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+  transition: background 0.3s ease;
+}
