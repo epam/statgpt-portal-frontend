@@ -1,11 +1,11 @@
-import { Codelist } from './structural-metadata/codelist';
-import { ConceptScheme } from './structural-metadata/concept-scheme';
-import { DataConstraints } from './structural-metadata/constraints';
+import { Codelist } from './codelist';
+import { ConceptScheme } from './concept-scheme';
+import { DataConstraints } from './constraints';
 import {
   DataStructure,
   MetadataStructure,
-} from './structural-metadata/data-structure';
-import { Dataflow } from './structural-metadata/dataflow';
+} from './data-structure';
+import { Dataflow } from './dataflow';
 
 export interface StructuralMetaData {
   data: StructuralData;

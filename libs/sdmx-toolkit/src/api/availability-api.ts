@@ -1,5 +1,5 @@
 import { SeriesFilterDto } from '../models/series-filter';
-import { StructuralMetaData } from '../models/structural-metadata';
+import { StructuralMetaData } from '../models/structural-metadata/structural-metadata';
 import { splitUrn } from '../utils/urn';
 import { SdmxApiClient } from './sdmx-api-client';
 import { SdmxReferences, SdmxAvailabilityMode } from '../types/references';

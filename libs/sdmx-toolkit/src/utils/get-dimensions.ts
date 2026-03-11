@@ -1,4 +1,4 @@
-import { StructuralData } from '../models/structural-metadata';
+import { StructuralData } from '../models/structural-metadata/structural-metadata';
 import {
   Dimension,
   DimensionList,

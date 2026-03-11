@@ -10,8 +10,8 @@ import {
   MemberSelection,
   MemberSelectionValue,
 } from '../models/structural-metadata/constraints';
-import { StructuralMetaDataV3 } from '../models/structural-metadata-v3';
-import { StructuralMetaData } from '../models/structural-metadata';
+import { StructuralMetaDataV3 } from '../models/structural-metadata/structural-metadata-v3';
+import { StructuralMetaData } from '../models/structural-metadata/structural-metadata';
 
 export function mapAvailabilityV3ToPlus(
   data: StructuralMetaDataV3,

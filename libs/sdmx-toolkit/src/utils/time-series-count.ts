@@ -1,4 +1,4 @@
-import { Annotation } from '../models/structural-metadata-base';
+import { Annotation } from '../models/structural-metadata/structural-metadata-base';
 import { Annotations } from '../types/annotations';
 
 export const getTimeSeriesCount = (

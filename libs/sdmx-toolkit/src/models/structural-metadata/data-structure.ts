@@ -1,5 +1,5 @@
 import { CommonArtefactProperty } from './common-artefact-properties';
-import { Annotation, Link } from '../structural-metadata-base';
+import { Annotation, Link } from './structural-metadata-base';
 import { Representation } from './representation';
 
 export interface DataStructure extends CommonArtefactProperty {
