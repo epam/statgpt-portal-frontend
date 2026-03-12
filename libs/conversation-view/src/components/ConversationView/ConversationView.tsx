@@ -345,20 +345,30 @@ export const ConversationView: FC<Props> = ({
       if (isHttpError(error)) {
         httpError = error as HttpError;
 
-        if (httpError.code === DIAL_ERROR_TYPES.RATE_LIMIT_EXCEEDED) {
-          const rateLimitError = httpError as HttpError<RateLimitErrorContext>;
-          finalErrorMessage =
-            rateLimitError.displayMessage ?? rateLimitError.message;
+        switch (httpError.code) {
+          case DIAL_ERROR_TYPES.RATE_LIMIT_EXCEEDED: {
+            const rateLimitError =
+              httpError as HttpError<RateLimitErrorContext>;
 
-          errorContext = rateLimitError.details;
-        } else if (httpError.code === DIAL_ERROR_CODES.CONTENT_FILTER) {
-          finalErrorMessage =
-            statusMessages.contentFilterError || httpError.message;
-        } else {
-          finalErrorMessage =
-            httpError.status === HTTP_ERROR_CODES.SERVICE_UNAVAILABLE
-              ? statusMessages.serverOverloaded
-              : statusMessages.serverError;
+            finalErrorMessage =
+              rateLimitError.displayMessage ?? rateLimitError.message;
+
+            errorContext = rateLimitError.details;
+            break;
+          }
+
+          case DIAL_ERROR_CODES.CONTENT_FILTER: {
+            finalErrorMessage =
+              statusMessages.contentFilterError ?? httpError.message;
+            break;
+          }
+
+          default: {
+            finalErrorMessage =
+              httpError.status === HTTP_ERROR_CODES.SERVICE_UNAVAILABLE
+                ? statusMessages.serverOverloaded
+                : statusMessages.serverError;
+          }
         }
       } else {
         httpError = new HttpError({
