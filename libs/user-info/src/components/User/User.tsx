@@ -73,7 +73,7 @@ export const User: FC<Props> = ({
         </div>
         <p
           className={classNames(
-            'h3 cursor-pointer overflow-x-hidden text-ellipsis',
+            'h3 cursor-pointer overflow-hidden text-ellipsis',
             styles?.userNameStyles,
           )}
         >
