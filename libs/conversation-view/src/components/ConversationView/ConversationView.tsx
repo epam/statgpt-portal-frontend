@@ -58,8 +58,6 @@ import {
   CUSTOM_VIEW_STATE_KEY,
   CustomFields,
   CustomViewState,
-  DIAL_ERROR_CODES,
-  DIAL_ERROR_TYPES,
   ERROR_CONTEXT_KIND,
   ErrorContextBase,
   formatDateTime,
@@ -67,7 +65,6 @@ import {
   isRateLimitStillActive,
   mergeMessages,
   Message,
-  RateLimitErrorContext,
   streamChatResponse,
 } from '@epam/statgpt-dial-toolkit';
 import {
@@ -103,6 +100,7 @@ import {
   resolveHttpStreamingError,
   throwIfMessageError,
 } from '../../utils/errors';
+import { updateConversationErrorContext } from '../../utils/conversation';
 
 interface Props {
   conversationKey: string;
@@ -459,34 +457,26 @@ export const ConversationView: FC<Props> = ({
       userMessage?: Message,
       errorContext?: ErrorContextBase,
     ) => {
-      if (conversation) {
-        const currentCustomViewState = conversation.customViewState ?? {};
-        const currentAppViewState =
-          (currentCustomViewState[CUSTOM_VIEW_STATE_KEY] as
-            | CustomViewState
-            | undefined) ?? {};
+      if (!conversation) return;
 
-        const updatedConversation: Conversation = {
-          ...conversation,
-          messages: [...conversation.messages],
-          updatedAt: Date.now(),
-          customViewState: {
-            ...currentCustomViewState,
-            [CUSTOM_VIEW_STATE_KEY]: {
-              ...currentAppViewState,
-              errorContext,
-            } satisfies CustomViewState,
-          },
-        };
+      let updatedConversation = updateConversationErrorContext(
+        conversation,
+        errorContext,
+      );
 
-        if (userMessage) {
-          updatedConversation.messages.push(userMessage);
-        }
+      updatedConversation = {
+        ...updatedConversation,
+        messages: [...conversation.messages],
+        updatedAt: Date.now(),
+      };
 
-        updatedConversation.messages.push(assistantMessage);
-
-        await saveConversation(updatedConversation);
+      if (userMessage) {
+        updatedConversation.messages.push(userMessage);
       }
+
+      updatedConversation.messages.push(assistantMessage);
+
+      await saveConversation(updatedConversation);
     },
     [saveConversation],
   );
@@ -494,26 +484,9 @@ export const ConversationView: FC<Props> = ({
   const setConversationErrorContext = useCallback(
     (context?: ErrorContextBase) => {
       setConversation((conversation) => {
-        if (!conversation) {
-          return conversation;
-        }
+        if (!conversation) return conversation;
 
-        const currentCustomViewState = conversation.customViewState ?? {};
-        const currentAppViewState =
-          (currentCustomViewState[CUSTOM_VIEW_STATE_KEY] as
-            | CustomViewState
-            | undefined) ?? {};
-
-        return {
-          ...conversation,
-          customViewState: {
-            ...currentCustomViewState,
-            [CUSTOM_VIEW_STATE_KEY]: {
-              ...currentAppViewState,
-              errorContext: context,
-            } satisfies CustomViewState,
-          },
-        };
+        return updateConversationErrorContext(conversation, context);
       });
     },
     [setConversation],
