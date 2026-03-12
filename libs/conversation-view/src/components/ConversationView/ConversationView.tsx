@@ -55,10 +55,18 @@ import {
 import { validateAndPrepareMessage } from '../../utils/validate-message';
 
 import {
+  CUSTOM_VIEW_STATE_KEY,
   CustomFields,
+  CustomViewState,
   DIAL_ERROR_CODES,
+  DIAL_ERROR_TYPES,
+  ErrorContextBase,
+  formatDateTime,
+  getRateLimitRestoreDate,
+  isRateLimitStillActive,
   mergeMessages,
   Message,
+  RateLimitErrorContext,
   streamChatResponse,
 } from '@epam/statgpt-dial-toolkit';
 import {
@@ -238,6 +246,7 @@ export const ConversationView: FC<Props> = ({
         await actions.updateConversation(decodeURI(conversationKey), {
           name: updatedConversation.name,
           messages: updatedConversation.messages,
+          customViewState: updatedConversation.customViewState,
         });
       } catch (err) {
         console.error('Failed to save conversation:', err);
@@ -325,14 +334,24 @@ export const ConversationView: FC<Props> = ({
   );
 
   const handleStreamingError = useCallback(
-    (error: any, assistantMessage?: Message): Message | undefined => {
+    (
+      error: any,
+      assistantMessage?: Message,
+    ): { assistantMessage?: Message; errorContext?: ErrorContextBase } => {
       let finalErrorMessage = statusMessages.serverError;
       let httpError;
+      let errorContext: ErrorContextBase | undefined;
 
       if (isHttpError(error)) {
         httpError = error as HttpError;
 
-        if (httpError.code === DIAL_ERROR_CODES.CONTENT_FILTER) {
+        if (httpError.code === DIAL_ERROR_TYPES.RATE_LIMIT_EXCEEDED) {
+          const rateLimitError = httpError as HttpError<RateLimitErrorContext>;
+          finalErrorMessage =
+            rateLimitError.displayMessage ?? rateLimitError.message;
+
+          errorContext = rateLimitError.details;
+        } else if (httpError.code === DIAL_ERROR_CODES.CONTENT_FILTER) {
           finalErrorMessage =
             statusMessages.contentFilterError || httpError.message;
         } else {
@@ -356,7 +375,7 @@ export const ConversationView: FC<Props> = ({
 
       handleInvalidStreaming?.(httpError);
 
-      return assistantMessage;
+      return { assistantMessage, errorContext };
     },
     [
       handleInvalidStreaming,
@@ -372,12 +391,20 @@ export const ConversationView: FC<Props> = ({
       assistantMessage: Message,
       apiMessages: Message[],
       conversation?: Conversation & CustomFields,
-    ) => {
+    ): Promise<{
+      assistantMessage?: Message;
+      errorContext?: ErrorContextBase;
+    }> => {
       const abortController = new AbortController();
       setConversationSignal(abortController);
       let currentAssistantMessage: Message | undefined = assistantMessage;
+      let currentErrorContext: ErrorContextBase | undefined;
+
       if (!conversation) {
-        return;
+        return {
+          assistantMessage: currentAssistantMessage,
+          errorContext: currentErrorContext,
+        };
       }
 
       await streamChatResponse?.(
@@ -388,6 +415,27 @@ export const ConversationView: FC<Props> = ({
           signal: abortController?.signal,
           onMessage: (data) => {
             if (data.error) {
+              if (data.error.type === DIAL_ERROR_TYPES.RATE_LIMIT_EXCEEDED) {
+                const displayMessage = data.error.exceeded_limit?.length
+                  ? statusMessages.getExceededLimitsMessage(
+                      data.error.exceeded_limit,
+                    )
+                  : (data.error.display_message ?? '');
+
+                throw new HttpError<RateLimitErrorContext>({
+                  message: data.error.message,
+                  displayMessage,
+                  code: data.error.type,
+                  status:
+                    data.error.status ?? HTTP_ERROR_CODES.TOO_MANY_REQUESTS,
+                  details: {
+                    kind: 'rate_limit',
+                    occurredAt: new Date().toISOString(),
+                    retryAfterSeconds: Number(data.error.retry_after ?? ''),
+                  },
+                });
+              }
+
               throw new HttpError({
                 message: data.error.message,
                 status: data.error.status ?? HTTP_ERROR_CODES.BAD_REQUEST,
@@ -418,13 +466,18 @@ export const ConversationView: FC<Props> = ({
         token,
         conversation?.custom_fields as CustomFields,
       ).catch((error) => {
-        currentAssistantMessage = handleStreamingError(
+        const { assistantMessage, errorContext } = handleStreamingError(
           error,
           currentAssistantMessage,
         );
+        currentAssistantMessage = assistantMessage;
+        currentErrorContext = errorContext;
       });
 
-      return currentAssistantMessage;
+      return {
+        assistantMessage: currentAssistantMessage,
+        errorContext: currentErrorContext,
+      };
     },
     [token, updateAssistantMessage, handleStreamingError],
   );
@@ -434,12 +487,26 @@ export const ConversationView: FC<Props> = ({
       assistantMessage: Message,
       conversation: Conversation,
       userMessage?: Message,
+      errorContext?: ErrorContextBase,
     ) => {
       if (conversation) {
-        const updatedConversation = {
+        const currentCustomViewState = conversation.customViewState ?? {};
+        const currentAppViewState =
+          (currentCustomViewState[CUSTOM_VIEW_STATE_KEY] as
+            | CustomViewState
+            | undefined) ?? {};
+
+        const updatedConversation: Conversation = {
           ...conversation,
           messages: [...conversation.messages],
           updatedAt: Date.now(),
+          customViewState: {
+            ...currentCustomViewState,
+            [CUSTOM_VIEW_STATE_KEY]: {
+              ...currentAppViewState,
+              errorContext,
+            } satisfies CustomViewState,
+          },
         };
 
         if (userMessage) {
@@ -452,6 +519,34 @@ export const ConversationView: FC<Props> = ({
       }
     },
     [saveConversation],
+  );
+
+  const setConversationErrorContext = useCallback(
+    (context?: ErrorContextBase) => {
+      setConversation((conversation) => {
+        if (!conversation) {
+          return conversation;
+        }
+
+        const currentCustomViewState = conversation.customViewState ?? {};
+        const currentAppViewState =
+          (currentCustomViewState[CUSTOM_VIEW_STATE_KEY] as
+            | CustomViewState
+            | undefined) ?? {};
+
+        return {
+          ...conversation,
+          customViewState: {
+            ...currentCustomViewState,
+            [CUSTOM_VIEW_STATE_KEY]: {
+              ...currentAppViewState,
+              errorContext: context,
+            } satisfies CustomViewState,
+          },
+        };
+      });
+    },
+    [setConversation],
   );
 
   const handleSendMessageError = useCallback(
@@ -529,16 +624,22 @@ export const ConversationView: FC<Props> = ({
         initialAssistantMessage = initializeAssistantMessage();
         const apiMessages = transformMessagesForApi(userMessage, data);
 
-        finalAssistantMessage = await handleStreamingResponse(
-          initialAssistantMessage,
-          apiMessages,
-          data,
-        );
+        const { assistantMessage, errorContext } =
+          await handleStreamingResponse(
+            initialAssistantMessage,
+            apiMessages,
+            data,
+          );
+
+        setConversationErrorContext(errorContext);
+
+        finalAssistantMessage = assistantMessage;
 
         await finalizeConversation(
           finalAssistantMessage as Message,
           data,
           userMessage,
+          errorContext,
         );
       } catch (err) {
         handleStreamingProcessError(
@@ -560,6 +661,7 @@ export const ConversationView: FC<Props> = ({
       handleStreamingResponse,
       finalizeConversation,
       handleStreamingProcessError,
+      setConversationErrorContext,
     ],
   );
 
@@ -574,15 +676,21 @@ export const ConversationView: FC<Props> = ({
       try {
         setIsStreaming(true);
         initialAssistantMessage = initializeAssistantMessage();
-        finalAssistantMessage = await handleStreamingResponse(
-          initialAssistantMessage,
-          apiMessages,
-          updatedConversation,
-        );
+        const { assistantMessage, errorContext } =
+          await handleStreamingResponse(
+            initialAssistantMessage,
+            apiMessages,
+            updatedConversation,
+          );
+        finalAssistantMessage = assistantMessage;
+
+        setConversationErrorContext(errorContext);
 
         await finalizeConversation(
           finalAssistantMessage as Message,
           updatedConversation,
+          undefined,
+          errorContext,
         );
       } catch (err) {
         handleStreamingProcessError(
@@ -603,6 +711,7 @@ export const ConversationView: FC<Props> = ({
       handleStreamingProcessError,
       handleStreamingResponse,
       initializeAssistantMessage,
+      setConversationErrorContext,
     ],
   );
 
@@ -715,7 +824,33 @@ export const ConversationView: FC<Props> = ({
     return <Loader />;
   }
 
+  const conversationViewState = conversation?.customViewState?.[
+    CUSTOM_VIEW_STATE_KEY
+  ] as CustomViewState | undefined;
+
   const getInput = () => {
+    if (
+      conversationViewState?.errorContext?.kind === 'rate_limit' &&
+      isRateLimitStillActive(conversationViewState.errorContext)
+    ) {
+      const restoreDate = getRateLimitRestoreDate(
+        conversationViewState.errorContext,
+      );
+
+      if (restoreDate) {
+        const restoreDateTime = formatDateTime(restoreDate);
+
+        return (
+          <InlineAlert type={InlineAlertType.Info}>
+            {statusMessages.getAssistantRestoreMessage(
+              restoreDateTime.date,
+              restoreDateTime.time,
+            )}
+          </InlineAlert>
+        );
+      }
+    }
+
     if (!isAgentAvailable) {
       return (
         <InlineAlert type={InlineAlertType.Error}>
@@ -797,6 +932,7 @@ export const ConversationView: FC<Props> = ({
           isReadOnlyConversation={isReadonlyConversation || isShowOnboarding}
           limitMessages={limitMessages}
           attachmentsConfig={attachmentsConfig}
+          conversationViewState={conversationViewState}
         />
       </div>
       {isShowOnboarding ? null : !isReadonlyConversation ? (

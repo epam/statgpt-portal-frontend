@@ -4,3 +4,4 @@ export * from './dial-config';
 export * from './grid-attachment';
 export * from './message';
 export * from './model';
+export * from './custom-view';

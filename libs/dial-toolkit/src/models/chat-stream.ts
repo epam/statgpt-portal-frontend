@@ -1,5 +1,6 @@
 import { Role, Message } from '@epam/ai-dial-shared';
 import { ModelInfo } from './model';
+import { ExceededLimit } from './custom-view';
 
 export interface RequestStreamBody {
   conversationId: string;
@@ -18,10 +19,21 @@ export interface MessageStreamResponse {
 
 export interface MessageStreamError {
   message: string;
+  display_message?: string;
+
+  // Error category (e.g. "runtime_error", "rate_limit_exceeded")
   type?: string;
-  param?: string;
+
+  // Error code (e.g. "content_filter", "500")
   code?: string;
+
+  // HTTP status code (e.g. 400)
   status?: number;
+
+  // Time to wait before retrying, in seconds (e.g. "79200")
+  retry_after?: string;
+
+  exceeded_limit?: ExceededLimit[];
 }
 
 export interface CustomFields {
@@ -40,4 +52,15 @@ export interface MessageChoices {
   };
   message: { content?: string };
   finish_reason?: string;
+}
+
+export interface MessageState {
+  error_details?: {
+    retry_after?: number;
+    body?: {
+      message?: string;
+      display_message?: string;
+      code?: string;
+    };
+  };
 }

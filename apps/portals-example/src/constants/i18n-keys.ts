@@ -126,6 +126,7 @@ export enum StatusMessagesI18nKeys {
   SERVER_ERROR = 'statusMessages.serverError',
   SERVER_OVERLOADED = 'statusMessages.serverOverloaded',
   CONTENT_FILTER_ERROR = 'statusMessages.contentFilterError',
+  ASSISTANT_ACCESS_RESTORE_DATETIME = 'statusMessages.rateLimit.assistantAccessRestoreDateTime',
 }
 
 export enum AttachmentsI18nKeys {
