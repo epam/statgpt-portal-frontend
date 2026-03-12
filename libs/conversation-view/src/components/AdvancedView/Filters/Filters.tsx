@@ -40,6 +40,10 @@ import ModalFooter from './FiltersModal/ModalFooter';
 import FilterButton from './FilterButton/FilterButton';
 import { updateMessagesWithSystemMessage } from '../../../utils/system-message';
 import { getUpdatedDataQueries } from '../../../utils/get-updated-data-queries';
+import {
+  buildRequestCacheKey,
+  getCachedRequestResult,
+} from '../../../utils/request-cache';
 
 const Filters: FC<FiltersProps> = ({
   actions,
@@ -113,13 +117,26 @@ const Filters: FC<FiltersProps> = ({
       setFilters: (filters: Filter[]) => void,
       setIsConstraintsLoading?: (isLoading: boolean) => void,
     ) => {
-      actions
-        ?.getConstraints(
-          attachmentsDataQuery?.urn as string,
-          getSeriesFilterDto(filters).filter(
-            (filter) => filter.componentCode !== TIME_PERIOD,
-          ),
-        )
+      const request = actions
+        ? getCachedRequestResult(
+            actions.getConstraints,
+            buildRequestCacheKey(
+              attachmentsDataQuery?.urn as string,
+              getSeriesFilterDto(filters).filter(
+                (filter) => filter.componentCode !== TIME_PERIOD,
+              ),
+            ),
+            () =>
+              actions.getConstraints(
+                attachmentsDataQuery?.urn as string,
+                getSeriesFilterDto(filters).filter(
+                  (filter) => filter.componentCode !== TIME_PERIOD,
+                ),
+              ),
+          )
+        : Promise.resolve(undefined);
+
+      request
         .then((constraints) => {
           const newConstraints = constraints?.data?.dataConstraints || [];
           constraintsRef.current = newConstraints;
@@ -323,13 +340,26 @@ const Filters: FC<FiltersProps> = ({
       setIsDisableFilterValues(true);
       setModalFilters(updateFiltersWithDisabledOption(filtersToUpdate));
 
-      actions
-        ?.getConstraints(
-          attachmentsDataQuery?.urn || '',
-          getSeriesFilterDto(filtersToUpdate).filter(
-            (filter) => filter.componentCode !== TIME_PERIOD,
-          ),
-        )
+      const request = actions
+        ? getCachedRequestResult(
+            actions.getConstraints,
+            buildRequestCacheKey(
+              attachmentsDataQuery?.urn || '',
+              getSeriesFilterDto(filtersToUpdate).filter(
+                (filter) => filter.componentCode !== TIME_PERIOD,
+              ),
+            ),
+            () =>
+              actions.getConstraints(
+                attachmentsDataQuery?.urn || '',
+                getSeriesFilterDto(filtersToUpdate).filter(
+                  (filter) => filter.componentCode !== TIME_PERIOD,
+                ),
+              ),
+          )
+        : Promise.resolve(undefined);
+
+      request
         .then((constraints) => {
           updateViewAfterDelete(
             constraints?.data?.dataConstraints || [],

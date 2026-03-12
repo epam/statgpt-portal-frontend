@@ -90,6 +90,7 @@ import { getOnboardingInfoForAdvancedView } from '../../utils/get-tooltip-data.b
 import { AttachmentsConfig } from '../../models/attachments';
 import { merge } from 'lodash';
 import { useConversationViewMessages } from '../../context/ConversationViewMessagesContext';
+import { clearRequestCache } from '../../utils/request-cache';
 
 interface Props {
   conversationKey: string;
@@ -665,6 +666,8 @@ export const ConversationView: FC<Props> = ({
   );
 
   useEffect(() => {
+    clearRequestCache();
+
     async function fetchConversationById() {
       try {
         setIsLoading(true);
@@ -693,6 +696,10 @@ export const ConversationView: FC<Props> = ({
     if (conversationKey) {
       fetchConversationById();
     }
+
+    return () => {
+      clearRequestCache();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationKey]);
 
