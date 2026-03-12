@@ -24,7 +24,11 @@ import {
   InlineAlert,
   InlineAlertType,
 } from '@epam/statgpt-ui-components';
-import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
+import {
+  CustomViewState,
+  ERROR_CONTEXT_KIND,
+  Message as MessageType,
+} from '@epam/statgpt-dial-toolkit';
 import {
   DataQuery,
   FormatNumbersType,
@@ -72,6 +76,7 @@ interface Props {
   isReadOnlyConversation?: boolean;
   limitMessages: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
+  conversationViewState?: CustomViewState;
 }
 
 const ChatMessages: FC<Props> = ({
@@ -79,6 +84,7 @@ const ChatMessages: FC<Props> = ({
   isStreaming = false,
   isReadOnly,
   scrollBottomIcon,
+  conversationViewState,
   ...props
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -178,8 +184,14 @@ const ChatMessages: FC<Props> = ({
           const key = message.id ?? index;
 
           if (message.errorMessage) {
+            const type =
+              conversationViewState?.errorContext?.kind ===
+              ERROR_CONTEXT_KIND.RATE_LIMIT
+                ? InlineAlertType.Warning
+                : InlineAlertType.Error;
+
             return (
-              <InlineAlert key={key} type={InlineAlertType.Error}>
+              <InlineAlert key={key} type={type}>
                 <div className="flex flex-col">
                   {processErrorMessage(message.errorMessage)}
                 </div>

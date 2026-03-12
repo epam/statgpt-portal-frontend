@@ -24,6 +24,7 @@ export interface UpdateConversationRequest {
   prompt?: string;
   temperature?: number;
   messages: Message[];
+  customViewState?: Record<string, unknown>;
 }
 
 export interface ConversationListResponse {

@@ -55,8 +55,14 @@ import {
 import { validateAndPrepareMessage } from '../../utils/validate-message';
 
 import {
+  CUSTOM_VIEW_STATE_KEY,
   CustomFields,
-  DIAL_ERROR_CODES,
+  CustomViewState,
+  ERROR_CONTEXT_KIND,
+  ErrorContextBase,
+  formatDateTime,
+  getRateLimitRestoreDate,
+  isRateLimitStillActive,
   mergeMessages,
   Message,
   streamChatResponse,
@@ -90,6 +96,11 @@ import { getOnboardingInfoForAdvancedView } from '../../utils/get-tooltip-data.b
 import { AttachmentsConfig } from '../../models/attachments';
 import { merge } from 'lodash';
 import { useConversationViewMessages } from '../../context/ConversationViewMessagesContext';
+import {
+  resolveHttpStreamingError,
+  throwIfMessageError,
+} from '../../utils/errors';
+import { updateConversationErrorContext } from '../../utils/conversation';
 import { clearRequestCache } from '../../utils/request-cache';
 
 interface Props {
@@ -239,6 +250,7 @@ export const ConversationView: FC<Props> = ({
         await actions.updateConversation(decodeURI(conversationKey), {
           name: updatedConversation.name,
           messages: updatedConversation.messages,
+          customViewState: updatedConversation.customViewState,
         });
       } catch (err) {
         console.error('Failed to save conversation:', err);
@@ -326,22 +338,24 @@ export const ConversationView: FC<Props> = ({
   );
 
   const handleStreamingError = useCallback(
-    (error: any, assistantMessage?: Message): Message | undefined => {
+    (
+      error: any,
+      assistantMessage?: Message,
+    ): { assistantMessage?: Message; errorContext?: ErrorContextBase } => {
       let finalErrorMessage = statusMessages.serverError;
+      let errorContext: ErrorContextBase | undefined;
       let httpError;
 
       if (isHttpError(error)) {
-        httpError = error as HttpError;
+        httpError = error;
 
-        if (httpError.code === DIAL_ERROR_CODES.CONTENT_FILTER) {
-          finalErrorMessage =
-            statusMessages.contentFilterError || httpError.message;
-        } else {
-          finalErrorMessage =
-            httpError.status === HTTP_ERROR_CODES.SERVICE_UNAVAILABLE
-              ? statusMessages.serverOverloaded
-              : statusMessages.serverError;
-        }
+        const processedError = resolveHttpStreamingError({
+          error,
+          statusMessages,
+        });
+
+        finalErrorMessage = processedError.errorMessage;
+        errorContext = processedError.errorContext;
       } else {
         httpError = new HttpError({
           status: HTTP_ERROR_CODES.INTERNAL_SERVER_ERROR,
@@ -357,7 +371,7 @@ export const ConversationView: FC<Props> = ({
 
       handleInvalidStreaming?.(httpError);
 
-      return assistantMessage;
+      return { assistantMessage, errorContext };
     },
     [
       handleInvalidStreaming,
@@ -373,12 +387,20 @@ export const ConversationView: FC<Props> = ({
       assistantMessage: Message,
       apiMessages: Message[],
       conversation?: Conversation & CustomFields,
-    ) => {
+    ): Promise<{
+      assistantMessage?: Message;
+      errorContext?: ErrorContextBase;
+    }> => {
       const abortController = new AbortController();
       setConversationSignal(abortController);
       let currentAssistantMessage: Message | undefined = assistantMessage;
+      let currentErrorContext: ErrorContextBase | undefined;
+
       if (!conversation) {
-        return;
+        return {
+          assistantMessage: currentAssistantMessage,
+          errorContext: currentErrorContext,
+        };
       }
 
       await streamChatResponse?.(
@@ -388,13 +410,7 @@ export const ConversationView: FC<Props> = ({
           model: conversation.model,
           signal: abortController?.signal,
           onMessage: (data) => {
-            if (data.error) {
-              throw new HttpError({
-                message: data.error.message,
-                status: data.error.status ?? HTTP_ERROR_CODES.BAD_REQUEST,
-                code: data.error.code,
-              });
-            }
+            throwIfMessageError({ error: data.error, statusMessages });
 
             const partialMessage = extractPartialMessageData(data);
 
@@ -419,15 +435,20 @@ export const ConversationView: FC<Props> = ({
         token,
         conversation?.custom_fields as CustomFields,
       ).catch((error) => {
-        currentAssistantMessage = handleStreamingError(
+        const { assistantMessage, errorContext } = handleStreamingError(
           error,
           currentAssistantMessage,
         );
+        currentAssistantMessage = assistantMessage;
+        currentErrorContext = errorContext;
       });
 
-      return currentAssistantMessage;
+      return {
+        assistantMessage: currentAssistantMessage,
+        errorContext: currentErrorContext,
+      };
     },
-    [token, updateAssistantMessage, handleStreamingError],
+    [token, updateAssistantMessage, handleStreamingError, statusMessages],
   );
 
   const finalizeConversation = useCallback(
@@ -435,24 +456,41 @@ export const ConversationView: FC<Props> = ({
       assistantMessage: Message,
       conversation: Conversation,
       userMessage?: Message,
+      errorContext?: ErrorContextBase,
     ) => {
-      if (conversation) {
-        const updatedConversation = {
-          ...conversation,
-          messages: [...conversation.messages],
-          updatedAt: Date.now(),
-        };
+      if (!conversation) return;
 
-        if (userMessage) {
-          updatedConversation.messages.push(userMessage);
-        }
+      let updatedConversation = updateConversationErrorContext(
+        conversation,
+        errorContext,
+      );
 
-        updatedConversation.messages.push(assistantMessage);
+      updatedConversation = {
+        ...updatedConversation,
+        messages: [...conversation.messages],
+        updatedAt: Date.now(),
+      };
 
-        await saveConversation(updatedConversation);
+      if (userMessage) {
+        updatedConversation.messages.push(userMessage);
       }
+
+      updatedConversation.messages.push(assistantMessage);
+
+      await saveConversation(updatedConversation);
     },
     [saveConversation],
+  );
+
+  const setConversationErrorContext = useCallback(
+    (context?: ErrorContextBase) => {
+      setConversation((conversation) => {
+        if (!conversation) return conversation;
+
+        return updateConversationErrorContext(conversation, context);
+      });
+    },
+    [setConversation],
   );
 
   const handleSendMessageError = useCallback(
@@ -530,16 +568,22 @@ export const ConversationView: FC<Props> = ({
         initialAssistantMessage = initializeAssistantMessage();
         const apiMessages = transformMessagesForApi(userMessage, data);
 
-        finalAssistantMessage = await handleStreamingResponse(
-          initialAssistantMessage,
-          apiMessages,
-          data,
-        );
+        const { assistantMessage, errorContext } =
+          await handleStreamingResponse(
+            initialAssistantMessage,
+            apiMessages,
+            data,
+          );
+
+        setConversationErrorContext(errorContext);
+
+        finalAssistantMessage = assistantMessage;
 
         await finalizeConversation(
           finalAssistantMessage as Message,
           data,
           userMessage,
+          errorContext,
         );
       } catch (err) {
         handleStreamingProcessError(
@@ -561,6 +605,7 @@ export const ConversationView: FC<Props> = ({
       handleStreamingResponse,
       finalizeConversation,
       handleStreamingProcessError,
+      setConversationErrorContext,
     ],
   );
 
@@ -575,15 +620,21 @@ export const ConversationView: FC<Props> = ({
       try {
         setIsStreaming(true);
         initialAssistantMessage = initializeAssistantMessage();
-        finalAssistantMessage = await handleStreamingResponse(
-          initialAssistantMessage,
-          apiMessages,
-          updatedConversation,
-        );
+        const { assistantMessage, errorContext } =
+          await handleStreamingResponse(
+            initialAssistantMessage,
+            apiMessages,
+            updatedConversation,
+          );
+        finalAssistantMessage = assistantMessage;
+
+        setConversationErrorContext(errorContext);
 
         await finalizeConversation(
           finalAssistantMessage as Message,
           updatedConversation,
+          undefined,
+          errorContext,
         );
       } catch (err) {
         handleStreamingProcessError(
@@ -604,6 +655,7 @@ export const ConversationView: FC<Props> = ({
       handleStreamingProcessError,
       handleStreamingResponse,
       initializeAssistantMessage,
+      setConversationErrorContext,
     ],
   );
 
@@ -722,7 +774,34 @@ export const ConversationView: FC<Props> = ({
     return <Loader />;
   }
 
+  const conversationViewState = conversation?.customViewState?.[
+    CUSTOM_VIEW_STATE_KEY
+  ] as CustomViewState | undefined;
+
   const getInput = () => {
+    if (
+      conversationViewState?.errorContext?.kind ===
+        ERROR_CONTEXT_KIND.RATE_LIMIT &&
+      isRateLimitStillActive(conversationViewState.errorContext)
+    ) {
+      const restoreDate = getRateLimitRestoreDate(
+        conversationViewState.errorContext,
+      );
+
+      if (restoreDate) {
+        const restoreDateTime = formatDateTime(restoreDate);
+
+        return (
+          <InlineAlert type={InlineAlertType.Info}>
+            {statusMessages.getAssistantRestoreMessage(
+              restoreDateTime.date,
+              restoreDateTime.time,
+            )}
+          </InlineAlert>
+        );
+      }
+    }
+
     if (!isAgentAvailable) {
       return (
         <InlineAlert type={InlineAlertType.Error}>
@@ -804,6 +883,7 @@ export const ConversationView: FC<Props> = ({
           isReadOnlyConversation={isReadonlyConversation || isShowOnboarding}
           limitMessages={limitMessages}
           attachmentsConfig={attachmentsConfig}
+          conversationViewState={conversationViewState}
         />
       </div>
       {isShowOnboarding ? null : !isReadonlyConversation ? (
