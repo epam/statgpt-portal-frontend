@@ -99,6 +99,10 @@ import { getOnboardingInfoForAdvancedView } from '../../utils/get-tooltip-data.b
 import { AttachmentsConfig } from '../../models/attachments';
 import { merge } from 'lodash';
 import { useConversationViewMessages } from '../../context/ConversationViewMessagesContext';
+import {
+  resolveHttpStreamingError,
+  throwIfMessageError,
+} from '../../utils/errors';
 
 interface Props {
   conversationKey: string;
@@ -340,37 +344,19 @@ export const ConversationView: FC<Props> = ({
       assistantMessage?: Message,
     ): { assistantMessage?: Message; errorContext?: ErrorContextBase } => {
       let finalErrorMessage = statusMessages.serverError;
-      let httpError;
       let errorContext: ErrorContextBase | undefined;
+      let httpError;
 
       if (isHttpError(error)) {
-        httpError = error as HttpError;
+        httpError = error;
 
-        switch (httpError.code) {
-          case DIAL_ERROR_TYPES.RATE_LIMIT_EXCEEDED: {
-            const rateLimitError =
-              httpError as HttpError<RateLimitErrorContext>;
+        const processedError = resolveHttpStreamingError({
+          error,
+          statusMessages,
+        });
 
-            finalErrorMessage =
-              rateLimitError.displayMessage ?? rateLimitError.message;
-
-            errorContext = rateLimitError.details;
-            break;
-          }
-
-          case DIAL_ERROR_CODES.CONTENT_FILTER: {
-            finalErrorMessage =
-              statusMessages.contentFilterError ?? httpError.message;
-            break;
-          }
-
-          default: {
-            finalErrorMessage =
-              httpError.status === HTTP_ERROR_CODES.SERVICE_UNAVAILABLE
-                ? statusMessages.serverOverloaded
-                : statusMessages.serverError;
-          }
-        }
+        finalErrorMessage = processedError.errorMessage;
+        errorContext = processedError.errorContext;
       } else {
         httpError = new HttpError({
           status: HTTP_ERROR_CODES.INTERNAL_SERVER_ERROR,
@@ -425,34 +411,7 @@ export const ConversationView: FC<Props> = ({
           model: conversation.model,
           signal: abortController?.signal,
           onMessage: (data) => {
-            if (data.error) {
-              if (data.error.type === DIAL_ERROR_TYPES.RATE_LIMIT_EXCEEDED) {
-                const displayMessage = data.error.exceeded_limit?.length
-                  ? statusMessages.getExceededLimitsMessage(
-                      data.error.exceeded_limit,
-                    )
-                  : (data.error.display_message ?? '');
-
-                throw new HttpError<RateLimitErrorContext>({
-                  message: data.error.message,
-                  displayMessage,
-                  code: data.error.type,
-                  status:
-                    data.error.status ?? HTTP_ERROR_CODES.TOO_MANY_REQUESTS,
-                  details: {
-                    kind: ERROR_CONTEXT_KIND.RATE_LIMIT,
-                    occurredAt: new Date().toISOString(),
-                    retryAfterSeconds: Number(data.error.retry_after ?? ''),
-                  },
-                });
-              }
-
-              throw new HttpError({
-                message: data.error.message,
-                status: data.error.status ?? HTTP_ERROR_CODES.BAD_REQUEST,
-                code: data.error.code,
-              });
-            }
+            throwIfMessageError({ error: data.error, statusMessages });
 
             const partialMessage = extractPartialMessageData(data);
 
@@ -490,7 +449,7 @@ export const ConversationView: FC<Props> = ({
         errorContext: currentErrorContext,
       };
     },
-    [token, updateAssistantMessage, handleStreamingError],
+    [token, updateAssistantMessage, handleStreamingError, statusMessages],
   );
 
   const finalizeConversation = useCallback(
