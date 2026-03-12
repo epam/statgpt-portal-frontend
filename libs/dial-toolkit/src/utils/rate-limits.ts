@@ -1,9 +1,10 @@
+import { ERROR_CONTEXT_KIND } from '../constants/errors';
 import { ErrorContext } from '../models';
 
 export function getRateLimitRestoreDate(
   errorContext?: ErrorContext,
 ): Date | null {
-  if (errorContext?.kind !== 'rate_limit') {
+  if (errorContext?.kind !== ERROR_CONTEXT_KIND.RATE_LIMIT) {
     return null;
   }
 

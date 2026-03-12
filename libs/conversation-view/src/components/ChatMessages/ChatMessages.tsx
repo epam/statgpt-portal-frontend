@@ -26,6 +26,7 @@ import {
 } from '@epam/statgpt-ui-components';
 import {
   CustomViewState,
+  ERROR_CONTEXT_KIND,
   Message as MessageType,
 } from '@epam/statgpt-dial-toolkit';
 import {
@@ -184,7 +185,8 @@ const ChatMessages: FC<Props> = ({
 
           if (message.errorMessage) {
             const type =
-              conversationViewState?.errorContext?.kind === 'rate_limit'
+              conversationViewState?.errorContext?.kind ===
+              ERROR_CONTEXT_KIND.RATE_LIMIT
                 ? InlineAlertType.Warning
                 : InlineAlertType.Error;
 

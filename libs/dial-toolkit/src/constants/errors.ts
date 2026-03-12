@@ -1,4 +1,4 @@
-import { ExceededLimit } from '../models';
+import { EXCEEDED_LIMIT, ExceededLimit } from '../models';
 
 export const DIAL_ERROR_CODES = {
   CONTENT_FILTER: 'content_filter',
@@ -11,10 +11,15 @@ export const DIAL_ERROR_TYPES = {
 };
 
 export const EXCEEDED_LIMIT_ORDER: ExceededLimit[] = [
-  'minute',
-  'daily',
-  'weekly',
-  'monthly',
+  EXCEEDED_LIMIT.MINUTE,
+  EXCEEDED_LIMIT.DAILY,
+  EXCEEDED_LIMIT.WEEKLY,
+  EXCEEDED_LIMIT.MONTHLY,
 ];
 
 export const CUSTOM_VIEW_STATE_KEY = 'statgpt';
+
+export const ERROR_CONTEXT_KIND = {
+  RATE_LIMIT: 'rate_limit',
+  UNKNOWN: 'unknown',
+} as const;

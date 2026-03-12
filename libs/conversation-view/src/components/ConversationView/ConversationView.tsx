@@ -60,6 +60,7 @@ import {
   CustomViewState,
   DIAL_ERROR_CODES,
   DIAL_ERROR_TYPES,
+  ERROR_CONTEXT_KIND,
   ErrorContextBase,
   formatDateTime,
   getRateLimitRestoreDate,
@@ -439,7 +440,7 @@ export const ConversationView: FC<Props> = ({
                   status:
                     data.error.status ?? HTTP_ERROR_CODES.TOO_MANY_REQUESTS,
                   details: {
-                    kind: 'rate_limit',
+                    kind: ERROR_CONTEXT_KIND.RATE_LIMIT,
                     occurredAt: new Date().toISOString(),
                     retryAfterSeconds: Number(data.error.retry_after ?? ''),
                   },
@@ -840,7 +841,8 @@ export const ConversationView: FC<Props> = ({
 
   const getInput = () => {
     if (
-      conversationViewState?.errorContext?.kind === 'rate_limit' &&
+      conversationViewState?.errorContext?.kind ===
+        ERROR_CONTEXT_KIND.RATE_LIMIT &&
       isRateLimitStillActive(conversationViewState.errorContext)
     ) {
       const restoreDate = getRateLimitRestoreDate(
