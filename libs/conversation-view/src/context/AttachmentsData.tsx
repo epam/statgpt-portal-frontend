@@ -245,8 +245,11 @@ export function useAttachmentsData(
 
   useEffect(() => {
     if (rawAttachments?.length) {
+      const urn = dataQuery?.urn;
+
       const mdParsedAttachments = rawAttachments
         .filter((a) => a.type === AttachmentType.MARKDOWN)
+        .filter((a) => !urn || a.title?.includes(urn))
         .map((a) => {
           const parsed = unwrapMarkdownCode(a.data ?? '');
           return {
@@ -262,7 +265,7 @@ export function useAttachmentsData(
 
       setCodeAttachments(mdParsedAttachments);
     }
-  }, [rawAttachments, titles]);
+  }, [rawAttachments, titles, dataQuery]);
 
   const attachments = useMemo(
     () => [customGridAttachment, customChartAttachment, ...codeAttachments],
