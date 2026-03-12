@@ -21,7 +21,7 @@
   },
   "private": true,
   "dependencies": {
-    "@epam/ai-dial-shared": "^0.34.0",
+    "@epam/ai-dial-shared": "^0.43.3",
     "@floating-ui/react": "^0.27.14",
     "@monaco-editor/react": "^4.7.0",
     "@tabler/icons-react": "^3.34.1",

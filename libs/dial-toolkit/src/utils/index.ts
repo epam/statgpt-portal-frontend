@@ -5,3 +5,4 @@ export * from './parse-conversation-name';
 export * from './shared-conversations-request';
 export * from './send-request';
 export * from './url';
+export * from './rate-limits';

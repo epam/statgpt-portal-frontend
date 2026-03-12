@@ -167,6 +167,25 @@
     "contactSupport": "contact Support",
     "serverError": "We couldn't process your request due to a server error. Please try again later.",
     "serverOverloaded": "The system is currently overloaded. Please try again later.",
-    "contentFilterError": "This request is blocked in accordance with the Azure OpenAI content management policy {link}"
+    "contentFilterError": "This request is blocked in accordance with the Azure OpenAI content management policy {link}",
+    "rateLimit": {
+      "assistantAccessRestoreDateTime": "Access to the AI Assistant will be restored on {date} at {time}",
+      "limit": {
+        "minute": "minute",
+        "daily": "daily",
+        "weekly": "weekly",
+        "monthly": "monthly"
+      },
+      "list": {
+        "two": "{first} and {second}",
+        "many": "{items}, and {last}"
+      },
+      "message": {
+        "exceeded": {
+          "one": "The {limits} token limit has been exceeded.",
+          "many": "The {limits} token limits have been exceeded."
+        }
+      }
+    }
   }
 }

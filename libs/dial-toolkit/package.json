@@ -15,6 +15,6 @@
   "types": "./index.d.ts",
   "dependencies": {
     "@epam/statgpt-shared-toolkit": "*",
-    "@epam/ai-dial-shared": "^0.34.0"
+    "@epam/ai-dial-shared": "^0.43.3"
   }
 }
