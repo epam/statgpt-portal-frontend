@@ -51,12 +51,12 @@ export const getQueryTimePeriodFilters = (
   const { startPeriod, endPeriod } = timeRange;
   if (startPeriod) {
     filterValues.push(
-      `${SeriesFilterOperator.GREATER_OR_EQUAL}${QUERY_PARAMETER_FILTER_VALUE_SEPARATOR}${startPeriod.toISOString().split('T')[0]}`,
+      `${SeriesFilterOperator.GREATER_OR_EQUAL}${QUERY_PARAMETER_FILTER_VALUE_SEPARATOR}${formatLocalDate(startPeriod)}`,
     );
   }
   if (endPeriod) {
     filterValues.push(
-      `${SeriesFilterOperator.LESS_OR_EQUAL}${QUERY_PARAMETER_FILTER_VALUE_SEPARATOR}${endPeriod.toISOString().split('T')[0]}`,
+      `${SeriesFilterOperator.LESS_OR_EQUAL}${QUERY_PARAMETER_FILTER_VALUE_SEPARATOR}${formatLocalDate(endPeriod)}`,
     );
   }
 
@@ -72,6 +72,14 @@ export const getQueryTimePeriodFilters = (
         `${encodeURIComponent(`c[${id}]`)}${QUERY_PARAMETER_FILTER_EQUAL}${encodeURIComponent(v)}`,
     )
     .join(AND_QUERY_OPERATOR);
+};
+
+const formatLocalDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
 };
 
 export const getTimeQueryFilter = (
