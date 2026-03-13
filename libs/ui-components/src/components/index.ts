@@ -21,4 +21,3 @@ export { InlineAlert } from './InlineAlert/InlineAlert';
 export { InlineAlertProvider } from './InlineAlert/InlineAlertContext';
 export { InlineAlertType, type InlineAlertConfig } from './InlineAlert/types';
 export { CopyButton } from './CopyButton/CopyButton';
-export { ScrollContainer } from './ScrollContainer/ScrollContainer';

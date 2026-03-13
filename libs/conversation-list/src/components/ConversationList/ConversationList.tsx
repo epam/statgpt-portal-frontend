@@ -36,7 +36,7 @@ import {
 } from '@epam/statgpt-dial-toolkit';
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { cleanConversationNames } from '@epam/statgpt-shared-toolkit';
-import { Loader, ScrollContainer } from '@epam/statgpt-ui-components';
+import { Loader } from '@epam/statgpt-ui-components';
 
 import {
   getSharedConversationsGroup,
@@ -233,9 +233,9 @@ export const ConversationList: FC<Props> = ({
           />
         </div>
       )}
-      <ScrollContainer
+      <div
         className={classNames(
-          'overflow-y-auto flex flex-col mt-4 flex-1 min-h-0 pr-2',
+          'hover:overflow-y-auto flex flex-col mt-4 flex-1 min-h-0 pr-2',
           isSearchConversations ? 'gap-y-1' : 'gap-y-6',
         )}
       >
@@ -283,7 +283,7 @@ export const ConversationList: FC<Props> = ({
             )}
           </>
         ) : null}
-      </ScrollContainer>
+      </div>
       {children}
     </>
   );
