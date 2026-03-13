@@ -117,18 +117,19 @@ const Filters: FC<FiltersProps> = ({
       setFilters: (filters: Filter[]) => void,
       setIsConstraintsLoading?: (isLoading: boolean) => void,
     ) => {
+      const attachmentUrn = attachmentsDataQuery?.urn ?? '';
       const request = actions
         ? getCachedRequestResult(
             actions.getConstraints,
             buildRequestCacheKey(
-              attachmentsDataQuery?.urn as string,
+              attachmentUrn,
               getSeriesFilterDto(filters).filter(
                 (filter) => filter.componentCode !== TIME_PERIOD,
               ),
             ),
             () =>
               actions.getConstraints(
-                attachmentsDataQuery?.urn as string,
+                attachmentUrn,
                 getSeriesFilterDto(filters).filter(
                   (filter) => filter.componentCode !== TIME_PERIOD,
                 ),
