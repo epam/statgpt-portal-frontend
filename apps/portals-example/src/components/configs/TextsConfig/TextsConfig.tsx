@@ -4,9 +4,11 @@ import {
   ConversationViewMessages,
   ConversationViewMessagesProvider,
 } from '@epam/statgpt-conversation-view';
-import { ReactNode, useMemo } from 'react';
+import { ReactNode, useCallback, useMemo } from 'react';
 import { TranslateI18nFn, useI18n } from '../../../locales/client';
 import { StatusMessagesI18nKeys } from '../../../constants/i18n-keys';
+import { ExceededLimit } from '@epam/statgpt-dial-toolkit';
+import { getExceededLimitsMessage } from '@statgpt/portals-example/src/utils/rate-limits';
 
 export const TextsConfig = ({
   children,
@@ -37,9 +39,23 @@ export const TextsConfig = ({
   }, [clientContactSupportUrl, t]);
 
   const contentFilterError = useMemo(() => {
-    const href = azureContentManagementPolicyUrl || '#';
+    const href = azureContentManagementPolicyUrl ?? '';
     return t(StatusMessagesI18nKeys.CONTENT_FILTER_ERROR, { link: href });
   }, [azureContentManagementPolicyUrl, t]);
+
+  const getAssistantRestoreMessage = useCallback(
+    (date: string, time: string) =>
+      t(StatusMessagesI18nKeys.ASSISTANT_ACCESS_RESTORE_DATETIME, {
+        date,
+        time,
+      }),
+    [t],
+  );
+
+  const getLimitsExceededMessage = useCallback(
+    (limits: ExceededLimit[]) => getExceededLimitsMessage(limits, t),
+    [t],
+  );
 
   const conversationViewMessagesCustomConfig: ConversationViewMessages = {
     statusMessages: {
@@ -47,6 +63,8 @@ export const TextsConfig = ({
       assistantUnavailable,
       serverError: t(StatusMessagesI18nKeys.SERVER_ERROR),
       serverOverloaded: t(StatusMessagesI18nKeys.SERVER_OVERLOADED),
+      getExceededLimitsMessage: getLimitsExceededMessage,
+      getAssistantRestoreMessage,
     },
   };
 

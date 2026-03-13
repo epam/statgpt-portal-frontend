@@ -12,7 +12,12 @@ export const CodeAttachment = ({
   const { data, language } = attachment;
 
   return (
-    <div className={mergeClasses(['h-full w-full', className])}>
+    <div
+      className={mergeClasses([
+        'h-full w-full [&_.cursors-layer]:hidden',
+        className,
+      ])}
+    >
       <Editor
         value={data}
         language={language}

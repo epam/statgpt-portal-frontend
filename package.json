@@ -1,6 +1,6 @@
 {
   "name": "statgpt-portal-frontend",
-  "version": "0.2.0-rc",
+  "version": "0.3.0-rc",
   "license": "MIT",
   "scripts": {
     "build": "nx run-many -t build && npm run build:styles",
@@ -21,7 +21,7 @@
   },
   "private": true,
   "dependencies": {
-    "@epam/ai-dial-shared": "^0.34.0",
+    "@epam/ai-dial-shared": "^0.43.3",
     "@floating-ui/react": "^0.27.14",
     "@monaco-editor/react": "^4.7.0",
     "@tabler/icons-react": "^3.34.1",
@@ -106,6 +106,7 @@
     "vitest": "4.0.0"
   },
   "overrides": {
+    "dompurify": "3.3.2",
     "koa": "3.1.2",
     "minimatch": "10.2.3",
     "serialize-javascript": "7.0.3"
