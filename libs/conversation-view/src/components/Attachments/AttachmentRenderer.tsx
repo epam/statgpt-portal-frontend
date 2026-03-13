@@ -52,7 +52,7 @@ import DownloadSettings from '@statgpt/download-panel/src/components/DownloadSet
 import { ConversationViewTitles } from '../../models/titles';
 import DatasetTabs from './Tabs/DatasetTabs/DatasetTabs';
 import { getExternalLink } from '../../utils/attachments-details';
-import { IconColumns3 } from '@tabler/icons-react';
+import ColumnsIcon from '../../assets/icons/columns.svg';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -83,6 +83,8 @@ interface Props {
   onAdvancedViewOpen?: () => void;
   limitMessages?: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
+  isTableSettingsOpen?: boolean;
+  onTableSettingsOpen?: () => void;
 }
 
 const AttachmentRenderer: FC<Props> = ({
@@ -108,6 +110,8 @@ const AttachmentRenderer: FC<Props> = ({
   onAdvancedViewOpen,
   limitMessages,
   attachmentsConfig,
+  isTableSettingsOpen,
+  onTableSettingsOpen,
 }) => {
   const [selectedAttachmentIndex, setSelectedAttachmentIndex] =
     useState<number>(0);
@@ -264,10 +268,11 @@ const AttachmentRenderer: FC<Props> = ({
                         )}
                       {!showAdvancedView && (
                         <Button
+                          disabled={isTableSettingsOpen}
                           buttonClassName="text-button-tertiary"
-                          iconBefore={<IconColumns3 size={16} />}
+                          iconBefore={<ColumnsIcon className="size-4" />}
                           title="Columns"
-                          onClick={() => console.log('columns')}
+                          onClick={onTableSettingsOpen}
                         />
                       )}
                       {selectedAttachment &&

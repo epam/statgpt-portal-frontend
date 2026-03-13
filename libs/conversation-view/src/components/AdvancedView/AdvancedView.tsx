@@ -83,6 +83,17 @@ export const AdvancedView: FC<Props> = ({
     timeFilter: null,
   });
 
+  const [isTableSettingsPanelOpened, setIsTableSettingsPanelOpened] =
+    useState(false);
+
+  const closeTableSettingsHandler = useCallback(() => {
+    setIsTableSettingsPanelOpened(false);
+  }, [setIsTableSettingsPanelOpened]);
+
+  const openTableSettingsHandler = useCallback(() => {
+    setIsTableSettingsPanelOpened(true);
+  }, [setIsTableSettingsPanelOpened]);
+
   const handleFiltersChange = useCallback(
     (
       filterParams: DatasetQueryFilters,
@@ -183,9 +194,13 @@ export const AdvancedView: FC<Props> = ({
                     attachmentsConfig={attachmentsConfig}
                     filters={filters}
                     onFiltersChange={handleFiltersChange}
+                    isTableSettingsOpen={isTableSettingsPanelOpened}
+                    onTableSettingsOpen={openTableSettingsHandler}
                   />
                 </div>
-                <TableSettingsPanel />
+                {isTableSettingsPanelOpened && (
+                  <TableSettingsPanel onClose={closeTableSettingsHandler} />
+                )}
               </div>
             </>
           )}

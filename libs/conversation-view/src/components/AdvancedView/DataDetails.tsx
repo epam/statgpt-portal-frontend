@@ -37,6 +37,8 @@ interface Props {
     constraints: DataConstraints[],
     modalFilters?: Filter[],
   ) => void;
+  isTableSettingsOpen?: boolean;
+  onTableSettingsOpen?: () => void;
 }
 
 const DataDetails: FC<Props> = ({
@@ -55,6 +57,8 @@ const DataDetails: FC<Props> = ({
   attachmentsConfig,
   filters,
   onFiltersChange,
+  isTableSettingsOpen,
+  onTableSettingsOpen,
 }) => {
   const constraintAction = {
     getConstraints: actions.getConstraints,
@@ -100,6 +104,8 @@ const DataDetails: FC<Props> = ({
               filters={filters}
               limitMessages={limitMessages}
               attachmentsConfig={attachmentsConfig}
+              isTableSettingsOpen={isTableSettingsOpen}
+              onTableSettingsOpen={onTableSettingsOpen}
             />
           </div>
         </div>
