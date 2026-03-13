@@ -47,7 +47,10 @@ export const TableSettingsPanel = ({
       <div className="flex justify-between border-b border-neutrals-500 px-5 py-6">
         <div className="h2 text-neutrals-1000">Columns</div>
         <div className="flex gap-2 items-center">
-          <button className="text-neutrals-800" onClick={resetHandler}>
+          <button
+            className="text-neutrals-800 flex gap-1 items-center"
+            onClick={resetHandler}
+          >
             <IconRotate className="rotate-180 size-4" /> Reset
           </button>
           <div className="h-3 w-[1px] bg-neutrals-600" />
