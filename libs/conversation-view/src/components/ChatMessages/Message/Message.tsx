@@ -128,7 +128,11 @@ const Message: FC<Props> = ({
     useState<boolean>(false);
   const isUser = message.role === Role.User;
   const isSystem = message.role === Role.System;
-  const { datasets, datasetStructuresMap } = useDatasets(
+  const {
+    datasets,
+    datasetStructuresMap,
+    isLoading: isLoadingDatasets,
+  } = useDatasets(
     actions.getDataSet,
     actions.updateDatasets,
     actions.updateDataQueries,
@@ -154,6 +158,10 @@ const Message: FC<Props> = ({
       metadataSettings,
       titles,
       message.custom_content?.attachments,
+      currentAttachmentDataQuery
+        ? datasetStructuresMap?.get(currentAttachmentDataQuery.urn)
+        : void 0,
+      isLoadingDatasets,
     );
   const { isOpenedAdvancedView } = useAdvancedView();
 
