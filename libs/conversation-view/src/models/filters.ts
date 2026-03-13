@@ -75,9 +75,13 @@ export interface FiltersProps {
     putOnboardingFile?: PutOnboardingFile;
   };
   dimensions?: Dimension[];
+  dimensionsMap?: Map<string, Dimension[]>;
   structureDimensions?: StructureItemBase[];
+  structureDimensionsMap?: Map<string, StructureItemBase[]>;
   structures?: StructuralData;
+  structuresMap?: Map<string, StructuralData | undefined>;
   initialConstraints?: DataConstraints[];
+  initialConstraintsMap?: Map<string, DataConstraints[]>;
   buttonProps?: FilterButtonProps;
   modalProps?: FiltersModalProps;
   attachmentsDataQuery?: DataQuery;
