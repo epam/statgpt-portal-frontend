@@ -9,23 +9,30 @@ export const prepareSystemMessage = (
   dataQueries?: DataQuery[],
   message?: Message,
 ): Message => {
+  const jsonAttachments =
+    dataQueries?.map((dataQuery) => ({
+      type: AttachmentType.JSON,
+      title: dataQuery?.title,
+      data: JSON.stringify({
+        urn: dataQuery?.urn,
+        metadata: dataQuery?.metadata,
+        filters:
+          currentDataQuery?.urn === dataQuery?.urn
+            ? filters
+            : dataQuery?.filters,
+      }),
+    })) ?? [];
+
+  const markdownAttachments =
+    message?.custom_content?.attachments?.filter(
+      (a) => a.type === AttachmentType.MARKDOWN,
+    ) ?? [];
+
   return {
     role: Role.System,
     content: '',
     custom_content: {
-      attachments:
-        dataQueries?.map((dataQuery) => ({
-          type: AttachmentType.JSON,
-          title: dataQuery?.title,
-          data: JSON.stringify({
-            urn: dataQuery?.urn,
-            metadata: dataQuery?.metadata,
-            filters:
-              currentDataQuery?.urn === dataQuery?.urn
-                ? filters
-                : dataQuery?.filters,
-          }),
-        })) || [],
+      attachments: [...jsonAttachments, ...markdownAttachments],
       form_schema: message?.custom_content?.form_schema,
     },
   } as Message;

@@ -31,9 +31,9 @@ export const getLastMessageWithAttachmentIndex = (
 export const getLastAssistantMessage = (
   messages: Message[],
 ): Message | undefined => {
-  return messages?.reduce(
-    (previousMessage, message) =>
-      message?.role === Role.Assistant ? message : previousMessage,
-    {} as Message,
-  );
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === Role.Assistant) {
+      return messages[i];
+    }
+  }
 };
