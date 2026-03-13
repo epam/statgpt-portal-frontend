@@ -39,7 +39,7 @@ export const TextsConfig = ({
   }, [clientContactSupportUrl, t]);
 
   const contentFilterError = useMemo(() => {
-    const href = azureContentManagementPolicyUrl || '#';
+    const href = azureContentManagementPolicyUrl ?? '';
     return t(StatusMessagesI18nKeys.CONTENT_FILTER_ERROR, { link: href });
   }, [azureContentManagementPolicyUrl, t]);
 
