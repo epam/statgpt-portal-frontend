@@ -50,3 +50,7 @@ export function isCustomChartAttachment(attachment: Attachment): boolean {
 export function isChartAttachment(attachment: Attachment): boolean {
   return attachment.type === AttachmentType.PLOTLY;
 }
+
+export function isCustomCodeSampleAttachment(attachment: Attachment): boolean {
+  return attachment.type === AttachmentType.CUSTOM_CODE_SAMPLE;
+}

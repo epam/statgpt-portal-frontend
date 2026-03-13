@@ -14,6 +14,10 @@ export interface CustomChartAttachmentType extends Attachment {
   charting_data?: ChartingData;
 }
 
+export interface CustomCodeAttachment extends Attachment {
+  language?: string;
+}
+
 export interface AttachmentsProps {
   currentDataQuery?: DataQuery;
   dataQueries?: DataQuery[];

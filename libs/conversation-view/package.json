@@ -4,7 +4,7 @@
   "license": "MIT",
   "dependencies": {
     "classnames": "^2.5.1",
-    "@epam/ai-dial-shared": "^0.34.0",
+    "@epam/ai-dial-shared": "^0.43.3",
     "@tabler/icons-react": "^3.34.1",
     "@epam/statgpt-shared-toolkit": "*",
     "@epam/statgpt-ui-components": "*",
@@ -24,7 +24,8 @@
     "react-flatpickr": "^4.0.11",
     "date-fns": "^4.1.0",
     "lodash": "^4.17.23",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "@monaco-editor/react": "^4.7.0"
   },
   "peerDependencies": {
     "react": "^19.2.1"

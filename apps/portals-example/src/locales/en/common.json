@@ -25,6 +25,7 @@
     "shareLinkDescription": "Your name, special instructions, and any messages you add after sharing remain confidential.",
     "createLink": "Create Link",
     "copyLink": "Copy Link",
+    "copy": "Copy",
     "duplicateChat": "Duplicate Chat",
     "copied": "Copied",
     "removeAccessToUsers": "Remove access to all users",
@@ -102,6 +103,7 @@
     "openUrl": "Open",
     "dataGrid": "Data",
     "chart": "Chart",
+    "codeSamples": "Code samples",
     "limits": "Limited to",
     "timeSeries": "Timeseries",
     "chartInfo": "Predefined charts grouped by indicators for quick, clear data representation.",
@@ -165,6 +167,25 @@
     "contactSupport": "contact Support",
     "serverError": "We couldn't process your request due to a server error. Please try again later.",
     "serverOverloaded": "The system is currently overloaded. Please try again later.",
-    "contentFilterError": "This request is blocked in accordance with the Azure OpenAI content management policy {link}"
+    "contentFilterError": "This request is blocked in accordance with the Azure OpenAI content management policy {link}",
+    "rateLimit": {
+      "assistantAccessRestoreDateTime": "Access to the AI Assistant will be restored on {date} at {time}",
+      "limit": {
+        "minute": "minute",
+        "daily": "daily",
+        "weekly": "weekly",
+        "monthly": "monthly"
+      },
+      "list": {
+        "two": "{first} and {second}",
+        "many": "{items}, and {last}"
+      },
+      "message": {
+        "exceeded": {
+          "one": "The {limits} token limit has been exceeded.",
+          "many": "The {limits} token limits have been exceeded."
+        }
+      }
+    }
   }
 }

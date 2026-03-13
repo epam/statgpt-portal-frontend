@@ -29,6 +29,7 @@ export interface ConversationViewTitles extends WelcomeViewTitles {
   close?: string;
   duplicate?: string;
   chart?: string;
+  codeSamples?: string;
   metadata?: string;
   noMetadata?: string;
   settings?: string;

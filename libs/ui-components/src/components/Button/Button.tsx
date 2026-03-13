@@ -1,10 +1,12 @@
 import classNames from 'classnames';
 import { FC, MouseEvent, ReactNode } from 'react';
 import { Loader } from '../Loader/Loader';
+import { mergeClasses } from '../../utils/mergeClasses';
 
 interface Props {
   title?: string;
   buttonClassName: string;
+  textClassName?: string;
   isLoading?: boolean;
   disabled?: boolean;
   iconBefore?: ReactNode;
@@ -15,6 +17,7 @@ interface Props {
 
 export const Button: FC<Props> = ({
   buttonClassName,
+  textClassName,
   isLoading = false,
   title,
   disabled,
@@ -23,11 +26,12 @@ export const Button: FC<Props> = ({
   onClick,
   isSmallButton,
 }) => {
-  const btnTextClassNames = classNames(
+  const btnTextClassNames = mergeClasses([
     isSmallButton ? 'font-semibold' : '',
     iconAfter ? 'mr-2' : '',
     iconBefore ? 'ml-2' : '',
-  );
+    textClassName,
+  ]);
 
   return (
     <button

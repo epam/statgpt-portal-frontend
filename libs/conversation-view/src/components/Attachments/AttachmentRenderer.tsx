@@ -17,11 +17,13 @@ import {
   PopUpState,
   LimitMessages,
   RequestLimitMessage,
+  CopyButton,
 } from '@epam/statgpt-ui-components';
 import FileAttachment from './BaseAttachments/FileAttachment';
 import MarkdownAttachment from './BaseAttachments/MarkdownAttachment';
 import UrlAttachment from './BaseAttachments/UrlAttachment';
 import {
+  isCustomCodeSampleAttachment,
   isCustomChartAttachment,
   isCustomGridAttachment,
   isFileAttachment,
@@ -52,6 +54,7 @@ import DownloadSettings from '@statgpt/download-panel/src/components/DownloadSet
 import { ConversationViewTitles } from '../../models/titles';
 import DatasetTabs from './Tabs/DatasetTabs/DatasetTabs';
 import { getExternalLink } from '../../utils/attachments-details';
+import { CodeAttachment } from './CustomAttachments/CodeAttachment';
 import ColumnsIcon from '../../assets/icons/columns.svg';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -252,7 +255,7 @@ const AttachmentRenderer: FC<Props> = ({
                       onSelectedAttachmentChange={selectAttachment}
                       titles={titles}
                     />
-                    <div className="flex gap-x-3 items-center flex-wrap w-full justify-end">
+                    <div className="flex gap-x-3 items-center flex-wrap w-fit justify-end">
                       {selectedAttachment &&
                         isCustomGridAttachment(selectedAttachment) &&
                         isExternaLinkIncludeFilters && (
@@ -284,6 +287,21 @@ const AttachmentRenderer: FC<Props> = ({
                             buttonClassName="text-button-tertiary small-icon-button"
                             onClick={() => setModalState(PopUpState.Opened)}
                             iconBefore={attachmentsStyles?.downloadIcon}
+                          />
+                        )}
+                      {selectedAttachment &&
+                        isCustomCodeSampleAttachment(selectedAttachment) && (
+                          <CopyButton
+                            title={attachmentsStyles?.copyTitle}
+                            copiedTitle={attachmentsStyles?.copiedTitle}
+                            tooltip={attachmentsStyles?.copiedTooltip}
+                            icon={attachmentsStyles?.copyIcon}
+                            copiedIcon={attachmentsStyles?.copiedIcon}
+                            onClick={() =>
+                              navigator.clipboard.writeText(
+                                selectedAttachment.data ?? '',
+                              )
+                            }
                           />
                         )}
                     </div>
@@ -334,6 +352,14 @@ const AttachmentRenderer: FC<Props> = ({
                       )}
                       {isMarkdownAttachment(selectedAttachment) && (
                         <MarkdownAttachment attachment={selectedAttachment} />
+                      )}
+                      {isCustomCodeSampleAttachment(selectedAttachment) && (
+                        <CodeAttachment
+                          attachment={selectedAttachment}
+                          className={
+                            attachmentsStyles?.codeAttachmentContainerClassName
+                          }
+                        />
                       )}
                     </div>
                   )}

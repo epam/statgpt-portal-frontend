@@ -32,6 +32,7 @@ export enum ChatI18nKeys {
   SHARE_LINK_DESCRIPTION = 'chat.shareLinkDescription',
   SHARE_CREATE_LINK = 'chat.createLink',
   SHARE_COPY_LINK = 'chat.copyLink',
+  COPY = 'chat.copy',
   SHARE_COPIED_LINK = 'chat.copied',
   SHARE_REMOVE_ACCESS_TO_USERS = 'chat.removeAccessToUsers',
   CHAT_NAME = 'chat.chatName',
@@ -125,6 +126,7 @@ export enum StatusMessagesI18nKeys {
   SERVER_ERROR = 'statusMessages.serverError',
   SERVER_OVERLOADED = 'statusMessages.serverOverloaded',
   CONTENT_FILTER_ERROR = 'statusMessages.contentFilterError',
+  ASSISTANT_ACCESS_RESTORE_DATETIME = 'statusMessages.rateLimit.assistantAccessRestoreDateTime',
 }
 
 export enum AttachmentsI18nKeys {
@@ -132,6 +134,7 @@ export enum AttachmentsI18nKeys {
   OPEN_URL = 'attachments.openUrl',
   DATA_GRID = 'attachments.dataGrid',
   CHART = 'attachments.chart',
+  CODE_SAMPLES = 'attachments.codeSamples',
   LIMITS = 'attachments.limits',
   TIME_SERIES_LIMIT = 'attachments.timeSeries',
   CHART_INFO = 'attachments.chartInfo',

@@ -1,5 +1,5 @@
 import { SdmxApiClient } from './sdmx-api-client';
-import { StructuralMetaData } from '../models/structural-metadata';
+import { StructuralMetaData } from '../models/structural-metadata/structural-metadata';
 import { splitUrn } from '../utils/urn';
 import { DataMessage } from '../models/data/data-message';
 import { getRequestAcceptHeader } from '../utils/get-file-headers';
