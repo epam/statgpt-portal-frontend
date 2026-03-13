@@ -118,22 +118,14 @@ const Filters: FC<FiltersProps> = ({
       setIsConstraintsLoading?: (isLoading: boolean) => void,
     ) => {
       const attachmentUrn = attachmentsDataQuery?.urn ?? '';
+      const constraintFilters = getSeriesFilterDto(filters).filter(
+        (filter) => filter.componentCode !== TIME_PERIOD,
+      );
       const request = actions
         ? getCachedRequestResult(
             actions.getConstraints,
-            buildRequestCacheKey(
-              attachmentUrn,
-              getSeriesFilterDto(filters).filter(
-                (filter) => filter.componentCode !== TIME_PERIOD,
-              ),
-            ),
-            () =>
-              actions.getConstraints(
-                attachmentUrn,
-                getSeriesFilterDto(filters).filter(
-                  (filter) => filter.componentCode !== TIME_PERIOD,
-                ),
-              ),
+            buildRequestCacheKey(attachmentUrn, constraintFilters),
+            () => actions.getConstraints(attachmentUrn, constraintFilters),
           )
         : Promise.resolve(undefined);
 
@@ -340,23 +332,16 @@ const Filters: FC<FiltersProps> = ({
     (filtersToUpdate: Filter[]) => {
       setIsDisableFilterValues(true);
       setModalFilters(updateFiltersWithDisabledOption(filtersToUpdate));
+      const attachmentUrn = attachmentsDataQuery?.urn ?? '';
+      const constraintFilters = getSeriesFilterDto(filtersToUpdate).filter(
+        (filter) => filter.componentCode !== TIME_PERIOD,
+      );
 
       const request = actions
         ? getCachedRequestResult(
             actions.getConstraints,
-            buildRequestCacheKey(
-              attachmentsDataQuery?.urn || '',
-              getSeriesFilterDto(filtersToUpdate).filter(
-                (filter) => filter.componentCode !== TIME_PERIOD,
-              ),
-            ),
-            () =>
-              actions.getConstraints(
-                attachmentsDataQuery?.urn || '',
-                getSeriesFilterDto(filtersToUpdate).filter(
-                  (filter) => filter.componentCode !== TIME_PERIOD,
-                ),
-              ),
+            buildRequestCacheKey(attachmentUrn, constraintFilters),
+            () => actions.getConstraints(attachmentUrn, constraintFilters),
           )
         : Promise.resolve(undefined);
 

@@ -60,8 +60,8 @@ export function useAttachmentsData(
   metadataSettings?: MetadataSettings,
   titles?: ConversationViewTitles,
   rawAttachments?: Attachment[],
-  initialStructure?: StructuralData,
-  isInitialStructureLoading = false,
+  initialDatasetStructure?: StructuralData,
+  isInitialDatasetStructureLoading = false,
 ) {
   const [dataMessage, setDataMessage] = useState<DataMessage | undefined>();
   const [dataset, setDataset] = useState<Dataflow | undefined>();
@@ -130,8 +130,8 @@ export function useAttachmentsData(
 
   const loadStructureAndData = useCallback(
     async (dataQuery: DataQuery) => {
-      const structure = initialStructure
-        ? { data: initialStructure }
+      const structure = initialDatasetStructure
+        ? { data: initialDatasetStructure }
         : await getCachedRequestResult(
             getDataSet,
             buildRequestCacheKey(dataQuery.urn),
@@ -164,12 +164,12 @@ export function useAttachmentsData(
           .finally(() => setIsLoadingGridData(false));
       }
     },
-    [applyStructureData, getDataSet, getDataSetData, initialStructure],
+    [applyStructureData, getDataSet, getDataSetData, initialDatasetStructure],
   );
 
   useEffect(() => {
-    applyStructureData(initialStructure);
-  }, [applyStructureData, initialStructure]);
+    applyStructureData(initialDatasetStructure);
+  }, [applyStructureData, initialDatasetStructure]);
 
   useEffect(() => {
     async function loadDatSet(dataQuery: DataQuery) {
@@ -186,16 +186,16 @@ export function useAttachmentsData(
 
     if (
       dataQuery != null &&
-      !(isInitialStructureLoading && !initialStructure)
+      !(isInitialDatasetStructureLoading && !initialDatasetStructure)
     ) {
       loadDatSet(dataQuery);
-    } else if (dataQuery != null && isInitialStructureLoading) {
+    } else if (dataQuery != null && isInitialDatasetStructureLoading) {
       setIsLoadingGridData(true);
     }
   }, [
     dataQuery,
-    initialStructure,
-    isInitialStructureLoading,
+    initialDatasetStructure,
+    isInitialDatasetStructureLoading,
     loadConstraints,
     loadStructureAndData,
   ]);
