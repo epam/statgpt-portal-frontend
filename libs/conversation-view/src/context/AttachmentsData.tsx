@@ -39,6 +39,10 @@ import { ConversationViewTitles } from '../models/titles';
 import { Filter } from '../models/filters';
 import { Attachment } from '@epam/ai-dial-shared';
 import { unwrapMarkdownCode } from '../utils/attachments/unwrap-markdown-code';
+import {
+  buildRequestCacheKey,
+  getCachedRequestResult,
+} from '../utils/request-cache';
 
 const ALLOWED_CODE_SAMPLE_LANGUAGES = ['python'];
 
@@ -56,6 +60,8 @@ export function useAttachmentsData(
   metadataSettings?: MetadataSettings,
   titles?: ConversationViewTitles,
   rawAttachments?: Attachment[],
+  initialDatasetStructure?: StructuralData,
+  isInitialDatasetStructureLoading = false,
 ) {
   const [dataMessage, setDataMessage] = useState<DataMessage | undefined>();
   const [dataset, setDataset] = useState<Dataflow | undefined>();
@@ -83,15 +89,35 @@ export function useAttachmentsData(
     startPeriod: null,
     endPeriod: null,
   });
+  const { getConstraints, getDataSet, getDataSetData, putOnboardingFile } =
+    actions;
+
+  const applyStructureData = useCallback(
+    (structure?: StructuralData | null) => {
+      if (!structure) {
+        return;
+      }
+
+      const dimensions = getDimensions(structure);
+      setDataset(structure.dataflows?.[0] || void 0);
+      setStructures(structure || void 0);
+      setDimensions([
+        ...(dimensions?.dimensions || []),
+        ...(dimensions?.timeDimensions || []),
+      ]);
+    },
+    [],
+  );
 
   const loadConstraints = useCallback(
     async (dataQuery: DataQuery) => {
       const filtersDto = getFiltersDtoFromDataQuery(dataQuery);
 
       try {
-        const response = await actions.getConstraints(
-          dataQuery.urn,
-          filtersDto,
+        const response = await getCachedRequestResult(
+          getConstraints,
+          buildRequestCacheKey(dataQuery.urn, filtersDto),
+          () => getConstraints(dataQuery.urn, filtersDto),
         );
         const constraints = response?.data?.dataConstraints || [];
         setConstraints(constraints);
@@ -99,46 +125,51 @@ export function useAttachmentsData(
         setConstraints([]);
       }
     },
-    [actions, setConstraints],
+    [getConstraints],
   );
 
   const loadStructureAndData = useCallback(
     async (dataQuery: DataQuery) => {
-      actions.getDataSet(dataQuery.urn).then((dataSet) => {
-        if (dataSet?.data) {
-          const dimensions = getDimensions(dataSet.data);
-          setDataset(dataSet.data.dataflows?.[0] || void 0);
-          setStructures(dataSet.data || void 0);
-          setDimensions([
-            ...(dimensions?.dimensions || []),
-            ...(dimensions?.timeDimensions || []),
-          ]);
-
-          const filterKey =
-            dimensions?.dimensions == null
-              ? null
-              : getTimeSeriesFilterKey(
-                  dimensions?.dimensions,
-                  dataQuery.filters,
-                );
-
-          const timeFilter = getTimeQueryFilterFromAttachment(
-            dataQuery,
-            dimensions,
+      const structure = initialDatasetStructure
+        ? { data: initialDatasetStructure }
+        : await getCachedRequestResult(
+            getDataSet,
+            buildRequestCacheKey(dataQuery.urn),
+            () => getDataSet(dataQuery.urn),
           );
 
-          actions
-            .getDataSetData(dataQuery.urn, { filterKey, timeFilter })
-            .then((data) => {
-              setDataMessage(data || void 0);
-              setStructureDimensions(getStructureDimensions(data));
-            })
-            .finally(() => setIsLoadingGridData(false));
-        }
-      });
+      if (structure?.data) {
+        const dimensions = getDimensions(structure.data);
+        applyStructureData(structure.data);
+
+        const filterKey =
+          dimensions?.dimensions == null
+            ? null
+            : getTimeSeriesFilterKey(dimensions?.dimensions, dataQuery.filters);
+
+        const timeFilter = getTimeQueryFilterFromAttachment(
+          dataQuery,
+          dimensions,
+        );
+
+        getCachedRequestResult(
+          getDataSetData,
+          buildRequestCacheKey(dataQuery.urn, { filterKey, timeFilter }),
+          () => getDataSetData(dataQuery.urn, { filterKey, timeFilter }),
+        )
+          .then((data) => {
+            setDataMessage(data || void 0);
+            setStructureDimensions(getStructureDimensions(data));
+          })
+          .finally(() => setIsLoadingGridData(false));
+      }
     },
-    [actions],
+    [applyStructureData, getDataSet, getDataSetData, initialDatasetStructure],
   );
+
+  useEffect(() => {
+    applyStructureData(initialDatasetStructure);
+  }, [applyStructureData, initialDatasetStructure]);
 
   useEffect(() => {
     async function loadDatSet(dataQuery: DataQuery) {
@@ -153,10 +184,21 @@ export function useAttachmentsData(
       }
     }
 
-    if (dataQuery != null) {
+    if (
+      dataQuery != null &&
+      !(isInitialDatasetStructureLoading && !initialDatasetStructure)
+    ) {
       loadDatSet(dataQuery);
+    } else if (dataQuery != null && isInitialDatasetStructureLoading) {
+      setIsLoadingGridData(true);
     }
-  }, [actions, dataQuery, loadConstraints, loadStructureAndData]);
+  }, [
+    dataQuery,
+    initialDatasetStructure,
+    isInitialDatasetStructureLoading,
+    loadConstraints,
+    loadStructureAndData,
+  ]);
 
   const onFiltersChange = useCallback(
     (
@@ -173,8 +215,11 @@ export function useAttachmentsData(
         if (timePeriodFilter) {
           setSelectedTimePeriod(timePeriodFilter);
         }
-        actions
-          .getDataSetData(dataQuery?.urn || '', filterParams)
+        getCachedRequestResult(
+          getDataSetData,
+          buildRequestCacheKey(dataQuery?.urn || '', filterParams),
+          () => getDataSetData(dataQuery?.urn || '', filterParams),
+        )
           .then((data) => {
             setDataMessage(data || void 0);
             setStructureDimensions(getStructureDimensions(data));
@@ -184,7 +229,7 @@ export function useAttachmentsData(
         console.error('Error loading dataset data', err as object);
       }
     },
-    [actions, dataQuery],
+    [dataQuery, getDataSetData],
   );
 
   useEffect(() => {
@@ -199,7 +244,7 @@ export function useAttachmentsData(
         metadataSettings,
         chartStyles,
         titles,
-        actions?.putOnboardingFile,
+        putOnboardingFile,
         constraints,
         selectedTimePeriod,
       );
@@ -221,7 +266,7 @@ export function useAttachmentsData(
     chartStyles,
     constraints,
     selectedTimePeriod,
-    actions?.putOnboardingFile,
+    putOnboardingFile,
   ]);
 
   useEffect(() => {
