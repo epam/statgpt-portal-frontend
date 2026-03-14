@@ -101,6 +101,7 @@ import {
   throwIfMessageError,
 } from '../../utils/errors';
 import { updateConversationErrorContext } from '../../utils/conversation';
+import { clearRequestCache } from '../../utils/request-cache';
 
 interface Props {
   conversationKey: string;
@@ -717,6 +718,8 @@ export const ConversationView: FC<Props> = ({
   );
 
   useEffect(() => {
+    clearRequestCache();
+
     async function fetchConversationById() {
       try {
         setIsLoading(true);
@@ -745,6 +748,10 @@ export const ConversationView: FC<Props> = ({
     if (conversationKey) {
       fetchConversationById();
     }
+
+    return () => {
+      clearRequestCache();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationKey]);
 
@@ -824,7 +831,7 @@ export const ConversationView: FC<Props> = ({
   return (
     <div
       className={classNames(
-        'h-full flex flex-col bg-white',
+        'h-full flex flex-col bg-white conversation-view-wrapper',
         isOpenedAdvancedView && !showConversationHeaderAdvancedView
           ? 'p-4'
           : 'pr-2',
@@ -841,7 +848,7 @@ export const ConversationView: FC<Props> = ({
       )}
       <div
         className={classNames(
-          'flex-1 min-h-0 flex flex-col items-end overflow-y-auto',
+          'flex-1 min-h-0 flex flex-col items-end hover:overflow-y-auto',
           messageStyles?.messagesWrapperClass,
         )}
       >

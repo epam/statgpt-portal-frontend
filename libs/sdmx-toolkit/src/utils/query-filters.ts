@@ -10,6 +10,7 @@ import {
   TimeRange,
   getTimePeriod,
 } from '@epam/statgpt-shared-toolkit';
+import { format } from 'date-fns';
 import {
   AND_QUERY_OPERATOR,
   QUERY_PARAMETER_FILTER_EQUAL,
@@ -51,12 +52,12 @@ export const getQueryTimePeriodFilters = (
   const { startPeriod, endPeriod } = timeRange;
   if (startPeriod) {
     filterValues.push(
-      `${SeriesFilterOperator.GREATER_OR_EQUAL}${QUERY_PARAMETER_FILTER_VALUE_SEPARATOR}${startPeriod.toISOString().split('T')[0]}`,
+      `${SeriesFilterOperator.GREATER_OR_EQUAL}${QUERY_PARAMETER_FILTER_VALUE_SEPARATOR}${formatLocalDate(startPeriod)}`,
     );
   }
   if (endPeriod) {
     filterValues.push(
-      `${SeriesFilterOperator.LESS_OR_EQUAL}${QUERY_PARAMETER_FILTER_VALUE_SEPARATOR}${endPeriod.toISOString().split('T')[0]}`,
+      `${SeriesFilterOperator.LESS_OR_EQUAL}${QUERY_PARAMETER_FILTER_VALUE_SEPARATOR}${formatLocalDate(endPeriod)}`,
     );
   }
 
@@ -72,6 +73,10 @@ export const getQueryTimePeriodFilters = (
         `${encodeURIComponent(`c[${id}]`)}${QUERY_PARAMETER_FILTER_EQUAL}${encodeURIComponent(v)}`,
     )
     .join(AND_QUERY_OPERATOR);
+};
+
+const formatLocalDate = (date: Date): string => {
+  return format(date, 'yyyy-MM-dd');
 };
 
 export const getTimeQueryFilter = (

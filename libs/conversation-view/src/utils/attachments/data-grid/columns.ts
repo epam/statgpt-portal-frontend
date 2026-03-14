@@ -5,6 +5,12 @@ import {
   getDimensions,
   getLocalizedName,
   getTimePeriods,
+  isDaily,
+  isMonthly,
+  isQuarterly,
+  isSemiAnnually,
+  isWeekly,
+  isYearly,
   sortPeriods,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
@@ -132,7 +138,7 @@ export function getTimeseriesColumns(
   titles?: ConversationViewTitles,
   columns?: string[],
 ): ColDef[] {
-  const timePeriods = columns?.length ? columns : getTimePeriods(data);
+  const timePeriods = getMergedTimePeriods(columns, getTimePeriods(data));
   const obsColGetter: ObsColGetter = (columnId, column) =>
     getDEObservationColumn(
       columnId,
@@ -200,4 +206,49 @@ const getTimeColumns = (
   });
 
   return columns;
+};
+
+const getMergedTimePeriods = (
+  generatedPeriods: string[] = [],
+  dataPeriods: string[] = [],
+): string[] => {
+  if (!generatedPeriods.length) {
+    return dataPeriods;
+  }
+
+  if (!dataPeriods.length) {
+    return generatedPeriods;
+  }
+
+  const hasYearly = dataPeriods.some((period) => isYearly(period));
+  const hasSemiAnnual = dataPeriods.some((period) => isSemiAnnually(period));
+  const hasQuarterly = dataPeriods.some((period) => isQuarterly(period));
+  const hasMonthly = dataPeriods.some((period) => isMonthly(period));
+  const hasWeekly = dataPeriods.some((period) => isWeekly(period));
+  const hasDaily = dataPeriods.some((period) => isDaily(period));
+
+  const filteredGeneratedPeriods = generatedPeriods.filter((period) => {
+    if (isYearly(period)) {
+      return hasYearly;
+    }
+    if (isSemiAnnually(period)) {
+      return hasSemiAnnual;
+    }
+    if (isQuarterly(period)) {
+      return hasQuarterly;
+    }
+    if (isMonthly(period)) {
+      return hasMonthly;
+    }
+    if (isWeekly(period)) {
+      return hasWeekly;
+    }
+    if (isDaily(period)) {
+      return hasDaily;
+    }
+
+    return true;
+  });
+
+  return Array.from(new Set([...filteredGeneratedPeriods, ...dataPeriods]));
 };
