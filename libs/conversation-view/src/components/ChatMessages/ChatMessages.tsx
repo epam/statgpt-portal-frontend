@@ -178,8 +178,8 @@ const ChatMessages: FC<Props> = ({
   }, []);
 
   return (
-    <div ref={containerRef} className="h-full w-full">
-      <div className="flex flex-col gap-y-6 max-w-full">
+    <div ref={containerRef} className="h-full w-full flex justify-center">
+      <div className="flex flex-col gap-y-6 max-w-full chat-messages-wrapper">
         {messages.map((message, index) => {
           const key = message.id ?? index;
 
