@@ -19,6 +19,9 @@ interface DatasetDimensionsMetadataMapContextValue {
     urn: ShortUrn,
   ) => Record<DimensionKey, DimensionConfig> | undefined;
   getDimensionMetadata: GetDimensionMetadata;
+  getRegionDimension: (urn: ShortUrn) => DimensionKey | undefined;
+  getFrequencyDimension: (urn: ShortUrn) => DimensionKey | undefined;
+  getIndicatorDimensions: (urn: ShortUrn) => DimensionKey[];
 }
 
 const Context = createContext<DatasetDimensionsMetadataMapContextValue | null>(
@@ -33,16 +36,36 @@ export function DatasetDimensionsMetadataMapProvider({
   children: ReactNode;
 }) {
   const value = useMemo<DatasetDimensionsMetadataMapContextValue>(() => {
-    const getDimensions = (urn: ShortUrn) => map[urn];
+    const dimensionsBySubtype: Record<ShortUrn, Record<string, DimensionKey>> = {};
+    const dimensionsByType: Record<ShortUrn, Record<string, DimensionKey[]>> = {};
+    const urns = Object.keys(map);
 
-    const getDimension: GetDimensionMetadata = (urn, dimensionKey) => {
-      return map[urn]?.[dimensionKey];
-    };
+    for (const urn of urns) {
+      dimensionsBySubtype[urn] = {};
+      dimensionsByType[urn] = {};
+      const dimensions = Object.keys(map[urn]);
+
+      for (const dimensionKey of dimensions) {
+        const dim = map[urn][dimensionKey];
+        if (dim.subtype) {
+          dimensionsBySubtype[urn][dim.subtype] = dimensionKey;
+        }
+        if (!dimensionsByType[urn][dim.dimensionType]) {
+          dimensionsByType[urn][dim.dimensionType] = [];
+        }
+        dimensionsByType[urn][dim.dimensionType].push(dimensionKey);
+      }
+    }
 
     return {
       map,
-      getDimensionsMetadata: getDimensions,
-      getDimensionMetadata: getDimension,
+      getDimensionsMetadata: (urn: ShortUrn) => map[urn],
+      getDimensionMetadata: (urn: ShortUrn, key: DimensionKey) =>
+        map[urn]?.[key],
+      getRegionDimension: (urn: ShortUrn) => dimensionsBySubtype[urn]?.['REGION'],
+      getFrequencyDimension: (urn: ShortUrn) => dimensionsBySubtype[urn]?.['FREQUENCY'],
+      getIndicatorDimensions: (urn: ShortUrn) =>
+        dimensionsByType[urn]?.['INDICATOR'] ?? [],
     };
   }, [map]);
 
