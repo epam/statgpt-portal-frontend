@@ -27,9 +27,13 @@ export type DimensionTypeKey =
   | 'TIME_PERIOD'
   | (string & {});
 
+export type SubtypeKey =
+  | 'FREQUENCY'
+  | 'REGION';
+
 export interface DimensionConfig {
   alias: string | null;
-  subtype?: string | null;
+  subtype?: SubtypeKey | null;
   allValues: DimensionAllValues | null;
   dimensionType: DimensionTypeKey;
 }
