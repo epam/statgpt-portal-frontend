@@ -24,6 +24,7 @@ import {
   DatasetQueryFilters,
 } from '@epam/statgpt-sdmx-toolkit';
 import { getExternalLink } from '../../utils/attachments-details';
+import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -81,6 +82,12 @@ export const AdvancedView: FC<Props> = ({
     titles,
     lastMessageAttachments,
   );
+  const {
+    dimensionsMap,
+    structuresMap,
+    structureDimensionsMap,
+    constraintsMap,
+  } = useAttachmentsDataMultipleQueries(actions, attachmentsProps.dataQueries);
   const [isFiltering, setIsFiltering] = useState<boolean>();
   const [filters, setFilters] = useState<DatasetQueryFilters>({
     filterKey: null,
@@ -179,8 +186,12 @@ export const AdvancedView: FC<Props> = ({
                     ...props?.filtersProps,
                     structureDimensions,
                     structures,
+                    dimensionsMap,
+                    structureDimensionsMap,
+                    structuresMap,
                     onFiltersChange,
                     initialConstraints: constraints,
+                    initialConstraintsMap: constraintsMap,
                   }}
                   setIsFiltering={setIsFiltering}
                   attachmentsConfig={attachmentsConfig}
