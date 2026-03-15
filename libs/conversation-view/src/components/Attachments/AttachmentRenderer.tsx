@@ -12,12 +12,10 @@ import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import {
   Alert,
   AlertDetails,
-  Button,
   Loader,
   PopUpState,
   LimitMessages,
   RequestLimitMessage,
-  CopyButton,
 } from '@epam/statgpt-ui-components';
 import FileAttachment from './BaseAttachments/FileAttachment';
 import MarkdownAttachment from './BaseAttachments/MarkdownAttachment';
@@ -39,7 +37,6 @@ import {
 } from '../../models/attachments';
 import { FC, useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import AttachmentTabs from './Tabs/AttachmentTabs/AttachmentTabs';
 import AttachmentDetails from './AttachmentDetails/AttachmentDetails';
 import GridAttachment from './BaseAttachments/GridAttachment';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
@@ -55,6 +52,7 @@ import { ConversationViewTitles } from '../../models/titles';
 import DatasetTabs from './Tabs/DatasetTabs/DatasetTabs';
 import { getExternalLink } from '../../utils/attachments-details';
 import { CodeAttachment } from './CustomAttachments/CodeAttachment';
+import AttachmentsViewModePanel from './AttachmentsViewModePanel';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -241,57 +239,18 @@ const AttachmentRenderer: FC<Props> = ({
                 )}
               >
                 <div className="flex flex-col max-w-full items-center gap-4 h-full">
-                  <div className="flex min-w-0 w-full justify-between items-center">
-                    <AttachmentTabs
-                      dataGridTitle={attachmentsStyles?.dataGridTitle}
-                      attachments={attachments}
-                      selectedAttachmentIndex={selectedAttachmentIndex}
-                      showTabIcon={attachmentsStyles?.showTabIcon}
-                      onSelectedAttachmentChange={selectAttachment}
-                      titles={titles}
-                    />
-                    <div className="flex gap-x-3 items-center flex-wrap w-fit justify-end">
-                      {selectedAttachment &&
-                        isCustomGridAttachment(selectedAttachment) &&
-                        isExternaLinkIncludeFilters && (
-                          <a href={externalLink} target="_blank">
-                            <Button
-                              title={
-                                limitMessages?.dataExplorer || 'Data explorer'
-                              }
-                              buttonClassName="text-button-tertiary small-icon-button [&>svg]:h-[16px] [&>svg]:w-[16px] whitespace-nowrap"
-                              iconBefore={limitMessages?.dataExplorerIcon}
-                            />
-                          </a>
-                        )}
-                      {selectedAttachment &&
-                        isCustomGridAttachment(selectedAttachment) && (
-                          <Button
-                            title={
-                              attachmentsStyles?.downloadTitle || 'Download'
-                            }
-                            buttonClassName="text-button-tertiary small-icon-button"
-                            onClick={() => setModalState(PopUpState.Opened)}
-                            iconBefore={attachmentsStyles?.downloadIcon}
-                          />
-                        )}
-                      {selectedAttachment &&
-                        isCustomCodeSampleAttachment(selectedAttachment) && (
-                          <CopyButton
-                            title={attachmentsStyles?.copyTitle}
-                            copiedTitle={attachmentsStyles?.copiedTitle}
-                            tooltip={attachmentsStyles?.copiedTooltip}
-                            icon={attachmentsStyles?.copyIcon}
-                            copiedIcon={attachmentsStyles?.copiedIcon}
-                            onClick={() =>
-                              navigator.clipboard.writeText(
-                                selectedAttachment.data ?? '',
-                              )
-                            }
-                          />
-                        )}
-                    </div>
-                  </div>
+                  <AttachmentsViewModePanel
+                    attachments={attachments}
+                    selectedAttachmentIndex={selectedAttachmentIndex}
+                    selectedAttachment={selectedAttachment}
+                    attachmentsStyles={attachmentsStyles}
+                    titles={titles}
+                    externalLink={externalLink}
+                    isExternaLinkIncludeFilters={isExternaLinkIncludeFilters}
+                    limitMessages={limitMessages}
+                    onSelectedAttachmentChange={selectAttachment}
+                    onDownloadClick={() => setModalState(PopUpState.Opened)}
+                  />
                   {selectedAttachment != null && (
                     <div className="flex flex-1 w-full justify-center min-h-0">
                       {isFileAttachment(selectedAttachment) && (
