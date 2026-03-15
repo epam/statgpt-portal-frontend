@@ -43,7 +43,6 @@ import {
 import { AttachmentsActions } from '../../models/actions';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import { MetadataSettings } from '../../models/metadata';
-import { ConversationViewTitles } from '../../models/titles';
 import {
   getLastMessageWithAttachmentIndex,
   getPreviousMessageWithAttachment,
@@ -64,7 +63,6 @@ interface Props {
   locale: string;
   metadataSettings?: MetadataSettings;
   expandStagesIcon?: ReactNode;
-  titles?: ConversationViewTitles;
   dataQuery?: DataQuery;
   regenerateMessage?: (message: MessageType) => void;
   editMessage?: (message: MessageType) => void;

@@ -2,7 +2,6 @@ import { Data, StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import { ColDef } from 'ag-grid-community';
 import { MetadataSettings } from '../models/metadata';
 import ChartCellRenderer from '../components/Attachments/GridCellRenderers/ChartCellRenderer';
-import { ConversationViewTitles } from '../models/titles';
 import { PutOnboardingFile } from '../types/actions';
 
 export const GRID_HEADER_HEIGHT = 32;
@@ -24,7 +23,6 @@ export const getMetaDataColumn = (
   data?: Data,
   locale?: string,
   metadataSettings?: MetadataSettings,
-  titles?: ConversationViewTitles,
   action?: PutOnboardingFile,
 ): ColDef => {
   return {
@@ -43,7 +41,6 @@ export const getMetaDataColumn = (
       dataSetData,
       locale,
       metadataSettings,
-      titles,
       action,
     },
   };
@@ -54,7 +51,6 @@ export function getChartColumn(
   data?: Data,
   locale?: string,
   width = CHART_COLUMN_WIDTH,
-  titles?: ConversationViewTitles,
   action?: PutOnboardingFile,
 ): ColDef {
   return {
@@ -76,7 +72,6 @@ export function getChartColumn(
       attributesData: data,
       dataSetData,
       locale,
-      titles,
       action,
     },
   };

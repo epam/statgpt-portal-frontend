@@ -6,14 +6,13 @@ import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
 import { StructureComponentValue } from '../../../models/structure-component';
 import MetadataDescriptionItem from './MetadataDescriptionItem';
 import MetadataItem from './MetadataItem';
-import { ConversationViewTitles } from '../../../models/titles';
+import { useConversationViewTitles } from '../../../context/ConversationViewTitlesContext';
 
 interface Props {
   metadata?: StructureComponentValue[];
   metadataDescription?: StructureComponentValue[];
   isOpenMetadata?: boolean;
   onCloseMetadata?: () => void;
-  titles?: ConversationViewTitles;
   locale: string;
 }
 
@@ -22,9 +21,9 @@ const Metadata: FC<Props> = ({
   metadataDescription = [],
   isOpenMetadata,
   onCloseMetadata,
-  titles,
   locale,
 }) => {
+  const titles = useConversationViewTitles();
   const [modalState, setModalState] = useState(PopUpState.Closed);
 
   useEffect(() => {

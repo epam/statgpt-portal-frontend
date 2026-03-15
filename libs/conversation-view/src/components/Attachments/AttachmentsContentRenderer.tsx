@@ -20,7 +20,6 @@ import CustomDataGridAttachment from './CustomAttachments/CustomGridAttachment';
 import CustomChartAttachment from './CustomAttachments/CustomChartAttachment';
 import { CodeAttachment } from './CustomAttachments/CodeAttachment';
 import { AttachmentsActions } from '../../models/actions';
-import { useConversationViewTitles } from '../../context/ConversationViewTitlesContext';
 
 interface Props {
   selectedAttachment: Attachment;
@@ -41,7 +40,6 @@ const AttachmentsContentRenderer: FC<Props> = ({
   onOpenAdvancedView,
   showLimitMessage,
 }) => {
-  const titles = useConversationViewTitles();
   return (
     <div className="flex flex-1 w-full justify-center min-h-0">
       {isFileAttachment(selectedAttachment) && (
@@ -64,13 +62,11 @@ const AttachmentsContentRenderer: FC<Props> = ({
           isDataLoading={isDataLoading}
           showChartColumn={isOpenedAdvancedView}
           fixHeight={!isOpenedAdvancedView}
-          titles={titles}
           showLimitMessage={showLimitMessage}
         />
       )}
       {isCustomChartAttachment(selectedAttachment) && (
         <CustomChartAttachment
-          titles={titles}
           isDataLoading={isDataLoading}
           attachment={selectedAttachment}
           icons={attachmentsStyles?.chartingIcons}

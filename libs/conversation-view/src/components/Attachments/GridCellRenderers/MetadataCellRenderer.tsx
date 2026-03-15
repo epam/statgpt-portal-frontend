@@ -22,7 +22,7 @@ import {
 } from '../../../utils/attachments/metadata';
 import { MetadataSettings } from '../../../models/metadata';
 import { getDimensionGroupAttributes } from '../../../utils/attachments/group-attributes';
-import { ConversationViewTitles } from '../../../models/titles';
+import { useConversationViewTitles } from '../../../context/ConversationViewTitlesContext';
 import { Tooltip } from '../../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
 import { OnboardingElements } from '../../../constants/onboarding-elements';
@@ -33,10 +33,10 @@ interface MetadataCellRendererParams extends ICellRendererParams {
   dataSetData: StructuralData;
   locale: Locale;
   metadataSettings?: MetadataSettings;
-  titles: ConversationViewTitles;
 }
 
 const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
+  const titles = useConversationViewTitles();
   const [isOpenMetadata, setIsOpenMetadata] = useState<boolean>(false);
   const iconRef = useRef<HTMLDivElement | null>(null);
   const [tooltipTitle, setTooltipTitle] = useState<string>('');
@@ -54,7 +54,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
       getDatasetNameItem(
         params?.dataSetData?.dataflows?.[0],
         params?.locale,
-        params.titles,
+        titles,
       ),
       ...getStructureComponentsValues(
         getDimensionsFromParams(params, structureComponentsMap),
@@ -82,7 +82,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
         params?.dataSetData,
         params?.locale,
         params?.valueFormatted || params?.value,
-        params.titles,
+        titles,
         params?.colDef,
         params?.data,
       ),
@@ -102,12 +102,12 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
     if (isShowOnboarding) {
       const { title, description } = getTooltipDataByElement(
         OnboardingElements.METADATA_PER_SERIES,
-        params.titles,
+        titles,
       );
       setTooltipTitle(title);
       setTooltipDescription(description);
     }
-  }, [params.titles, isShowOnboarding]);
+  }, [titles, isShowOnboarding]);
 
   useEffect(() => {
     if (isShowOnboarding) {
@@ -136,7 +136,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
     <>
       <div ref={iconRef}>
         <IconButton
-          title={params.titles?.metadata || 'View details'}
+          title={titles?.metadata || 'View details'}
           buttonClassName="!text-neutrals-1000 !border-none !p-1"
           icon={<MetadataIcon className="w-5 h-5" />}
           onClick={openMetadata}
@@ -153,7 +153,6 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
       )}
       {isOpenMetadata && (
         <Metadata
-          titles={params.titles}
           locale={params?.locale}
           metadata={metadata}
           metadataDescription={

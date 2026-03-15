@@ -29,7 +29,7 @@ import {
 } from '../../utils/attachments/metadata';
 import { MetadataSettings } from '../../models/metadata';
 import Metadata from './Metadata/Metadata';
-import { ConversationViewTitles } from '../../models/titles';
+import { useConversationViewTitles } from '../../context/ConversationViewTitlesContext';
 import { StructureComponentValue } from '../../models/structure-component';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../utils/get-tooltip-data.by-element';
@@ -56,7 +56,6 @@ interface Props extends DatasetInfoOptions {
   metadataSettings?: MetadataSettings;
   locale: string;
   externalLink?: string;
-  titles?: ConversationViewTitles;
   getDatasetUpdatedTime?: (
     attributes: StructureComponentValue[],
   ) => string | null;
@@ -70,7 +69,6 @@ const DatasetInfo: FC<Props> = ({
   structures,
   metadataSettings,
   locale,
-  titles,
   getDatasetUpdatedTime,
   externalLink,
   datasetIcon,
@@ -81,6 +79,7 @@ const DatasetInfo: FC<Props> = ({
   infoSegmentHeaderClassName,
   nameAndMetadataContainerClassName,
 }) => {
+  const titles = useConversationViewTitles();
   const [lastUpdatedDate, setLastUpdatedDate] = useState<string>('');
   const [isOpenMetadata, setIsOpenMetadata] = useState<boolean>(false);
 
@@ -252,7 +251,6 @@ const DatasetInfo: FC<Props> = ({
       )}
       {isOpenMetadata && (
         <Metadata
-          titles={titles}
           locale={locale}
           metadata={datasetMetadata}
           metadataDescription={datasetDescription}

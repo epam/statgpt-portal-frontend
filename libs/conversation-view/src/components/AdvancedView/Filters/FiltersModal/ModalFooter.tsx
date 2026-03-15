@@ -8,7 +8,7 @@ import {
 import { FC } from 'react';
 import { FiltersModalProps } from '../../../../models/filters';
 import classNames from 'classnames';
-import { ConversationViewTitles } from '../../../../models/titles';
+import { useConversationViewTitles } from '../../../../context/ConversationViewTitlesContext';
 import FiltersCounter from '../FiltersCounter/FiltersCounter';
 
 interface Props {
@@ -16,7 +16,6 @@ interface Props {
   onApply: () => void;
   onClearAllFilters: () => void;
   onClose: () => void;
-  titles?: ConversationViewTitles;
   applyDisabled?: boolean;
   timeseriesLength?: number;
   limitMessages?: LimitMessages;
@@ -26,11 +25,11 @@ const ModalFooter: FC<Props> = ({
   onApply,
   onClearAllFilters,
   onClose,
-  titles,
   applyDisabled,
   timeseriesLength,
   limitMessages,
 }) => {
+  const titles = useConversationViewTitles();
   const isMobile = useIsMobile();
   return (
     <div

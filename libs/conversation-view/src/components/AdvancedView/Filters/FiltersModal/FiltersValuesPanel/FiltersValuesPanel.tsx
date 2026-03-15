@@ -22,7 +22,7 @@ import TimePeriodFacet from './TimePeriodFacet';
 import FilterValues from './FilterValues';
 import { FilterDisplayMode } from '../../../../../constants/filter-display-mode';
 import classNames from 'classnames';
-import { ConversationViewTitles } from '../../../../../models/titles';
+import { useConversationViewTitles } from '../../../../../context/ConversationViewTitlesContext';
 
 interface Props {
   selectedFilter?: Filter;
@@ -38,7 +38,6 @@ interface Props {
   selectFilterValue: (id: string, isSelectedValue?: boolean) => void;
   selectHierarchicalNodes: (nodes?: FilterTreeNodeProps[]) => void;
   expandHierarchicalValue: (value?: FilterTreeNodeProps) => void;
-  titles?: ConversationViewTitles;
   selectedTimeOption?: string | number;
 }
 
@@ -50,12 +49,12 @@ const FiltersValuesPanel: FC<Props> = ({
   timeRangeOptions,
   onTimePeriodChange,
   selectFilterValue,
-  titles,
   initialConstraints,
   selectHierarchicalNodes,
   expandHierarchicalValue,
   selectedTimeOption,
 }) => {
+  const titles = useConversationViewTitles();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<FilterValue[]>([]);
   const isHierarchicalView =
@@ -92,7 +91,6 @@ const FiltersValuesPanel: FC<Props> = ({
     <>
       {selectedFilter?.isTimeDimension && initialConstraints ? (
         <TimePeriodFacet
-          titles={titles}
           initialConstraints={initialConstraints}
           calendarResolution={CalendarResolution.DAY}
           timeRange={selectedFilter?.timeRange || null}

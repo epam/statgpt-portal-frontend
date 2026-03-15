@@ -29,6 +29,7 @@ import { getCreateConversationRequest } from '../../utils/conversation-request';
 import { generateOnboardingConversation } from '../../utils/generate-onboarding-conversation';
 import { InputMessageStyles } from '../../models/message';
 import { ConversationViewTitles } from '../../models/titles';
+import { ConversationViewTitlesProvider } from '../../context/ConversationViewTitlesContext';
 import { ConversationOnboarding } from '../ConversationOnboarding/ConversationOnboarding';
 import { ChatOnboardingFooter } from '../ChatOnboardingFooter/ChatOnboardingFooter';
 import { useOnboarding } from '../../context/OnboardingContext';
@@ -267,12 +268,12 @@ export const ConversationWelcome: FC<Props> = ({
   };
 
   return (
+    <ConversationViewTitlesProvider titles={titles}>
     <div className="flex flex-col h-full w-full">
       {prompt || isCreatingConversation ? (
         <Loader />
       ) : isShowOnboarding ? (
         <ConversationOnboarding
-          titles={titles}
           messageContent={
             onboardingMessageSchema?.properties?.choice?.description || ''
           }
@@ -300,7 +301,6 @@ export const ConversationWelcome: FC<Props> = ({
       )}
       {isShowOnboarding && (
         <ChatOnboardingFooter
-          titles={titles}
           openNewConversation={() => setIsShowOnboarding(false)}
         />
       )}
@@ -311,5 +311,6 @@ export const ConversationWelcome: FC<Props> = ({
         />
       )}
     </div>
+    </ConversationViewTitlesProvider>
   );
 };

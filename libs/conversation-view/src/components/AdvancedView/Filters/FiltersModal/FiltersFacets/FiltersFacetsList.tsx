@@ -9,7 +9,6 @@ import {
   FilterTreeNodeProps,
   FilterValuesProps,
 } from '../../../../../models/filters';
-import { ConversationViewTitles } from '../../../../../models/titles';
 import FiltersFacetItem from './FiltersFacetItem';
 
 interface Props {
@@ -22,7 +21,6 @@ interface Props {
   filterValuesProps?: FilterValuesProps;
   isDisableValues?: boolean;
   timeRangeOptions?: TimeRangeOptions[];
-  titles?: ConversationViewTitles;
   initialConstraints?: DataConstraints[];
   onTimePeriodChange: (
     timeRange: TimeRange | null,
@@ -47,7 +45,6 @@ const FiltersFacetsList: FC<Props> = ({
   onTimePeriodChange,
   selectFilterValue,
   selectHierarchicalNodes,
-  titles,
   expandHierarchicalValue,
 }) => {
   return (
@@ -58,7 +55,6 @@ const FiltersFacetsList: FC<Props> = ({
     >
       {filtersList?.map((filter) => (
         <FiltersFacetItem
-          titles={titles}
           locale={locale}
           filter={filter}
           key={filter?.id}

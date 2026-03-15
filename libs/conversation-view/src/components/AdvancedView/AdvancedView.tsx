@@ -17,6 +17,7 @@ import { AdvanceViewStyles } from '../../models/advance-view-styles';
 import classNames from 'classnames';
 import DatasetTabs from '../Attachments/Tabs/DatasetTabs/DatasetTabs';
 import { ConversationViewTitles } from '../../models/titles';
+import { ConversationViewTitlesProvider } from '../../context/ConversationViewTitlesContext';
 import { StructureComponentValue } from '../../models/structure-component';
 import { LimitMessages } from '@epam/statgpt-ui-components';
 import {
@@ -79,7 +80,6 @@ export const AdvancedView: FC<Props> = ({
     formattingSettings,
     attachmentsProps.styles?.chartingStyles,
     metadataSettings,
-    titles,
     lastMessageAttachments,
   );
   const {
@@ -128,9 +128,9 @@ export const AdvancedView: FC<Props> = ({
   );
 
   return (
+    <ConversationViewTitlesProvider titles={titles}>
     <div className="advanced-view flex flex-col flex-1 h-full min-w-0">
       <Header
-        titles={titles}
         locale={locale}
         shareConversationProps={shareConversationProps}
         isShowShare={advanceViewStyles?.isShowShare}
@@ -156,7 +156,6 @@ export const AdvancedView: FC<Props> = ({
             <>
               <DatasetInfo
                 {...datasetInfoOptions}
-                titles={titles}
                 locale={locale}
                 dataset={dataset}
                 data={dataMessage?.data}
@@ -173,7 +172,6 @@ export const AdvancedView: FC<Props> = ({
               >
                 <DataDetails
                   {...props}
-                  titles={titles}
                   actions={actions}
                   attachments={dataSetAttachments}
                   attachmentsDataQuery={attachmentsProps.currentDataQuery}
@@ -204,5 +202,6 @@ export const AdvancedView: FC<Props> = ({
         </>
       )}
     </div>
+    </ConversationViewTitlesProvider>
   );
 };

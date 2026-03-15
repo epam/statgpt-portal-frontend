@@ -44,6 +44,7 @@ import {
   buildRequestCacheKey,
   getCachedRequestResult,
 } from '../../../utils/request-cache';
+import { useConversationViewTitles } from '../../../context/ConversationViewTitlesContext';
 
 const Filters: FC<FiltersProps> = ({
   actions,
@@ -58,7 +59,6 @@ const Filters: FC<FiltersProps> = ({
   onFiltersChange,
   locale,
   timeRangeOptions,
-  titles,
   conversationKey,
   conversation,
   setConversation,
@@ -67,6 +67,7 @@ const Filters: FC<FiltersProps> = ({
   limitMessages,
   filterIconClassName,
 }) => {
+  const titles = useConversationViewTitles();
   const [modalState, setModalState] = useState(PopUpState.Closed);
   const [modalFilters, setModalFilters] = useState<Filter[]>([]);
   const [appliedFilters, setAppliedFilters] = useState<Filter[]>([]);
@@ -415,7 +416,6 @@ const Filters: FC<FiltersProps> = ({
         )}
         isLoading={isConstraintsLoading}
         setModalState={setModalState}
-        titles={titles}
         isModalClosed={isModalClosed}
         warningIcon={limitMessages?.warningIcon}
         filterIconClassName={filterIconClassName}
@@ -434,7 +434,6 @@ const Filters: FC<FiltersProps> = ({
           >
             <FilterSettings
               locale={locale}
-              titles={titles}
               timeRangeOptions={timeRangeOptions}
               filtersList={modalFilters}
               selectedFilter={selectedFilter}
@@ -450,7 +449,6 @@ const Filters: FC<FiltersProps> = ({
               selectedTimeOption={selectedTimeOption}
             />
             <ModalFooter
-              titles={titles}
               onApply={onApply}
               onClose={onCloseModal}
               onClearAllFilters={onClearAllFilters}

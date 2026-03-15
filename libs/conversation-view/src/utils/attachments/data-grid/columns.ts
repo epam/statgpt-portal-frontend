@@ -80,12 +80,11 @@ export function getColumns(
       data?.data,
       locale,
       metadataSettings,
-      titles,
       action,
     ),
     ...dimColumns,
     ...timeColumns,
-    getChartColumn(structures, data?.data, locale, void 0, titles, action),
+    getChartColumn(structures, data?.data, locale, void 0, action),
   ];
 }
 
@@ -200,7 +199,6 @@ const getTimeColumns = (
         dataSetData: structures,
         locale,
         metadataSettings,
-        titles,
       },
     });
   });

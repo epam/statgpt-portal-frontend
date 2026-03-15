@@ -10,7 +10,7 @@ import {
 } from '@epam/statgpt-ui-components';
 import FilterIcon from '../../../../assets/icons/filter.svg';
 import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
-import { ConversationViewTitles } from '../../../../models/titles';
+import { useConversationViewTitles } from '../../../../context/ConversationViewTitlesContext';
 import { Tooltip } from '../../../Tooltip/Tooltip';
 import { OnboardingElements } from '../../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../../context/OnboardingContext';
@@ -20,7 +20,6 @@ interface Props {
   buttonProps?: FilterButtonProps;
   selectedFiltersCount?: number;
   isLoading?: boolean;
-  titles?: ConversationViewTitles;
   setModalState: (modalState: PopUpState) => void;
   isModalClosed?: boolean;
   warningIcon?: ReactNode;
@@ -33,12 +32,12 @@ const FilterButton: FC<Props> = ({
   selectedFiltersCount = 0,
   isLoading,
   setModalState,
-  titles,
   isModalClosed,
   warningIcon,
   filterIconClassName,
   timeSeriesCount,
 }) => {
+  const titles = useConversationViewTitles();
   const filtersRef = useRef<HTMLDivElement | null>(null);
   const [tooltipTitle, setTooltipTitle] = useState<string>('');
   const [tooltipDescription, setTooltipDescription] = useState<string>('');

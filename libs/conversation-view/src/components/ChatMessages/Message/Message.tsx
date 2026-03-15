@@ -47,7 +47,7 @@ import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import { MetadataSettings } from '../../../models/metadata';
 import { Loader, LimitMessages } from '@epam/statgpt-ui-components';
 import MessageStages from '../MessageStages/MessageStages';
-import { ConversationViewTitles } from '../../../models/titles';
+import { useConversationViewTitles } from '../../../context/ConversationViewTitlesContext';
 import { AttachmentInfo, AttachmentsConfig } from '../../../models/attachments';
 import { getAttachmentInfoList } from '../../../utils/attachments-details';
 import { AssistantActionsPanel } from '../AssistantActions/AssistantActions';
@@ -69,7 +69,6 @@ interface Props {
   locale: string;
   metadataSettings?: MetadataSettings;
   expandStagesIcon?: ReactNode;
-  titles?: ConversationViewTitles;
   onAdvancedViewOpen?: () => void;
   regenerateMessage?: (message: MessageType) => void;
   selectMessageToSend: (message?: string, choiceId?: string) => void;
@@ -86,7 +85,6 @@ interface Props {
 const Message: FC<Props> = ({
   message,
   previousMessage,
-  titles,
   actions,
   dataQuery,
   isStreaming = false,
@@ -110,6 +108,7 @@ const Message: FC<Props> = ({
   limitMessages,
   attachmentsConfig,
 }) => {
+  const titles = useConversationViewTitles();
   const [attachmentsDataQueries, setAttachmentsDataQueries] = useState<
     DataQuery[] | undefined
   >();
@@ -156,7 +155,6 @@ const Message: FC<Props> = ({
       formattingSettings,
       attachmentsStyles?.chartingStyles,
       metadataSettings,
-      titles,
       message.custom_content?.attachments,
       currentAttachmentDataQuery
         ? datasetStructuresMap?.get(currentAttachmentDataQuery.urn)
@@ -286,7 +284,6 @@ const Message: FC<Props> = ({
     () => (
       <AttachmentRenderer
         actions={actions}
-        titles={titles}
         attachments={
           isDataSetAttachments ? dataSetAttachments : baseGridAttachments
         }
@@ -311,7 +308,6 @@ const Message: FC<Props> = ({
     ),
     [
       actions,
-      titles,
       isDataSetAttachments,
       dataSetAttachments,
       baseGridAttachments,

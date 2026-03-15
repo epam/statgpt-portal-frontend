@@ -36,7 +36,7 @@ import { AttachmentsActions } from '../../models/actions';
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import DownloadSettings from '@statgpt/download-panel/src/components/DownloadSettings/DownloadSettings';
-import { ConversationViewTitles } from '../../models/titles';
+import { useConversationViewTitles } from '../../context/ConversationViewTitlesContext';
 import DatasetTabs from './Tabs/DatasetTabs/DatasetTabs';
 import { getExternalLink } from '../../utils/attachments-details';
 import AttachmentsViewModePanel from './AttachmentsViewModePanel';
@@ -66,7 +66,6 @@ interface Props {
   locale?: string;
   dimensions?: Dimension[];
   filters?: DatasetQueryFilters;
-  titles?: ConversationViewTitles;
   selectDataset?: (datasetUrn?: string) => void;
   onAdvancedViewOpen?: () => void;
   limitMessages?: LimitMessages;
@@ -76,7 +75,6 @@ interface Props {
 const AttachmentRenderer: FC<Props> = ({
   attachments,
   actions,
-  titles,
   messageStyles,
   attachmentsStyles,
   isSystemAttachments,
@@ -97,6 +95,7 @@ const AttachmentRenderer: FC<Props> = ({
   limitMessages,
   attachmentsConfig,
 }) => {
+  const titles = useConversationViewTitles();
   const [selectedAttachmentIndex, setSelectedAttachmentIndex] =
     useState<number>(0);
   const [selectedAttachment, setSelectedAttachment] =
@@ -197,7 +196,6 @@ const AttachmentRenderer: FC<Props> = ({
                     datasets={datasets}
                     initialSelectedDatasetUrn={initialSelectedDatasetUrn}
                     locale={locale}
-                    titles={titles}
                     isHideAdvancedViewButton={!showAdvancedView}
                     openAdvancedViewIcon={
                       attachmentsStyles?.openAdvancedViewIcon
@@ -232,7 +230,6 @@ const AttachmentRenderer: FC<Props> = ({
                     selectedAttachmentIndex={selectedAttachmentIndex}
                     selectedAttachment={selectedAttachment}
                     attachmentsStyles={attachmentsStyles}
-                    titles={titles}
                     externalLink={externalLink}
                     isExternaLinkIncludeFilters={isExternaLinkIncludeFilters}
                     limitMessages={limitMessages}

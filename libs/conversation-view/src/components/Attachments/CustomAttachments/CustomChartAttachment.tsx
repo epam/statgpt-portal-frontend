@@ -9,7 +9,7 @@ import ChartSidebar from './ChartSidebar';
 import Slider from './Slider';
 import ChartLimitationInfo from './ChartLimitationInfo';
 import classNames from 'classnames';
-import { ConversationViewTitles } from '../../../models/titles';
+import { useConversationViewTitles } from '../../../context/ConversationViewTitlesContext';
 import { useOnboarding } from '../../../context/OnboardingContext';
 import {
   getOnboardingInfoForAdvancedView,
@@ -25,7 +25,6 @@ interface Props {
   openAdvancedView?: () => void;
   isDataLoading?: boolean;
   fixHeight?: boolean;
-  titles?: ConversationViewTitles;
 }
 
 const CustomChartAttachment: FC<Props> = ({
@@ -34,8 +33,8 @@ const CustomChartAttachment: FC<Props> = ({
   isDataLoading,
   openAdvancedView,
   fixHeight = true,
-  titles,
 }) => {
+  const titles = useConversationViewTitles();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [units, setUnits] = useState<ChartUnit[]>([]);
   const [chartIndex, setChartIndex] = useState<number>(0);
@@ -138,7 +137,6 @@ const CustomChartAttachment: FC<Props> = ({
                     <ChartLimitationInfo
                       limitAmount={selectedUnit.limitedByRowsAmountTo}
                       openAdvancedView={openAdvancedView}
-                      titles={titles}
                     ></ChartLimitationInfo>
                   )}
                   {units.length > 1 && (
@@ -146,7 +144,6 @@ const CustomChartAttachment: FC<Props> = ({
                       icons={icons}
                       currentIndex={chartIndex}
                       totalCount={units.length}
-                      titles={titles}
                       onNext={nextChart}
                       onPrev={prevChart}
                     ></Slider>

@@ -3,7 +3,7 @@
 import { FC, ReactNode, useEffect, useRef, useState } from 'react';
 import { ChartingIcon } from '../../../types/charting-icon';
 import classNames from 'classnames';
-import { ConversationViewTitles } from '../../../models/titles';
+import { useConversationViewTitles } from '../../../context/ConversationViewTitlesContext';
 import { Tooltip } from '../../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
 import { OnboardingElements } from '../../../constants/onboarding-elements';
@@ -17,7 +17,6 @@ interface Props {
   currentIndex: number;
   totalCount: number;
   icons?: Record<ChartingIcon, ReactNode>;
-  titles?: ConversationViewTitles;
   onPrev: () => void;
   onNext: () => void;
 }
@@ -26,10 +25,10 @@ const Slider: FC<Props> = ({
   currentIndex,
   totalCount,
   icons,
-  titles,
   onPrev,
   onNext,
 }) => {
+  const titles = useConversationViewTitles();
   const navRef = useRef<HTMLDivElement | null>(null);
   const [tooltipTitle, setTooltipTitle] = useState<string>('');
   const [tooltipDescription, setTooltipDescription] = useState<string>('');

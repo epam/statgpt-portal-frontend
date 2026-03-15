@@ -17,8 +17,6 @@ import {
 } from '../../models/attachments';
 import AttachmentTabs from './Tabs/AttachmentTabs/AttachmentTabs';
 import { AttachmentsStyles } from '../../models/attachments-styles';
-import { ConversationViewTitles } from '../../models/titles';
-
 interface Props {
   attachments: (
     | Attachment
@@ -28,7 +26,6 @@ interface Props {
   selectedAttachmentIndex: number;
   selectedAttachment: Attachment | null;
   attachmentsStyles?: AttachmentsStyles;
-  titles?: ConversationViewTitles;
   externalLink?: string;
   isExternaLinkIncludeFilters?: boolean;
   limitMessages?: LimitMessages;
@@ -41,7 +38,6 @@ const AttachmentsViewModePanel: FC<Props> = ({
   selectedAttachmentIndex,
   selectedAttachment,
   attachmentsStyles,
-  titles,
   externalLink,
   isExternaLinkIncludeFilters,
   limitMessages,
@@ -56,7 +52,6 @@ const AttachmentsViewModePanel: FC<Props> = ({
         selectedAttachmentIndex={selectedAttachmentIndex}
         showTabIcon={attachmentsStyles?.showTabIcon}
         onSelectedAttachmentChange={onSelectedAttachmentChange}
-        titles={titles}
       />
       <div className="flex gap-x-3 items-center flex-wrap w-fit justify-end">
         {selectedAttachment &&

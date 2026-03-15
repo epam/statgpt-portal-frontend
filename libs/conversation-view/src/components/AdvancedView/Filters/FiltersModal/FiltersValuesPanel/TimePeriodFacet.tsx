@@ -17,7 +17,7 @@ import {
   getPickerOptions,
   getRangedTimePeriod,
 } from '../../../../../utils/attachments/time-period';
-import { ConversationViewTitles } from '../../../../../models/titles';
+import { useConversationViewTitles } from '../../../../../context/ConversationViewTitlesContext';
 
 interface Props {
   calendarResolution: CalendarResolution;
@@ -33,7 +33,6 @@ interface Props {
   ) => void;
   calendarIcon?: ReactNode;
   dateFormat?: string;
-  titles?: ConversationViewTitles;
   defaultTimeOption?: string | number;
 }
 
@@ -48,9 +47,9 @@ const TimePeriodFacet: FC<Props> = ({
   onValueChange,
   calendarIcon,
   dateFormat,
-  titles,
   defaultTimeOption,
 }) => {
+  const titles = useConversationViewTitles();
   const initialTimeRange = getAnnotationPeriod(
     initialConstraints?.[0]?.annotations,
   );

@@ -18,7 +18,7 @@ import {
 import MetadataCellRenderer from '../GridCellRenderers/MetadataCellRenderer';
 import ObservationValueCellRenderer from '../GridCellRenderers/ObservationValueCellRenderer';
 import ChartCellRenderer from '../GridCellRenderers/ChartCellRenderer';
-import { ConversationViewTitles } from '../../../models/titles';
+import { useConversationViewTitles } from '../../../context/ConversationViewTitlesContext';
 import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
 import { Tooltip } from '../../Tooltip/Tooltip';
 import { OnboardingElements } from '../../../constants/onboarding-elements';
@@ -31,7 +31,6 @@ interface Props {
   isDataLoading?: boolean;
   showChartColumn?: boolean;
   fixHeight?: boolean;
-  titles?: ConversationViewTitles;
   showLimitMessage?: (p: boolean) => void;
 }
 
@@ -40,9 +39,9 @@ const CustomDataGridAttachment: FC<Props> = ({
   isDataLoading,
   showChartColumn,
   fixHeight,
-  titles,
   showLimitMessage,
 }) => {
+  const titles = useConversationViewTitles();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [rowData, setRowData] = useState<GridData[]>([]);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>();

@@ -866,7 +866,6 @@ export const ConversationView: FC<Props> = ({
             expandStagesIcon={expandStagesIcon}
             dataQuery={dataQuery}
             locale={locale}
-            titles={titles}
             regenerateMessage={(message: Message) =>
               regenerateMessage(message, conversation)
             }

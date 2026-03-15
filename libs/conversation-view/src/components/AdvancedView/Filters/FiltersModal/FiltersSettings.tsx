@@ -12,14 +12,13 @@ import {
 import FiltersFacetsList from './FiltersFacets/FiltersFacetsList';
 import FiltersValuesPanel from './FiltersValuesPanel/FiltersValuesPanel';
 import classNames from 'classnames';
-import { ConversationViewTitles } from '../../../../models/titles';
+import { useConversationViewTitles } from '../../../../context/ConversationViewTitlesContext';
 
 interface Props {
   filtersList: Filter[];
   selectedFilter?: Filter;
   locale?: string;
   isDisableValues?: boolean;
-  titles?: ConversationViewTitles;
   timeSeriesCount?: string;
   timeRangeOptions?: TimeRangeOptions[];
   modalProps?: FiltersModalProps;
@@ -34,7 +33,6 @@ interface Props {
 
 const FilterSettings: FC<Props> = ({
   filtersList,
-  titles,
   selectedFilter,
   modalProps,
   locale,
@@ -49,6 +47,7 @@ const FilterSettings: FC<Props> = ({
   onTimePeriodChange,
   selectedTimeOption,
 }) => {
+  const titles = useConversationViewTitles();
   const isMobile = useIsMobile();
 
   const onSelectFilter = useCallback(
@@ -144,7 +143,6 @@ const FilterSettings: FC<Props> = ({
           filtersList={filtersList}
           hideFacetCounterByDefault={modalProps?.isHideFacetCounterByDefault}
           locale={locale}
-          titles={titles}
           onSelectFilter={onSelectFilter}
           onSelectDisplayMode={onSelectDisplayMode}
           onDeleteFilter={onDeleteFilter}
@@ -167,7 +165,6 @@ const FilterSettings: FC<Props> = ({
         <FiltersValuesPanel
           selectedFilter={selectedFilter}
           locale={locale}
-          titles={titles}
           isDisableValues={isDisableValues}
           timeRangeOptions={timeRangeOptions}
           selectFilterValue={onSelectFilterValue}

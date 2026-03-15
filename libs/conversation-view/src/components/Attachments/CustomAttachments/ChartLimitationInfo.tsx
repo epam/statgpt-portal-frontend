@@ -7,19 +7,18 @@ import {
   useHover,
   useInteractions,
 } from '@floating-ui/react';
-import { ConversationViewTitles } from '../../../models/titles';
+import { useConversationViewTitles } from '../../../context/ConversationViewTitlesContext';
 
 interface Props {
   limitAmount: number;
   openAdvancedView?: () => void;
-  titles?: ConversationViewTitles;
 }
 
 const ChartLimitationInfo: FC<Props> = ({
   limitAmount,
-  titles,
   openAdvancedView,
 }) => {
+  const titles = useConversationViewTitles();
   const [isOpen, setIsOpen] = useState(false);
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,

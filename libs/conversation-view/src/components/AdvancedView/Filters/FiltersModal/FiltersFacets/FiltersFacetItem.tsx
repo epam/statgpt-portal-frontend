@@ -20,7 +20,7 @@ import {
   getSelectedDimensionValues,
 } from '../../../../../utils/filters';
 import FiltersValuesPanel from '../FiltersValuesPanel/FiltersValuesPanel';
-import { ConversationViewTitles } from '../../../../../models/titles';
+import { useConversationViewTitles } from '../../../../../context/ConversationViewTitlesContext';
 
 interface Props {
   filter: Filter;
@@ -32,7 +32,6 @@ interface Props {
   filterValuesProps?: FilterValuesProps;
   isDisableValues?: boolean;
   timeRangeOptions?: TimeRangeOptions[];
-  titles?: ConversationViewTitles;
   initialConstraints?: DataConstraints[];
   onTimePeriodChange: (
     timeRange: TimeRange | null,
@@ -49,7 +48,6 @@ const FiltersFacetItem: FC<Props> = ({
   onSelectDisplayMode,
   onDeleteFilter,
   locale,
-  titles,
   initialConstraints,
   hideFacetCounterByDefault,
   filterValuesProps,
@@ -60,6 +58,7 @@ const FiltersFacetItem: FC<Props> = ({
   selectHierarchicalNodes,
   expandHierarchicalValue,
 }) => {
+  const titles = useConversationViewTitles();
   const isMobile = useIsMobile();
 
   const [selectedValuesLength, setSelectedValuesLength] = useState<number>(0);
@@ -185,7 +184,6 @@ const FiltersFacetItem: FC<Props> = ({
       </div>
       {isSelected && (
         <FiltersValuesPanel
-          titles={titles}
           selectedFilter={filter}
           locale={locale}
           isDisableValues={isDisableValues}

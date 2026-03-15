@@ -4,10 +4,9 @@ import ConversationViewHeader from '../ConversationViewHeader/ConversationViewHe
 import MessageContent from '../ChatMessages/MessageContent';
 import { ChoiceButtons } from './ChoiceButtons/ChoiceButtons';
 import { Button } from '@epam/statgpt-ui-components';
-import { ConversationViewTitles } from '../../models/titles';
+import { useConversationViewTitles } from '../../context/ConversationViewTitlesContext';
 
 interface Props {
-  titles?: ConversationViewTitles;
   messageContent: string;
   choiceButtons: FormSchemaButtonOption[];
   onClick: (message?: string, choiceId?: string) => void;
@@ -15,12 +14,12 @@ interface Props {
 }
 
 export const ConversationOnboarding: FC<Props> = ({
-  titles,
   messageContent,
   choiceButtons,
   onClick,
   handleOnboardingSkip,
 }) => {
+  const titles = useConversationViewTitles();
   return (
     <div className="onboarding w-full h-full flex flex-col flex-1 overflow-auto">
       <ConversationViewHeader

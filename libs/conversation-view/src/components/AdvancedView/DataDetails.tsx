@@ -14,7 +14,7 @@ import { Filter, FiltersProps } from '../../models/filters';
 import { FC, useEffect } from 'react';
 import { AdvancedViewActions } from '../../models/actions';
 import { AttachmentsStyles } from '../../models/attachments-styles';
-import { ConversationViewTitles } from '../../models/titles';
+import { useConversationViewTitles } from '../../context/ConversationViewTitlesContext';
 import { AttachmentsConfig } from '../../models/attachments';
 
 interface Props {
@@ -27,7 +27,6 @@ interface Props {
   locale?: string;
   attachmentsStyles?: AttachmentsStyles;
   isDataLoading?: boolean;
-  titles?: ConversationViewTitles;
   setIsFiltering?: (isFiltering: boolean) => void;
   limitMessages?: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
@@ -50,12 +49,12 @@ const DataDetails: FC<Props> = ({
   attachmentsStyles,
   isDataLoading,
   setIsFiltering,
-  titles,
   limitMessages,
   attachmentsConfig,
   filters,
   onFiltersChange,
 }) => {
+  const titles = useConversationViewTitles();
   const constraintAction = {
     getConstraints: actions.getConstraints,
   };
@@ -78,7 +77,6 @@ const DataDetails: FC<Props> = ({
             locale={locale}
             actions={constraintAction}
             dimensions={dimensions}
-            titles={titles}
             {...filtersProps}
             onFiltersChange={onFiltersChange}
             limitMessages={limitMessages}
@@ -86,7 +84,6 @@ const DataDetails: FC<Props> = ({
         </div>
         <div className="advanced-view-attachments-container flex-1 min-h-0">
           <AttachmentRenderer
-            titles={titles}
             attachments={attachments}
             attachmentsStyles={attachmentsStyles}
             currentDataQuery={attachmentsDataQuery}

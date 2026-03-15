@@ -13,7 +13,7 @@ import DatasetTab from './DatasetTab';
 import { useAdvancedView } from '../../../../context/AdvancedViewContext';
 import { Tooltip } from '../../../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
-import { ConversationViewTitles } from '../../../../models/titles';
+import { useConversationViewTitles } from '../../../../context/ConversationViewTitlesContext';
 import { OnboardingElements } from '../../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../../context/OnboardingContext';
 
@@ -23,7 +23,6 @@ interface Props {
   isHideAdvancedViewButton?: boolean;
   openAdvancedViewIcon?: ReactNode;
   initialSelectedDatasetUrn?: string;
-  titles?: ConversationViewTitles;
   selectDataset?: (datasetUrn?: string) => void;
   onOpenAdvancedView?: () => void;
 }
@@ -36,8 +35,8 @@ const DatasetTabs: FC<Props> = ({
   initialSelectedDatasetUrn,
   selectDataset,
   onOpenAdvancedView,
-  titles,
 }) => {
+  const titles = useConversationViewTitles();
   const { isOpenedAdvancedView } = useAdvancedView();
   const [selectedDatasetUrn, setSelectedDatasetUrn] = useState<string>();
 

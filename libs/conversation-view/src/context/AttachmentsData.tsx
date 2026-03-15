@@ -34,7 +34,7 @@ import { getTimeQueryFilterFromAttachment } from '../utils/query-filters';
 import { buildChartData } from '../utils/attachments/charting/chart-data';
 import { ChartingStyles } from '../models/attachments-styles';
 import { MetadataSettings } from '../models/metadata';
-import { ConversationViewTitles } from '../models/titles';
+import { useConversationViewTitles } from './ConversationViewTitlesContext';
 import { Filter } from '../models/filters';
 import { Attachment } from '@epam/ai-dial-shared';
 import { buildMarkdownAttachments } from '../utils/attachments/markdown-attachments';
@@ -57,11 +57,11 @@ export function useAttachmentsData(
   formattingSettings?: FormatNumbersType,
   chartStyles?: ChartingStyles,
   metadataSettings?: MetadataSettings,
-  titles?: ConversationViewTitles,
   rawAttachments?: Attachment[],
   initialDatasetStructure?: StructuralData,
   isInitialDatasetStructureLoading = false,
 ) {
+  const titles = useConversationViewTitles();
   const [dataMessage, setDataMessage] = useState<DataMessage | undefined>();
   const [dataset, setDataset] = useState<Dataflow | undefined>();
   const [constraints, setConstraints] = useState<DataConstraints[]>();

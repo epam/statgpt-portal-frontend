@@ -6,7 +6,7 @@ import { IconButton } from '@epam/statgpt-ui-components';
 import ChartIcon from '../../../assets/icons/chart.svg';
 import { ICellRendererParams } from 'ag-grid-community';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ConversationViewTitles } from '../../../models/titles';
+import { useConversationViewTitles } from '../../../context/ConversationViewTitlesContext';
 import { Tooltip } from '../../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
 import { OnboardingElements } from '../../../constants/onboarding-elements';
@@ -16,11 +16,11 @@ interface ChartCellRendererParams extends ICellRendererParams {
   attributesData: Data;
   dataSetData: StructuralData;
   locale: Locale;
-  titles?: ConversationViewTitles;
   metadataSettings?: MetadataSettings;
 }
 
 const ChartCellRenderer = (params: ChartCellRendererParams) => {
+  const titles = useConversationViewTitles();
   const [isOpenChart, setIsOpenChart] = useState<boolean>(false);
   const iconRef = useRef<HTMLDivElement | null>(null);
   const [tooltipTitle, setTooltipTitle] = useState<string>('');
@@ -42,12 +42,12 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
     if (isShowOnboarding) {
       const { title, description } = getTooltipDataByElement(
         OnboardingElements.CHART_PER_SERIES,
-        params.titles,
+        titles,
       );
       setTooltipTitle(title);
       setTooltipDescription(description);
     }
-  }, [params.titles, isShowOnboarding]);
+  }, [titles, isShowOnboarding]);
 
   useEffect(() => {
     if (isShowOnboarding) {
@@ -66,7 +66,7 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
     <>
       <div ref={iconRef}>
         <IconButton
-          title={params.titles?.chart ?? 'Chart'}
+          title={titles?.chart ?? 'Chart'}
           buttonClassName="!text-neutrals-1000 !border-none !p-1"
           icon={<ChartIcon className="w-5 h-5" />}
           onClick={openChart}
@@ -86,7 +86,6 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
           chart={params.value}
           isOpen={isOpenChart}
           onClose={closeChart}
-          titles={params.titles}
         />
       )}
     </>

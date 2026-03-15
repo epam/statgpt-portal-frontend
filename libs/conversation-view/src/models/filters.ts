@@ -16,7 +16,7 @@ import {
 import { LimitMessages } from '@epam/statgpt-ui-components';
 import { PutOnboardingFile, UpdateConversation } from '../types/actions';
 import { Conversation } from '@epam/ai-dial-shared';
-import { ConversationViewTitles } from './titles';
+
 
 export interface Filter {
   id?: string;
@@ -93,7 +93,6 @@ export interface FiltersProps {
   ) => void;
   locale?: string;
   timeRangeOptions?: TimeRangeOptions[];
-  titles?: ConversationViewTitles;
   conversationKey: string;
   conversation?: Conversation | null;
   setConversation?: Dispatch<SetStateAction<Conversation | null>>;

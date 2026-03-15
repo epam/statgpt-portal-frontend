@@ -7,15 +7,15 @@ import { Dataflow } from '@epam/statgpt-sdmx-toolkit';
 import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
 import classNames from 'classnames';
 import { FC, useState } from 'react';
-import { ConversationViewTitles } from '../../models/titles';
+import { useConversationViewTitles } from '../../context/ConversationViewTitlesContext';
 
 interface Props {
   datasets?: Dataflow[];
   locale: string;
-  titles?: ConversationViewTitles;
 }
 // TODO: review styles after implementation
-const TagDetails: FC<Props> = ({ datasets = [], locale, titles }) => {
+const TagDetails: FC<Props> = ({ datasets = [], locale }) => {
+  const titles = useConversationViewTitles();
   const [showTagDetails, setShowTagDetails] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<number>(0);
 

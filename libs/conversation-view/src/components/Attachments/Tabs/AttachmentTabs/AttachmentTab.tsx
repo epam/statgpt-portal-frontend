@@ -16,7 +16,7 @@ import QueryIcon from '../../../../assets/icons/query.svg';
 import classNames from 'classnames';
 import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Tooltip } from '../../../Tooltip/Tooltip';
-import { ConversationViewTitles } from '../../../../models/titles';
+import { useConversationViewTitles } from '../../../../context/ConversationViewTitlesContext';
 import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
 import { useOnboarding } from '../../../../context/OnboardingContext';
 import { OnboardingElements } from '../../../../constants/onboarding-elements';
@@ -29,7 +29,6 @@ interface Props {
   onSelectedAttachmentChange: (index: number) => void;
   showTabIcon?: boolean;
   dataGridTitle?: string;
-  titles?: ConversationViewTitles;
 }
 
 const AttachmentTab: FC<Props> = ({
@@ -39,8 +38,8 @@ const AttachmentTab: FC<Props> = ({
   onSelectedAttachmentChange,
   showTabIcon,
   dataGridTitle,
-  titles,
 }) => {
+  const titles = useConversationViewTitles();
   const tabRef = useRef<HTMLDivElement | null>(null);
   const [tooltipTitle, setTooltipTitle] = useState<string>('');
   const [tooltipDescription, setTooltipDescription] = useState<string>('');

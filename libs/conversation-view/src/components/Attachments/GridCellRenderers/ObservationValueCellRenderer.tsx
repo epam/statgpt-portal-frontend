@@ -17,18 +17,18 @@ import {
   getTimeDimensionItem,
 } from '../../../utils/attachments/metadata';
 import { MetadataSettings } from '../../../models/metadata';
-import { ConversationViewTitles } from '../../../models/titles';
+import { useConversationViewTitles } from '../../../context/ConversationViewTitlesContext';
 
 interface ObservationValueCellRendererParams extends ICellRendererParams {
   dataSetData: StructuralData;
   locale: string;
   metadataSettings?: MetadataSettings;
-  titles?: ConversationViewTitles;
 }
 
 const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
   params: ObservationValueCellRendererParams,
 ) => {
+  const titles = useConversationViewTitles();
   const [isOpenMetadata, setIsOpenMetadata] = useState<boolean>(false);
   const structureComponentsMap = useMemo(
     () => getStructureComponentsMap(params?.dataSetData),
@@ -48,7 +48,7 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
       getDatasetNameItem(
         params?.dataSetData?.dataflows?.[0],
         params?.locale,
-        params?.titles,
+        titles,
       ),
       ...getStructureComponentsValues(
         getDimensionsFromParams(params, structureComponentsMap),
@@ -64,7 +64,7 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
             ),
             getObservationItem(
               params?.valueFormatted || params?.value,
-              params?.titles,
+              titles,
             ),
           ]
         : []),
@@ -78,7 +78,7 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
         params?.dataSetData,
         params?.locale,
         params?.valueFormatted || params?.value,
-        params?.titles,
+        titles,
         params?.colDef,
         params?.data,
       ),
@@ -100,14 +100,13 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
         {attributes?.length > 0 && (
           <div
             className="metadata-indicator"
-            title={params.titles?.metadata || 'View details'}
+            title={titles?.metadata || 'View details'}
             onClick={openMetadata}
           ></div>
         )}
       </div>
       {isOpenMetadata && (
         <Metadata
-          titles={params.titles}
           locale={params?.locale}
           metadata={metadata}
           metadataDescription={
