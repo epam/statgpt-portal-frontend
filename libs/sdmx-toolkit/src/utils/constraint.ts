@@ -1,27 +1,21 @@
-import {
-  DataConstraints,
-  MemberSelectionValue,
-} from '../models/structural-metadata/constraints';
+import { DataConstraints, MemberSelectionValue } from '../models/structural-metadata/constraints';
 import { Annotation } from '../models/structural-metadata/structural-metadata-base';
-import { TimeRange, DataQuery } from '@epam/statgpt-shared-toolkit';
+import { DataQuery, TimeRange } from '@epam/statgpt-shared-toolkit';
 import { getLocalizedName } from './get-localized-name';
 import { Code, Codelist } from '../models/structural-metadata/codelist';
 import { getFilteredItemsWithParents } from './get-filtered-items';
 import { SeriesFilterDto } from '../models';
 import { SeriesFilterOperator } from '../types';
-
-export const TIME_PERIOD_END = 'time_period_end';
-export const TIME_PERIOD_START = 'time_period_start';
-export const TIME_PERIOD = 'TIME_PERIOD';
+import { TIME_PERIOD, TIME_PERIOD_END_ANNOTATION_KEY, TIME_PERIOD_START_ANNOTATION_KEY } from '../constants';
 
 export const getAnnotationPeriod = (
   annotations: Annotation[] | undefined,
 ): TimeRange => {
   const start = annotations?.find(
-    (annotation) => annotation.id === TIME_PERIOD_START,
+    (annotation) => annotation.id === TIME_PERIOD_START_ANNOTATION_KEY,
   );
   const end = annotations?.find(
-    (annotation) => annotation.id === TIME_PERIOD_END,
+    (annotation) => annotation.id === TIME_PERIOD_END_ANNOTATION_KEY,
   );
 
   const endPeriod = end?.title ? new Date(end?.title) : null;

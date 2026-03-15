@@ -41,6 +41,7 @@ import DatasetTabs from './Tabs/DatasetTabs/DatasetTabs';
 import { getExternalLink } from '../../utils/attachments-details';
 import AttachmentsViewModePanel from './AttachmentsViewModePanel';
 import AttachmentsContentRenderer from './AttachmentsContentRenderer';
+import { useCrossDatasetMode } from '../../context/CrossDatasetModeContext';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
