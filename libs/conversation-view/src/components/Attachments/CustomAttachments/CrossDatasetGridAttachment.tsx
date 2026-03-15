@@ -1,7 +1,7 @@
 'use client';
 
 import { CustomGridAttachment } from '../../../models/attachments';
-import { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { Loader, SERIES_LIMIT } from '@epam/statgpt-ui-components';
 import type { ColDef } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
@@ -18,12 +18,6 @@ import {
 import MetadataCellRenderer from '../GridCellRenderers/MetadataCellRenderer';
 import ObservationValueCellRenderer from '../GridCellRenderers/ObservationValueCellRenderer';
 import ChartCellRenderer from '../GridCellRenderers/ChartCellRenderer';
-import { ConversationViewTitles } from '../../../models/titles';
-import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
-import { Tooltip } from '../../Tooltip/Tooltip';
-import { OnboardingElements } from '../../../constants/onboarding-elements';
-import { useOnboarding } from '../../../context/OnboardingContext';
-import { OnboardingFileSchema } from '@epam/statgpt-shared-toolkit';
 import GridContainer from './GridContainer';
 
 interface Props {
@@ -31,29 +25,20 @@ interface Props {
   isDataLoading?: boolean;
   showChartColumn?: boolean;
   fixHeight?: boolean;
-  titles?: ConversationViewTitles;
   showLimitMessage?: (p: boolean) => void;
 }
 
-const CustomDataGridAttachment: FC<Props> = ({
+const CrossDatasetGridAttachment: FC<Props> = ({
   attachment,
   isDataLoading,
   showChartColumn,
   fixHeight,
-  titles,
   showLimitMessage,
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [rowData, setRowData] = useState<GridData[]>([]);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>();
   const [gridHeight, setGridHeight] = useState<number>(400);
-
-  const gridRef = useRef<HTMLDivElement | null>(null);
-  const [tooltipTitle, setTooltipTitle] = useState<string>('');
-  const [tooltipDescription, setTooltipDescription] = useState<string>('');
-  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
-  const { isShowOnboarding, onboardingFileSchema, setOnboardingFileSchema } =
-    useOnboarding();
 
   useEffect(() => {
     if (attachment.grid_data == null) {
@@ -80,53 +65,7 @@ const CustomDataGridAttachment: FC<Props> = ({
     }
   }, [rowData, showLimitMessage]);
 
-  useEffect(() => {
-    if (isShowOnboarding) {
-      const { title, description } = getTooltipDataByElement(
-        OnboardingElements.DATA_GRID,
-        titles,
-      );
-      setTooltipTitle(title);
-      setTooltipDescription(description);
-    }
-  }, [titles, isShowOnboarding]);
-
-  useEffect(() => {
-    if (onboardingFileSchema && !onboardingFileSchema?.infoElements?.dataGrid) {
-      setOnboardingFileSchema?.({
-        ...onboardingFileSchema,
-        infoElements: {
-          ...onboardingFileSchema?.infoElements,
-          dataGrid: true,
-        },
-        lastDisplayedElement: OnboardingElements.DATA_GRID,
-      } as OnboardingFileSchema);
-    }
-  }, [onboardingFileSchema, setOnboardingFileSchema]);
-
-  useEffect(() => {
-    if (isShowOnboarding) {
-      const isCurrent =
-        onboardingFileSchema?.lastDisplayedElement ===
-        OnboardingElements.DATA_GRID;
-      setIsTooltipVisible(isCurrent);
-
-      if (!isLoading && !isDataLoading && isCurrent) {
-        setTimeout(() => {
-          gridRef?.current?.scrollIntoView({
-            block: 'end',
-            behavior: 'smooth',
-          });
-        });
-      }
-    }
-  }, [
-    onboardingFileSchema?.lastDisplayedElement,
-    isShowOnboarding,
-    isDataLoading,
-    isLoading,
-  ]);
-
+  //TODO: replace cell renderers
   const memoizedGrid = useMemo(
     () => (
       <AgGridReact
@@ -154,19 +93,11 @@ const CustomDataGridAttachment: FC<Props> = ({
 
   return (
     <div className="w-full h-full">
-      <GridContainer ref={gridRef} fixHeight={fixHeight} gridHeight={gridHeight}>
+      <GridContainer fixHeight={fixHeight} gridHeight={gridHeight}>
         {memoizedGrid}
       </GridContainer>
-      {isTooltipVisible && (
-        <Tooltip
-          reference={gridRef}
-          title={tooltipTitle}
-          description={tooltipDescription}
-          supressReferenceClick
-        />
-      )}
     </div>
   );
 };
 
-export default CustomDataGridAttachment;
+export default CrossDatasetGridAttachment;

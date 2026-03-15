@@ -63,7 +63,7 @@ const AttachmentsContentRenderer: FC<Props> = ({
         <CustomDataGridAttachment
           attachment={selectedAttachment}
           isDataLoading={isDataLoading}
-          chartColumn={isOpenedAdvancedView}
+          showChartColumn={isOpenedAdvancedView}
           fixHeight={!isOpenedAdvancedView}
           titles={titles}
           showLimitMessage={showLimitMessage}
