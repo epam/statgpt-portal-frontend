@@ -1,4 +1,3 @@
-import { AttachmentType } from '@epam/statgpt-dial-toolkit';
 import {
   DataConstraints,
   Dataflow,
@@ -43,6 +42,7 @@ import {
   buildRequestCacheKey,
   getCachedRequestResult,
 } from '../utils/request-cache';
+import { createInitialGridAttachment, createInitialChartAttachment } from '../constants/attachments';
 
 
 export function useAttachmentsData(
@@ -67,15 +67,9 @@ export function useAttachmentsData(
   const [constraints, setConstraints] = useState<DataConstraints[]>();
   const [structures, setStructures] = useState<StructuralData | undefined>();
   const [customGridAttachment, setCustomGridAttachment] =
-    useState<CustomGridAttachment>({
-      title: titles?.dataGrid || 'Data Grid',
-      type: AttachmentType.CUSTOM_DATA_GRID,
-    });
+    useState<CustomGridAttachment>(createInitialGridAttachment(titles?.dataGrid));
   const [customChartAttachment, setCustomChartAttachment] =
-    useState<CustomChartAttachmentType>({
-      title: titles?.chart || 'Chart',
-      type: AttachmentType.CUSTOM_CHART,
-    });
+    useState<CustomChartAttachmentType>(createInitialChartAttachment(titles?.chart));
   const [codeAttachments, setCodeAttachments] = useState<
     CustomCodeAttachment[]
   >([]);

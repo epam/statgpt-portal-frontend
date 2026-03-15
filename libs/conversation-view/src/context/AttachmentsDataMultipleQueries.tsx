@@ -84,6 +84,8 @@ export function useAttachmentsDataMultipleQueries(
         ]);
       } catch (err) {
         console.error('Error loading dataset details', err as object);
+      } finally {
+        setIsLoadingGridData(false);
       }
     }
 
