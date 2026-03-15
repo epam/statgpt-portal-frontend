@@ -244,7 +244,6 @@ const AttachmentRenderer: FC<Props> = ({
                       selectedAttachment={selectedAttachment}
                       actions={actions}
                       attachmentsStyles={attachmentsStyles}
-                      titles={titles}
                       isDataLoading={isDataLoading}
                       isOpenedAdvancedView={isOpenedAdvancedView}
                       onOpenAdvancedView={onOpenAdvancedView}
