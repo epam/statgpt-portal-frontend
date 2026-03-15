@@ -3,6 +3,7 @@ import {
   DataConstraints,
   Dataflow,
   DataMessage,
+  DatasetDimensionsScheme,
   Dimension,
   StructuralData,
   StructureItemBase,
@@ -17,6 +18,7 @@ import {
   getDataConstraintsMap,
   getStructureData,
 } from '../utils/attachments/attachments-data';
+import { useDatasetDimensionsMetadataMap } from '@epam/statgpt-conversation-view';
 
 export function useAttachmentsDataMultipleQueries(
   actions: {
@@ -38,6 +40,8 @@ export function useAttachmentsDataMultipleQueries(
     useState<Map<string, Dimension[]>>();
   const [structureDimensionsMap, setStructureDimensionsMap] =
     useState<Map<string, StructureItemBase[]>>();
+  const [datasetDimensionsSchemesMap, setDatasetDimensionsSchemesMap] =
+    useState<Map<string, DatasetDimensionsScheme | undefined>>();
   const [isLoadingGridData, setIsLoadingGridData] = useState(false);
 
   const loadConstraintsMap = useCallback(
@@ -73,11 +77,26 @@ export function useAttachmentsDataMultipleQueries(
     [actions],
   );
 
+  const { getDimensionsScheme } =
+    useDatasetDimensionsMetadataMap();
+
+  const loadDimensionsSchemes = useCallback(
+     (dataQueries: DataQuery[]) => {
+       const dimensionSchemesMap = new Map<string, DatasetDimensionsScheme | undefined>()
+       for (const dataQuery of dataQueries) {
+         dimensionSchemesMap.set(dataQuery.urn, getDimensionsScheme(dataQuery.urn));
+       }
+       setDatasetDimensionsSchemesMap(dimensionSchemesMap);
+    },
+    [],
+  );
+
   useEffect(() => {
     async function loadDataSets(dataQueries: DataQuery[]) {
       setIsLoadingGridData(true);
 
       try {
+        loadDimensionsSchemes(dataQueries);
         await Promise.all([
           loadConstraintsMap(dataQueries),
           loadStructureData(dataQueries),
@@ -101,6 +120,7 @@ export function useAttachmentsDataMultipleQueries(
     dimensionsMap,
     structureDimensionsMap,
     constraintsMap,
+    datasetDimensionsSchemesMap,
     isLoadingGridData,
   };
 }
