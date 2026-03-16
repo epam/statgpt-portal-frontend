@@ -274,7 +274,8 @@ const AttachmentRenderer: FC<Props> = ({
                       {!showAdvancedView && (
                         <Button
                           disabled={isTableSettingsOpen}
-                          buttonClassName="text-button-tertiary"
+                          buttonClassName="text-button-tertiary !p-0 !h-6"
+                          textClassName="ml-1"
                           iconBefore={<ColumnsIcon className="size-4" />}
                           title="Columns"
                           onClick={onTableSettingsOpen}
@@ -286,7 +287,8 @@ const AttachmentRenderer: FC<Props> = ({
                             title={
                               attachmentsStyles?.downloadTitle || 'Download'
                             }
-                            buttonClassName="text-button-tertiary small-icon-button"
+                            buttonClassName="text-button-tertiary small-icon-button !p-0 !h-6"
+                            textClassName="ml-1"
                             onClick={() => setModalState(PopUpState.Opened)}
                             iconBefore={attachmentsStyles?.downloadIcon}
                           />
