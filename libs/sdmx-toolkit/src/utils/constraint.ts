@@ -143,3 +143,13 @@ export const getFiltersDtoFromDataQuery = (
   });
   return filters;
 };
+
+export const getFiltersDtoMapFromDataQuery = (
+  dataQueries: DataQuery[],
+): Map<string, SeriesFilterDto[]> => {
+  const filtersMap = new Map<string, SeriesFilterDto[]>();
+  dataQueries?.forEach((dataQuery) => {
+    filtersMap.set(dataQuery.urn, getFiltersDtoFromDataQuery(dataQuery));
+  });
+  return filtersMap;
+};
