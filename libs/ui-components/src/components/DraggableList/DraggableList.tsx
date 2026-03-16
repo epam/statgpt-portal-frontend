@@ -22,6 +22,7 @@ import type {
   DraggableListItemNode,
   DraggableListNode,
   ItemClickEvent,
+  ItemKey,
   ToggleCheckedEvent,
   ToggleExpandedEvent,
 } from './types';
@@ -34,8 +35,6 @@ import {
   parseItemKey,
   updateItemsAtParent,
 } from './utils/utils';
-
-type ItemKey = string;
 
 type ActiveDrag = {
   id: ItemKey;

@@ -25,6 +25,7 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { getExternalLink } from '../../utils/attachments-details';
 import { TableSettingsPanel } from './TableSettings/TableSettingsPanel';
+import { GridApi } from 'ag-grid-community';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -61,6 +62,12 @@ export const AdvancedView: FC<Props> = ({
   const lastMessageAttachments =
     props.filtersProps.conversation?.messages?.at(-1)?.custom_content
       ?.attachments;
+
+  const [gridApi, setGridApi] = useState<GridApi>();
+
+  const gridApiReadyHandler = useCallback((api: GridApi) => {
+    setGridApi(api);
+  }, []);
 
   const {
     dataMessage,
@@ -201,10 +208,14 @@ export const AdvancedView: FC<Props> = ({
                     onFiltersChange={handleFiltersChange}
                     isTableSettingsOpen={isTableSettingsPanelOpened}
                     onTableSettingsOpen={openTableSettingsHandler}
+                    onGridApiReady={gridApiReadyHandler}
                   />
                 </div>
                 {isTableSettingsPanelOpened && (
-                  <TableSettingsPanel onClose={closeTableSettingsHandler} />
+                  <TableSettingsPanel
+                    onClose={closeTableSettingsHandler}
+                    gridApi={gridApi}
+                  />
                 )}
               </div>
             </>

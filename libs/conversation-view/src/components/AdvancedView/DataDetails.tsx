@@ -16,6 +16,7 @@ import { AdvancedViewActions } from '../../models/actions';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import { ConversationViewTitles } from '../../models/titles';
 import { AttachmentsConfig } from '../../models/attachments';
+import { GridApi } from 'ag-grid-community';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -39,6 +40,7 @@ interface Props {
   ) => void;
   isTableSettingsOpen?: boolean;
   onTableSettingsOpen?: () => void;
+  onGridApiReady?: (api: GridApi) => void;
 }
 
 const DataDetails: FC<Props> = ({
@@ -59,6 +61,7 @@ const DataDetails: FC<Props> = ({
   onFiltersChange,
   isTableSettingsOpen,
   onTableSettingsOpen,
+  onGridApiReady,
 }) => {
   const constraintAction = {
     getConstraints: actions.getConstraints,
@@ -106,6 +109,7 @@ const DataDetails: FC<Props> = ({
               attachmentsConfig={attachmentsConfig}
               isTableSettingsOpen={isTableSettingsOpen}
               onTableSettingsOpen={onTableSettingsOpen}
+              onGridApiReady={onGridApiReady}
             />
           </div>
         </div>

@@ -1,45 +1,20 @@
-import { InputWithIcon } from '@epam/statgpt-ui-components';
-import { DraggableListExample } from './DraggableListExample';
-import { IconRotate, IconSearch, IconX } from '@tabler/icons-react';
-import { useCallback, useMemo, useState } from 'react';
+import { IconRotate, IconX } from '@tabler/icons-react';
+import { useCallback } from 'react';
+import { GridApi } from 'ag-grid-community';
+import { AgGridColumnsPanel } from './AgGridColumnPanel/AgGridColumnsPanel';
+import { useAgGridColumnsReset } from './AgGridColumnPanel/useAgGridColumnsReset';
 
 export const TableSettingsPanel = ({
-  onReset,
   onClose,
+  gridApi,
 }: {
-  onReset?: () => void;
   onClose?: () => void;
+  gridApi?: GridApi;
 }) => {
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const changeSearchHandler = useCallback(
-    (search: string) => {
-      setSearchQuery(search);
-    },
-    [setSearchQuery],
-  );
-
-  const clearSearchHandler = useCallback(
-    () => setSearchQuery(''),
-    [setSearchQuery],
-  );
-
-  const clearSearchButton = useMemo(
-    () => (
-      <button onClick={clearSearchHandler}>
-        <IconX className="text-neutrals-1000 size-4" />
-      </button>
-    ),
-    [clearSearchHandler],
-  );
-
-  const resetHandler = useCallback(() => {
-    onReset?.();
-    console.log('reset');
-  }, [onReset]);
+  const { resetColumns } = useAgGridColumnsReset(gridApi);
 
   const closeHandler = useCallback(() => {
     onClose?.();
-    console.log('close');
   }, [onClose]);
 
   return (
@@ -49,9 +24,10 @@ export const TableSettingsPanel = ({
         <div className="flex gap-2 items-center">
           <button
             className="text-neutrals-800 flex gap-1 items-center"
-            onClick={resetHandler}
+            onClick={resetColumns}
           >
-            <IconRotate className="rotate-180 size-4" /> Reset
+            <IconRotate className="rotate-180 size-4" />{' '}
+            <span className="h4">Reset</span>
           </button>
           <div className="h-3 w-[1px] bg-neutrals-600" />
           <button onClick={closeHandler}>
@@ -59,21 +35,7 @@ export const TableSettingsPanel = ({
           </button>
         </div>
       </div>
-      <div className="px-5 py-7 flex flex-col gap-2 h-full">
-        <InputWithIcon
-          inputId="filters-search-input"
-          containerClasses={'items-center filters-search-input gap-1 !p-2'}
-          cssClass="filters-search-input-text"
-          placeholder="Search"
-          iconBeforeInput={<IconSearch className="text-neutrals-1000 size-4" />}
-          iconAfterInput={searchQuery ? clearSearchButton : undefined}
-          value={searchQuery}
-          onChange={changeSearchHandler}
-        />
-        <div className="overflow-y-scroll h-[calc(100%-104px)]">
-          <DraggableListExample searchQuery={searchQuery} />
-        </div>
-      </div>
+      {gridApi && <AgGridColumnsPanel api={gridApi} />}
     </div>
   );
 };

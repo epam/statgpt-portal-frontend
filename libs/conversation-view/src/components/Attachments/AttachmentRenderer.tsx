@@ -46,7 +46,7 @@ import { useAdvancedView } from '../../context/AdvancedViewContext';
 import AttachmentCollapsed from './AttachmentCollapsed';
 import { MessageStyles } from '../../models/message';
 import { AttachmentsActions } from '../../models/actions';
-import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
+import { AllCommunityModule, GridApi, ModuleRegistry } from 'ag-grid-community';
 import CustomDataGridAttachment from './CustomAttachments/CustomGridAttachment';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import CustomChartAttachment from './CustomAttachments/CustomChartAttachment';
@@ -88,6 +88,7 @@ interface Props {
   attachmentsConfig?: AttachmentsConfig;
   isTableSettingsOpen?: boolean;
   onTableSettingsOpen?: () => void;
+  onGridApiReady?: (api: GridApi) => void;
 }
 
 const AttachmentRenderer: FC<Props> = ({
@@ -115,6 +116,7 @@ const AttachmentRenderer: FC<Props> = ({
   attachmentsConfig,
   isTableSettingsOpen,
   onTableSettingsOpen,
+  onGridApiReady,
 }) => {
   const [selectedAttachmentIndex, setSelectedAttachmentIndex] =
     useState<number>(0);
@@ -330,6 +332,7 @@ const AttachmentRenderer: FC<Props> = ({
                           fixHeight={!isOpenedAdvancedView}
                           titles={titles}
                           showLimitMessage={setShowLimitMessage}
+                          onApiReady={onGridApiReady}
                         />
                       )}
                       {isCustomChartAttachment(selectedAttachment) && (

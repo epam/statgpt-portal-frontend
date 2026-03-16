@@ -2,6 +2,8 @@ import { MouseEvent } from 'react';
 
 export type TreePath = readonly string[];
 
+export type ItemKey = string;
+
 interface DraggableListBaseNode {
   id: string;
   label: string;
@@ -24,37 +26,19 @@ export interface DraggableListGroupNode extends DraggableListBaseNode {
 
 export type DraggableListNode = DraggableListItemNode | DraggableListGroupNode;
 
-export type DndPosition = 'before' | 'after' | 'inside';
-
-export interface DragSource {
-  sectionId: string;
-  itemId: string;
+interface DraggableListBaseEvent {
+  itemId: ItemKey;
   path: TreePath;
 }
 
-export interface DragTarget {
-  sectionId: string;
-  itemId: string;
-  path: TreePath;
-  position: DndPosition;
-}
-
-export interface ItemClickEvent {
-  itemId: string;
-  path: TreePath;
+export interface ItemClickEvent extends DraggableListBaseEvent {
   nativeEvent: MouseEvent<HTMLElement>;
 }
 
-export interface ToggleExpandedEvent {
-  itemId: string;
-  path: TreePath;
+export interface ToggleExpandedEvent extends DraggableListBaseEvent {
   nextExpanded: boolean;
 }
 
-export interface ToggleCheckedEvent {
-  itemId: string;
-  path: TreePath;
+export interface ToggleCheckedEvent extends DraggableListBaseEvent {
   nextChecked: boolean;
 }
-
-export type ItemKey = string;
