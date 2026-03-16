@@ -30,7 +30,6 @@ import {
   deleteConversationApi,
   getConversationsApi,
   getConversationApi,
-  renameConversationApi,
 } from '../../app/api/conversations/client';
 import { getSharedConversationsApi } from '../../app/api/share/client';
 import { ApplicationRoute } from '../../types/application-routes';
@@ -57,6 +56,8 @@ import { SIGN_IN_LINK } from '../../constants/auth';
 import { ApiResponse } from '@epam/statgpt-shared-toolkit';
 import { wrapWithAuthHandler } from '../../utils/auth/requests-wrapper';
 import { signOut, useSession } from 'next-auth/react';
+import { ConversationInfo } from '@epam/ai-dial-shared';
+import { renameConversationAndSyncContent as renameConversationAndSyncContentFlow } from '../../utils/conversation/rename-conversation-and-sync-content';
 
 const ConversationListWrapper = () => {
   const t = useI18n();
@@ -95,16 +96,26 @@ const ConversationListWrapper = () => {
       getFileBlob: authHandler(getFileBlobApi),
       renameConversation: authHandler(
         async (
-          source: string,
-          destination: string,
-        ): Promise<ApiResponse<void>> => {
-          const response = await renameConversationApi(source, destination);
-          router.push(`/${destination.replace(locale, '')}`);
+          sourceUrl: string,
+          destinationUrl: string,
+        ): Promise<ApiResponse<void | ConversationInfo>> => {
+          const { navPath, response } =
+            await renameConversationAndSyncContentFlow(
+              sourceUrl,
+              destinationUrl,
+            );
+
+          if (response.success && navPath) {
+            router.replace(
+              `/${locale}${ApplicationRoute.Conversations}/${navPath}`,
+            );
+          }
+
           return response;
         },
       ),
     }),
-    [authHandler, locale, router],
+    [authHandler],
   );
 
   const titles: ConversationListTitles = {
