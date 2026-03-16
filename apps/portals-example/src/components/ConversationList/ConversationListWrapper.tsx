@@ -94,10 +94,13 @@ const ConversationListWrapper = () => {
       getConversation: authHandler(getConversationApi),
       getFileBlob: authHandler(getFileBlobApi),
       renameConversation: authHandler(
-        (source: string, destination: string): any => {
-          renameConversationApi(source, destination).then(() =>
-            router.push(`/${destination.replace(locale, '')}`),
-          );
+        async (
+          source: string,
+          destination: string,
+        ): Promise<ApiResponse<void>> => {
+          const response = await renameConversationApi(source, destination);
+          router.push(`/${destination.replace(locale, '')}`);
+          return response;
         },
       ),
     }),

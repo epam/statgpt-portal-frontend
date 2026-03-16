@@ -235,7 +235,7 @@ export const ConversationList: FC<Props> = ({
       )}
       <div
         className={classNames(
-          'hover:overflow-y-auto flex flex-col mt-4 flex-1 min-h-0 pr-2',
+          'scroll-hidden-container flex flex-col mt-4 flex-1 min-h-0 pr-2',
           isSearchConversations ? 'gap-y-1' : 'gap-y-6',
         )}
       >
