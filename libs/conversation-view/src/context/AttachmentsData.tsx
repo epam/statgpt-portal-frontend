@@ -42,8 +42,10 @@ import {
   buildRequestCacheKey,
   getCachedRequestResult,
 } from '../utils/request-cache';
-import { createInitialGridAttachment, createInitialChartAttachment } from '../constants/attachments';
-
+import {
+  createInitialGridAttachment,
+  createInitialChartAttachment,
+} from '../constants/attachments';
 
 export function useAttachmentsData(
   actions: {
@@ -67,9 +69,13 @@ export function useAttachmentsData(
   const [constraints, setConstraints] = useState<DataConstraints[]>();
   const [structures, setStructures] = useState<StructuralData | undefined>();
   const [customGridAttachment, setCustomGridAttachment] =
-    useState<CustomGridAttachment>(createInitialGridAttachment(titles?.dataGrid));
+    useState<CustomGridAttachment>(
+      createInitialGridAttachment(titles?.dataGrid),
+    );
   const [customChartAttachment, setCustomChartAttachment] =
-    useState<CustomChartAttachmentType>(createInitialChartAttachment(titles?.chart));
+    useState<CustomChartAttachmentType>(
+      createInitialChartAttachment(titles?.chart),
+    );
   const [codeAttachments, setCodeAttachments] = useState<
     CustomCodeAttachment[]
   >([]);

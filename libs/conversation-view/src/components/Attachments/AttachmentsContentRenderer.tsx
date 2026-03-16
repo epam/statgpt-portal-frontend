@@ -74,9 +74,7 @@ const AttachmentsContentRenderer: FC<Props> = ({
           isDataLoading={isDataLoading}
           attachment={selectedAttachment}
           icons={attachmentsStyles?.chartingIcons}
-          openAdvancedView={
-            !isOpenedAdvancedView ? onOpenAdvancedView : void 0
-          }
+          openAdvancedView={!isOpenedAdvancedView ? onOpenAdvancedView : void 0}
           fixHeight={!isOpenedAdvancedView}
         />
       )}
@@ -92,9 +90,7 @@ const AttachmentsContentRenderer: FC<Props> = ({
       {isCustomCodeSampleAttachment(selectedAttachment) && (
         <CodeAttachment
           attachment={selectedAttachment}
-          className={
-            attachmentsStyles?.codeAttachmentContainerClassName
-          }
+          className={attachmentsStyles?.codeAttachmentContainerClassName}
         />
       )}
     </div>

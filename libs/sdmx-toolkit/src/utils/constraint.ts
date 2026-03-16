@@ -1,4 +1,7 @@
-import { DataConstraints, MemberSelectionValue } from '../models/structural-metadata/constraints';
+import {
+  DataConstraints,
+  MemberSelectionValue,
+} from '../models/structural-metadata/constraints';
 import { Annotation } from '../models/structural-metadata/structural-metadata-base';
 import { DataQuery, TimeRange } from '@epam/statgpt-shared-toolkit';
 import { getLocalizedName } from './get-localized-name';
@@ -6,7 +9,11 @@ import { Code, Codelist } from '../models/structural-metadata/codelist';
 import { getFilteredItemsWithParents } from './get-filtered-items';
 import { SeriesFilterDto } from '../models';
 import { SeriesFilterOperator } from '../types';
-import { TIME_PERIOD, TIME_PERIOD_END_ANNOTATION_KEY, TIME_PERIOD_START_ANNOTATION_KEY } from '../constants';
+import {
+  TIME_PERIOD,
+  TIME_PERIOD_END_ANNOTATION_KEY,
+  TIME_PERIOD_START_ANNOTATION_KEY,
+} from '../constants';
 
 export const getAnnotationPeriod = (
   annotations: Annotation[] | undefined,

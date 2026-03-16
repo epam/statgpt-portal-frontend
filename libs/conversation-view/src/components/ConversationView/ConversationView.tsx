@@ -879,7 +879,9 @@ export const ConversationView: FC<Props> = ({
             }
             messageActionsIcons={messageActionsIcons}
             rateResponse={rateResponse}
-            editMessage={(message: Message) => editMessage(message, conversation)}
+            editMessage={(message: Message) =>
+              editMessage(message, conversation)
+            }
             editMessageTitles={editMessageTitles}
             scrollBottomIcon={scrollBottomIcon}
             isReadOnlyConversation={isReadonlyConversation || isShowOnboarding}

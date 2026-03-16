@@ -17,9 +17,7 @@ import {
   LimitMessages,
   RequestLimitMessage,
 } from '@epam/statgpt-ui-components';
-import {
-  isGridAttachment,
-} from '../../utils/attachments/attachment-parser';
+import { isGridAttachment } from '../../utils/attachments/attachment-parser';
 import {
   AttachmentInfo,
   AttachmentsConfig,

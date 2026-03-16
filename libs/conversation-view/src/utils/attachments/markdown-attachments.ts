@@ -22,7 +22,5 @@ export function buildMarkdownAttachments(
         data: parsed.code,
       } as CustomCodeAttachment;
     })
-    .filter((a) =>
-      ALLOWED_CODE_SAMPLE_LANGUAGES.includes(a.language ?? ''),
-    );
+    .filter((a) => ALLOWED_CODE_SAMPLE_LANGUAGES.includes(a.language ?? ''));
 }

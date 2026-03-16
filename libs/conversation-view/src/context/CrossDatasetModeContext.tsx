@@ -15,7 +15,10 @@ export function CrossDatasetModeProvider({
   children: ReactNode;
   isCrossDatasetModeOn: boolean;
 }) {
-  const value = useMemo(() => ({ isCrossDatasetModeOn }), [isCrossDatasetModeOn]);
+  const value = useMemo(
+    () => ({ isCrossDatasetModeOn }),
+    [isCrossDatasetModeOn],
+  );
   return (
     <CrossDatasetModeContext.Provider value={value}>
       {children}

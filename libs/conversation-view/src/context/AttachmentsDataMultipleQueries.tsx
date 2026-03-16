@@ -77,19 +77,21 @@ export function useAttachmentsDataMultipleQueries(
     [actions],
   );
 
-  const { getDimensionsScheme } =
-    useDatasetDimensionsMetadataMap();
+  const { getDimensionsScheme } = useDatasetDimensionsMetadataMap();
 
-  const loadDimensionsSchemes = useCallback(
-     (dataQueries: DataQuery[]) => {
-       const dimensionSchemesMap = new Map<string, DatasetDimensionsScheme | undefined>()
-       for (const dataQuery of dataQueries) {
-         dimensionSchemesMap.set(dataQuery.urn, getDimensionsScheme(dataQuery.urn));
-       }
-       setDatasetDimensionsSchemesMap(dimensionSchemesMap);
-    },
-    [],
-  );
+  const loadDimensionsSchemes = useCallback((dataQueries: DataQuery[]) => {
+    const dimensionSchemesMap = new Map<
+      string,
+      DatasetDimensionsScheme | undefined
+    >();
+    for (const dataQuery of dataQueries) {
+      dimensionSchemesMap.set(
+        dataQuery.urn,
+        getDimensionsScheme(dataQuery.urn),
+      );
+    }
+    setDatasetDimensionsSchemesMap(dimensionSchemesMap);
+  }, []);
 
   useEffect(() => {
     async function loadDataSets(dataQueries: DataQuery[]) {

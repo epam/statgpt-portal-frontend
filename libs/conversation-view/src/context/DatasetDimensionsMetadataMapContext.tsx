@@ -38,8 +38,14 @@ export function DatasetDimensionsMetadataMapProvider({
   children: ReactNode;
 }) {
   const value = useMemo<DatasetDimensionsMetadataMapContextValue>(() => {
-    const dimensionsBySubtype: Record<ShortUrn, Record<string, DimensionKey>> = {};
-    const dimensionsByType: Record<ShortUrn, Record<string, DimensionKey[]>> = {};
+    const dimensionsBySubtype: Record<
+      ShortUrn,
+      Record<string, DimensionKey>
+    > = {};
+    const dimensionsByType: Record<
+      ShortUrn,
+      Record<string, DimensionKey[]>
+    > = {};
     const schemesCache: Record<ShortUrn, DatasetDimensionsScheme> = {};
     const urns = Object.keys(map);
 
@@ -78,8 +84,10 @@ export function DatasetDimensionsMetadataMapProvider({
       getDimensionsMetadata: (urn: ShortUrn) => map[urn],
       getDimensionMetadata: (urn: ShortUrn, key: DimensionKey) =>
         map[urn]?.[key],
-      getRegionDimension: (urn: ShortUrn) => dimensionsBySubtype[urn]?.['REGION'],
-      getFrequencyDimension: (urn: ShortUrn) => dimensionsBySubtype[urn]?.['FREQUENCY'],
+      getRegionDimension: (urn: ShortUrn) =>
+        dimensionsBySubtype[urn]?.['REGION'],
+      getFrequencyDimension: (urn: ShortUrn) =>
+        dimensionsBySubtype[urn]?.['FREQUENCY'],
       getIndicatorDimensions: (urn: ShortUrn) =>
         dimensionsByType[urn]?.['INDICATOR'] ?? [],
       getDimensionsScheme: (urn: ShortUrn) => schemesCache[urn],

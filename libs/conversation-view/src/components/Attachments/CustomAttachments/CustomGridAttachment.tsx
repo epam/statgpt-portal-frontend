@@ -154,7 +154,11 @@ const CustomDataGridAttachment: FC<Props> = ({
 
   return (
     <div className="w-full h-full">
-      <GridContainer ref={gridRef} fixHeight={fixHeight} gridHeight={gridHeight}>
+      <GridContainer
+        ref={gridRef}
+        fixHeight={fixHeight}
+        gridHeight={gridHeight}
+      >
         {memoizedGrid}
       </GridContainer>
       {isTooltipVisible && (

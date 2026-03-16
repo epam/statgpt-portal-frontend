@@ -2,11 +2,7 @@
 
 import { Attachment } from '@epam/ai-dial-shared';
 import { FC } from 'react';
-import {
-  Button,
-  LimitMessages,
-  CopyButton,
-} from '@epam/statgpt-ui-components';
+import { Button, LimitMessages, CopyButton } from '@epam/statgpt-ui-components';
 import {
   isCustomCodeSampleAttachment,
   isCustomGridAttachment,
@@ -70,15 +66,14 @@ const AttachmentsViewModePanel: FC<Props> = ({
               />
             </a>
           )}
-        {selectedAttachment &&
-          isCustomGridAttachment(selectedAttachment) && (
-            <Button
-              title={attachmentsStyles?.downloadTitle || 'Download'}
-              buttonClassName="text-button-tertiary small-icon-button"
-              onClick={onDownloadClick}
-              iconBefore={attachmentsStyles?.downloadIcon}
-            />
-          )}
+        {selectedAttachment && isCustomGridAttachment(selectedAttachment) && (
+          <Button
+            title={attachmentsStyles?.downloadTitle || 'Download'}
+            buttonClassName="text-button-tertiary small-icon-button"
+            onClick={onDownloadClick}
+            iconBefore={attachmentsStyles?.downloadIcon}
+          />
+        )}
         {selectedAttachment &&
           isCustomCodeSampleAttachment(selectedAttachment) && (
             <CopyButton
@@ -88,9 +83,7 @@ const AttachmentsViewModePanel: FC<Props> = ({
               icon={attachmentsStyles?.copyIcon}
               copiedIcon={attachmentsStyles?.copiedIcon}
               onClick={() =>
-                navigator.clipboard.writeText(
-                  selectedAttachment.data ?? '',
-                )
+                navigator.clipboard.writeText(selectedAttachment.data ?? '')
               }
             />
           )}
