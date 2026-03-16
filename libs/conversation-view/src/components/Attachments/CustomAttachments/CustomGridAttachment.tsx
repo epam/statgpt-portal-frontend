@@ -29,7 +29,7 @@ import GridContainer from './GridContainer';
 interface Props {
   attachment: CustomGridAttachment;
   isDataLoading?: boolean;
-  showChartColumn?: boolean;
+  isChartColumnVisible?: boolean;
   fixHeight?: boolean;
   titles?: ConversationViewTitles;
   showLimitMessage?: (p: boolean) => void;
@@ -38,7 +38,7 @@ interface Props {
 const CustomDataGridAttachment: FC<Props> = ({
   attachment,
   isDataLoading,
-  showChartColumn,
+  isChartColumnVisible,
   fixHeight,
   titles,
   showLimitMessage,
@@ -61,7 +61,7 @@ const CustomDataGridAttachment: FC<Props> = ({
     } else {
       const columns = attachment.grid_data.columns.map((col) => {
         if (col.colId === CHART_COLUMN_ID) {
-          return { ...col, hide: !showChartColumn };
+          return { ...col, hide: !isChartColumnVisible };
         }
         return col;
       });
@@ -69,7 +69,7 @@ const CustomDataGridAttachment: FC<Props> = ({
       setColumnDefs(columns);
       setIsLoading(false);
     }
-  }, [attachment.grid_data, showChartColumn]);
+  }, [attachment.grid_data, isChartColumnVisible]);
 
   useEffect(() => {
     if (rowData) {
