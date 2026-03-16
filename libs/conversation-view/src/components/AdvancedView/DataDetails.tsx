@@ -41,6 +41,7 @@ interface Props {
   isTableSettingsOpen?: boolean;
   onTableSettingsOpen?: () => void;
   onGridApiReady?: (api: GridApi) => void;
+  onTableSettingsClose?: () => void;
 }
 
 const DataDetails: FC<Props> = ({
@@ -62,6 +63,7 @@ const DataDetails: FC<Props> = ({
   isTableSettingsOpen,
   onTableSettingsOpen,
   onGridApiReady,
+  onTableSettingsClose,
 }) => {
   const constraintAction = {
     getConstraints: actions.getConstraints,
@@ -110,6 +112,7 @@ const DataDetails: FC<Props> = ({
               isTableSettingsOpen={isTableSettingsOpen}
               onTableSettingsOpen={onTableSettingsOpen}
               onGridApiReady={onGridApiReady}
+              onTableSettingsClose={onTableSettingsClose}
             />
           </div>
         </div>

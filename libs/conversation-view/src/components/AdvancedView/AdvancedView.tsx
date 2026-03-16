@@ -219,6 +219,7 @@ export const AdvancedView: FC<Props> = ({
                     onFiltersChange={handleFiltersChange}
                     isTableSettingsOpen={isTableSettingsPanelOpened}
                     onTableSettingsOpen={openTableSettingsHandler}
+                    onTableSettingsClose={closeTableSettingsHandler}
                     onGridApiReady={gridApiReadyHandler}
                   />
                 </div>

@@ -89,6 +89,7 @@ interface Props {
   isTableSettingsOpen?: boolean;
   onTableSettingsOpen?: () => void;
   onGridApiReady?: (api: GridApi) => void;
+  onTableSettingsClose?: () => void;
 }
 
 const AttachmentRenderer: FC<Props> = ({
@@ -117,6 +118,7 @@ const AttachmentRenderer: FC<Props> = ({
   isTableSettingsOpen,
   onTableSettingsOpen,
   onGridApiReady,
+  onTableSettingsClose,
 }) => {
   const [selectedAttachmentIndex, setSelectedAttachmentIndex] =
     useState<number>(0);
@@ -165,6 +167,16 @@ const AttachmentRenderer: FC<Props> = ({
       isDataSetAttachments && (datasets == null || datasets?.length == 0),
     );
   }, [datasets, isDataSetAttachments]);
+
+  useEffect(() => {
+    if (
+      isTableSettingsOpen &&
+      selectedAttachment &&
+      !isCustomGridAttachment(selectedAttachment)
+    ) {
+      onTableSettingsClose?.();
+    }
+  }, [isTableSettingsOpen, selectedAttachment, onTableSettingsClose]);
 
   const onCloseModal = useCallback(() => {
     setModalState(PopUpState.Closed);
@@ -271,7 +283,9 @@ const AttachmentRenderer: FC<Props> = ({
                             />
                           </a>
                         )}
-                      {!showAdvancedView && (
+                      {!showAdvancedView &&
+                        selectedAttachment &&
+                        isCustomGridAttachment(selectedAttachment) && (
                         <Button
                           disabled={isTableSettingsOpen}
                           buttonClassName="text-button-tertiary !p-0 !h-6"
