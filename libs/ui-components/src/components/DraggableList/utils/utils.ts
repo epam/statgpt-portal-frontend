@@ -2,7 +2,7 @@ import type {
   DraggableListItemNode,
   DraggableListNode,
   TreePath,
-} from './types';
+} from '../types';
 
 export function itemKey(parentPath: readonly string[], itemId: string): string {
   return `i:${[...parentPath, itemId].join('/')}`;

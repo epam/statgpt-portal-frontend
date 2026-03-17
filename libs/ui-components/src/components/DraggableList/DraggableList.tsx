@@ -57,8 +57,6 @@ export interface DraggableListProps {
   onItemClick?: (e: ItemClickEvent) => void;
 
   renderLabel?: (item: DraggableListItemNode) => React.ReactNode;
-
-  ariaLabel?: string;
 }
 
 /**
@@ -114,7 +112,6 @@ export interface DraggableListProps {
  * @param onToggleChecked - Called when an item's checkbox state changes.
  * @param onItemClick - Called when the main item row is clicked.
  * @param renderLabel - Optional custom renderer for item labels.
- * @param ariaLabel - Optional accessible label for the drag-and-drop container.
  */
 export function DraggableList({
   items,
@@ -125,7 +122,6 @@ export function DraggableList({
   onToggleChecked,
   onItemClick,
   renderLabel,
-  ariaLabel,
 }: DraggableListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -255,7 +251,6 @@ export function DraggableList({
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      aria-label={ariaLabel}
     >
       <div className="flex flex-col">{renderNodes(items)}</div>
 

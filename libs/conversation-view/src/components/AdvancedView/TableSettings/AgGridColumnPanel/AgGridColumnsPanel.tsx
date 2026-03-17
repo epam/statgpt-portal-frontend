@@ -51,7 +51,7 @@ export function AgGridColumnsPanel({
   return (
     <div className="px-5 py-7 flex flex-col gap-2 h-full">
       <InputWithIcon
-        inputId="filters-search-input"
+        inputId="columns-search-input"
         containerClasses={'items-center filters-search-input gap-1 !p-2'}
         cssClass="filters-search-input-text"
         placeholder="Search"
