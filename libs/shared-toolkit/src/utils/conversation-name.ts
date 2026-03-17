@@ -1,4 +1,4 @@
-export const stripConversationVersionSuffix = (
+export const deleteConversationNamePostfix = (
   conversationName?: string,
 ): string => conversationName?.split(/-\d+$/)[0] ?? '';
 

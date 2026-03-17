@@ -1,4 +1,4 @@
-import { stripConversationVersionSuffix } from './conversation-name';
+import { deleteConversationNamePostfix } from './conversation-name';
 
 export const getConversationUrlWithoutLocale = (
   resourceUrl: string,
@@ -20,6 +20,6 @@ export const getConversationFolderIdFromConversationId = (
 export const getConversationNameFromConversationId = (
   conversationId: string,
 ): string =>
-  stripConversationVersionSuffix(
+  deleteConversationNamePostfix(
     decodeURIComponent(conversationId.split('/').at(-1) ?? ''),
   );
