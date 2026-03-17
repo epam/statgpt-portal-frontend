@@ -284,6 +284,7 @@ const AttachmentRenderer: FC<Props> = ({
                           </a>
                         )}
                       {!showAdvancedView &&
+                        !!onTableSettingsOpen &&
                         selectedAttachment &&
                         isCustomGridAttachment(selectedAttachment) && (
                         <Button
