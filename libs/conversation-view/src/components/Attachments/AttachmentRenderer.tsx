@@ -12,25 +12,12 @@ import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import {
   Alert,
   AlertDetails,
-  Button,
   Loader,
   PopUpState,
   LimitMessages,
   RequestLimitMessage,
-  CopyButton,
 } from '@epam/statgpt-ui-components';
-import FileAttachment from './BaseAttachments/FileAttachment';
-import MarkdownAttachment from './BaseAttachments/MarkdownAttachment';
-import UrlAttachment from './BaseAttachments/UrlAttachment';
-import {
-  isCustomCodeSampleAttachment,
-  isCustomChartAttachment,
-  isCustomGridAttachment,
-  isFileAttachment,
-  isGridAttachment,
-  isMarkdownAttachment,
-  isUrlAttachment,
-} from '../../utils/attachments/attachment-parser';
+import { isGridAttachment } from '../../utils/attachments/attachment-parser';
 import {
   AttachmentInfo,
   AttachmentsConfig,
@@ -39,22 +26,19 @@ import {
 } from '../../models/attachments';
 import { FC, useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import AttachmentTabs from './Tabs/AttachmentTabs/AttachmentTabs';
 import AttachmentDetails from './AttachmentDetails/AttachmentDetails';
-import GridAttachment from './BaseAttachments/GridAttachment';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 import AttachmentCollapsed from './AttachmentCollapsed';
 import { MessageStyles } from '../../models/message';
 import { AttachmentsActions } from '../../models/actions';
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
-import CustomDataGridAttachment from './CustomAttachments/CustomGridAttachment';
 import { AttachmentsStyles } from '../../models/attachments-styles';
-import CustomChartAttachment from './CustomAttachments/CustomChartAttachment';
 import DownloadSettings from '@statgpt/download-panel/src/components/DownloadSettings/DownloadSettings';
 import { ConversationViewTitles } from '../../models/titles';
 import DatasetTabs from './Tabs/DatasetTabs/DatasetTabs';
 import { getExternalLink } from '../../utils/attachments-details';
-import { CodeAttachment } from './CustomAttachments/CodeAttachment';
+import AttachmentsViewModePanel from './AttachmentsViewModePanel';
+import AttachmentsContentRenderer from './AttachmentsContentRenderer';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -241,113 +225,28 @@ const AttachmentRenderer: FC<Props> = ({
                 )}
               >
                 <div className="flex flex-col max-w-full items-center gap-4 h-full">
-                  <div className="flex min-w-0 w-full justify-between items-center">
-                    <AttachmentTabs
-                      dataGridTitle={attachmentsStyles?.dataGridTitle}
-                      attachments={attachments}
-                      selectedAttachmentIndex={selectedAttachmentIndex}
-                      showTabIcon={attachmentsStyles?.showTabIcon}
-                      onSelectedAttachmentChange={selectAttachment}
-                      titles={titles}
-                    />
-                    <div className="flex gap-x-3 items-center flex-wrap w-fit justify-end">
-                      {selectedAttachment &&
-                        isCustomGridAttachment(selectedAttachment) &&
-                        isExternaLinkIncludeFilters && (
-                          <a href={externalLink} target="_blank">
-                            <Button
-                              title={
-                                limitMessages?.dataExplorer || 'Data explorer'
-                              }
-                              buttonClassName="text-button-tertiary small-icon-button [&>svg]:h-[16px] [&>svg]:w-[16px] whitespace-nowrap"
-                              iconBefore={limitMessages?.dataExplorerIcon}
-                            />
-                          </a>
-                        )}
-                      {selectedAttachment &&
-                        isCustomGridAttachment(selectedAttachment) && (
-                          <Button
-                            title={
-                              attachmentsStyles?.downloadTitle || 'Download'
-                            }
-                            buttonClassName="text-button-tertiary small-icon-button"
-                            onClick={() => setModalState(PopUpState.Opened)}
-                            iconBefore={attachmentsStyles?.downloadIcon}
-                          />
-                        )}
-                      {selectedAttachment &&
-                        isCustomCodeSampleAttachment(selectedAttachment) && (
-                          <CopyButton
-                            title={attachmentsStyles?.copyTitle}
-                            copiedTitle={attachmentsStyles?.copiedTitle}
-                            tooltip={attachmentsStyles?.copiedTooltip}
-                            icon={attachmentsStyles?.copyIcon}
-                            copiedIcon={attachmentsStyles?.copiedIcon}
-                            onClick={() =>
-                              navigator.clipboard.writeText(
-                                selectedAttachment.data ?? '',
-                              )
-                            }
-                          />
-                        )}
-                    </div>
-                  </div>
+                  <AttachmentsViewModePanel
+                    attachments={attachments}
+                    selectedAttachmentIndex={selectedAttachmentIndex}
+                    selectedAttachment={selectedAttachment}
+                    attachmentsStyles={attachmentsStyles}
+                    titles={titles}
+                    externalLink={externalLink}
+                    isExternaLinkIncludeFilters={isExternaLinkIncludeFilters}
+                    limitMessages={limitMessages}
+                    onSelectedAttachmentChange={selectAttachment}
+                    onDownloadClick={() => setModalState(PopUpState.Opened)}
+                  />
                   {selectedAttachment != null && (
-                    <div className="flex flex-1 w-full justify-center min-h-0">
-                      {isFileAttachment(selectedAttachment) && (
-                        <FileAttachment
-                          actions={actions}
-                          downloadTitles={attachmentsStyles?.downloadTitle}
-                          attachment={selectedAttachment}
-                        />
-                      )}
-                      {isGridAttachment(selectedAttachment) && (
-                        <GridAttachment
-                          actions={actions}
-                          attachment={selectedAttachment}
-                          showLimitMessage={setShowLimitMessage}
-                        />
-                      )}
-                      {isCustomGridAttachment(selectedAttachment) && (
-                        <CustomDataGridAttachment
-                          attachment={selectedAttachment}
-                          isDataLoading={isDataLoading}
-                          chartColumn={isOpenedAdvancedView}
-                          fixHeight={!isOpenedAdvancedView}
-                          titles={titles}
-                          showLimitMessage={setShowLimitMessage}
-                        />
-                      )}
-                      {isCustomChartAttachment(selectedAttachment) && (
-                        <CustomChartAttachment
-                          titles={titles}
-                          isDataLoading={isDataLoading}
-                          attachment={selectedAttachment}
-                          icons={attachmentsStyles?.chartingIcons}
-                          openAdvancedView={
-                            !isOpenedAdvancedView ? onOpenAdvancedView : void 0
-                          }
-                          fixHeight={!isOpenedAdvancedView}
-                        />
-                      )}
-                      {isUrlAttachment(selectedAttachment) && (
-                        <UrlAttachment
-                          attachment={selectedAttachment}
-                          openLinkTitle={attachmentsStyles?.openLinkTitle}
-                        />
-                      )}
-                      {isMarkdownAttachment(selectedAttachment) && (
-                        <MarkdownAttachment attachment={selectedAttachment} />
-                      )}
-                      {isCustomCodeSampleAttachment(selectedAttachment) && (
-                        <CodeAttachment
-                          attachment={selectedAttachment}
-                          className={
-                            attachmentsStyles?.codeAttachmentContainerClassName
-                          }
-                        />
-                      )}
-                    </div>
+                    <AttachmentsContentRenderer
+                      selectedAttachment={selectedAttachment}
+                      actions={actions}
+                      attachmentsStyles={attachmentsStyles}
+                      isDataLoading={isDataLoading}
+                      isOpenedAdvancedView={isOpenedAdvancedView}
+                      onOpenAdvancedView={onOpenAdvancedView}
+                      showLimitMessage={setShowLimitMessage}
+                    />
                   )}
                 </div>
               </div>
