@@ -82,8 +82,9 @@ export const ConversationWelcome: FC<Props> = ({
   setSharedConversations,
 }) => {
   const [bucket, setBucket] = useState<string | null>(null);
+  const [isBucketLoading, setIsBucketLoading] = useState(true);
   const [isCreatingConversation, setIsCreatingConversation] =
-    useState<boolean>();
+    useState<boolean>(false);
   const {
     onboardingFileSchema,
     onboardingFileName,
@@ -103,6 +104,8 @@ export const ConversationWelcome: FC<Props> = ({
         setBucket(bucketData.bucket);
       } catch (err) {
         console.error(err instanceof Error ? err.message : 'Request error');
+      } finally {
+        setIsBucketLoading(false);
       }
     };
 
@@ -111,15 +114,17 @@ export const ConversationWelcome: FC<Props> = ({
 
   const createConversation = useCallback(
     async (message?: string, choiceId?: string) => {
-      setIsCreatingConversation(true);
       if (!bucket) {
         console.error('No bucket');
+        return;
       }
+
+      setIsCreatingConversation(true);
 
       try {
         const conversationRequestData = isShowOnboarding
           ? generateOnboardingConversation(
-              bucket || '',
+              bucket,
               locale,
               titles?.onboardingTitle ?? 'Introducing the AI assistant',
               onboardingMessageSchema?.properties?.choice?.description ?? '',
@@ -127,7 +132,7 @@ export const ConversationWelcome: FC<Props> = ({
               choiceId,
             )
           : getCreateConversationRequest(
-              bucket || '',
+              bucket,
               locale,
               titles.newChat ?? 'New chat',
               message,
@@ -223,6 +228,8 @@ export const ConversationWelcome: FC<Props> = ({
   }, [bucket, prompt]);
 
   const getContent = () => {
+    const isConversationCreationDisabled = !bucket;
+
     if (!isAgentAvailable) {
       return (
         <InlineAlert type={InlineAlertType.Error}>
@@ -239,6 +246,7 @@ export const ConversationWelcome: FC<Props> = ({
             isBottomInputPosition && 'order-3 mt-auto',
           )}
           inputClasses="mr-2"
+          disabled={isConversationCreationDisabled}
           placeholder={titles?.askAnything ?? 'Ask anything...'}
           sendMessageIcon={inputMessageStyles.sendMessageIcon}
           onSendMessage={createConversation}
@@ -257,6 +265,7 @@ export const ConversationWelcome: FC<Props> = ({
                 text={
                   item[DialSchemaProperties.DialWidgetOptions]?.populateText
                 }
+                disabled={isConversationCreationDisabled}
                 onClick={createConversation}
               />
             ))}
@@ -268,7 +277,7 @@ export const ConversationWelcome: FC<Props> = ({
 
   return (
     <div className="flex flex-col h-full w-full">
-      {prompt || isCreatingConversation ? (
+      {isCreatingConversation || (prompt && isBucketLoading) ? (
         <Loader />
       ) : isShowOnboarding ? (
         <ConversationOnboarding
@@ -279,6 +288,7 @@ export const ConversationWelcome: FC<Props> = ({
           choiceButtons={
             onboardingMessageSchema?.properties?.choice?.oneOf || []
           }
+          disabled={!bucket}
           handleOnboardingSkip={handleOnboardingSkip}
           onClick={createConversation}
         />
