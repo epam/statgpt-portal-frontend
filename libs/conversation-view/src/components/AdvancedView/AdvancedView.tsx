@@ -49,10 +49,7 @@ interface Props {
   datasetInfoOptions?: DatasetInfoOptions;
 }
 
-export const AdvancedView: FC<Props> = ({
-  attachmentsProps,
-  ...props
-}) => {
+export const AdvancedView: FC<Props> = ({ attachmentsProps, ...props }) => {
   const currentUrn = useMemo(
     () =>
       attachmentsProps.currentDataQuery?.urn ??
@@ -125,7 +122,6 @@ const AdvancedViewInternal: FC<Props> = ({
     filterKey: null,
     timeFilter: null,
   });
-
 
   const handleFiltersChange = useCallback(
     (

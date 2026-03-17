@@ -7,7 +7,9 @@ import { useTableSettingsContext } from './TableSettings/TableSettingsContext';
 
 type AttachmentRendererProps = ComponentProps<typeof AttachmentRenderer>;
 
-export const AdvancedAttachmentRenderer: FC<AttachmentRendererProps> = (props) => {
+export const AdvancedAttachmentRenderer: FC<AttachmentRendererProps> = (
+  props,
+) => {
   const {
     tableSettings: { isOpen, open, close },
     agGrid: { onGridApiReady },
