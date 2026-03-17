@@ -96,3 +96,23 @@
     }
   }
 }
+
+.scroll-hidden-container {
+  overflow-y: auto;
+  scrollbar-color: transparent transparent;
+
+  &:hover {
+    scrollbar-color: theme('colors.gray.400') theme('colors.gray.100');
+  }
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+    transition: background 0.3s ease;
+  }
+}

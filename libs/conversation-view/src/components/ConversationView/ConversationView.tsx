@@ -85,6 +85,7 @@ import {
 } from '@epam/statgpt-ui-components';
 import { MetadataSettings } from '../../models/metadata';
 import { ConversationViewTitles } from '../../models/titles';
+import { ConversationViewTitlesProvider } from '../../context/ConversationViewTitlesContext';
 import { getRedirectConversationPath } from '../../utils/get-conversation-path';
 import { generateConversation } from '../../utils/generate-conversation';
 
@@ -829,87 +830,91 @@ export const ConversationView: FC<Props> = ({
   };
 
   return (
-    <div
-      className={classNames(
-        'h-full flex flex-col bg-white conversation-view-wrapper',
-        isOpenedAdvancedView && !showConversationHeaderAdvancedView
-          ? 'p-4'
-          : 'pr-2',
-      )}
-    >
-      {isOpenedAdvancedView && !showConversationHeaderAdvancedView ? null : (
-        <ConversationViewHeader
-          conversation={conversation}
-          locale={locale}
-          isOpenedAdvancedView={isOpenedAdvancedView}
-          isShowShareButton={!isReadonlyConversation && !isShowOnboarding}
-          shareConversationProps={shareConversationProps}
-        />
-      )}
+    <ConversationViewTitlesProvider titles={titles}>
       <div
         className={classNames(
-          'flex-1 min-h-0 flex flex-col items-end hover:overflow-y-auto',
-          messageStyles?.messagesWrapperClass,
+          'h-full flex flex-col bg-white conversation-view-wrapper',
+          isOpenedAdvancedView && !showConversationHeaderAdvancedView
+            ? 'p-4'
+            : 'pr-2',
         )}
       >
-        <ChatMessages
-          messages={conversation?.messages || []}
-          actions={messageServerActions}
-          isStreaming={isStreaming}
-          isReadOnly={isReadonlyConversation}
-          messageStyles={messageStyles}
-          attachmentsStyles={attachmentsStyles}
-          formattingSettings={formattingSettings}
-          metadataSettings={metadataSettings}
-          expandStagesIcon={expandStagesIcon}
-          dataQuery={dataQuery}
-          locale={locale}
-          titles={titles}
-          regenerateMessage={(message: Message) =>
-            regenerateMessage(message, conversation)
-          }
-          selectMessageToSend={(message, choiceId) =>
-            sendMessageToConversation(
-              message as string,
-              conversation,
-              choiceId as string,
-            )
-          }
-          messageActionsIcons={messageActionsIcons}
-          rateResponse={rateResponse}
-          editMessage={(message: Message) => editMessage(message, conversation)}
-          editMessageTitles={editMessageTitles}
-          scrollBottomIcon={scrollBottomIcon}
-          isReadOnlyConversation={isReadonlyConversation || isShowOnboarding}
-          limitMessages={limitMessages}
-          attachmentsConfig={attachmentsConfig}
-          conversationViewState={conversationViewState}
-        />
-      </div>
-      {isShowOnboarding ? null : !isReadonlyConversation ? (
-        <div className={classNames(inputMessageStyles.inputContainerClass)}>
-          {getInput()}
-        </div>
-      ) : (
-        <div className="flex items-center justify-center mt-4">
-          <Button
-            iconBefore={<IconCopy width={20} height={20} />}
-            title={titles?.duplicate ?? 'Duplicate Chat'}
-            isSmallButton={true}
-            onClick={duplicateConversation}
-            buttonClassName={classNames('text-button-secondary')}
+        {isOpenedAdvancedView && !showConversationHeaderAdvancedView ? null : (
+          <ConversationViewHeader
+            conversation={conversation}
+            locale={locale}
+            isOpenedAdvancedView={isOpenedAdvancedView}
+            isShowShareButton={!isReadonlyConversation && !isShowOnboarding}
+            shareConversationProps={shareConversationProps}
+          />
+        )}
+        <div
+          className={classNames(
+            'flex-1 min-h-0 flex flex-col items-end hover:overflow-y-auto',
+            messageStyles?.messagesWrapperClass,
+          )}
+        >
+          <ChatMessages
+            messages={conversation?.messages || []}
+            actions={messageServerActions}
+            isStreaming={isStreaming}
+            isReadOnly={isReadonlyConversation}
+            messageStyles={messageStyles}
+            attachmentsStyles={attachmentsStyles}
+            formattingSettings={formattingSettings}
+            metadataSettings={metadataSettings}
+            expandStagesIcon={expandStagesIcon}
+            dataQuery={dataQuery}
+            locale={locale}
+            titles={titles}
+            regenerateMessage={(message: Message) =>
+              regenerateMessage(message, conversation)
+            }
+            selectMessageToSend={(message, choiceId) =>
+              sendMessageToConversation(
+                message as string,
+                conversation,
+                choiceId as string,
+              )
+            }
+            messageActionsIcons={messageActionsIcons}
+            rateResponse={rateResponse}
+            editMessage={(message: Message) =>
+              editMessage(message, conversation)
+            }
+            editMessageTitles={editMessageTitles}
+            scrollBottomIcon={scrollBottomIcon}
+            isReadOnlyConversation={isReadonlyConversation || isShowOnboarding}
+            limitMessages={limitMessages}
+            attachmentsConfig={attachmentsConfig}
+            conversationViewState={conversationViewState}
           />
         </div>
-      )}
-      {isShowOnboarding && isFinalMessage && (
-        <Button
-          iconBefore={<IconPlus width={24} height={24} />}
-          title={titles?.onboardingFooterLink}
-          onClick={handleOpeningOfNewConversation}
-          isSmallButton={true}
-          buttonClassName="text-button-secondary self-center mb-3"
-        />
-      )}
-    </div>
+        {isShowOnboarding ? null : !isReadonlyConversation ? (
+          <div className={classNames(inputMessageStyles.inputContainerClass)}>
+            {getInput()}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center mt-4">
+            <Button
+              iconBefore={<IconCopy width={20} height={20} />}
+              title={titles?.duplicate ?? 'Duplicate Chat'}
+              isSmallButton={true}
+              onClick={duplicateConversation}
+              buttonClassName={classNames('text-button-secondary')}
+            />
+          </div>
+        )}
+        {isShowOnboarding && isFinalMessage && (
+          <Button
+            iconBefore={<IconPlus width={24} height={24} />}
+            title={titles?.onboardingFooterLink}
+            onClick={handleOpeningOfNewConversation}
+            isSmallButton={true}
+            buttonClassName="text-button-secondary self-center mb-3"
+          />
+        )}
+      </div>
+    </ConversationViewTitlesProvider>
   );
 };

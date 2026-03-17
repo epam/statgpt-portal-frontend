@@ -33,3 +33,8 @@ export {
   useDatasetDimensionsMetadataMap,
   useDatasetDimensionsMetadataMapOptional,
 } from './context/DatasetDimensionsMetadataMapContext';
+
+export {
+  ConversationViewTitlesProvider,
+  useConversationViewTitles,
+} from './context/ConversationViewTitlesContext';
