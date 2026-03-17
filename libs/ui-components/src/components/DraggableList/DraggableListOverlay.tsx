@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { Checkbox } from '../Checkbox/Checkbox';
 
 export function DraggableListOverlay({
+  id,
   label,
   hasChildren,
   showDragHandle,
@@ -10,6 +11,7 @@ export function DraggableListOverlay({
   isChecked,
   isExpanded,
 }: {
+  id: string;
   label: string;
   hasChildren: boolean;
   showDragHandle: boolean;
@@ -31,11 +33,7 @@ export function DraggableListOverlay({
 
         <div className="flex min-w-0 flex-1 items-center gap-2 p-1">
           {showCheckbox ? (
-            <Checkbox
-              id={`draggable-list-${label}`}
-              checked={!!isChecked}
-              className="p-0"
-            />
+            <Checkbox id={id} checked={!!isChecked} className="p-0" />
           ) : null}
           <span className="truncate body-3">{label}</span>
         </div>

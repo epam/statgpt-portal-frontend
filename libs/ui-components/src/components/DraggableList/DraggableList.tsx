@@ -257,6 +257,7 @@ export function DraggableList({
       <DragOverlay>
         {active ? (
           <DraggableListOverlay
+            id={active.id}
             label={active.label}
             hasChildren={active.hasChildren}
             showDragHandle={showDragHandle}
