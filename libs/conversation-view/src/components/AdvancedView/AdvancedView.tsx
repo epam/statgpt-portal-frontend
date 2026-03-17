@@ -8,7 +8,7 @@ import { AttachmentsConfig, AttachmentsProps } from '../../models/attachments';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { MetadataSettings } from '../../models/metadata';
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import { AttachmentsActions } from '../../models/actions';
 import { FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import { Loader } from '@epam/statgpt-ui-components';
@@ -26,7 +26,7 @@ import {
 import { getExternalLink } from '../../utils/attachments-details';
 import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
 import { TableSettingsPanel } from './TableSettings/TableSettingsPanel';
-import { GridApi } from 'ag-grid-community';
+import { useAgGridColumnPreferences } from './TableSettings/AgGridColumnPanel/useAgGridColumnPreferences';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -64,11 +64,16 @@ export const AdvancedView: FC<Props> = ({
     props.filtersProps.conversation?.messages?.at(-1)?.custom_content
       ?.attachments;
 
-  const [gridApi, setGridApi] = useState<GridApi>();
+  const currentUrn = useMemo(
+    () =>
+      attachmentsProps.currentDataQuery?.urn ??
+      attachmentsProps.dataQueries?.[0]?.urn ??
+      'default',
+    [attachmentsProps.currentDataQuery?.urn, attachmentsProps.dataQueries],
+  );
 
-  const gridApiReadyHandler = useCallback((api: GridApi) => {
-    setGridApi(api);
-  }, []);
+  const { gridApi, onGridApiReady, initialColumnsState } =
+    useAgGridColumnPreferences({ currentUrn });
 
   const {
     dataMessage,
@@ -220,13 +225,14 @@ export const AdvancedView: FC<Props> = ({
                     isTableSettingsOpen={isTableSettingsPanelOpened}
                     onTableSettingsOpen={openTableSettingsHandler}
                     onTableSettingsClose={closeTableSettingsHandler}
-                    onGridApiReady={gridApiReadyHandler}
+                    onGridApiReady={onGridApiReady}
                   />
                 </div>
                 {isTableSettingsPanelOpened && (
                   <TableSettingsPanel
                     onClose={closeTableSettingsHandler}
                     gridApi={gridApi}
+                    initialColumnsState={initialColumnsState}
                   />
                 )}
               </div>

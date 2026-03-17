@@ -3,15 +3,18 @@ import { useCallback } from 'react';
 import { GridApi } from 'ag-grid-community';
 import { AgGridColumnsPanel } from './AgGridColumnPanel/AgGridColumnsPanel';
 import { useAgGridColumnsReset } from './AgGridColumnPanel/useAgGridColumnsReset';
+import type { AgGridInitialColumnsState } from './AgGridColumnPanel/types';
 
 export const TableSettingsPanel = ({
   onClose,
   gridApi,
+  initialColumnsState,
 }: {
   onClose?: () => void;
   gridApi?: GridApi;
+  initialColumnsState?: AgGridInitialColumnsState | null;
 }) => {
-  const { resetColumns } = useAgGridColumnsReset(gridApi);
+  const { resetColumns } = useAgGridColumnsReset(gridApi, initialColumnsState);
 
   const closeHandler = useCallback(() => {
     onClose?.();
