@@ -29,7 +29,7 @@ export function AgGridColumnsPanel({
 
   const clearSearchButton = useMemo(
     () => (
-      <button onClick={clearSearchHandler}>
+      <button type="button" onClick={clearSearchHandler}>
         <IconX className="text-neutrals-1000 size-4" />
       </button>
     ),

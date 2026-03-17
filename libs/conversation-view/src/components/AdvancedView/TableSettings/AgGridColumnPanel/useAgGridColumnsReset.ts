@@ -9,8 +9,6 @@ export function useAgGridColumnsReset(
   api?: GridApi | null,
   initialState?: AgGridInitialColumnsState | null,
 ) {
-  const hasInitialState = !!initialState;
-
   const resetColumns = useCallback(() => {
     if (!api) {
       return;
@@ -21,6 +19,5 @@ export function useAgGridColumnsReset(
 
   return {
     resetColumns,
-    hasInitialState,
   };
 }

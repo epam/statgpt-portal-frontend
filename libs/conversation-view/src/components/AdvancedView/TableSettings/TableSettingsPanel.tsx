@@ -30,6 +30,7 @@ export const TableSettingsPanel = ({
         <div className="h2 text-neutrals-1000">{title || 'Columns'}</div>
         <div className="flex gap-2 items-center">
           <button
+            type="button"
             className="text-neutrals-800 flex gap-1 items-center"
             onClick={resetColumns}
           >
@@ -37,7 +38,7 @@ export const TableSettingsPanel = ({
             <span className="h4">{resetTitle || 'Reset'}</span>
           </button>
           <div className="h-3 w-[1px] bg-neutrals-600" />
-          <button onClick={closeHandler}>
+          <button type="button" onClick={closeHandler}>
             <IconX className="size-5 text-neutrals-1000" />
           </button>
         </div>
