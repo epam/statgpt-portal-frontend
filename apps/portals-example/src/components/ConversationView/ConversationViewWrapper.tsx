@@ -253,6 +253,7 @@ const ConversationViewWrapper: FC<Props> = ({
     ),
     closeTitle: t(AppI18nKeys.CLOSE),
     downloadTitle: t(DownloadI18nKeys.DOWNLOAD),
+    columnsTitle: t(AttachmentsI18nKeys.COLUMNS),
     openLinkTitle: t(AttachmentsI18nKeys.OPEN_URL),
     dataGridTitle: t(AttachmentsI18nKeys.DATA_GRID),
     errorDownloadIcon: <ErrorIcon className="w-6 h-6 text-semantic-error" />,

@@ -292,7 +292,7 @@ const AttachmentRenderer: FC<Props> = ({
                           buttonClassName="text-button-tertiary !p-0 !h-6"
                           textClassName="ml-1"
                           iconBefore={<ColumnsIcon className="size-4" />}
-                          title="Columns"
+                          title={attachmentsStyles?.columnsTitle || 'Columns'}
                           onClick={onTableSettingsOpen}
                         />
                       )}

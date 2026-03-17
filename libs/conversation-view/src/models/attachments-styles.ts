@@ -14,6 +14,7 @@ export interface AttachmentsStyles {
   openLinkTitle?: string;
   dataGridTitle?: string;
   downloadTitle?: string;
+  columnsTitle?: string;
   closeTitle?: string;
   successDownloadIcon?: ReactNode;
   errorDownloadIcon?: ReactNode;

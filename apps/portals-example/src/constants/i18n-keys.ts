@@ -131,6 +131,7 @@ export enum StatusMessagesI18nKeys {
 
 export enum AttachmentsI18nKeys {
   DOWNLOAD = 'attachments.download',
+  COLUMNS = 'attachments.columns',
   OPEN_URL = 'attachments.openUrl',
   DATA_GRID = 'attachments.dataGrid',
   CHART = 'attachments.chart',
