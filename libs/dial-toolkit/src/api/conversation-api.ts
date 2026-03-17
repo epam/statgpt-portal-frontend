@@ -176,6 +176,18 @@ export class ConversationApi {
     }
   }
 
+  async deleteFile(filePath: string, token: string): Promise<void> {
+    try {
+      const endpoint = `${DIAL_API_ROUTES.VERSION}/${encodeApiUrl(filePath)}`;
+      await this.client.request(endpoint, token, { method: 'DELETE' });
+    } catch (error) {
+      if (isError(error)) {
+        return;
+      }
+      throw error;
+    }
+  }
+
   async createConversation(
     data: CreateConversationRequest,
     token: string,
