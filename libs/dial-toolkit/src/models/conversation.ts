@@ -19,6 +19,7 @@ export interface CreateConversationRequest {
 
 export interface UpdateConversationRequest {
   name?: string;
+  id?: string;
   folderId?: string;
   model?: ModelInfo;
   prompt?: string;
