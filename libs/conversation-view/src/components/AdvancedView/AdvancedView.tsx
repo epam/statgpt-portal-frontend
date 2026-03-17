@@ -26,7 +26,10 @@ import {
 import { getExternalLink } from '../../utils/attachments-details';
 import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
 import { TableSettingsPanel } from './TableSettings/TableSettingsPanel';
-import { useAgGridColumnPreferences } from './TableSettings/AgGridColumnPanel/useAgGridColumnPreferences';
+import {
+  TableSettingsProvider,
+  useTableSettingsContext,
+} from './TableSettings/TableSettingsContext';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -48,6 +51,25 @@ interface Props {
 
 export const AdvancedView: FC<Props> = ({
   attachmentsProps,
+  ...props
+}) => {
+  const currentUrn = useMemo(
+    () =>
+      attachmentsProps.currentDataQuery?.urn ??
+      attachmentsProps.dataQueries?.[0]?.urn ??
+      'default',
+    [attachmentsProps.currentDataQuery?.urn, attachmentsProps.dataQueries],
+  );
+
+  return (
+    <TableSettingsProvider currentUrn={currentUrn}>
+      <AdvancedViewInternal attachmentsProps={attachmentsProps} {...props} />
+    </TableSettingsProvider>
+  );
+};
+
+const AdvancedViewInternal: FC<Props> = ({
+  attachmentsProps,
   actions,
   titles,
   shareConversationProps,
@@ -64,16 +86,13 @@ export const AdvancedView: FC<Props> = ({
     props.filtersProps.conversation?.messages?.at(-1)?.custom_content
       ?.attachments;
 
-  const currentUrn = useMemo(
-    () =>
-      attachmentsProps.currentDataQuery?.urn ??
-      attachmentsProps.dataQueries?.[0]?.urn ??
-      'default',
-    [attachmentsProps.currentDataQuery?.urn, attachmentsProps.dataQueries],
-  );
-
-  const { gridApi, onGridApiReady, initialColumnsState } =
-    useAgGridColumnPreferences({ currentUrn });
+  const {
+    tableSettings: {
+      isOpen: isTableSettingsPanelOpened,
+      close: closeTableSettingsHandler,
+    },
+    agGrid: { gridApi, initialColumnsState },
+  } = useTableSettingsContext();
 
   const {
     dataMessage,
@@ -107,16 +126,6 @@ export const AdvancedView: FC<Props> = ({
     timeFilter: null,
   });
 
-  const [isTableSettingsPanelOpened, setIsTableSettingsPanelOpened] =
-    useState(false);
-
-  const closeTableSettingsHandler = useCallback(() => {
-    setIsTableSettingsPanelOpened(false);
-  }, [setIsTableSettingsPanelOpened]);
-
-  const openTableSettingsHandler = useCallback(() => {
-    setIsTableSettingsPanelOpened(true);
-  }, [setIsTableSettingsPanelOpened]);
 
   const handleFiltersChange = useCallback(
     (
@@ -222,10 +231,6 @@ export const AdvancedView: FC<Props> = ({
                     attachmentsConfig={attachmentsConfig}
                     filters={filters}
                     onFiltersChange={handleFiltersChange}
-                    isTableSettingsOpen={isTableSettingsPanelOpened}
-                    onTableSettingsOpen={openTableSettingsHandler}
-                    onTableSettingsClose={closeTableSettingsHandler}
-                    onGridApiReady={onGridApiReady}
                   />
                 </div>
                 {isTableSettingsPanelOpened && (

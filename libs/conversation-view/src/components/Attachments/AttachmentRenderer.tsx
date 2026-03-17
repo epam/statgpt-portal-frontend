@@ -88,8 +88,8 @@ interface Props {
   attachmentsConfig?: AttachmentsConfig;
   isTableSettingsOpen?: boolean;
   onTableSettingsOpen?: () => void;
-  onGridApiReady?: (api: GridApi) => void;
   onTableSettingsClose?: () => void;
+  onGridApiReady?: (api: GridApi) => void;
 }
 
 const AttachmentRenderer: FC<Props> = ({
@@ -117,8 +117,8 @@ const AttachmentRenderer: FC<Props> = ({
   attachmentsConfig,
   isTableSettingsOpen,
   onTableSettingsOpen,
-  onGridApiReady,
   onTableSettingsClose,
+  onGridApiReady,
 }) => {
   const [selectedAttachmentIndex, setSelectedAttachmentIndex] =
     useState<number>(0);

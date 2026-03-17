@@ -9,14 +9,13 @@ import {
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import { LimitMessages } from '@epam/statgpt-ui-components';
 import Filters from './Filters/Filters';
-import AttachmentRenderer from '../Attachments/AttachmentRenderer';
+import { AdvancedAttachmentRenderer } from './AdvancedAttachmentRenderer';
 import { Filter, FiltersProps } from '../../models/filters';
 import { FC, useEffect } from 'react';
 import { AdvancedViewActions } from '../../models/actions';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import { ConversationViewTitles } from '../../models/titles';
 import { AttachmentsConfig } from '../../models/attachments';
-import { GridApi } from 'ag-grid-community';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -38,10 +37,6 @@ interface Props {
     constraints: DataConstraints[],
     modalFilters?: Filter[],
   ) => void;
-  isTableSettingsOpen?: boolean;
-  onTableSettingsOpen?: () => void;
-  onGridApiReady?: (api: GridApi) => void;
-  onTableSettingsClose?: () => void;
 }
 
 const DataDetails: FC<Props> = ({
@@ -60,10 +55,6 @@ const DataDetails: FC<Props> = ({
   attachmentsConfig,
   filters,
   onFiltersChange,
-  isTableSettingsOpen,
-  onTableSettingsOpen,
-  onGridApiReady,
-  onTableSettingsClose,
 }) => {
   const constraintAction = {
     getConstraints: actions.getConstraints,
@@ -95,7 +86,7 @@ const DataDetails: FC<Props> = ({
             />
           </div>
           <div className="advanced-view-attachments-container flex-1 min-h-0">
-            <AttachmentRenderer
+            <AdvancedAttachmentRenderer
               titles={titles}
               attachments={attachments}
               attachmentsStyles={attachmentsStyles}
@@ -109,10 +100,6 @@ const DataDetails: FC<Props> = ({
               filters={filters}
               limitMessages={limitMessages}
               attachmentsConfig={attachmentsConfig}
-              isTableSettingsOpen={isTableSettingsOpen}
-              onTableSettingsOpen={onTableSettingsOpen}
-              onGridApiReady={onGridApiReady}
-              onTableSettingsClose={onTableSettingsClose}
             />
           </div>
         </div>

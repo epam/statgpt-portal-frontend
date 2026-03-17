@@ -11,6 +11,8 @@ export function useAgGridColumnPreferences({
   currentUrn: string;
 }) {
   const [gridApi, setGridApi] = useState<GridApi>();
+  const [initialColumnsState, setInitialColumnsState] =
+    useState<AgGridInitialColumnsState | null>(null);
 
   const columnsInitialStateByUrnRef = useRef(
     new Map<string, AgGridInitialColumnsState>(),
@@ -24,9 +26,12 @@ export function useAgGridColumnPreferences({
       setGridApi(api);
 
       if (!columnsInitialStateByUrnRef.current.has(currentUrn)) {
-        columnsInitialStateByUrnRef.current.set(
-          currentUrn,
-          captureInitialColumnsState(api),
+        const captured = captureInitialColumnsState(api);
+        columnsInitialStateByUrnRef.current.set(currentUrn, captured);
+        setInitialColumnsState(captured);
+      } else if (initialColumnsState == null) {
+        setInitialColumnsState(
+          columnsInitialStateByUrnRef.current.get(currentUrn) ?? null,
         );
       }
 
@@ -42,10 +47,11 @@ export function useAgGridColumnPreferences({
     [currentUrn],
   );
 
-  const initialColumnsState = useMemo(
-    () => columnsInitialStateByUrnRef.current.get(currentUrn) ?? null,
-    [currentUrn],
-  );
+  useEffect(() => {
+    setInitialColumnsState(
+      columnsInitialStateByUrnRef.current.get(currentUrn) ?? null,
+    );
+  }, [currentUrn]);
 
   useEffect(() => {
     if (!gridApi) {
