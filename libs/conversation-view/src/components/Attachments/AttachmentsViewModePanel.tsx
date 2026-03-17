@@ -51,6 +51,11 @@ const AttachmentsViewModePanel: FC<Props> = ({
   isTableSettingsOpen,
   onTableSettingsOpen,
 }) => {
+  const shouldShowColumnsButton =
+    !showAdvancedView &&
+    !!onTableSettingsOpen &&
+    !!(selectedAttachment && isCustomGridAttachment(selectedAttachment));
+
   return (
     <div className="flex min-w-0 w-full justify-between itms-center">
       <AttachmentTabs
@@ -73,19 +78,16 @@ const AttachmentsViewModePanel: FC<Props> = ({
               />
             </a>
           )}
-        {!showAdvancedView &&
-          !!onTableSettingsOpen &&
-          selectedAttachment &&
-          isCustomGridAttachment(selectedAttachment) && (
-            <Button
-              disabled={isTableSettingsOpen}
-              buttonClassName="text-button-tertiary !p-0 !h-6"
-              textClassName="ml-1"
-              iconBefore={<ColumnsIcon className="size-4" />}
-              title={attachmentsStyles?.columnsTitle || 'Columns'}
-              onClick={onTableSettingsOpen}
-            />
-          )}
+        {shouldShowColumnsButton && (
+          <Button
+            disabled={isTableSettingsOpen}
+            buttonClassName="text-button-tertiary !p-0 !h-6"
+            textClassName="ml-1"
+            iconBefore={<ColumnsIcon className="size-4" />}
+            title={attachmentsStyles?.columnsTitle || 'Columns'}
+            onClick={onTableSettingsOpen}
+          />
+        )}
         {selectedAttachment && isCustomGridAttachment(selectedAttachment) && (
           <Button
             title={attachmentsStyles?.downloadTitle || 'Download'}
