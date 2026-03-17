@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GridApi } from 'ag-grid-community';
 import type { AgGridInitialColumnsState } from './types';
 import { captureInitialColumnsState } from './helpers';
+import { useAgGridColumnGridListeners } from './useAgGridColumnGridListeners';
 
 export function useAgGridColumnPreferences({
   currentUrn,
@@ -53,37 +54,18 @@ export function useAgGridColumnPreferences({
     );
   }, [currentUrn]);
 
-  useEffect(() => {
+  const persistUserState = useCallback(() => {
     if (!gridApi) {
       return;
     }
 
-    const urnForThisGrid = currentUrn;
-    const listener = () => {
-      columnsUserStateByUrnRef.current.set(
-        urnForThisGrid,
-        captureInitialColumnsState(gridApi),
-      );
-    };
+    columnsUserStateByUrnRef.current.set(
+      currentUrn,
+      captureInitialColumnsState(gridApi),
+    );
+  }, [currentUrn, gridApi]);
 
-    gridApi.addEventListener('columnVisible', listener);
-    gridApi.addEventListener('columnMoved', listener);
-    gridApi.addEventListener('displayedColumnsChanged', listener);
-    gridApi.addEventListener('newColumnsLoaded', listener);
-    gridApi.addEventListener('gridColumnsChanged', listener);
-    gridApi.addEventListener('columnPinned', listener);
-    gridApi.addEventListener('columnResized', listener);
-
-    return () => {
-      gridApi.removeEventListener('columnVisible', listener);
-      gridApi.removeEventListener('columnMoved', listener);
-      gridApi.removeEventListener('displayedColumnsChanged', listener);
-      gridApi.removeEventListener('newColumnsLoaded', listener);
-      gridApi.removeEventListener('gridColumnsChanged', listener);
-      gridApi.removeEventListener('columnPinned', listener);
-      gridApi.removeEventListener('columnResized', listener);
-    };
-  }, [gridApi, currentUrn]);
+  useAgGridColumnGridListeners(gridApi, persistUserState);
 
   return {
     gridApi,

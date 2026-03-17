@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   filterDraggableListNodes,
   type DraggableListNode,
@@ -17,6 +17,7 @@ import {
   mergeIncludedOrderIntoFullOrder,
 } from './helpers';
 import { GridApi } from 'ag-grid-community';
+import { useAgGridColumnGridListeners } from './useAgGridColumnGridListeners';
 
 export function useAgGridColumnsPanel({
   api,
@@ -33,29 +34,7 @@ export function useAgGridColumnsPanel({
     setGridStateVersion((value) => value + 1);
   }, []);
 
-  useEffect(() => {
-    if (!api) {
-      return;
-    }
-
-    const listener = syncFromGrid;
-
-    api.addEventListener('columnVisible', listener);
-    api.addEventListener('columnMoved', listener);
-    api.addEventListener('displayedColumnsChanged', listener);
-    api.addEventListener('newColumnsLoaded', listener);
-    api.addEventListener('gridColumnsChanged', listener);
-    api.addEventListener('columnPinned', listener);
-
-    return () => {
-      api.removeEventListener('columnVisible', listener);
-      api.removeEventListener('columnMoved', listener);
-      api.removeEventListener('displayedColumnsChanged', listener);
-      api.removeEventListener('newColumnsLoaded', listener);
-      api.removeEventListener('gridColumnsChanged', listener);
-      api.removeEventListener('columnPinned', listener);
-    };
-  }, [api, syncFromGrid]);
+  useAgGridColumnGridListeners(api, syncFromGrid);
 
   const items = useMemo(() => {
     if (!api) {
