@@ -1,6 +1,6 @@
 import { GridAttachmentContent } from '@epam/statgpt-dial-toolkit';
 import { ApiResponse } from '@epam/statgpt-shared-toolkit';
-import { apiRequest, apiRequestBlob } from '../api-client';
+import { apiRequest, apiRequestBlob, apiRequestVoid } from '../api-client';
 
 const FILES_API_ENDPOINT = '/api/files';
 
@@ -19,5 +19,17 @@ export async function getFileBlobApi(
   return apiRequestBlob(
     `${FILES_API_ENDPOINT}/${encodeURIComponent(filePath)}/blob`,
     'Failed to fetch file blob',
+  );
+}
+
+export async function deleteFileApi(
+  filePath: string,
+): Promise<ApiResponse<void>> {
+  return apiRequestVoid(
+    `${FILES_API_ENDPOINT}/${encodeURIComponent(filePath)}`,
+    'Failed to delete file',
+    {
+      method: 'DELETE',
+    },
   );
 }

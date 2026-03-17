@@ -36,3 +36,33 @@ export const GET = withAuth(
     }
   },
 );
+
+export const DELETE = withAuth(
+  async (
+    _req: NextRequest,
+    { token }: AuthParams,
+    context: { params: Promise<{ path: string }> },
+  ) => {
+    try {
+      const params = await context.params;
+      const path = params.path;
+
+      if (!path) {
+        return NextResponse.json(
+          { error: 'file path is required' },
+          { status: 400 },
+        );
+      }
+
+      await conversationApi.deleteFile(path, token.access_token as string);
+
+      return NextResponse.json({ success: true });
+    } catch (error) {
+      apiLogger.error('Files API error:', error);
+      return NextResponse.json(
+        { error: 'Failed to delete file' },
+        { status: 500 },
+      );
+    }
+  },
+);
