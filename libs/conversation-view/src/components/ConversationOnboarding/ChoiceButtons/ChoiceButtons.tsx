@@ -1,5 +1,6 @@
 'use client';
 
+import classNames from 'classnames';
 import { FC } from 'react';
 import {
   DialSchemaProperties,
@@ -9,15 +10,27 @@ import { CUSTOM_CHOICE_ID } from '../../../constants/custom-content-properties';
 
 interface Props {
   choiceButtons: FormSchemaButtonOption[];
+  disabled?: boolean;
   onClick: (message?: string, choiceId?: string) => void;
 }
 
-export const ChoiceButtons: FC<Props> = ({ choiceButtons, onClick }) => {
+export const ChoiceButtons: FC<Props> = ({
+  choiceButtons,
+  disabled,
+  onClick,
+}) => {
+  const choiceButtonClassName = classNames(
+    'flex w-full min-h-[72px] flex-col items-start justify-center rounded border px-4 py-2 text-left',
+    'border-hues-200 hover:bg-hues-100',
+    'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent',
+  );
+
   return choiceButtons.map((item) => (
     <div className="mt-4" key={item.title}>
       <button
         type="button"
-        className="flex flex-col items-start justify-center text-left w-full rounded border-hues-200 hover:bg-hues-100 min-h-[72px] border px-4 py-2"
+        className={choiceButtonClassName}
+        disabled={disabled}
         onClick={() =>
           onClick(
             item[DialSchemaProperties.DialWidgetOptions]?.populateText,

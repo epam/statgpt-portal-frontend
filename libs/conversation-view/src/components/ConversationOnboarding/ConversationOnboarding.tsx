@@ -10,6 +10,7 @@ interface Props {
   titles?: ConversationViewTitles;
   messageContent: string;
   choiceButtons: FormSchemaButtonOption[];
+  disabled?: boolean;
   onClick: (message?: string, choiceId?: string) => void;
   handleOnboardingSkip?: (isSkippedOnboarding?: boolean) => void;
 }
@@ -18,6 +19,7 @@ export const ConversationOnboarding: FC<Props> = ({
   titles,
   messageContent,
   choiceButtons,
+  disabled,
   onClick,
   handleOnboardingSkip,
 }) => {
@@ -33,18 +35,24 @@ export const ConversationOnboarding: FC<Props> = ({
       <div className="onboarding-content flex flex-col">
         <MessageContent content={messageContent} />
         <div className="mt-4">
-          <ChoiceButtons choiceButtons={choiceButtons} onClick={onClick} />
+          <ChoiceButtons
+            choiceButtons={choiceButtons}
+            disabled={disabled}
+            onClick={onClick}
+          />
         </div>
         <div className="flex mt-8">
           <Button
             title={titles?.skipOnboardingNow}
             buttonClassName="text-button-secondary mr-4"
+            disabled={disabled}
             onClick={() => handleOnboardingSkip?.()}
             isSmallButton={true}
           />
           <Button
             title={titles?.refuseOnboarding}
             buttonClassName="text-button-tertiary"
+            disabled={disabled}
             onClick={() => handleOnboardingSkip?.(true)}
             isSmallButton={true}
           />
