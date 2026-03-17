@@ -1,6 +1,7 @@
 import { Attachment, Conversation } from '@epam/ai-dial-shared';
 import JSZip from 'jszip';
 import { omit, uniqBy } from 'lodash';
+import { getConversationAttachments } from '@epam/statgpt-shared-toolkit';
 
 interface DialFile {
   folderId: string;
@@ -11,24 +12,13 @@ interface DialFile {
 }
 
 export const getAttachments = (conversation: Conversation) => {
-  const allAttachments =
-    conversation.messages.flatMap((message) => {
-      const messageAttachments = message.custom_content?.attachments || [];
-      const stagesAttachments =
-        message.custom_content?.stages?.flatMap(
-          ({ attachments }) => attachments ?? [],
-        ) || [];
-
-      return [...messageAttachments, ...stagesAttachments];
-    }) || [];
-
-  const attachments = getDialFilesFromAttachments(allAttachments).map(
-    (file) => ({
-      ...file,
-      relativePath: '',
-      contentLength: 0,
-    }),
-  );
+  const attachments = getDialFilesFromAttachments(
+    getConversationAttachments(conversation),
+  ).map((file) => ({
+    ...file,
+    relativePath: '',
+    contentLength: 0,
+  }));
 
   return uniqBy(attachments, (file) =>
     constructPath(file.relativePath, file.name),

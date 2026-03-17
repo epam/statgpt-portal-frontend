@@ -27,7 +27,6 @@ import SignOut from '../../../public/images/sign-out.svg';
 import { SHARE_CONVERSATION_PROPS } from '../../constants/share-conversation';
 import { getFileBlobApi } from '../../app/api/files/client';
 import {
-  deleteConversationApi,
   getConversationsApi,
   getConversationApi,
 } from '../../app/api/conversations/client';
@@ -58,6 +57,7 @@ import { wrapWithAuthHandler } from '../../utils/auth/requests-wrapper';
 import { signOut, useSession } from 'next-auth/react';
 import { ConversationInfo } from '@epam/ai-dial-shared';
 import { renameConversationAndSyncContent as renameConversationAndSyncContentFlow } from '../../utils/conversation/rename-conversation-and-sync-content';
+import { deleteConversationAndAttachments } from '../../utils/conversation/delete-conversation-and-attachments';
 
 const ConversationListWrapper = () => {
   const t = useI18n();
@@ -91,7 +91,7 @@ const ConversationListWrapper = () => {
     () => ({
       getConversations: authHandler(getConversationsApi),
       getSharedConversations: authHandler(getSharedConversationsApi),
-      deleteConversation: authHandler(deleteConversationApi),
+      deleteConversation: authHandler(deleteConversationAndAttachments),
       getConversation: authHandler(getConversationApi),
       getFileBlob: authHandler(getFileBlobApi),
       renameConversation: authHandler(
