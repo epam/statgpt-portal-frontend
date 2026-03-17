@@ -1,4 +1,3 @@
-import { AttachmentType } from '@epam/statgpt-dial-toolkit';
 import {
   DataConstraints,
   Dataflow,
@@ -30,7 +29,7 @@ import {
   GetDatasetDetails,
   PutOnboardingFile,
 } from '../types/actions';
-import { buildGridData } from '../utils/attachments/data-grid/data-grid';
+import { buildCustomGridAttachment } from '../utils/attachments/data-grid/build-custom-grid-attachment';
 import { getTimeQueryFilterFromAttachment } from '../utils/query-filters';
 import { buildChartData } from '../utils/attachments/charting/chart-data';
 import { ChartingStyles } from '../models/attachments-styles';
@@ -38,13 +37,15 @@ import { MetadataSettings } from '../models/metadata';
 import { ConversationViewTitles } from '../models/titles';
 import { Filter } from '../models/filters';
 import { Attachment } from '@epam/ai-dial-shared';
-import { unwrapMarkdownCode } from '../utils/attachments/unwrap-markdown-code';
+import { buildMarkdownAttachments } from '../utils/attachments/markdown-attachments';
 import {
   buildRequestCacheKey,
   getCachedRequestResult,
 } from '../utils/request-cache';
-
-const ALLOWED_CODE_SAMPLE_LANGUAGES = ['python'];
+import {
+  createInitialGridAttachment,
+  createInitialChartAttachment,
+} from '../constants/attachments';
 
 export function useAttachmentsData(
   actions: {
@@ -68,15 +69,13 @@ export function useAttachmentsData(
   const [constraints, setConstraints] = useState<DataConstraints[]>();
   const [structures, setStructures] = useState<StructuralData | undefined>();
   const [customGridAttachment, setCustomGridAttachment] =
-    useState<CustomGridAttachment>({
-      title: titles?.dataGrid || 'Data Grid',
-      type: AttachmentType.CUSTOM_DATA_GRID,
-    });
+    useState<CustomGridAttachment>(
+      createInitialGridAttachment(titles?.dataGrid),
+    );
   const [customChartAttachment, setCustomChartAttachment] =
-    useState<CustomChartAttachmentType>({
-      title: titles?.chart || 'Chart',
-      type: AttachmentType.CUSTOM_CHART,
-    });
+    useState<CustomChartAttachmentType>(
+      createInitialChartAttachment(titles?.chart),
+    );
   const [codeAttachments, setCodeAttachments] = useState<
     CustomCodeAttachment[]
   >([]);
@@ -234,25 +233,21 @@ export function useAttachmentsData(
 
   useEffect(() => {
     if (structures != null && dataMessage != null && constraints?.length) {
-      const dataSetName = structures.dataflows?.[0]?.names?.[locale];
-      const gridData = buildGridData(
-        structures,
-        dataMessage,
-        dataQuery,
-        locale,
-        formattingSettings,
-        metadataSettings,
-        chartStyles,
-        titles,
-        putOnboardingFile,
-        constraints,
-        selectedTimePeriod,
-      );
-
       setCustomGridAttachment((prev) => ({
         ...prev,
-        title: dataSetName || titles?.dataGrid || 'Data Grid',
-        grid_data: gridData,
+        ...buildCustomGridAttachment(
+          structures,
+          dataMessage,
+          dataQuery,
+          locale,
+          formattingSettings,
+          metadataSettings,
+          chartStyles,
+          titles,
+          putOnboardingFile,
+          constraints,
+          selectedTimePeriod,
+        ),
       }));
     }
   }, [
@@ -271,44 +266,28 @@ export function useAttachmentsData(
 
   useEffect(() => {
     if (structures != null && dataMessage != null) {
-      setCustomChartAttachment((prev) => {
-        const chD = buildChartData(
+      setCustomChartAttachment((prev) => ({
+        ...prev,
+        charting_data: buildChartData(
           structures,
           dataMessage,
           dataQuery,
           locale,
           chartStyles,
-        );
-
-        return {
-          ...prev,
-          charting_data: chD,
-        };
-      });
+        ),
+      }));
     }
   }, [structures, dataMessage, dataQuery, locale, chartStyles]);
 
   useEffect(() => {
     if (rawAttachments?.length) {
-      const urn = dataQuery?.urn;
-
-      const mdParsedAttachments = rawAttachments
-        .filter((a) => a.type === AttachmentType.MARKDOWN)
-        .filter((a) => !urn || a.title?.includes(urn))
-        .map((a) => {
-          const parsed = unwrapMarkdownCode(a.data ?? '');
-          return {
-            title: titles?.codeSamples ?? 'Code samples',
-            type: AttachmentType.CUSTOM_CODE_SAMPLE,
-            language: parsed.language,
-            data: parsed.code,
-          } as CustomCodeAttachment;
-        })
-        .filter((a) =>
-          ALLOWED_CODE_SAMPLE_LANGUAGES.includes(a.language ?? ''),
-        );
-
-      setCodeAttachments(mdParsedAttachments);
+      setCodeAttachments(
+        buildMarkdownAttachments(
+          rawAttachments,
+          dataQuery?.urn,
+          titles?.codeSamples,
+        ),
+      );
     }
   }, [rawAttachments, titles, dataQuery]);
 

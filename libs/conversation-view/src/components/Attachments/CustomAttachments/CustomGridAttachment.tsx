@@ -2,7 +2,6 @@
 
 import { CustomGridAttachment } from '../../../models/attachments';
 import { FC, useEffect, useMemo, useRef, useState } from 'react';
-import classNames from 'classnames';
 import { Loader, SERIES_LIMIT } from '@epam/statgpt-ui-components';
 import type { ColDef } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
@@ -25,11 +24,12 @@ import { Tooltip } from '../../Tooltip/Tooltip';
 import { OnboardingElements } from '../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../context/OnboardingContext';
 import { OnboardingFileSchema } from '@epam/statgpt-shared-toolkit';
+import GridContainer from './GridContainer';
 
 interface Props {
   attachment: CustomGridAttachment;
   isDataLoading?: boolean;
-  chartColumn?: boolean;
+  isChartColumnVisible?: boolean;
   fixHeight?: boolean;
   titles?: ConversationViewTitles;
   showLimitMessage?: (p: boolean) => void;
@@ -38,7 +38,7 @@ interface Props {
 const CustomDataGridAttachment: FC<Props> = ({
   attachment,
   isDataLoading,
-  chartColumn,
+  isChartColumnVisible,
   fixHeight,
   titles,
   showLimitMessage,
@@ -61,7 +61,7 @@ const CustomDataGridAttachment: FC<Props> = ({
     } else {
       const columns = attachment.grid_data.columns.map((col) => {
         if (col.colId === CHART_COLUMN_ID) {
-          return { ...col, hide: !chartColumn };
+          return { ...col, hide: !isChartColumnVisible };
         }
         return col;
       });
@@ -69,7 +69,7 @@ const CustomDataGridAttachment: FC<Props> = ({
       setColumnDefs(columns);
       setIsLoading(false);
     }
-  }, [attachment.grid_data, chartColumn]);
+  }, [attachment.grid_data, isChartColumnVisible]);
 
   useEffect(() => {
     if (rowData) {
@@ -154,16 +154,13 @@ const CustomDataGridAttachment: FC<Props> = ({
 
   return (
     <div className="w-full h-full">
-      <div
+      <GridContainer
         ref={gridRef}
-        className={classNames(
-          'ag-theme-quartz w-full min-h-[80px]',
-          fixHeight ? 'max-h-[400px]' : 'max-h-full',
-        )}
-        style={{ height: gridHeight }}
+        fixHeight={fixHeight}
+        gridHeight={gridHeight}
       >
         {memoizedGrid}
-      </div>
+      </GridContainer>
       {isTooltipVisible && (
         <Tooltip
           reference={gridRef}
