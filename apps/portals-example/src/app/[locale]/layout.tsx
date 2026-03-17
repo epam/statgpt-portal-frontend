@@ -23,6 +23,7 @@ import { TextsConfig } from '../../components/configs/TextsConfig/TextsConfig';
 import { ClientProvidersWrapper } from '../../components/ClientProvidersWrapper/ClientProvidersWrapper';
 import { getDatasetsMetadata } from '../actions/datasets-metadata';
 import { buildDatasetDimensionsMetadataMap } from '@epam/statgpt-sdmx-toolkit';
+import { CrossDatasetModeProvider } from '../../../../../libs/conversation-view/src/context/CrossDatasetModeContext';
 
 export default async function LocaleLayout({
   children,
@@ -64,6 +65,7 @@ export default async function LocaleLayout({
   }
 
   const clientContactSupportUrl = process.env.CLIENT_CONTACT_SUPPORT_URL;
+  const isCrossDatasetModeOn = !!process.env.CROSS_DATASET_MODE;
 
   const metadata = await getDatasetsMetadata();
   const datasetDimensionsMetadataMap = metadata.data
@@ -77,21 +79,23 @@ export default async function LocaleLayout({
 
     return (
       <DeploymentConfigProvider config={configuration.data}>
-        <ClientProvidersWrapper
-          isAgentAvailable={configuration.success}
-          datasetDimensionsMetadataMap={datasetDimensionsMetadataMap}
-        >
-          <OnboardingProvider>
-            <AdvancedViewProvider>
-              <ConversationListProvider>
-                <ChatMessagesProvider>
-                  <ConversationListWrapper />
-                  <main className="flex-1 h-full min-w-0">{children}</main>
-                </ChatMessagesProvider>
-              </ConversationListProvider>
-            </AdvancedViewProvider>
-          </OnboardingProvider>
-        </ClientProvidersWrapper>
+        <CrossDatasetModeProvider isCrossDatasetModeOn={isCrossDatasetModeOn}>
+          <ClientProvidersWrapper
+            isAgentAvailable={configuration.success}
+            datasetDimensionsMetadataMap={datasetDimensionsMetadataMap}
+          >
+            <OnboardingProvider>
+              <AdvancedViewProvider>
+                <ConversationListProvider>
+                  <ChatMessagesProvider>
+                    <ConversationListWrapper />
+                    <main className="flex-1 h-full min-w-0">{children}</main>
+                  </ChatMessagesProvider>
+                </ConversationListProvider>
+              </AdvancedViewProvider>
+            </OnboardingProvider>
+          </ClientProvidersWrapper>
+        </CrossDatasetModeProvider>
       </DeploymentConfigProvider>
     );
   };
