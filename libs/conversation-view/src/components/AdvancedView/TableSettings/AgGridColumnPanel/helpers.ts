@@ -5,8 +5,8 @@ import type {
 } from '@epam/statgpt-ui-components';
 import type { AgGridInitialColumnsState, ColumnPanelFilter } from './types';
 
-export const DEFAULT_INCLUDE_COLUMN: ColumnPanelFilter = ({ label }) =>
-  Boolean(label.trim());
+export const DEFAULT_INCLUDE_COLUMN: ColumnPanelFilter = ({ label, colDef }) =>
+  Boolean(label.trim()) && !colDef.suppressColumnsToolPanel;
 
 export function getColId(def: ColDef): string | null {
   return def.colId ?? def.field ?? null;
