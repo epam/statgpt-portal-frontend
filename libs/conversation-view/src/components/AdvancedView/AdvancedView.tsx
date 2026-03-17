@@ -238,6 +238,8 @@ const AdvancedViewInternal: FC<Props> = ({
                     onClose={closeTableSettingsHandler}
                     gridApi={gridApi}
                     initialColumnsState={initialColumnsState}
+                    title={attachmentsProps.styles?.columnsTitle}
+                    resetTitle={attachmentsProps.styles?.columnsResetTitle}
                   />
                 )}
               </div>
