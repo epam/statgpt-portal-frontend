@@ -2,8 +2,8 @@ import { IconRotate, IconX } from '@tabler/icons-react';
 import { useCallback } from 'react';
 import { GridApi } from 'ag-grid-community';
 import { AgGridColumnsPanel } from './AgGridColumnPanel/AgGridColumnsPanel';
-import { useAgGridColumnsReset } from './AgGridColumnPanel/useAgGridColumnsReset';
 import type { AgGridInitialColumnsState } from './AgGridColumnPanel/types';
+import { restoreInitialColumnsState } from './AgGridColumnPanel/helpers';
 
 export const TableSettingsPanel = ({
   onClose,
@@ -18,7 +18,13 @@ export const TableSettingsPanel = ({
   title?: string;
   resetTitle?: string;
 }) => {
-  const { resetColumns } = useAgGridColumnsReset(gridApi, initialColumnsState);
+  const resetColumns = useCallback(() => {
+    if (!gridApi) {
+      return;
+    }
+
+    restoreInitialColumnsState(gridApi, initialColumnsState);
+  }, [gridApi, initialColumnsState]);
 
   const closeHandler = useCallback(() => {
     onClose?.();

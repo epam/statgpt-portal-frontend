@@ -16,7 +16,6 @@ type TableSettingsState = {
   isOpen: boolean;
   open: () => void;
   close: () => void;
-  toggle: () => void;
 };
 
 type TableSettingsContextValue = {
@@ -43,17 +42,16 @@ export function TableSettingsProvider({
 
   const open = useCallback(() => setIsOpen(true), []);
   const close = useCallback(() => setIsOpen(false), []);
-  const toggle = useCallback(() => setIsOpen((v) => !v), []);
 
   const { gridApi, onGridApiReady, initialColumnsState } =
     useAgGridColumnPreferences({ currentUrn });
 
   const value = useMemo<TableSettingsContextValue>(
     () => ({
-      tableSettings: { isOpen, open, close, toggle },
+      tableSettings: { isOpen, open, close },
       agGrid: { gridApi, onGridApiReady, initialColumnsState },
     }),
-    [gridApi, initialColumnsState, isOpen, onGridApiReady, open, close, toggle],
+    [gridApi, initialColumnsState, isOpen, onGridApiReady, open, close],
   );
 
   return (
