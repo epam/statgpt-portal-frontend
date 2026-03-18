@@ -25,11 +25,11 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { getExternalLink } from '../../utils/attachments-details';
 import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
-import { TableSettingsPanel } from './TableSettings/TableSettingsPanel';
+import { TableSettingsProvider } from './TableSettings/TableSettingsContext';
 import {
-  TableSettingsProvider,
-  useTableSettingsContext,
-} from './TableSettings/TableSettingsContext';
+  AdvancedViewSidePanelOutlet,
+  AdvancedViewSidePanelProvider,
+} from './SidePanel/AdvancedViewSidePanelContext';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -60,7 +60,9 @@ export const AdvancedView: FC<Props> = ({ attachmentsProps, ...props }) => {
 
   return (
     <TableSettingsProvider currentUrn={currentUrn}>
-      <AdvancedViewInternal attachmentsProps={attachmentsProps} {...props} />
+      <AdvancedViewSidePanelProvider>
+        <AdvancedViewInternal attachmentsProps={attachmentsProps} {...props} />
+      </AdvancedViewSidePanelProvider>
     </TableSettingsProvider>
   );
 };
@@ -82,14 +84,6 @@ const AdvancedViewInternal: FC<Props> = ({
   const lastMessageAttachments =
     props.filtersProps.conversation?.messages?.at(-1)?.custom_content
       ?.attachments;
-
-  const {
-    tableSettings: {
-      isOpen: isTableSettingsPanelOpened,
-      close: closeTableSettingsHandler,
-    },
-    agGrid: { gridApi, initialColumnsState },
-  } = useTableSettingsContext();
 
   const {
     dataMessage,
@@ -231,15 +225,7 @@ const AdvancedViewInternal: FC<Props> = ({
                     onFiltersChange={handleFiltersChange}
                   />
                 </div>
-                {isTableSettingsPanelOpened && (
-                  <TableSettingsPanel
-                    onClose={closeTableSettingsHandler}
-                    gridApi={gridApi}
-                    initialColumnsState={initialColumnsState}
-                    title={attachmentsProps.styles?.columnsTitle}
-                    resetTitle={attachmentsProps.styles?.columnsResetTitle}
-                  />
-                )}
+                <AdvancedViewSidePanelOutlet />
               </div>
             </>
           )}
