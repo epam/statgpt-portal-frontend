@@ -16,6 +16,8 @@ export type GetAttachmentContent = (
   fileId: string,
 ) => Promise<GridAttachmentContent | null>;
 
+export type GetAttachmentBlob = (fileId: string) => Promise<Blob>;
+
 export type GetDatasetDetails = (
   datasetId: string,
   references?: SdmxReferences,
@@ -55,3 +57,5 @@ export type PutOnboardingFile = (
   filePath: string,
   fileData: OnboardingFileSchema,
 ) => Promise<Entity | null>;
+
+export type PutFile = (filePath: string, file: Blob) => Promise<void>;

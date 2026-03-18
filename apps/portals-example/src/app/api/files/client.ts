@@ -1,6 +1,11 @@
 import { GridAttachmentContent } from '@epam/statgpt-dial-toolkit';
 import { ApiResponse } from '@epam/statgpt-shared-toolkit';
-import { apiRequest, apiRequestBlob, apiRequestVoid } from '../api-client';
+import {
+  apiRequest,
+  apiRequestBlob,
+  apiRequestVoid,
+  apiRequestVoidWithOptions,
+} from '../api-client';
 
 const FILES_API_ENDPOINT = '/api/files';
 
@@ -30,6 +35,25 @@ export async function deleteFileApi(
     'Failed to delete file',
     {
       method: 'DELETE',
+    },
+  );
+}
+
+export async function putFileApi(
+  filePath: string,
+  file: Blob,
+): Promise<ApiResponse<void>> {
+  const formData = new FormData();
+  const fileName = decodeURIComponent(filePath.split('/').at(-1) ?? 'file');
+
+  formData.append('attachment', file, fileName);
+
+  return apiRequestVoidWithOptions(
+    `${FILES_API_ENDPOINT}/${encodeURIComponent(filePath)}`,
+    'Failed to create file',
+    {
+      method: 'PUT',
+      body: formData,
     },
   );
 }
