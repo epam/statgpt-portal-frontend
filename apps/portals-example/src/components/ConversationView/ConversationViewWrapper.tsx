@@ -36,6 +36,7 @@ import {
   WelcomeI18nKeys,
 } from '../../constants/i18n-keys';
 import { getFileApi } from '../../app/api/files/client';
+import { getFileBlobApi, putFileApi } from '../../app/api/files/client';
 import { getConstraintsApi } from '../../app/api/constraints/client';
 import {
   getConversationApi,
@@ -229,7 +230,9 @@ const ConversationViewWrapper: FC<Props> = ({
       getConversations: authHandler(getConversationsApi),
       updateConversation: authHandler(updateConversationApi),
       getBucket: authHandler(getBucketApi),
+      getFileBlob: authHandler(getFileBlobApi),
       createConversation: authHandler(createConversationApi),
+      putFile: authHandler(putFileApi),
       rateResponse: authHandler(rateResponseApi),
       ...attachmentsActions,
     }),
