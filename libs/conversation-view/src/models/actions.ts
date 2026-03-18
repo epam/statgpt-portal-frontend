@@ -1,5 +1,6 @@
 import {
   GetAttachmentContent,
+  GetAttachmentBlob,
   GetBucket,
   GetDatasetData,
   GetDatasetDetails,
@@ -8,6 +9,7 @@ import {
   CreateConversation,
   RateResponse,
   PutOnboardingFile,
+  PutFile,
 } from '../types/actions';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import { Dataflow } from '@epam/statgpt-sdmx-toolkit';
@@ -32,8 +34,10 @@ export type ConversationViewActions = AttachmentsActions & {
   getConversation: GetConversation;
   getConversations: (locale: string) => Promise<ConversationInfo[]>;
   getBucket: GetBucket;
+  getFileBlob?: GetAttachmentBlob;
   updateConversation: UpdateConversation;
   createConversation: CreateConversation;
+  putFile?: PutFile;
   rateResponse: RateResponse;
 };
 
