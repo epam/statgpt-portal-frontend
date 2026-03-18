@@ -4,7 +4,7 @@ import { FC, useCallback } from 'react';
 import AttachmentRenderer from '../Attachments/AttachmentRenderer';
 import type { ComponentProps } from 'react';
 import { useTableSettingsContext } from './TableSettings/TableSettingsContext';
-import { useAdvancedViewSidePanel } from './SidePanel/AdvancedViewSidePanelContext';
+import { useConversationViewSidePanel } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import {
   TABLE_SETTINGS_SIDE_PANEL_ID,
   TableSettingsPanelHeaderExtension,
@@ -18,11 +18,12 @@ export const AdvancedAttachmentRenderer: FC<AttachmentRendererProps> = ({
   ...props
 }) => {
   const { onGridApiReady } = useTableSettingsContext();
-  const { openPanel, closePanel, isPanelOpen } = useAdvancedViewSidePanel();
+  const { openPanel, closePanel, isPanelOpen } = useConversationViewSidePanel();
 
   const openTableSettingsPanel = useCallback(() => {
     openPanel({
       id: TABLE_SETTINGS_SIDE_PANEL_ID,
+      scope: 'advanced',
       title: attachmentsStyles?.columnsTitle || 'Columns',
       headerExtension: (
         <TableSettingsPanelHeaderExtension

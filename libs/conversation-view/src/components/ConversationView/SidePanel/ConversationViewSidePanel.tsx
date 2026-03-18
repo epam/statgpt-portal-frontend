@@ -4,7 +4,7 @@ import { IconX } from '@tabler/icons-react';
 import classNames from 'classnames';
 import { ReactNode } from 'react';
 
-export function AdvancedViewSidePanel({
+export function ConversationViewSidePanel({
   title,
   headerExtension,
   onClose,

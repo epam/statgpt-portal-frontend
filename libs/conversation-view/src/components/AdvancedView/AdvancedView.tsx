@@ -26,10 +26,8 @@ import {
 import { getExternalLink } from '../../utils/attachments-details';
 import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
 import { TableSettingsProvider } from './TableSettings/TableSettingsContext';
-import {
-  AdvancedViewSidePanelOutlet,
-  AdvancedViewSidePanelProvider,
-} from './SidePanel/AdvancedViewSidePanelContext';
+import { useAdvancedView } from '../../context/AdvancedViewContext';
+import { ConversationViewSidePanelOutlet } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -60,9 +58,7 @@ export const AdvancedView: FC<Props> = ({ attachmentsProps, ...props }) => {
 
   return (
     <TableSettingsProvider currentUrn={currentUrn}>
-      <AdvancedViewSidePanelProvider>
-        <AdvancedViewInternal attachmentsProps={attachmentsProps} {...props} />
-      </AdvancedViewSidePanelProvider>
+      <AdvancedViewInternal attachmentsProps={attachmentsProps} {...props} />
     </TableSettingsProvider>
   );
 };
@@ -81,6 +77,8 @@ const AdvancedViewInternal: FC<Props> = ({
   datasetInfoOptions,
   ...props
 }) => {
+  const { isOpenedAdvancedView } = useAdvancedView();
+
   const lastMessageAttachments =
     props.filtersProps.conversation?.messages?.at(-1)?.custom_content
       ?.attachments;
@@ -225,7 +223,9 @@ const AdvancedViewInternal: FC<Props> = ({
                     onFiltersChange={handleFiltersChange}
                   />
                 </div>
-                <AdvancedViewSidePanelOutlet />
+                {isOpenedAdvancedView && (
+                  <ConversationViewSidePanelOutlet scope="advanced" />
+                )}
               </div>
             </>
           )}
