@@ -439,6 +439,7 @@ const ConversationViewWrapper: FC<Props> = ({
               },
               resetIcon: <Reset />,
             },
+            datasetIcon: <Dataset />,
             timeRangeOptions,
             conversation,
             conversationKey,

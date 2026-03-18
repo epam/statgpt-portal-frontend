@@ -216,12 +216,14 @@ const AdvancedViewInternal: FC<Props> = ({
                       ...props?.filtersProps,
                       structureDimensions,
                       structures,
-                      dimensionsMap,
-                      structureDimensionsMap,
-                      structuresMap,
+                      structureDataMaps: {
+                        dimensionsMap,
+                        structuresMap,
+                        structureDimensionsMap,
+                        constraintsMap,
+                      },
                       onFiltersChange,
                       initialConstraints: constraints,
-                      initialConstraintsMap: constraintsMap,
                     }}
                     setIsFiltering={setIsFiltering}
                     attachmentsConfig={attachmentsConfig}

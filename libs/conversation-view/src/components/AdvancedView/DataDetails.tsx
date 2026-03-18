@@ -16,6 +16,8 @@ import { AdvancedViewActions } from '../../models/actions';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import { ConversationViewTitles } from '../../models/titles';
 import { AttachmentsConfig } from '../../models/attachments';
+import MultiDatasetFilters from './MultiDatasetFilters/MultiDatasetFilters';
+import { useCrossDatasetMode } from '../../context/CrossDatasetModeContext';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -59,6 +61,7 @@ const DataDetails: FC<Props> = ({
   const constraintAction = {
     getConstraints: actions.getConstraints,
   };
+  const { isCrossDatasetModeOn } = useCrossDatasetMode();
 
   useEffect(() => {
     if (!isDataLoading) {
@@ -71,18 +74,33 @@ const DataDetails: FC<Props> = ({
       <div className="flex flex-col gap-4 h-full overflow-x-hidden">
         <div className="data-details-header flex justify-between items-center">
           <h2>{titles?.content ?? 'Content'}</h2>
-          <Filters
-            attachmentsDataQuery={attachmentsDataQuery}
-            dataQueries={dataQueries}
-            updateDataQueries={actions?.updateDataQueries}
-            locale={locale}
-            actions={constraintAction}
-            dimensions={dimensions}
-            titles={titles}
-            {...filtersProps}
-            onFiltersChange={onFiltersChange}
-            limitMessages={limitMessages}
-          />
+          {isCrossDatasetModeOn ? (
+            <MultiDatasetFilters
+              attachmentsDataQuery={attachmentsDataQuery}
+              dataQueries={dataQueries}
+              updateDataQueries={actions?.updateDataQueries}
+              locale={locale}
+              actions={constraintAction}
+              dimensions={dimensions}
+              titles={titles}
+              {...filtersProps}
+              onFiltersChange={onFiltersChange}
+              limitMessages={limitMessages}
+            />
+          ) : (
+            <Filters
+              attachmentsDataQuery={attachmentsDataQuery}
+              dataQueries={dataQueries}
+              updateDataQueries={actions?.updateDataQueries}
+              locale={locale}
+              actions={constraintAction}
+              dimensions={dimensions}
+              titles={titles}
+              {...filtersProps}
+              onFiltersChange={onFiltersChange}
+              limitMessages={limitMessages}
+            />
+          )}
         </div>
         <div className="advanced-view-attachments-container flex-1 min-h-0">
           <AdvancedAttachmentRenderer

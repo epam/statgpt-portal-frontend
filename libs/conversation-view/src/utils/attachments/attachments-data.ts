@@ -18,7 +18,7 @@ import {
   GetDatasetDetails,
 } from '../../types/actions';
 import { getTimeQueryFilterFromAttachment } from '../query-filters';
-import { DatasetData, StructureData } from '../../models/structure-data';
+import { DatasetData, StructureDataMaps } from '../../models/structure-data';
 
 export const getDataConstraintsMap = async (
   dataQueries: DataQuery[],
@@ -37,7 +37,7 @@ export const getDataConstraintsMap = async (
   return constraintsMap;
 };
 
-const initStructureData = (): StructureData => ({
+const initStructureDataMaps = (): StructureDataMaps => ({
   datasetsMap: new Map<string, Dataflow>(),
   dataMessagesMap: new Map<string, DataMessage>(),
   structuresMap: new Map<string, StructuralData>(),
@@ -45,25 +45,25 @@ const initStructureData = (): StructureData => ({
   structureDimensionsMap: new Map<string, StructureItemBase[]>(),
 });
 
-export const getStructureData = async (
+export const getStructureDataMaps = async (
   dataQueries: DataQuery[],
   getDataSetAction: GetDatasetDetails,
   getDataSetDataAction: GetDatasetData,
   setIsLoadingGridData: (isLoading: boolean) => void,
-): Promise<StructureData> => {
-  const structureData = initStructureData();
+): Promise<StructureDataMaps> => {
+  const structureDataMaps = initStructureDataMaps();
 
   for (const dataQuery of dataQueries) {
-    getDataSetAction(dataQuery.urn).then((dataSet) => {
+    getDataSetAction(dataQuery.urn).then(async (dataSet) => {
       if (dataSet?.data) {
         const dimensions = getDimensions(dataSet.data);
 
-        structureData.datasetsMap?.set(
+        structureDataMaps.datasetsMap?.set(
           dataQuery?.urn,
           dataSet?.data?.dataflows?.[0],
         );
-        structureData.structuresMap?.set(dataQuery?.urn, dataSet?.data);
-        structureData.dimensionsMap?.set(dataQuery?.urn, [
+        structureDataMaps.structuresMap?.set(dataQuery?.urn, dataSet?.data);
+        structureDataMaps.dimensionsMap?.set(dataQuery?.urn, [
           ...(dimensions?.dimensions || []),
           ...(dimensions?.timeDimensions || []),
         ]);
@@ -84,8 +84,8 @@ export const getStructureData = async (
           getDataSetDataAction,
         )
           .then(({ dataMessage, structureDimensions }) => {
-            structureData?.dataMessagesMap?.set(dataQuery.urn, dataMessage);
-            structureData?.structureDimensionsMap?.set(
+            structureDataMaps?.dataMessagesMap?.set(dataQuery.urn, dataMessage);
+            structureDataMaps?.structureDimensionsMap?.set(
               dataQuery.urn,
               structureDimensions || [],
             );
@@ -94,10 +94,10 @@ export const getStructureData = async (
       }
     });
   }
-  return structureData;
+  return structureDataMaps;
 };
 
-export const getDataSetData = async (
+const getDataSetData = async (
   dataQuery: DataQuery,
   filterParams: DatasetQueryFilters,
   getDataSetDataAction: GetDatasetData,

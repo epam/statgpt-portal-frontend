@@ -17,6 +17,7 @@ import { LimitMessages } from '@epam/statgpt-ui-components';
 import { PutOnboardingFile, UpdateConversation } from '../types/actions';
 import { Conversation } from '@epam/ai-dial-shared';
 import { ConversationViewTitles } from './titles';
+import { StructureDataMaps } from './structure-data';
 
 export interface Filter {
   id?: string;
@@ -28,6 +29,7 @@ export interface Filter {
   isHierarchical?: boolean;
   isDisabled?: boolean;
   displayMode?: string;
+  datasetUrn?: string;
 }
 
 export interface FilterValue {
@@ -75,13 +77,10 @@ export interface FiltersProps {
     putOnboardingFile?: PutOnboardingFile;
   };
   dimensions?: Dimension[];
-  dimensionsMap?: Map<string, Dimension[]>;
   structureDimensions?: StructureItemBase[];
-  structureDimensionsMap?: Map<string, StructureItemBase[]>;
   structures?: StructuralData;
-  structuresMap?: Map<string, StructuralData | undefined>;
   initialConstraints?: DataConstraints[];
-  initialConstraintsMap?: Map<string, DataConstraints[]>;
+  structureDataMaps?: StructureDataMaps;
   buttonProps?: FilterButtonProps;
   modalProps?: FiltersModalProps;
   attachmentsDataQuery?: DataQuery;
@@ -101,4 +100,5 @@ export interface FiltersProps {
   updateDataQueries?: (dataQueries?: DataQuery[]) => void;
   limitMessages?: LimitMessages;
   filterIconClassName?: string;
+  datasetIcon?: ReactNode;
 }
