@@ -12,13 +12,15 @@ export const getHeaders = (
   options?: {
     jwt?: string;
     chatReference?: string;
-    contentType?: string;
+    contentType?: string | null;
   },
   optionsHeaders?: Record<string, string>,
 ): Record<string, string> => {
-  const headers: ApiHeaders = {
-    [CONTENT_TYPE_HEADER]: options?.contentType || APPLICATION_JSON,
-  };
+  const headers: ApiHeaders = {};
+
+  if (options?.contentType !== null) {
+    headers[CONTENT_TYPE_HEADER] = options?.contentType || APPLICATION_JSON;
+  }
 
   if (options?.jwt) {
     headers.Authorization = `Bearer ${options.jwt}`;

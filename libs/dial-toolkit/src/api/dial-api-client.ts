@@ -56,6 +56,7 @@ export class DialApiClient {
       ...getHeaders(this.config.apiKey, {
         jwt: token,
         chatReference: options.chatReference,
+        contentType: options.isFormData ? null : undefined,
       }),
       ...options.headers,
     };
@@ -86,6 +87,7 @@ export class DialApiClient {
       ...getHeaders(this.config.apiKey, {
         jwt: token,
         chatReference: options.chatReference,
+        contentType: options.isFormData ? null : undefined,
       }),
       ...options.headers,
     };
@@ -153,6 +155,7 @@ export class DialApiClient {
       {
         jwt: token,
         chatReference: options.chatReference,
+        contentType: options.isFormData ? null : undefined,
       },
       options.headers,
     );
