@@ -28,6 +28,7 @@ export const getDatasetFilters = (
   structures?: StructuralData,
   structureDimensions?: StructureItemBase[],
   locale?: string,
+  datasetUrn?: string,
 ): Filter[] => {
   return (
     dimensions?.map((dimension) => {
@@ -52,6 +53,7 @@ export const getDatasetFilters = (
         displayMode: isHierarchical
           ? FilterDisplayMode.HIERARCHY
           : FilterDisplayMode.FLAT_LIST,
+        datasetUrn,
       };
     }) || []
   );
