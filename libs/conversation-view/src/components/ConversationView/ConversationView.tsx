@@ -850,7 +850,7 @@ export const ConversationView: FC<Props> = ({
         )}
         <div
           className={classNames(
-            'flex-1 min-h-0 flex flex-col items-end hover:overflow-y-auto',
+            'flex-1 min-h-0 flex flex-col items-end scroll-hidden-container',
             messageStyles?.messagesWrapperClass,
           )}
         >
