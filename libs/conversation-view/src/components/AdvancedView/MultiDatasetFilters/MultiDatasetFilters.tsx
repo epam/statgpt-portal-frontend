@@ -29,6 +29,7 @@ import {
   startTransition,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -46,6 +47,7 @@ import {
   getFilledDatasetFiltersMap,
   getFiltersByConstraints,
   getFiltersPreselectedByDataQueries,
+  isStructureDataMapsReady,
 } from '../../../utils/multiple-filters';
 
 const MultiDatasetFilters: FC<FiltersProps> = ({
@@ -90,6 +92,11 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   const [isConstraintsLoading, setIsConstraintsLoading] = useState<boolean>();
   const [isDisableFilterValues, setIsDisableFilterValues] = useState<boolean>();
   const [isModalClosed, setIsModalClosed] = useState(false);
+
+  const isStructureDataReady = useMemo(
+    () => isStructureDataMapsReady(dataQueries, structureDataMaps),
+    [dataQueries, structureDataMaps],
+  );
 
   const updateSelectedFilterValues = (filter?: Filter) => {
     const filters = filter
@@ -183,6 +190,11 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   );
 
   useEffect(() => {
+    if (!isStructureDataReady) {
+      setIsConstraintsLoading(true);
+      return;
+    }
+
     const filledDatasetFiltersMap = getFilledDatasetFiltersMap(
       structureDataMaps,
       locale,
@@ -198,7 +210,13 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       setAppliedFilters,
       setIsConstraintsLoading,
     );
-  }, [dataQueries, locale, structureDataMaps, handleFiltersWithConstraints]);
+  }, [
+    dataQueries,
+    handleFiltersWithConstraints,
+    isStructureDataReady,
+    locale,
+    structureDataMaps,
+  ]);
 
   useEffect(() => {
     if (appliedFilters?.length) {

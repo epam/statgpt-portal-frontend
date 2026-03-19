@@ -5,7 +5,12 @@ import {
   getAvailableCodesFromConstrains,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
-import { Filter, FilterValue, FilterValueSource } from '../models/filters';
+import {
+  Filter,
+  FiltersProps,
+  FilterValue,
+  FilterValueSource,
+} from '../models/filters';
 import { getDatasetFilters, getFiltersPreselectedByDataQuery } from './filters';
 import { DataQuery, Locale } from '@epam/statgpt-shared-toolkit';
 import { StructureDataMaps } from '../models/structure-data';
@@ -348,4 +353,22 @@ export const getDatasetNameFromFilters = (
   return dataset
     ? generateShortUrn(dataset?.name, '', dataset?.agencyID)
     : void 0;
+};
+
+export const isStructureDataMapsReady = (
+  dataQueries?: FiltersProps['dataQueries'],
+  structureDataMaps?: FiltersProps['structureDataMaps'],
+) => {
+  if (!dataQueries?.length) {
+    return false;
+  }
+
+  const expectedSize = dataQueries.length;
+
+  return (
+    structureDataMaps?.dimensionsMap?.size === expectedSize &&
+    structureDataMaps?.structuresMap?.size === expectedSize &&
+    structureDataMaps?.structureDimensionsMap?.size === expectedSize &&
+    structureDataMaps?.constraintsMap?.size === expectedSize
+  );
 };
