@@ -19,13 +19,20 @@ import { getFilledFilters } from './get-filled-filters';
 type SharedFilterConfig = {
   id: string;
   order: number;
-  key: string;
   getMergedValueKey: (value: FilterValue, datasetUrn?: string) => string;
 };
 
 export const COMMON_COUNTRY_FILTER_ID = 'COUNTRY';
+export const COMMON_FREQUENCY_FILTER_ID = 'FREQUENCY';
 
-const buildSharedFilterKey = (filterId: string) => `shared:${filterId}`;
+const buildSharedFilterNameMatcher =
+  (): SharedFilterConfig['getMergedValueKey'] => (value, datasetUrn) => {
+    const normalizedName = value?.name?.trim()?.toLocaleLowerCase();
+
+    return normalizedName
+      ? buildMergedValueNameKey(normalizedName)
+      : buildMergedValueDatasetKey(datasetUrn || '', value.id);
+  };
 
 const buildMergedValueNameKey = (name: string) => `name:${name}`;
 
@@ -36,14 +43,12 @@ const SHARED_FILTERS_CONFIG: SharedFilterConfig[] = [
   {
     id: COMMON_COUNTRY_FILTER_ID,
     order: 0,
-    key: buildSharedFilterKey(COMMON_COUNTRY_FILTER_ID),
-    getMergedValueKey: (value, datasetUrn) => {
-      const normalizedName = value?.name?.trim()?.toLocaleLowerCase();
-
-      return normalizedName
-        ? buildMergedValueNameKey(normalizedName)
-        : buildMergedValueDatasetKey(datasetUrn || '', value.id);
-    },
+    getMergedValueKey: buildSharedFilterNameMatcher(),
+  },
+  {
+    id: COMMON_FREQUENCY_FILTER_ID,
+    order: 1,
+    getMergedValueKey: buildSharedFilterNameMatcher(),
   },
 ];
 
@@ -58,7 +63,7 @@ const isSharedFilterId = (filterId?: string) =>
   !!getSharedFilterConfig(filterId);
 
 const isSharedFilter = (filter?: Filter) =>
-  !!filter?.isCommonFilter && isSharedFilterId(filter?.id);
+  filter?.filterType === 'shared' && isSharedFilterId(filter?.id);
 
 const mergeSharedFilterValues = (
   filters: Filter[],
@@ -102,12 +107,14 @@ const mergeSharedFilterValues = (
 
 const sortSharedFiltersFirst = (filters: Filter[]): Filter[] => {
   return [...filters].sort((left, right) => {
-    const leftOrder = left?.isCommonFilter
-      ? (getSharedFilterConfig(left.id)?.order ?? Number.MAX_SAFE_INTEGER)
-      : Number.MAX_SAFE_INTEGER;
-    const rightOrder = right?.isCommonFilter
-      ? (getSharedFilterConfig(right.id)?.order ?? Number.MAX_SAFE_INTEGER)
-      : Number.MAX_SAFE_INTEGER;
+    const leftOrder =
+      left?.filterType === 'shared'
+        ? (getSharedFilterConfig(left.id)?.order ?? Number.MAX_SAFE_INTEGER)
+        : Number.MAX_SAFE_INTEGER;
+    const rightOrder =
+      right?.filterType === 'shared'
+        ? (getSharedFilterConfig(right.id)?.order ?? Number.MAX_SAFE_INTEGER)
+        : Number.MAX_SAFE_INTEGER;
 
     return leftOrder - rightOrder;
   });
@@ -118,11 +125,7 @@ const mergeSharedFilters = (filters: Filter[]): Filter[] => {
   const otherFilters: Filter[] = [];
 
   filters.forEach((filter) => {
-    if (
-      isSharedFilterId(filter?.id) &&
-      filter?.datasetUrn &&
-      !filter?.isCommonFilter
-    ) {
+    if (isSharedFilterId(filter?.id) && filter?.datasetUrn) {
       const group = groupedFilters.get(filter.id as string) || [];
       groupedFilters.set(filter.id as string, [...group, filter]);
       return;
@@ -141,9 +144,8 @@ const mergeSharedFilters = (filters: Filter[]): Filter[] => {
 
       const sharedFilter: Filter = {
         ...grouped[0],
-        key: config.key,
         datasetUrn: void 0,
-        isCommonFilter: true,
+        filterType: 'shared',
         dimensionValues: mergeSharedFilterValues(grouped, config),
       };
 
@@ -182,9 +184,8 @@ const expandSharedFilter = (filter: Filter): Filter[] => {
 
       datasetFiltersMap.set(datasetUrn, {
         ...filter,
-        key: `${datasetUrn}:${filter.id}`,
         datasetUrn,
-        isCommonFilter: false,
+        filterType: 'dataset',
         dimensionValues: [mappedValue],
       });
     });
@@ -332,7 +333,7 @@ export const getFiltersForDataset = (
   datasetUrn?: string,
 ): Filter[] => {
   if (!datasetUrn) {
-    return filters.filter((filter) => !filter.isCommonFilter);
+    return filters.filter((filter) => filter.filterType !== 'shared');
   }
 
   return buildFiltersMap(filters).get(datasetUrn) || [];
@@ -342,7 +343,7 @@ export const getDatasetNameFromFilters = (
   filter: Filter,
   structuresMap?: Map<string, StructuralData | undefined>,
 ): string | undefined => {
-  if (filter?.isCommonFilter) {
+  if (filter?.filterType === 'shared') {
     return void 0;
   }
 

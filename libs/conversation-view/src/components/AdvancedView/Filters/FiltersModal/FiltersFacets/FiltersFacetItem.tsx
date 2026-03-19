@@ -17,7 +17,6 @@ import SettingsListIcon from '../../../../../assets/icons/settings-list.svg';
 import { getDateString } from '../../../../../utils/attachments/time-period';
 import {
   getFilterDisplaySettings,
-  getFilterKey,
   getSelectedDimensionValues,
 } from '../../../../../utils/filters';
 import FiltersValuesPanel from '../FiltersValuesPanel/FiltersValuesPanel';
@@ -27,9 +26,9 @@ interface Props {
   filter: Filter;
   locale?: string;
   hideFacetCounterByDefault?: boolean;
-  onSelectFilter: (filterId?: string) => void;
-  onSelectDisplayMode?: (filterId?: string, displayMode?: string) => void;
-  onDeleteFilter?: (filterId?: string) => void;
+  onSelectFilter: (filter?: Filter) => void;
+  onSelectDisplayMode?: (filter?: Filter, displayMode?: string) => void;
+  onDeleteFilter?: (filter?: Filter) => void;
   filterValuesProps?: FilterValuesProps;
   isDisableValues?: boolean;
   timeRangeOptions?: TimeRangeOptions[];
@@ -84,7 +83,7 @@ const FiltersFacetItem: FC<Props> = ({
   }, [filter?.dimensionValues]);
 
   const onSelectFilterDisplayMode = (filterDisplayMode: string) => {
-    onSelectDisplayMode?.(getFilterKey(filter), filterDisplayMode);
+    onSelectDisplayMode?.(filter, filterDisplayMode);
   };
 
   const showSelectedValuesCounter = hideFacetCounterByDefault
@@ -101,7 +100,7 @@ const FiltersFacetItem: FC<Props> = ({
     if (isMobile) {
       setIsSelected((prev) => !prev);
     }
-    onSelectFilter(getFilterKey(filter));
+    onSelectFilter(filter);
   };
 
   return (
@@ -186,7 +185,7 @@ const FiltersFacetItem: FC<Props> = ({
                   title={titles?.reset || 'Reset'}
                   onClick={(e) => {
                     e.stopPropagation();
-                    onDeleteFilter?.(getFilterKey(filter));
+                    onDeleteFilter?.(filter);
                   }}
                 />
               )}

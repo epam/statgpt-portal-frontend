@@ -19,8 +19,7 @@ import { Conversation } from '@epam/ai-dial-shared';
 import { ConversationViewTitles } from './titles';
 import { StructureDataMaps } from './structure-data';
 
-export interface Filter {
-  key?: string;
+interface FilterBase {
   id?: string;
   title?: string;
   dimensionValues?: FilterValue[];
@@ -30,9 +29,19 @@ export interface Filter {
   isHierarchical?: boolean;
   isDisabled?: boolean;
   displayMode?: string;
-  datasetUrn?: string;
-  isCommonFilter?: boolean;
 }
+
+export interface DatasetFilter extends FilterBase {
+  filterType: 'dataset';
+  datasetUrn?: string;
+}
+
+export interface SharedFilter extends FilterBase {
+  filterType: 'shared';
+  datasetUrn?: undefined;
+}
+
+export type Filter = DatasetFilter | SharedFilter;
 
 export interface FilterValueSource {
   datasetUrn?: string;

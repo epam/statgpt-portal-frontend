@@ -12,9 +12,9 @@ import { Filter, FiltersProps } from '../../../models/filters';
 import {
   getFiltersAfterClear,
   getFiltersAfterDelete,
-  getFilterKey,
   getSelectedFilterValues,
   getTotalSelectedValuesLength,
+  isSameFilter,
   updateFiltersWithDisabledOption,
   updateFiltersWithDisplayMode,
   updateFiltersWithSelectedItem,
@@ -101,7 +101,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   const updateSelectedFilterValues = (filter?: Filter) => {
     const filters = filter
       ? modalFilters.map((oldFilter) =>
-          getFilterKey(oldFilter) === getFilterKey(filter) ? filter : oldFilter,
+          isSameFilter(oldFilter, filter) ? filter : oldFilter,
         )
       : modalFilters;
 
@@ -285,15 +285,19 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   );
 
   const onSelectDisplayMode = useCallback(
-    (filterKey?: string, displayMode?: string) => {
+    (filter?: Filter, displayMode?: string) => {
       setModalFilters((prevFilters) =>
-        updateFiltersWithDisplayMode(prevFilters, filterKey, displayMode),
+        updateFiltersWithDisplayMode(prevFilters, filter, displayMode),
       );
-      if (getFilterKey(selectedFilter) === filterKey) {
-        setSelectedFilter((prevFilter) => ({
-          ...prevFilter,
-          displayMode,
-        }));
+      if (isSameFilter(selectedFilter, filter)) {
+        setSelectedFilter((prevFilter) =>
+          prevFilter
+            ? {
+                ...prevFilter,
+                displayMode,
+              }
+            : prevFilter,
+        );
       }
     },
     [selectedFilter],
@@ -322,9 +326,8 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
 
       setSelectedFilter(
         (previousSelectedFilter) =>
-          filledFilters?.find(
-            (filter) =>
-              getFilterKey(filter) === getFilterKey(previousSelectedFilter),
+          filledFilters?.find((filter) =>
+            isSameFilter(filter, previousSelectedFilter),
           ) || previousSelectedFilter,
       );
       setModalFilters(filledFilters);
@@ -366,8 +369,8 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   );
 
   const onDeleteFilter = useCallback(
-    (filterKey?: string) => {
-      const filtersAfterDelete = getFiltersAfterDelete(modalFilters, filterKey);
+    (filter?: Filter) => {
+      const filtersAfterDelete = getFiltersAfterDelete(modalFilters, filter);
 
       handleFiltersDelete(filtersAfterDelete);
     },
