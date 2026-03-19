@@ -42,8 +42,15 @@ export {
 export {
   ConversationViewSidePanelProvider,
   useConversationViewSidePanel,
+  useConversationViewSidePanelOptional,
 } from './components/ConversationView/SidePanel/ConversationViewSidePanelContext';
 export type {
   ConversationViewSidePanelConfig,
   ConversationViewSidePanelScope,
 } from './components/ConversationView/SidePanel/ConversationViewSidePanelContext';
+
+export {
+  ConversationViewFeatureTogglesProvider,
+  useConversationViewFeatureToggles,
+} from './context/ConversationViewFeatureTogglesContext';
+export type { ConversationViewFeatureToggles } from './context/ConversationViewFeatureTogglesContext';

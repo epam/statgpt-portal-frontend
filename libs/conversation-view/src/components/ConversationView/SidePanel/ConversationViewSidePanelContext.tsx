@@ -90,9 +90,29 @@ function useConversationViewSidePanelContext() {
   return ctx;
 }
 
+function useConversationViewSidePanelContextOptional() {
+  return useContext(ConversationViewSidePanelContext);
+}
+
 export function useConversationViewSidePanel() {
   const { openPanel, closePanel, isPanelOpen } =
     useConversationViewSidePanelContext();
+
+  return {
+    openPanel,
+    closePanel,
+    isPanelOpen,
+  };
+}
+
+export function useConversationViewSidePanelOptional() {
+  const ctx = useConversationViewSidePanelContextOptional();
+
+  if (!ctx) {
+    return null;
+  }
+
+  const { openPanel, closePanel, isPanelOpen } = ctx;
 
   return {
     openPanel,
