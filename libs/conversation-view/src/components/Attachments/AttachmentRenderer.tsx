@@ -17,7 +17,10 @@ import {
   LimitMessages,
   RequestLimitMessage,
 } from '@epam/statgpt-ui-components';
-import { isGridAttachment } from '../../utils/attachments/attachment-parser';
+import {
+  isCustomGridAttachment,
+  isGridAttachment,
+} from '../../utils/attachments/attachment-parser';
 import {
   AttachmentInfo,
   AttachmentsConfig,
@@ -31,7 +34,7 @@ import { useAdvancedView } from '../../context/AdvancedViewContext';
 import AttachmentCollapsed from './AttachmentCollapsed';
 import { MessageStyles } from '../../models/message';
 import { AttachmentsActions } from '../../models/actions';
-import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
+import { AllCommunityModule, GridApi, ModuleRegistry } from 'ag-grid-community';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import DownloadSettings from '@statgpt/download-panel/src/components/DownloadSettings/DownloadSettings';
 import { ConversationViewTitles } from '../../models/titles';
@@ -69,6 +72,10 @@ interface Props {
   onAdvancedViewOpen?: () => void;
   limitMessages?: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
+  isTableSettingsOpen?: boolean;
+  onTableSettingsOpen?: () => void;
+  onTableSettingsClose?: () => void;
+  onGridApiReady?: (api: GridApi) => void;
 }
 
 const AttachmentRenderer: FC<Props> = ({
@@ -94,6 +101,10 @@ const AttachmentRenderer: FC<Props> = ({
   onAdvancedViewOpen,
   limitMessages,
   attachmentsConfig,
+  isTableSettingsOpen,
+  onTableSettingsOpen,
+  onTableSettingsClose,
+  onGridApiReady,
 }) => {
   const [selectedAttachmentIndex, setSelectedAttachmentIndex] =
     useState<number>(0);
@@ -142,6 +153,16 @@ const AttachmentRenderer: FC<Props> = ({
       isDataSetAttachments && (datasets == null || datasets?.length == 0),
     );
   }, [datasets, isDataSetAttachments]);
+
+  useEffect(() => {
+    if (
+      isTableSettingsOpen &&
+      selectedAttachment &&
+      !isCustomGridAttachment(selectedAttachment)
+    ) {
+      onTableSettingsClose?.();
+    }
+  }, [isTableSettingsOpen, selectedAttachment, onTableSettingsClose]);
 
   const onCloseModal = useCallback(() => {
     setModalState(PopUpState.Closed);
@@ -236,6 +257,9 @@ const AttachmentRenderer: FC<Props> = ({
                     limitMessages={limitMessages}
                     onSelectedAttachmentChange={selectAttachment}
                     onDownloadClick={() => setModalState(PopUpState.Opened)}
+                    showAdvancedView={showAdvancedView}
+                    isTableSettingsOpen={isTableSettingsOpen}
+                    onTableSettingsOpen={onTableSettingsOpen}
                   />
                   {selectedAttachment != null && (
                     <AttachmentsContentRenderer
@@ -246,6 +270,7 @@ const AttachmentRenderer: FC<Props> = ({
                       isOpenedAdvancedView={isOpenedAdvancedView}
                       onOpenAdvancedView={onOpenAdvancedView}
                       showLimitMessage={setShowLimitMessage}
+                      onGridApiReady={onGridApiReady}
                     />
                   )}
                 </div>

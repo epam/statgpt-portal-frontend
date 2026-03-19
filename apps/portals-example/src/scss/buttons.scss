@@ -9,6 +9,7 @@
 .base-icon-button {
   @apply h-[44px] w-[44px];
   @apply rounded-[30px] border p-3;
+
   &:disabled {
     @apply text-neutrals-800;
   }
@@ -40,6 +41,7 @@
   &:hover {
     @apply text-white bg-primary;
   }
+
   &:disabled {
     @apply border-neutrals-800;
   }
@@ -60,7 +62,7 @@
   }
 
   &:disabled {
-    @apply text-neutrals-800  bg-neutrals-500 border-neutrals-500;
+    @apply text-neutrals-800 bg-neutrals-500 border-neutrals-500;
   }
 }
 
@@ -81,7 +83,8 @@
 }
 
 .checkbox-button {
-  @apply border border-neutrals-600 rounded text-primary;
+  @apply border border-neutrals-600 rounded-[3px] text-primary;
+
   &-text {
     @apply body-3;
   }

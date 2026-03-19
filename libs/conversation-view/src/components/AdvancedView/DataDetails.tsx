@@ -9,7 +9,7 @@ import {
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import { LimitMessages } from '@epam/statgpt-ui-components';
 import Filters from './Filters/Filters';
-import AttachmentRenderer from '../Attachments/AttachmentRenderer';
+import { AdvancedAttachmentRenderer } from './AdvancedAttachmentRenderer';
 import { Filter, FiltersProps } from '../../models/filters';
 import { FC, useEffect } from 'react';
 import { AdvancedViewActions } from '../../models/actions';
@@ -103,7 +103,7 @@ const DataDetails: FC<Props> = ({
           )}
         </div>
         <div className="advanced-view-attachments-container flex-1 min-h-0">
-          <AttachmentRenderer
+          <AdvancedAttachmentRenderer
             titles={titles}
             attachments={attachments}
             attachmentsStyles={attachmentsStyles}

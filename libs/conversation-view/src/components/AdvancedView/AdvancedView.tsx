@@ -8,7 +8,7 @@ import { AttachmentsConfig, AttachmentsProps } from '../../models/attachments';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { MetadataSettings } from '../../models/metadata';
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import { AttachmentsActions } from '../../models/actions';
 import { FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import { Loader } from '@epam/statgpt-ui-components';
@@ -25,6 +25,11 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { getExternalLink } from '../../utils/attachments-details';
 import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
+import { TableSettingsPanel } from './TableSettings/TableSettingsPanel';
+import {
+  TableSettingsProvider,
+  useTableSettingsContext,
+} from './TableSettings/TableSettingsContext';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -44,7 +49,23 @@ interface Props {
   datasetInfoOptions?: DatasetInfoOptions;
 }
 
-export const AdvancedView: FC<Props> = ({
+export const AdvancedView: FC<Props> = ({ attachmentsProps, ...props }) => {
+  const currentUrn = useMemo(
+    () =>
+      attachmentsProps.currentDataQuery?.urn ??
+      attachmentsProps.dataQueries?.[0]?.urn ??
+      'default',
+    [attachmentsProps.currentDataQuery?.urn, attachmentsProps.dataQueries],
+  );
+
+  return (
+    <TableSettingsProvider currentUrn={currentUrn}>
+      <AdvancedViewInternal attachmentsProps={attachmentsProps} {...props} />
+    </TableSettingsProvider>
+  );
+};
+
+const AdvancedViewInternal: FC<Props> = ({
   attachmentsProps,
   actions,
   titles,
@@ -61,6 +82,14 @@ export const AdvancedView: FC<Props> = ({
   const lastMessageAttachments =
     props.filtersProps.conversation?.messages?.at(-1)?.custom_content
       ?.attachments;
+
+  const {
+    tableSettings: {
+      isOpen: isTableSettingsPanelOpened,
+      close: closeTableSettingsHandler,
+    },
+    agGrid: { gridApi, initialColumnsState },
+  } = useTableSettingsContext();
 
   const {
     dataMessage,
@@ -165,41 +194,52 @@ export const AdvancedView: FC<Props> = ({
                 getDatasetUpdatedTime={getDatasetUpdatedTime}
                 externalLink={externalLink}
               />
-              <div
-                className={classNames(
-                  'flex-1 min-h-0 overflow-auto',
-                  'advanced-view-filters',
+              <div className="flex flex-1 min-h-0 overflow-auto border-t border-neutrals-500">
+                <div
+                  className={classNames(
+                    'flex-1 min-h-0 overflow-auto',
+                    'advanced-view-filters',
+                  )}
+                >
+                  <DataDetails
+                    {...props}
+                    titles={titles}
+                    actions={actions}
+                    attachments={dataSetAttachments}
+                    attachmentsDataQuery={attachmentsProps.currentDataQuery}
+                    dataQueries={attachmentsProps?.dataQueries}
+                    dimensions={dimensions}
+                    attachmentsStyles={attachmentsProps.styles}
+                    isDataLoading={isLoadingGridData}
+                    locale={locale}
+                    filtersProps={{
+                      ...props?.filtersProps,
+                      structureDimensions,
+                      structures,
+                      structureDataMaps: {
+                        dimensionsMap,
+                        structuresMap,
+                        structureDimensionsMap,
+                        constraintsMap,
+                      },
+                      onFiltersChange,
+                      initialConstraints: constraints,
+                    }}
+                    setIsFiltering={setIsFiltering}
+                    attachmentsConfig={attachmentsConfig}
+                    filters={filters}
+                    onFiltersChange={handleFiltersChange}
+                  />
+                </div>
+                {isTableSettingsPanelOpened && (
+                  <TableSettingsPanel
+                    onClose={closeTableSettingsHandler}
+                    gridApi={gridApi}
+                    initialColumnsState={initialColumnsState}
+                    title={attachmentsProps.styles?.columnsTitle}
+                    resetTitle={attachmentsProps.styles?.columnsResetTitle}
+                  />
                 )}
-              >
-                <DataDetails
-                  {...props}
-                  titles={titles}
-                  actions={actions}
-                  attachments={dataSetAttachments}
-                  attachmentsDataQuery={attachmentsProps.currentDataQuery}
-                  dataQueries={attachmentsProps?.dataQueries}
-                  dimensions={dimensions}
-                  attachmentsStyles={attachmentsProps.styles}
-                  isDataLoading={isLoadingGridData}
-                  locale={locale}
-                  filtersProps={{
-                    ...props?.filtersProps,
-                    structureDimensions,
-                    structures,
-                    structureDataMaps: {
-                      dimensionsMap,
-                      structuresMap,
-                      structureDimensionsMap,
-                      constraintsMap,
-                    },
-                    onFiltersChange,
-                    initialConstraints: constraints,
-                  }}
-                  setIsFiltering={setIsFiltering}
-                  attachmentsConfig={attachmentsConfig}
-                  filters={filters}
-                  onFiltersChange={handleFiltersChange}
-                />
               </div>
             </>
           )}

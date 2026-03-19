@@ -100,6 +100,8 @@
   },
   "attachments": {
     "download": "Download",
+    "columns": "Columns",
+    "columnsReset": "Reset",
     "openUrl": "Open",
     "dataGrid": "Data",
     "chart": "Chart",

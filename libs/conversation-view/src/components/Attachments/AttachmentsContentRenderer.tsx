@@ -2,6 +2,7 @@
 
 import { Attachment } from '@epam/ai-dial-shared';
 import { FC } from 'react';
+import type { GridApi } from 'ag-grid-community';
 import FileAttachment from './BaseAttachments/FileAttachment';
 import MarkdownAttachment from './BaseAttachments/MarkdownAttachment';
 import UrlAttachment from './BaseAttachments/UrlAttachment';
@@ -30,6 +31,7 @@ interface Props {
   isOpenedAdvancedView?: boolean;
   onOpenAdvancedView?: () => void;
   showLimitMessage: (p: boolean) => void;
+  onGridApiReady?: (api: GridApi) => void;
 }
 
 const AttachmentsContentRenderer: FC<Props> = ({
@@ -40,6 +42,7 @@ const AttachmentsContentRenderer: FC<Props> = ({
   isOpenedAdvancedView,
   onOpenAdvancedView,
   showLimitMessage,
+  onGridApiReady,
 }) => {
   const titles = useConversationViewTitles();
   return (
@@ -66,6 +69,7 @@ const AttachmentsContentRenderer: FC<Props> = ({
           fixHeight={!isOpenedAdvancedView}
           titles={titles}
           showLimitMessage={showLimitMessage}
+          onApiReady={onGridApiReady}
         />
       )}
       {isCustomChartAttachment(selectedAttachment) && (
