@@ -45,6 +45,7 @@ export const getDatasetFilters = (
       );
       const isHierarchical = codes?.some((code) => code?.parent);
       return {
+        key: datasetUrn ? `${datasetUrn}:${dimension?.id}` : dimension?.id,
         id: dimension?.id,
         title: getDimensionTitle(structures?.conceptSchemes, dimension, locale),
         dimensionValues,
@@ -59,12 +60,15 @@ export const getDatasetFilters = (
   );
 };
 
+export const getFilterKey = (filter?: Filter): string | undefined =>
+  filter?.key || filter?.id;
+
 export const updateFiltersWithSelectedItem = (
   filters: Filter[],
   selectedFilter?: Filter,
 ): Filter[] => {
   return filters?.map((filterItem) =>
-    selectedFilter && filterItem?.id === selectedFilter?.id
+    selectedFilter && getFilterKey(filterItem) === getFilterKey(selectedFilter)
       ? { ...selectedFilter, isSelectedFilter: true }
       : {
           ...filterItem,
@@ -75,7 +79,7 @@ export const updateFiltersWithSelectedItem = (
 
 export const updateFiltersWithDisplayMode = (
   filters: Filter[],
-  filterId?: string,
+  filterKey?: string,
   displayMode?: string,
 ): Filter[] => {
   if (!filters) {
@@ -83,7 +87,7 @@ export const updateFiltersWithDisplayMode = (
   }
 
   return filters.map((filter) => {
-    if (filter?.id === filterId) {
+    if (getFilterKey(filter) === filterKey) {
       return {
         ...filter,
         displayMode,
@@ -138,10 +142,10 @@ export const clearFilterValues = (filter: Filter): Filter => {
 
 export const getFiltersAfterDelete = (
   filters: Filter[],
-  deleteFilterId?: string,
+  deleteFilterKey?: string,
 ): Filter[] => {
   return filters?.map((filter) => {
-    if (filter?.id === deleteFilterId) {
+    if (getFilterKey(filter) === deleteFilterKey) {
       return clearFilterValues(filter);
     }
     return filter;

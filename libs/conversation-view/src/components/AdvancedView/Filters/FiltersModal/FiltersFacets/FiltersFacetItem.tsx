@@ -17,6 +17,7 @@ import SettingsListIcon from '../../../../../assets/icons/settings-list.svg';
 import { getDateString } from '../../../../../utils/attachments/time-period';
 import {
   getFilterDisplaySettings,
+  getFilterKey,
   getSelectedDimensionValues,
 } from '../../../../../utils/filters';
 import FiltersValuesPanel from '../FiltersValuesPanel/FiltersValuesPanel';
@@ -83,7 +84,7 @@ const FiltersFacetItem: FC<Props> = ({
   }, [filter?.dimensionValues]);
 
   const onSelectFilterDisplayMode = (filterDisplayMode: string) => {
-    onSelectDisplayMode?.(filter?.id, filterDisplayMode);
+    onSelectDisplayMode?.(getFilterKey(filter), filterDisplayMode);
   };
 
   const showSelectedValuesCounter = hideFacetCounterByDefault
@@ -100,7 +101,7 @@ const FiltersFacetItem: FC<Props> = ({
     if (isMobile) {
       setIsSelected((prev) => !prev);
     }
-    onSelectFilter(filter?.id);
+    onSelectFilter(getFilterKey(filter));
   };
 
   return (
@@ -185,7 +186,7 @@ const FiltersFacetItem: FC<Props> = ({
                   title={titles?.reset || 'Reset'}
                   onClick={(e) => {
                     e.stopPropagation();
-                    onDeleteFilter?.(filter?.id);
+                    onDeleteFilter?.(getFilterKey(filter));
                   }}
                 />
               )}

@@ -13,6 +13,7 @@ import FiltersFacetsList from './FiltersFacets/FiltersFacetsList';
 import FiltersValuesPanel from './FiltersValuesPanel/FiltersValuesPanel';
 import classNames from 'classnames';
 import { ConversationViewTitles } from '../../../../models/titles';
+import { getFilterKey } from '../../../../utils/filters';
 
 interface Props {
   filtersList: Filter[];
@@ -56,9 +57,11 @@ const FilterSettings: FC<Props> = ({
   const isMobile = useIsMobile();
 
   const onSelectFilter = useCallback(
-    (selectedFilterId?: string) => {
+    (selectedFilterKey?: string) => {
       setSelectedFilter({
-        ...filtersList?.find((filter) => filter?.id === selectedFilterId),
+        ...filtersList?.find(
+          (filter) => getFilterKey(filter) === selectedFilterKey,
+        ),
         isSelectedFilter: true,
       });
     },

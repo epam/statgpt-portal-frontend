@@ -12,6 +12,7 @@ import {
 import { ConversationViewTitles } from '../../../../../models/titles';
 import FiltersFacetItem from './FiltersFacetItem';
 import { getDatasetNameFromFilters } from '../../../../../utils/multiple-filters';
+import { getFilterKey } from '../../../../../utils/filters';
 
 interface Props {
   filtersList: Filter[];
@@ -66,7 +67,7 @@ const FiltersFacetsList: FC<Props> = ({
           titles={titles}
           locale={locale}
           filter={filter}
-          key={filter?.id}
+          key={getFilterKey(filter)}
           onSelectFilter={onSelectFilter}
           onSelectDisplayMode={onSelectDisplayMode}
           onDeleteFilter={onDeleteFilter}

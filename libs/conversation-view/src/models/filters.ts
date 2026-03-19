@@ -20,6 +20,7 @@ import { ConversationViewTitles } from './titles';
 import { StructureDataMaps } from './structure-data';
 
 export interface Filter {
+  key?: string;
   id?: string;
   title?: string;
   dimensionValues?: FilterValue[];
@@ -30,6 +31,14 @@ export interface Filter {
   isDisabled?: boolean;
   displayMode?: string;
   datasetUrn?: string;
+  isCommonFilter?: boolean;
+}
+
+export interface FilterValueSource {
+  datasetUrn?: string;
+  id: string;
+  name?: string;
+  parent?: string;
 }
 
 export interface FilterValue {
@@ -38,6 +47,7 @@ export interface FilterValue {
   isSelectedValue?: boolean;
   isExpanded?: boolean;
   parent?: string;
+  sourceValues?: FilterValueSource[];
 }
 
 export interface FilterTreeNodeProps extends FilterValue {
