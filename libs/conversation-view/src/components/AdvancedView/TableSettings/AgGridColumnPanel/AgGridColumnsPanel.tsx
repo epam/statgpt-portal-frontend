@@ -49,7 +49,7 @@ export function AgGridColumnsPanel({
   });
 
   return (
-    <div className="px-5 py-7 flex flex-col gap-2 h-full">
+    <div className="px-5 py-7 flex flex-col gap-2 flex-1 min-h-0">
       <InputWithIcon
         inputId="columns-search-input"
         containerClasses={'items-center filters-search-input gap-1 !p-2'}
@@ -60,7 +60,7 @@ export function AgGridColumnsPanel({
         value={searchQuery}
         onChange={changeSearchHandler}
       />
-      <div className="overflow-y-scroll h-[calc(100%-104px)]">
+      <div className="overflow-y-auto flex-1 min-h-0">
         <DraggableList
           items={visibleItems}
           onItemsChange={handleItemsChange}
