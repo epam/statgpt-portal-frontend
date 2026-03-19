@@ -1,5 +1,5 @@
 import {
-  CrossDatasetGridAttachment,
+  CrossDatasetGridAttachmentType,
   CustomChartAttachmentType,
   CustomGridAttachment,
 } from '../models/attachments';
@@ -29,7 +29,7 @@ export const createInitialChartAttachment = (
 
 export const createInitialCrossDatasetGridAttachment = (
   title?: string,
-): CrossDatasetGridAttachment => {
+): CrossDatasetGridAttachmentType => {
   return {
     title: title || DEFAULT_CROSS_DATASET_GRID_ATTACHMENT_TITLE,
     type: AttachmentType.CROSS_DATASET_GRID,

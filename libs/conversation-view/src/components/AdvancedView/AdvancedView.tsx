@@ -8,7 +8,7 @@ import { AttachmentsConfig, AttachmentsProps } from '../../models/attachments';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { MetadataSettings } from '../../models/metadata';
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import { AttachmentsActions } from '../../models/actions';
 import { FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import { Loader } from '@epam/statgpt-ui-components';
@@ -25,6 +25,7 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { getExternalLink } from '../../utils/attachments-details';
 import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
+import { useCrossDatasetMode } from '../../context/CrossDatasetModeContext';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -61,6 +62,7 @@ export const AdvancedView: FC<Props> = ({
   const lastMessageAttachments =
     props.filtersProps.conversation?.messages?.at(-1)?.custom_content
       ?.attachments;
+  const { isCrossDatasetModeOn } = useCrossDatasetMode();
 
   const {
     dataMessage,
@@ -87,12 +89,26 @@ export const AdvancedView: FC<Props> = ({
     structuresMap,
     structureDimensionsMap,
     constraintsMap,
-  } = useAttachmentsDataMultipleQueries(actions, attachmentsProps.dataQueries);
+    crossDsGridAttachment,
+    isLoadingGridData: isLoadingCrossDsGridData,
+  } = useAttachmentsDataMultipleQueries(
+    actions,
+    locale,
+    attachmentsProps.dataQueries,
+    attachmentsProps.styles?.chartingStyles,
+    formattingSettings,
+    metadataSettings,
+  );
   const [isFiltering, setIsFiltering] = useState<boolean>();
   const [filters, setFilters] = useState<DatasetQueryFilters>({
     filterKey: null,
     timeFilter: null,
   });
+
+  const isDataLoading = useMemo(
+    () => (isCrossDatasetModeOn ? isLoadingCrossDsGridData : isLoadingGridData),
+    [isCrossDatasetModeOn, isLoadingCrossDsGridData, isLoadingGridData],
+  );
 
   const handleFiltersChange = useCallback(
     (
@@ -150,7 +166,7 @@ export const AdvancedView: FC<Props> = ({
               selectDataset={onSelectDataset}
             />
           )}
-          {isLoadingGridData && !isFiltering ? (
+          {isDataLoading && !isFiltering ? (
             <Loader />
           ) : (
             <>
@@ -175,12 +191,16 @@ export const AdvancedView: FC<Props> = ({
                   {...props}
                   titles={titles}
                   actions={actions}
-                  attachments={dataSetAttachments}
+                  attachments={
+                    isCrossDatasetModeOn
+                      ? [crossDsGridAttachment]
+                      : dataSetAttachments
+                  }
                   attachmentsDataQuery={attachmentsProps.currentDataQuery}
                   dataQueries={attachmentsProps?.dataQueries}
                   dimensions={dimensions}
                   attachmentsStyles={attachmentsProps.styles}
-                  isDataLoading={isLoadingGridData}
+                  isDataLoading={isDataLoading}
                   locale={locale}
                   filtersProps={{
                     ...props?.filtersProps,

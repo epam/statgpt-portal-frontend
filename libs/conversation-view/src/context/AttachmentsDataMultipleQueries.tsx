@@ -8,7 +8,7 @@ import {
   StructuralData,
   StructureItemBase,
 } from '@epam/statgpt-sdmx-toolkit';
-import { DataQuery } from '@epam/statgpt-shared-toolkit';
+import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import {
   getConstraints,
   GetDatasetData,
@@ -18,7 +18,15 @@ import {
   getDataConstraintsMap,
   getStructureData,
 } from '../utils/attachments/attachments-data';
-import { useDatasetDimensionsMetadataMap } from '@epam/statgpt-conversation-view';
+import { CustomGridAttachment } from '../models/attachments';
+import { createInitialCrossDatasetGridAttachment } from '../constants/attachments';
+import { useConversationViewTitles } from './ConversationViewTitlesContext';
+import {
+  ChartingStyles,
+  useDatasetDimensionsMetadataMap,
+} from '@epam/statgpt-conversation-view';
+import { buildCrossDatasetGridAttachment } from '../utils/attachments/cross-dataset-grid/build-cross-dataset-grid-attachment';
+import { MetadataSettings } from '../models/metadata';
 
 export function useAttachmentsDataMultipleQueries(
   actions: {
@@ -26,8 +34,13 @@ export function useAttachmentsDataMultipleQueries(
     getDataSetData: GetDatasetData;
     getConstraints: getConstraints;
   },
+  locale: string,
   dataQueries?: DataQuery[],
+  chartStyles?: ChartingStyles,
+  formattingSettings?: FormatNumbersType,
+  metadataSettings?: MetadataSettings,
 ) {
+  const titles = useConversationViewTitles();
   const [dataMessagesMap, setDataMessagesMap] =
     useState<Map<string, DataMessage | null>>();
   const [datasetsMap, setDatasetsMap] =
@@ -43,6 +56,11 @@ export function useAttachmentsDataMultipleQueries(
   const [datasetDimensionsSchemesMap, setDatasetDimensionsSchemesMap] =
     useState<Map<string, DatasetDimensionsScheme | undefined>>();
   const [isLoadingGridData, setIsLoadingGridData] = useState(false);
+
+  const [crossDsGridAttachment, setCrossDsGridAttachment] =
+    useState<CustomGridAttachment>(
+      createInitialCrossDatasetGridAttachment(titles?.dataGrid),
+    );
 
   const loadConstraintsMap = useCallback(
     async (dataQueries: DataQuery[]) => {
@@ -115,6 +133,47 @@ export function useAttachmentsDataMultipleQueries(
     }
   }, [dataQueries, loadConstraintsMap, loadStructureData]);
 
+  useEffect(() => {
+    if (
+      structuresMap != null &&
+      structuresMap.size > 0 &&
+      dataMessagesMap != null &&
+      constraintsMap != null &&
+      datasetDimensionsSchemesMap != null &&
+      !isLoadingGridData
+    ) {
+      setCrossDsGridAttachment((prev) => ({
+        ...prev,
+        ...buildCrossDatasetGridAttachment(
+          structuresMap,
+          dataMessagesMap,
+          datasetDimensionsSchemesMap,
+          dataQueries || [],
+          locale,
+          formattingSettings,
+          metadataSettings,
+          chartStyles,
+          titles,
+          constraintsMap,
+          {
+            startPeriod: null,
+            endPeriod: null,
+          },
+        ),
+      }));
+    }
+  }, [
+    structuresMap,
+    dataMessagesMap,
+    constraintsMap,
+    dataQueries,
+    locale,
+    formattingSettings,
+    metadataSettings,
+    chartStyles,
+    titles,
+  ]);
+
   return {
     dataMessagesMap,
     structuresMap,
@@ -124,5 +183,6 @@ export function useAttachmentsDataMultipleQueries(
     constraintsMap,
     datasetDimensionsSchemesMap,
     isLoadingGridData,
+    crossDsGridAttachment,
   };
 }

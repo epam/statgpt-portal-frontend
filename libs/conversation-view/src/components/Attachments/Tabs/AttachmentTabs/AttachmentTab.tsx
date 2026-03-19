@@ -7,6 +7,7 @@ import {
   isMarkdownAttachment,
   isUrlAttachment,
   isCustomCodeSampleAttachment,
+  isCrossDatasetGrid,
 } from '../../../../utils/attachments/attachment-parser';
 import { Attachment } from '@epam/ai-dial-shared';
 import ChartIcon from '../../../../assets/icons/chart.svg';
@@ -60,7 +61,10 @@ const AttachmentTab: FC<Props> = ({
         return <ChartIcon className={className} />;
       }
 
-      if (isCustomGridAttachment(attachment)) {
+      if (
+        isCustomGridAttachment(attachment) ||
+        isCrossDatasetGrid(attachment)
+      ) {
         return <ColumnsIcon className={className} />;
       }
 

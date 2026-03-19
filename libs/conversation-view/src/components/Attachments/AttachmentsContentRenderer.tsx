@@ -13,6 +13,7 @@ import {
   isGridAttachment,
   isMarkdownAttachment,
   isUrlAttachment,
+  isCrossDatasetGrid,
 } from '../../utils/attachments/attachment-parser';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import GridAttachment from './BaseAttachments/GridAttachment';
@@ -21,6 +22,7 @@ import CustomChartAttachment from './CustomAttachments/CustomChartAttachment';
 import { CodeAttachment } from './CustomAttachments/CodeAttachment';
 import { AttachmentsActions } from '../../models/actions';
 import { useConversationViewTitles } from '../../context/ConversationViewTitlesContext';
+import CrossDatasetGridAttachment from './CustomAttachments/CrossDatasetGridAttachment';
 
 interface Props {
   selectedAttachment: Attachment;
@@ -65,6 +67,15 @@ const AttachmentsContentRenderer: FC<Props> = ({
           isChartColumnVisible={isOpenedAdvancedView}
           fixHeight={!isOpenedAdvancedView}
           titles={titles}
+          showLimitMessage={showLimitMessage}
+        />
+      )}
+      {isCrossDatasetGrid(selectedAttachment) && (
+        <CrossDatasetGridAttachment
+          attachment={selectedAttachment}
+          isDataLoading={isDataLoading}
+          isChartColumnVisible={isOpenedAdvancedView}
+          fixHeight={!isOpenedAdvancedView}
           showLimitMessage={showLimitMessage}
         />
       )}

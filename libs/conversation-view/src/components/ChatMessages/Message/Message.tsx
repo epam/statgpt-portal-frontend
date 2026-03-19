@@ -54,6 +54,8 @@ import { AssistantActionsPanel } from '../AssistantActions/AssistantActions';
 import { RequestActionsPanel } from '../RequestActions/RequestActions';
 import MessageEdit from '../MessageEdit/MessageEdit';
 import { ChoiceButtons } from '../../ConversationOnboarding/ChoiceButtons/ChoiceButtons';
+import { useAttachmentsDataMultipleQueries } from '../../../context/AttachmentsDataMultipleQueries';
+import { useCrossDatasetMode } from '../../../context/CrossDatasetModeContext';
 
 interface Props {
   message: MessageType;
@@ -126,6 +128,7 @@ const Message: FC<Props> = ({
     useState<string>();
   const [isDataSetAttachments, setIsDataSetAttachments] =
     useState<boolean>(false);
+  const { isCrossDatasetModeOn } = useCrossDatasetMode();
   const isUser = message.role === Role.User;
   const isSystem = message.role === Role.System;
   const {
@@ -163,7 +166,22 @@ const Message: FC<Props> = ({
         : void 0,
       isLoadingDatasets,
     );
+
+  const { crossDsGridAttachment, isLoadingGridData: isLoadingCrossDsGridData } =
+    useAttachmentsDataMultipleQueries(
+      actions,
+      locale,
+      attachmentsDataQueries,
+      attachmentsStyles?.chartingStyles,
+      formattingSettings,
+      metadataSettings,
+    );
   const { isOpenedAdvancedView } = useAdvancedView();
+
+  const isDataLoading = useMemo(
+    () => (isCrossDatasetModeOn ? isLoadingCrossDsGridData : isLoadingGridData),
+    [isCrossDatasetModeOn, isLoadingCrossDsGridData, isLoadingGridData],
+  );
 
   const onEditClick = () => {
     if (isUser) {
@@ -288,7 +306,11 @@ const Message: FC<Props> = ({
         actions={actions}
         titles={titles}
         attachments={
-          isDataSetAttachments ? dataSetAttachments : baseGridAttachments
+          isDataSetAttachments
+            ? isCrossDatasetModeOn
+              ? [crossDsGridAttachment]
+              : dataSetAttachments
+            : baseGridAttachments
         }
         onAdvancedViewOpen={onAdvancedViewOpen}
         isDataSetAttachments={isDataSetAttachments}
@@ -298,7 +320,7 @@ const Message: FC<Props> = ({
         attachmentsStyles={attachmentsStyles}
         showAdvancedView={showAdvancedView}
         isSystemAttachments={isSystem}
-        isDataLoading={isLoadingGridData}
+        isDataLoading={isDataLoading}
         currentDataQuery={currentAttachmentDataQuery}
         dataQueries={attachmentsDataQueries}
         attachmentInfoList={attachmentInfoList}
@@ -315,13 +337,14 @@ const Message: FC<Props> = ({
       isDataSetAttachments,
       dataSetAttachments,
       baseGridAttachments,
+      crossDsGridAttachment,
       datasets,
       initialSelectedDatasetUrn,
       messageStyles,
       attachmentsStyles,
       showAdvancedView,
       isSystem,
-      isLoadingGridData,
+      isDataLoading,
       currentAttachmentDataQuery,
       attachmentsDataQueries,
       attachmentInfoList,
@@ -412,7 +435,7 @@ const Message: FC<Props> = ({
                     isRegenerateAvailable={isLastNotUserMessage}
                   />
                 ))}
-              {!isOpenedAdvancedView && !isLoadingGridData && (
+              {!isOpenedAdvancedView && !isDataLoading && (
                 <ChoiceButtons
                   choiceButtons={choiceButtons}
                   onClick={selectMessageToSend}

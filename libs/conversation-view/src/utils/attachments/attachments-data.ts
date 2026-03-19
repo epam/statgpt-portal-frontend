@@ -53,8 +53,9 @@ export const getStructureData = async (
 ): Promise<StructureData> => {
   const structureData = initStructureData();
 
-  for (const dataQuery of dataQueries) {
-    getDataSetAction(dataQuery.urn).then((dataSet) => {
+  await Promise.all(
+    dataQueries.map(async (dataQuery) => {
+      const dataSet = await getDataSetAction(dataQuery.urn);
       if (dataSet?.data) {
         const dimensions = getDimensions(dataSet.data);
 
@@ -78,7 +79,7 @@ export const getStructureData = async (
           dimensions,
         );
 
-        getDataSetData(
+        await getDataSetData(
           dataQuery,
           { filterKey, timeFilter },
           getDataSetDataAction,
@@ -92,8 +93,8 @@ export const getStructureData = async (
           })
           .finally(() => setIsLoadingGridData(false));
       }
-    });
-  }
+    }),
+  );
   return structureData;
 };
 
