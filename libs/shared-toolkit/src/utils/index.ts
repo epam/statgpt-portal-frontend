@@ -1,4 +1,5 @@
 export * from './conversation-id-to-navigation';
+export * from './conversation-attachments';
 export * from './conversation-name';
 export * from './conversation-navigation-to-id';
 export * from './format-numbers';

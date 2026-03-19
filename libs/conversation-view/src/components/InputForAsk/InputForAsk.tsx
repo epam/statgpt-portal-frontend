@@ -13,6 +13,7 @@ interface Props {
   containerClasses?: string;
   inputClasses?: string;
   inProcess?: boolean;
+  disabled?: boolean;
   placeholder?: string;
   sendMessageIcon?: ReactNode;
   isLastFailed?: boolean;
@@ -24,6 +25,7 @@ interface Props {
 
 const InputForAsk: FC<Props> = ({
   inProcess,
+  disabled,
   containerClasses,
   inputClasses,
   placeholder,
@@ -44,7 +46,7 @@ const InputForAsk: FC<Props> = ({
   );
 
   const onSend = (value: string) => {
-    if (inProcess) {
+    if (inProcess || disabled) {
       return;
     }
 
@@ -53,6 +55,10 @@ const InputForAsk: FC<Props> = ({
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (disabled) {
+      return;
+    }
+
     if (event.key === KeyboardKey.Enter && !event.shiftKey) {
       if (isLastFailed) {
         onRetryFailed?.();
@@ -63,6 +69,10 @@ const InputForAsk: FC<Props> = ({
   };
 
   const getIcon = () => {
+    if (disabled) {
+      return null;
+    }
+
     if (isLastFailed) {
       return (
         <IconButton
@@ -101,6 +111,7 @@ const InputForAsk: FC<Props> = ({
       placeholder={placeholder}
       onChange={onInputChange}
       onKeyDown={onKeyDown}
+      disabled={disabled}
       cssClass={classNames(inputClasses, 'input-for-ask')}
       value={inputData}
       iconAfterInput={getIcon()}

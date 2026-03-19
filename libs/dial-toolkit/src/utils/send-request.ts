@@ -5,13 +5,17 @@ export const sendRequest = async (
   headers: Record<string, string>,
   options: RequestOptions,
 ) => {
+  const body =
+    options?.body === undefined
+      ? undefined
+      : options?.isFormData
+        ? (options.body as BodyInit)
+        : JSON.stringify(options.body);
+
   return await fetch(url, {
     method: options.method || 'GET',
     headers,
-    body:
-      options?.isFormData && typeof options?.body === 'string'
-        ? options.body
-        : JSON.stringify(options.body),
+    body,
     signal: options?.signal,
   });
 };

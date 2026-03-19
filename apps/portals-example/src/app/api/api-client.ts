@@ -5,6 +5,12 @@ interface RequestOptions {
   body?: unknown;
 }
 
+interface CustomRequestOptions {
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  body?: BodyInit;
+  headers?: HeadersInit;
+}
+
 async function handleResponse<T>(
   response: Response,
   errorMessage: string,
@@ -103,4 +109,18 @@ export async function apiRequestBlob(
 
   const data = await response.blob();
   return { success: true, data };
+}
+
+export async function apiRequestVoidWithOptions(
+  url: string,
+  errorMessage: string,
+  options?: CustomRequestOptions,
+): Promise<ApiResponse<void>> {
+  const response = await fetch(url, {
+    method: options?.method,
+    body: options?.body,
+    headers: options?.headers,
+  });
+
+  return handleVoidResponse(response, errorMessage);
 }

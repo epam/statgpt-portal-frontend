@@ -176,6 +176,39 @@ export class ConversationApi {
     }
   }
 
+  async deleteFile(filePath: string, token: string): Promise<void> {
+    try {
+      const endpoint = `${DIAL_API_ROUTES.VERSION}/${encodeApiUrl(filePath)}`;
+      await this.client.request(endpoint, token, { method: 'DELETE' });
+    } catch (error) {
+      if (isError(error)) {
+        return;
+      }
+      throw error;
+    }
+  }
+
+  async putFile(filePath: string, file: Blob, token: string): Promise<void> {
+    try {
+      const endpoint = `${DIAL_API_ROUTES.VERSION}/${encodeApiUrl(filePath)}`;
+      const formData = new FormData();
+      const fileName = decodeURIComponent(filePath.split('/').at(-1) ?? 'file');
+
+      formData.append('attachment', file, fileName);
+
+      await this.client.request(endpoint, token, {
+        method: 'PUT',
+        body: formData,
+        isFormData: true,
+      });
+    } catch (error) {
+      if (isError(error)) {
+        return;
+      }
+      throw error;
+    }
+  }
+
   async createConversation(
     data: CreateConversationRequest,
     token: string,

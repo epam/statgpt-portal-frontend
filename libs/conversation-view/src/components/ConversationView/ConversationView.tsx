@@ -88,6 +88,7 @@ import { ConversationViewTitles } from '../../models/titles';
 import { ConversationViewTitlesProvider } from '../../context/ConversationViewTitlesContext';
 import { getRedirectConversationPath } from '../../utils/get-conversation-path';
 import { generateConversation } from '../../utils/generate-conversation';
+import { duplicateConversationAttachments } from '../../utils/duplicate-conversation-attachments';
 
 import { ABORT_ERROR } from '../../constants/errors';
 import { useOnboarding } from '../../context/OnboardingContext';
@@ -216,8 +217,17 @@ export const ConversationView: FC<Props> = ({
   const duplicateConversation = useCallback(async () => {
     try {
       const { bucket } = await actions.getBucket();
+      const conversationWithDuplicatedAttachments =
+        actions.getFileBlob && actions.putFile
+          ? await duplicateConversationAttachments({
+              conversation: conversation as Conversation,
+              bucket,
+              getFileBlob: actions.getFileBlob,
+              putFile: actions.putFile,
+            })
+          : (conversation as Conversation);
       const newConversation = generateConversation(
-        conversation as Conversation,
+        conversationWithDuplicatedAttachments,
         bucket,
         locale,
       );
@@ -850,7 +860,7 @@ export const ConversationView: FC<Props> = ({
         )}
         <div
           className={classNames(
-            'flex-1 min-h-0 flex flex-col items-end hover:overflow-y-auto',
+            'flex-1 min-h-0 flex flex-col items-end scroll-hidden-container',
             messageStyles?.messagesWrapperClass,
           )}
         >

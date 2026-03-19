@@ -26,6 +26,11 @@ import {
 import { getExternalLink } from '../../utils/attachments-details';
 import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
 import { useCrossDatasetMode } from '../../context/CrossDatasetModeContext';
+import { TableSettingsPanel } from './TableSettings/TableSettingsPanel';
+import {
+  TableSettingsProvider,
+  useTableSettingsContext,
+} from './TableSettings/TableSettingsContext';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -45,7 +50,23 @@ interface Props {
   datasetInfoOptions?: DatasetInfoOptions;
 }
 
-export const AdvancedView: FC<Props> = ({
+export const AdvancedView: FC<Props> = ({ attachmentsProps, ...props }) => {
+  const currentUrn = useMemo(
+    () =>
+      attachmentsProps.currentDataQuery?.urn ??
+      attachmentsProps.dataQueries?.[0]?.urn ??
+      'default',
+    [attachmentsProps.currentDataQuery?.urn, attachmentsProps.dataQueries],
+  );
+
+  return (
+    <TableSettingsProvider currentUrn={currentUrn}>
+      <AdvancedViewInternal attachmentsProps={attachmentsProps} {...props} />
+    </TableSettingsProvider>
+  );
+};
+
+const AdvancedViewInternal: FC<Props> = ({
   attachmentsProps,
   actions,
   titles,
@@ -63,6 +84,14 @@ export const AdvancedView: FC<Props> = ({
     props.filtersProps.conversation?.messages?.at(-1)?.custom_content
       ?.attachments;
   const { isCrossDatasetModeOn } = useCrossDatasetMode();
+
+  const {
+    tableSettings: {
+      isOpen: isTableSettingsPanelOpened,
+      close: closeTableSettingsHandler,
+    },
+    agGrid: { gridApi, initialColumnsState },
+  } = useTableSettingsContext();
 
   const {
     dataMessage,
@@ -181,43 +210,56 @@ export const AdvancedView: FC<Props> = ({
                 getDatasetUpdatedTime={getDatasetUpdatedTime}
                 externalLink={externalLink}
               />
-              <div
-                className={classNames(
-                  'flex-1 min-h-0 overflow-auto',
-                  'advanced-view-filters',
+              <div className="flex flex-1 min-h-0 overflow-auto border-t border-neutrals-500">
+                <div
+                  className={classNames(
+                    'flex-1 min-h-0 overflow-auto',
+                    'advanced-view-filters',
+                  )}
+                >
+                  <DataDetails
+                    {...props}
+                    titles={titles}
+                    actions={actions}
+                    attachments={
+                      isCrossDatasetModeOn
+                        ? [crossDsGridAttachment]
+                        : dataSetAttachments
+                    }
+                    attachmentsDataQuery={attachmentsProps.currentDataQuery}
+                    dataQueries={attachmentsProps?.dataQueries}
+                    dimensions={dimensions}
+                    attachmentsStyles={attachmentsProps.styles}
+                    isDataLoading={isDataLoading}
+                    locale={locale}
+                    filtersProps={{
+                      ...props?.filtersProps,
+                      structureDimensions,
+                      structures,
+                      structureDataMaps: {
+                        dimensionsMap,
+                        structuresMap,
+                        structureDimensionsMap,
+                        constraintsMap,
+                      },
+                      onFiltersChange,
+                      initialConstraints: constraints,
+                    }}
+                    setIsFiltering={setIsFiltering}
+                    attachmentsConfig={attachmentsConfig}
+                    filters={filters}
+                    onFiltersChange={handleFiltersChange}
+                  />
+                </div>
+                {isTableSettingsPanelOpened && (
+                  <TableSettingsPanel
+                    onClose={closeTableSettingsHandler}
+                    gridApi={gridApi}
+                    initialColumnsState={initialColumnsState}
+                    title={attachmentsProps.styles?.columnsTitle}
+                    resetTitle={attachmentsProps.styles?.columnsResetTitle}
+                  />
                 )}
-              >
-                <DataDetails
-                  {...props}
-                  titles={titles}
-                  actions={actions}
-                  attachments={
-                    isCrossDatasetModeOn
-                      ? [crossDsGridAttachment]
-                      : dataSetAttachments
-                  }
-                  attachmentsDataQuery={attachmentsProps.currentDataQuery}
-                  dataQueries={attachmentsProps?.dataQueries}
-                  dimensions={dimensions}
-                  attachmentsStyles={attachmentsProps.styles}
-                  isDataLoading={isDataLoading}
-                  locale={locale}
-                  filtersProps={{
-                    ...props?.filtersProps,
-                    structureDimensions,
-                    structures,
-                    dimensionsMap,
-                    structureDimensionsMap,
-                    structuresMap,
-                    onFiltersChange,
-                    initialConstraints: constraints,
-                    initialConstraintsMap: constraintsMap,
-                  }}
-                  setIsFiltering={setIsFiltering}
-                  attachmentsConfig={attachmentsConfig}
-                  filters={filters}
-                  onFiltersChange={handleFiltersChange}
-                />
               </div>
             </>
           )}

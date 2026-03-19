@@ -14,6 +14,7 @@ import {
 import AttachmentTabs from './Tabs/AttachmentTabs/AttachmentTabs';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import { ConversationViewTitles } from '../../models/titles';
+import ColumnsIcon from '../../assets/icons/columns.svg';
 
 interface Props {
   attachments: (
@@ -30,6 +31,9 @@ interface Props {
   limitMessages?: LimitMessages;
   onSelectedAttachmentChange: (index: number) => void;
   onDownloadClick: () => void;
+  showAdvancedView?: boolean;
+  isTableSettingsOpen?: boolean;
+  onTableSettingsOpen?: () => void;
 }
 
 const AttachmentsViewModePanel: FC<Props> = ({
@@ -43,7 +47,15 @@ const AttachmentsViewModePanel: FC<Props> = ({
   limitMessages,
   onSelectedAttachmentChange,
   onDownloadClick,
+  showAdvancedView,
+  isTableSettingsOpen,
+  onTableSettingsOpen,
 }) => {
+  const shouldShowColumnsButton =
+    !showAdvancedView &&
+    !!onTableSettingsOpen &&
+    !!(selectedAttachment && isCustomGridAttachment(selectedAttachment));
+
   return (
     <div className="flex min-w-0 w-full justify-between itms-center">
       <AttachmentTabs
@@ -66,10 +78,21 @@ const AttachmentsViewModePanel: FC<Props> = ({
               />
             </a>
           )}
+        {shouldShowColumnsButton && (
+          <Button
+            disabled={isTableSettingsOpen}
+            buttonClassName="text-button-tertiary !p-0 !h-6"
+            textClassName="ml-1"
+            iconBefore={<ColumnsIcon className="size-4" />}
+            title={attachmentsStyles?.columnsTitle || 'Columns'}
+            onClick={onTableSettingsOpen}
+          />
+        )}
         {selectedAttachment && isCustomGridAttachment(selectedAttachment) && (
           <Button
             title={attachmentsStyles?.downloadTitle || 'Download'}
-            buttonClassName="text-button-tertiary small-icon-button"
+            buttonClassName="text-button-tertiary small-icon-button !p-0 !h-6"
+            textClassName="ml-1"
             onClick={onDownloadClick}
             iconBefore={attachmentsStyles?.downloadIcon}
           />

@@ -1,9 +1,9 @@
 'use client';
 
-import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
+import { DataConstraints, StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
 import { useIsMobile } from '@epam/statgpt-ui-components';
-import { FC, useCallback } from 'react';
+import { FC, ReactNode, useCallback } from 'react';
 import {
   Filter,
   FiltersModalProps,
@@ -24,6 +24,8 @@ interface Props {
   timeRangeOptions?: TimeRangeOptions[];
   modalProps?: FiltersModalProps;
   initialConstraints?: DataConstraints[];
+  datasetIcon?: ReactNode;
+  structuresMap?: Map<string, StructuralData | undefined>;
   setSelectedFilter: (filter?: Filter) => void;
   onSelectDisplayMode: (filterId?: string, displayMode?: string) => void;
   onDeleteFilter?: (filterId?: string) => void;
@@ -42,6 +44,8 @@ const FilterSettings: FC<Props> = ({
   timeSeriesCount,
   timeRangeOptions,
   initialConstraints,
+  datasetIcon,
+  structuresMap,
   setSelectedFilter,
   onSelectDisplayMode,
   onDeleteFilter,
@@ -150,6 +154,8 @@ const FilterSettings: FC<Props> = ({
           onDeleteFilter={onDeleteFilter}
           isDisableValues={isDisableValues}
           initialConstraints={initialConstraints}
+          datasetIcon={datasetIcon}
+          structuresMap={structuresMap}
           timeRangeOptions={timeRangeOptions}
           selectFilterValue={onSelectFilterValue}
           selectHierarchicalNodes={onSelectHierarchicalNodes}

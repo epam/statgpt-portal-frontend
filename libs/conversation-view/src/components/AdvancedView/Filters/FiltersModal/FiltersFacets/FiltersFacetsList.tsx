@@ -1,9 +1,9 @@
 'use client';
 
-import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
+import { DataConstraints, StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
 import classNames from 'classnames';
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 import {
   Filter,
   FilterTreeNodeProps,
@@ -11,6 +11,7 @@ import {
 } from '../../../../../models/filters';
 import { ConversationViewTitles } from '../../../../../models/titles';
 import FiltersFacetItem from './FiltersFacetItem';
+import { getDatasetNameFromFilters } from '../../../../../utils/multiple-filters';
 
 interface Props {
   filtersList: Filter[];
@@ -24,6 +25,8 @@ interface Props {
   timeRangeOptions?: TimeRangeOptions[];
   titles?: ConversationViewTitles;
   initialConstraints?: DataConstraints[];
+  datasetIcon?: ReactNode;
+  structuresMap?: Map<string, StructuralData | undefined>;
   onTimePeriodChange: (
     timeRange: TimeRange | null,
     selectedOption: string | number,
@@ -44,6 +47,8 @@ const FiltersFacetsList: FC<Props> = ({
   isDisableValues,
   timeRangeOptions,
   initialConstraints,
+  datasetIcon,
+  structuresMap,
   onTimePeriodChange,
   selectFilterValue,
   selectHierarchicalNodes,
@@ -74,6 +79,8 @@ const FiltersFacetsList: FC<Props> = ({
           onTimePeriodChange={onTimePeriodChange}
           filterValuesProps={filterValuesProps}
           initialConstraints={initialConstraints}
+          datasetIcon={datasetIcon}
+          datasetName={getDatasetNameFromFilters(filter, structuresMap)}
         />
       ))}
     </div>

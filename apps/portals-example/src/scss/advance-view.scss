@@ -86,18 +86,28 @@
     @apply pl-6 pt-2;
   }
 
-  &-facet-item {
-    &-counter {
-      @apply text-neutrals-800 body-3;
+  &-facet {
+    &-dataset-icon {
+      @apply text-neutrals-800 mr-1;
     }
-
-    &-icon {
-      @apply body-3;
+    &-dataset-name {
+      @apply mt-4 mb-1;
+      @apply inline-flex items-center;
+      @apply text-neutrals-800;
     }
+    &-item {
+      &-counter {
+        @apply text-neutrals-800 body-3;
+      }
 
-    &-settings {
-      .base-icon-button {
-        @apply h-[20px] w-[20px] p-0;
+      &-icon {
+        @apply body-3;
+      }
+
+      &-settings {
+        .base-icon-button {
+          @apply h-[20px] w-[20px] p-0;
+        }
       }
     }
   }

@@ -16,7 +16,7 @@ import {
 } from '../types/actions';
 import {
   getDataConstraintsMap,
-  getStructureData,
+  getStructureDataMaps,
 } from '../utils/attachments/attachments-data';
 import { CustomGridAttachment } from '../models/attachments';
 import { createInitialCrossDatasetGridAttachment } from '../constants/attachments';
@@ -79,18 +79,18 @@ export function useAttachmentsDataMultipleQueries(
 
   const loadStructureData = useCallback(
     async (dataQueries: DataQuery[]) => {
-      const structureData = await getStructureData(
+      const structureDataMaps = await getStructureDataMaps(
         dataQueries,
         actions.getDataSet,
         actions.getDataSetData,
         setIsLoadingGridData,
       );
 
-      setDatasetsMap(structureData?.datasetsMap);
-      setStructuresMap(structureData?.structuresMap);
-      setDimensionsMap(structureData?.dimensionsMap);
-      setDataMessagesMap(structureData?.dataMessagesMap);
-      setStructureDimensionsMap(structureData?.structureDimensionsMap);
+      setDatasetsMap(structureDataMaps?.datasetsMap);
+      setStructuresMap(structureDataMaps?.structuresMap);
+      setDimensionsMap(structureDataMaps?.dimensionsMap);
+      setDataMessagesMap(structureDataMaps?.dataMessagesMap);
+      setStructureDimensionsMap(structureDataMaps?.structureDimensionsMap);
     },
     [actions],
   );
