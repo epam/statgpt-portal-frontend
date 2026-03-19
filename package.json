@@ -6,6 +6,7 @@
     "build": "nx run-many -t build && npm run build:styles",
     "start": "nx serve portals-example --port=4001",
     "test": "nx run-many -t test --runInBand",
+    "test:verbose": "nx run-many -t test --runInBand --output-style=stream",
     "lint": "nx run-many --target=lint --all",
     "lint:fix": "nx run-many --target=lint --all --fix",
     "format": "prettier --check .",
@@ -21,6 +22,9 @@
   },
   "private": true,
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@epam/ai-dial-shared": "^0.43.3",
     "@floating-ui/react": "^0.27.14",
     "@monaco-editor/react": "^4.7.0",

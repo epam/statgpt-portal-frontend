@@ -1,9 +1,9 @@
 'use client';
 
 import { CustomGridAttachment } from '../../../models/attachments';
-import { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Loader, SERIES_LIMIT } from '@epam/statgpt-ui-components';
-import type { ColDef } from 'ag-grid-community';
+import type { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { GridData } from '../../../types/data-grid/grid-data';
 import { getGridHeight } from '../../../utils/attachments/data-grid/grid-height';
@@ -33,6 +33,7 @@ interface Props {
   fixHeight?: boolean;
   titles?: ConversationViewTitles;
   showLimitMessage?: (p: boolean) => void;
+  onApiReady?: (api: GridApi) => void;
 }
 
 const CustomDataGridAttachment: FC<Props> = ({
@@ -42,6 +43,7 @@ const CustomDataGridAttachment: FC<Props> = ({
   fixHeight,
   titles,
   showLimitMessage,
+  onApiReady,
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [rowData, setRowData] = useState<GridData[]>([]);
@@ -65,6 +67,7 @@ const CustomDataGridAttachment: FC<Props> = ({
         }
         return col;
       });
+
       setRowData(attachment.grid_data.data);
       setColumnDefs(columns);
       setIsLoading(false);
@@ -127,9 +130,17 @@ const CustomDataGridAttachment: FC<Props> = ({
     isLoading,
   ]);
 
+  const handleGridReady = useCallback(
+    (event: GridReadyEvent) => {
+      onApiReady?.(event.api);
+    },
+    [onApiReady],
+  );
+
   const memoizedGrid = useMemo(
     () => (
       <AgGridReact
+        onGridReady={handleGridReady}
         headerHeight={GRID_HEADER_HEIGHT}
         rowHeight={GRID_ROW_HEIGHT}
         rowData={rowData}
@@ -145,7 +156,7 @@ const CustomDataGridAttachment: FC<Props> = ({
         }}
       />
     ),
-    [rowData, columnDefs],
+    [rowData, columnDefs, handleGridReady],
   );
 
   if (isLoading || isDataLoading) {

@@ -16,7 +16,7 @@ interface Props {
 
 const AttachmentTabs: FC<Props> = ({ attachments, ...props }) => {
   return (
-    <div className="flex items-center w-full flex-wrap attachments-tabs">
+    <div className="flex items-center w-fit flex-wrap attachments-tabs">
       {attachments.map((attachment, index) => (
         <AttachmentTab
           key={index}
