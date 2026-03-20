@@ -17,7 +17,7 @@ import {
 import { localizeTimePeriod } from '../time-period';
 import { ConversationViewTitles } from '../../../models/titles';
 
-export function getCrossDsTimeseriesColumns(
+export function getCrossDatasetTimeseriesColumns(
   dataMessagesMap: Map<string, DataMessage | null>,
   formattingSettings?: FormatNumbersType,
   titles?: ConversationViewTitles,

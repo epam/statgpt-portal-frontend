@@ -57,7 +57,7 @@ export function useAttachmentsDataMultipleQueries(
     useState<Map<string, DatasetDimensionsScheme | undefined>>();
   const [isLoadingGridData, setIsLoadingGridData] = useState(false);
 
-  const [crossDsGridAttachment, setCrossDsGridAttachment] =
+  const [crossDatasetGridAttachment, setCrossDatasetGridAttachment] =
     useState<CustomGridAttachment>(
       createInitialCrossDatasetGridAttachment(titles?.dataGrid),
     );
@@ -83,7 +83,6 @@ export function useAttachmentsDataMultipleQueries(
         dataQueries,
         actions.getDataSet,
         actions.getDataSetData,
-        setIsLoadingGridData,
       );
 
       setDatasetsMap(structureDataMaps?.datasetsMap);
@@ -97,19 +96,22 @@ export function useAttachmentsDataMultipleQueries(
 
   const { getDimensionsScheme } = useDatasetDimensionsMetadataMap();
 
-  const loadDimensionsSchemes = useCallback((dataQueries: DataQuery[]) => {
-    const dimensionSchemesMap = new Map<
-      string,
-      DatasetDimensionsScheme | undefined
-    >();
-    for (const dataQuery of dataQueries) {
-      dimensionSchemesMap.set(
-        dataQuery.urn,
-        getDimensionsScheme(dataQuery.urn),
-      );
-    }
-    setDatasetDimensionsSchemesMap(dimensionSchemesMap);
-  }, []);
+  const loadDimensionsSchemes = useCallback(
+    (dataQueries: DataQuery[]) => {
+      const dimensionSchemesMap = new Map<
+        string,
+        DatasetDimensionsScheme | undefined
+      >();
+      for (const dataQuery of dataQueries) {
+        dimensionSchemesMap.set(
+          dataQuery.urn,
+          getDimensionsScheme(dataQuery.urn),
+        );
+      }
+      setDatasetDimensionsSchemesMap(dimensionSchemesMap);
+    },
+    [getDimensionsScheme],
+  );
 
   useEffect(() => {
     async function loadDataSets(dataQueries: DataQuery[]) {
@@ -147,7 +149,7 @@ export function useAttachmentsDataMultipleQueries(
       datasetDimensionsSchemesMap != null &&
       !isLoadingGridData
     ) {
-      setCrossDsGridAttachment((prev) => ({
+      setCrossDatasetGridAttachment((prev) => ({
         ...prev,
         ...buildCrossDatasetGridAttachment(
           structuresMap,
@@ -190,6 +192,6 @@ export function useAttachmentsDataMultipleQueries(
     constraintsMap,
     datasetDimensionsSchemesMap,
     isLoadingGridData,
-    crossDsGridAttachment,
+    crossDatasetGridAttachment,
   };
 }

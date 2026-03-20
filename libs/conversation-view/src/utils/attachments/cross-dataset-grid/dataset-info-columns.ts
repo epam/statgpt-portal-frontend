@@ -9,7 +9,7 @@ import {
   DEFAULT_DATASET_COL_TITLE,
 } from '../../../constants/cross-dataset-grid';
 
-export function getCrossDsDatasetInfoColumns(
+export function getCrossDatasetInfoColumns(
   structuresMap: Map<string, StructuralData | undefined>,
   locale: string,
   titles?: ConversationViewTitles,

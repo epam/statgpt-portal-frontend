@@ -167,15 +167,17 @@ const Message: FC<Props> = ({
       isLoadingDatasets,
     );
 
-  const { crossDsGridAttachment, isLoadingGridData: isLoadingCrossDsGridData } =
-    useAttachmentsDataMultipleQueries(
-      actions,
-      locale,
-      attachmentsDataQueries,
-      attachmentsStyles?.chartingStyles,
-      formattingSettings,
-      metadataSettings,
-    );
+  const {
+    crossDatasetGridAttachment,
+    isLoadingGridData: isLoadingCrossDsGridData,
+  } = useAttachmentsDataMultipleQueries(
+    actions,
+    locale,
+    attachmentsDataQueries,
+    attachmentsStyles?.chartingStyles,
+    formattingSettings,
+    metadataSettings,
+  );
   const { isOpenedAdvancedView } = useAdvancedView();
 
   const isDataLoading = useMemo(
@@ -308,7 +310,7 @@ const Message: FC<Props> = ({
         attachments={
           isDataSetAttachments
             ? isCrossDatasetModeOn
-              ? [crossDsGridAttachment]
+              ? [crossDatasetGridAttachment]
               : dataSetAttachments
             : baseGridAttachments
         }
@@ -337,7 +339,7 @@ const Message: FC<Props> = ({
       isDataSetAttachments,
       dataSetAttachments,
       baseGridAttachments,
-      crossDsGridAttachment,
+      crossDatasetGridAttachment,
       datasets,
       initialSelectedDatasetUrn,
       messageStyles,

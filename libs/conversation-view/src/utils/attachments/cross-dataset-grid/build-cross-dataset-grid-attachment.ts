@@ -20,8 +20,8 @@ import { ConversationViewTitles } from '../../../models/titles';
 
 export function buildCrossDatasetGridAttachment(
   structuresMap: Map<string, StructuralData | undefined>,
-  dataMessage: Map<string, DataMessage | null>,
-  datasetDimensionsSchemesMap: Map<string, DatasetDimensionsScheme | undefined>,
+  dataMessageMap: Map<string, DataMessage | null>,
+  datasetDimensionsSchemeMap: Map<string, DatasetDimensionsScheme | undefined>,
   dataQueries: DataQuery[],
   locale: string,
   formattingSettings?: FormatNumbersType,
@@ -33,8 +33,8 @@ export function buildCrossDatasetGridAttachment(
 ): Partial<CrossDatasetGridAttachmentType> {
   const gridContent = buildCrossDatasetGridContent(
     structuresMap,
-    dataMessage,
-    datasetDimensionsSchemesMap,
+    dataMessageMap,
+    datasetDimensionsSchemeMap,
     dataQueries,
     locale,
     formattingSettings,

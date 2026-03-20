@@ -8,4 +8,4 @@ export const DEFAULT_INDICATOR_COL_TITLE = 'Indicator dimensions';
 export const INDICATOR_COL_ID = 'indicator_aggregated';
 export const DEFAULT_FREQUENCY_COL_TITLE = 'Frequency';
 export const FREQUENCY_COL_ID = 'frequency_aggregated';
-export const INDICATORS_CONCATINATION_SYMBOL = '.';
+export const INDICATORS_CONCATENATION_SYMBOL = '.';

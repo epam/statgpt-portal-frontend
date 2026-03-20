@@ -18,10 +18,10 @@ import {
   DEFAULT_INDICATOR_COL_TITLE,
   FREQUENCY_COL_ID,
   INDICATOR_COL_ID,
-  INDICATORS_CONCATINATION_SYMBOL,
+  INDICATORS_CONCATENATION_SYMBOL,
 } from '../../../constants/cross-dataset-grid';
 
-export function getCrossDsDimensionsColumns(
+export function getCrossDatasetDimensionsColumns(
   structuresMap: Map<string, StructuralData | undefined>,
   datasetDimensionsSchemesMap: Map<string, DatasetDimensionsScheme | undefined>,
   locale: string,
@@ -100,7 +100,7 @@ function buildIndicatorColDef(
     const names = indicatorDimensions.map(
       (dimId) => getDimensionValue(structures, dimId, data, locale) || '',
     );
-    return names.join(INDICATORS_CONCATINATION_SYMBOL);
+    return names.join(INDICATORS_CONCATENATION_SYMBOL);
   };
 
   return dimColDef(
@@ -158,7 +158,7 @@ function getCellParams(
   value: ValueGetterParams,
   structuresMap: Map<string, StructuralData | undefined>,
 ): {
-  data: any;
+  data: GridData;
   urn: string;
   structures: StructuralData | undefined;
 } {
