@@ -1,3 +1,4 @@
+import { getCrossDsDatasetInfoColumns } from './dataset-info-columns';
 import { getCrossDsDimensionsColumns } from './dimensions-columns';
 import { getCrossDsTimeseriesColumns } from './timeseries-columns';
 import {
@@ -17,6 +18,11 @@ export function buildCrossDatasetGridColumns(
   titles?: ConversationViewTitles,
   formattingSettings?: FormatNumbersType,
 ): ColDef[] {
+  const datasetInfoColumns = getCrossDsDatasetInfoColumns(
+    structuresMap,
+    locale,
+    titles,
+  );
   const dimColumns = getCrossDsDimensionsColumns(
     structuresMap,
     datasetDimensionsSchemesMap,
@@ -28,5 +34,5 @@ export function buildCrossDatasetGridColumns(
     formattingSettings,
     titles,
   );
-  return [...dimColumns, ...timeColumns];
+  return [...datasetInfoColumns, ...dimColumns, ...timeColumns];
 }
