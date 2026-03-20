@@ -70,8 +70,10 @@ export function buildCrossDatasetGridContent(
     columns: buildCrossDatasetGridColumns(
       structuresMap,
       datasetDimensionsSchemesMap,
+      dataMessagesMap,
       locale,
       titles,
+      formattingSettings,
     ),
     data: buildCrossDatasetGridData(
       structuresMap,
