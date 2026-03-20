@@ -14,6 +14,7 @@ import { ICellRendererParams, ColDef } from 'ag-grid-community';
 import { StructureComponentValue } from '../../models/structure-component';
 import { GridData } from '../../types/data-grid/grid-data';
 import { ConversationViewTitles } from '../../models/titles';
+import { DATASET_DESCRIPTION_ITEM_IDS } from '../../constants/metadata';
 
 export const getObsAttributesFromParams = (params: ICellRendererParams) =>
   params?.data[params?.colDef?.field || 0]?.obsAttributes;
@@ -86,9 +87,20 @@ export const getDatasetDescription = (
   locale: string,
   titles?: ConversationViewTitles,
 ) => [
-  getDatasetNameItem(dataset, locale, titles),
-  { title: titles?.agency ?? 'Agency', value: dataset?.agencyID },
-  { title: titles?.lastUpdated ?? 'Last updated', value: lastUpdatedDate },
+  {
+    ...getDatasetNameItem(dataset, locale, titles),
+    id: DATASET_DESCRIPTION_ITEM_IDS.dataset,
+  },
+  {
+    id: DATASET_DESCRIPTION_ITEM_IDS.agency,
+    title: titles?.agency ?? 'Agency',
+    value: dataset?.agencyID,
+  },
+  {
+    id: DATASET_DESCRIPTION_ITEM_IDS.lastUpdated,
+    title: titles?.lastUpdated ?? 'Last updated',
+    value: lastUpdatedDate,
+  },
 ];
 
 export const getTimeDimensionItem = (

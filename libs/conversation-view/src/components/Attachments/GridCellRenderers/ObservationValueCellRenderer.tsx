@@ -3,7 +3,7 @@
 import { FC, useCallback, useMemo, useState } from 'react';
 import { ICellRendererParams } from 'ag-grid-community';
 import Metadata from '../../AdvancedView/Metadata/Metadata';
-import SidePanelMetadataContent from '../../AdvancedView/Metadata/SidePanelMetadataContent';
+import SidePanelMetadataContent from '../../AdvancedView/Metadata/SidePanel/SidePanelMetadataContent';
 import {
   StructuralData,
   getStructureComponentsMap,

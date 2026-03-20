@@ -13,7 +13,7 @@ import { IconButton } from '@epam/statgpt-ui-components';
 import { ICellRendererParams } from 'ag-grid-community';
 import MetadataIcon from '../../../assets/icons/metadata.svg';
 import Metadata from '../../AdvancedView/Metadata/Metadata';
-import SidePanelMetadataContent from '../../AdvancedView/Metadata/SidePanelMetadataContent';
+import SidePanelMetadataContent from '../../AdvancedView/Metadata/SidePanel/SidePanelMetadataContent';
 import {
   getAttributesFromParams,
   getDatasetNameItem,

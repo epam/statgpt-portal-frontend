@@ -1,8 +1,10 @@
 'use client';
 
-import { FC, useCallback } from 'react';
-import { StructureComponentValue } from '../../../models/structure-component';
-import { ConversationViewTitles } from '../../../models/titles';
+import { FC, useCallback, useMemo } from 'react';
+import { StructureComponentValue } from '../../../../models/structure-component';
+import { ConversationViewTitles } from '../../../../models/titles';
+import { DATASET_DESCRIPTION_ITEM_IDS } from '../../../../constants/metadata';
+import SidePanelDatasetInfo from './SidePanelDatasetInfo';
 
 interface Props {
   metadata?: StructureComponentValue[];
@@ -10,6 +12,10 @@ interface Props {
   titles?: ConversationViewTitles;
   locale: string;
 }
+
+const SPECIAL_DATASET_DESCRIPTION_IDS = new Set<string>(
+  Object.values(DATASET_DESCRIPTION_ITEM_IDS),
+);
 
 const SidePanelMetadataContent: FC<Props> = ({
   metadata,
@@ -38,12 +44,55 @@ const SidePanelMetadataContent: FC<Props> = ({
     [locale],
   );
 
+  const { dataset, agency, lastUpdated, hasStructuredDatasetInfo } =
+    useMemo(() => {
+      const dataset = metadataDescription.find(
+        (item) => item?.id === DATASET_DESCRIPTION_ITEM_IDS.dataset,
+      );
+      const agency = metadataDescription.find(
+        (item) => item?.id === DATASET_DESCRIPTION_ITEM_IDS.agency,
+      );
+      const lastUpdated = metadataDescription.find(
+        (item) => item?.id === DATASET_DESCRIPTION_ITEM_IDS.lastUpdated,
+      );
+
+      return {
+        dataset,
+        agency,
+        lastUpdated,
+        hasStructuredDatasetInfo: Boolean(dataset),
+      };
+    }, [metadataDescription]);
+
+  const genericDescriptionItems = useMemo(
+    () =>
+      hasStructuredDatasetInfo
+        ? metadataDescription.filter(
+            (item) =>
+              !item?.id || !SPECIAL_DATASET_DESCRIPTION_IDS.has(item.id),
+          )
+        : metadataDescription,
+    [hasStructuredDatasetInfo, metadataDescription],
+  );
+
   return (
     <div className="flex h-full flex-col overflow-hidden px-5 py-4">
-      {metadataDescription.length > 0 && (
+      {hasStructuredDatasetInfo && dataset && (
+        <SidePanelDatasetInfo
+          dataset={dataset}
+          agency={agency}
+          lastUpdated={lastUpdated}
+          formatValue={formatValue}
+        />
+      )}
+
+      {genericDescriptionItems.length > 0 && (
         <div className="mb-8 flex flex-col gap-2">
-          {metadataDescription.map((descriptionItem) => (
-            <div key={descriptionItem?.title} className="flex gap-2 body-3">
+          {genericDescriptionItems.map((descriptionItem, index) => (
+            <div
+              key={`${descriptionItem?.id || descriptionItem?.title}-${index}`}
+              className="flex gap-2 body-3"
+            >
               <span className="shrink-0 text-neutrals-800">
                 {descriptionItem?.title}:
               </span>

@@ -29,7 +29,7 @@ import {
 } from '../../utils/attachments/metadata';
 import { MetadataSettings } from '../../models/metadata';
 import Metadata from './Metadata/Metadata';
-import SidePanelMetadataContent from './Metadata/SidePanelMetadataContent';
+import SidePanelMetadataContent from './Metadata/SidePanel/SidePanelMetadataContent';
 import { ConversationViewTitles } from '../../models/titles';
 import { StructureComponentValue } from '../../models/structure-component';
 import { Tooltip } from '../Tooltip/Tooltip';
