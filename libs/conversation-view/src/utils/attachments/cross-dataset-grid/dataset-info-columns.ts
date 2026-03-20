@@ -2,11 +2,12 @@ import { getLocalizedName, StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import { ColDef, ITooltipParams, ValueGetterParams } from 'ag-grid-community';
 import { GRID_COLUMN_FLEX } from '../../../constants/grid';
 import { ConversationViewTitles } from '../../../models/titles';
-
-const DEFAULT_DATASET_COL_TITLE = 'Dataset';
-const DATASET_COL_ID = 'dataset_name';
-const DEFAULT_AGENCY_COL_TITLE = 'Agency';
-const AGENCY_COL_ID = 'agency';
+import {
+  AGENCY_COL_ID,
+  DATASET_COL_ID,
+  DEFAULT_AGENCY_COL_TITLE,
+  DEFAULT_DATASET_COL_TITLE,
+} from '../../../constants/cross-dataset-grid';
 
 export function getCrossDsDatasetInfoColumns(
   structuresMap: Map<string, StructuralData | undefined>,

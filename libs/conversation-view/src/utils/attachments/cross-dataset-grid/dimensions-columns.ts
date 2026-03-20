@@ -11,14 +11,15 @@ import {
 } from '../localized-value';
 import { GridData } from '../../../types/data-grid/grid-data';
 import { ConversationViewTitles } from '../../../models/titles';
-
-const DEFAULT_COUNTRY_COL_TITLE = 'Country dimensions';
-const COUNTRY_COL_ID = 'country_aggregated';
-const DEFAULT_INDICATOR_COL_TITLE = 'Indicator dimensions';
-const INDICATOR_COL_ID = 'indicator_aggregated';
-const DEFAULT_FREQUENCY_COL_TITLE = 'Frequency';
-const FREQUENCY_COL_ID = 'frequency_aggregated';
-const INDICATORS_CONCATINATION_SYMBOL = '.';
+import {
+  COUNTRY_COL_ID,
+  DEFAULT_COUNTRY_COL_TITLE,
+  DEFAULT_FREQUENCY_COL_TITLE,
+  DEFAULT_INDICATOR_COL_TITLE,
+  FREQUENCY_COL_ID,
+  INDICATOR_COL_ID,
+  INDICATORS_CONCATINATION_SYMBOL,
+} from '../../../constants/cross-dataset-grid';
 
 export function getCrossDsDimensionsColumns(
   structuresMap: Map<string, StructuralData | undefined>,
