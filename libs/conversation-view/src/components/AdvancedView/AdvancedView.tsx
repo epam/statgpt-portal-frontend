@@ -1,7 +1,6 @@
 'use client';
 
 import DataDetails from './DataDetails';
-import DatasetInfo, { DatasetInfoOptions } from './DatasetInfo';
 import Header from './Header';
 import { Filter, FiltersProps } from '../../models/filters';
 import { AttachmentsConfig, AttachmentsProps } from '../../models/attachments';
@@ -15,7 +14,6 @@ import { Loader } from '@epam/statgpt-ui-components';
 import { useAttachmentsData } from '../../context/AttachmentsData';
 import { AdvanceViewStyles } from '../../models/advance-view-styles';
 import classNames from 'classnames';
-import DatasetTabs from '../Attachments/Tabs/DatasetTabs/DatasetTabs';
 import { ConversationViewTitles } from '../../models/titles';
 import { StructureComponentValue } from '../../models/structure-component';
 import { LimitMessages } from '@epam/statgpt-ui-components';
@@ -23,7 +21,6 @@ import {
   DataConstraints,
   DatasetQueryFilters,
 } from '@epam/statgpt-sdmx-toolkit';
-import { getExternalLink } from '../../utils/attachments-details';
 import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
 import { TableSettingsPanel } from './TableSettings/TableSettingsPanel';
 import {
@@ -46,7 +43,6 @@ interface Props {
   ) => string | null;
   limitMessages?: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
-  datasetInfoOptions?: DatasetInfoOptions;
 }
 
 export const AdvancedView: FC<Props> = ({ attachmentsProps, ...props }) => {
@@ -74,9 +70,7 @@ const AdvancedViewInternal: FC<Props> = ({
   formattingSettings,
   locale,
   advanceViewStyles,
-  getDatasetUpdatedTime,
   attachmentsConfig,
-  datasetInfoOptions,
   ...props
 }) => {
   const lastMessageAttachments =
@@ -92,8 +86,6 @@ const AdvancedViewInternal: FC<Props> = ({
   } = useTableSettingsContext();
 
   const {
-    dataMessage,
-    dataset,
     dimensions,
     structureDimensions,
     structures,
@@ -136,26 +128,6 @@ const AdvancedViewInternal: FC<Props> = ({
     [onFiltersChange],
   );
 
-  const onSelectDataset = useCallback(
-    (datasetUrn?: string) => {
-      if (datasetUrn) {
-        actions?.updateCurrentDataQuery(
-          attachmentsProps?.dataQueries?.find(
-            (query) => query?.urn === datasetUrn,
-          ) || attachmentsProps.currentDataQuery,
-        );
-      }
-    },
-    [actions, attachmentsProps.currentDataQuery, attachmentsProps?.dataQueries],
-  );
-
-  const externalLink = getExternalLink(
-    attachmentsConfig?.isExternaLinkIncludeFilters,
-    filters,
-    attachmentsProps.currentDataQuery || attachmentsProps.dataQueries?.[0],
-    dimensions,
-  );
-
   return (
     <div className="advanced-view flex flex-col flex-1 h-full min-w-0">
       <Header
@@ -168,32 +140,10 @@ const AdvancedViewInternal: FC<Props> = ({
         <Loader />
       ) : (
         <>
-          {attachmentsProps?.datasets?.length > 1 && (
-            <DatasetTabs
-              datasets={attachmentsProps?.datasets}
-              initialSelectedDatasetUrn={
-                attachmentsProps?.currentDataQuery?.urn
-              }
-              locale={locale}
-              isHideAdvancedViewButton={true}
-              selectDataset={onSelectDataset}
-            />
-          )}
           {isLoadingGridData && !isFiltering ? (
             <Loader />
           ) : (
             <>
-              <DatasetInfo
-                {...datasetInfoOptions}
-                titles={titles}
-                locale={locale}
-                dataset={dataset}
-                data={dataMessage?.data}
-                structures={structures}
-                metadataSettings={metadataSettings}
-                getDatasetUpdatedTime={getDatasetUpdatedTime}
-                externalLink={externalLink}
-              />
               <div className="flex flex-1 min-h-0 overflow-auto border-t border-neutrals-500">
                 <div
                   className={classNames(

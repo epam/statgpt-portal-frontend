@@ -5,22 +5,29 @@
     &.hide-advance-button {
       @apply px-6 mb-0;
     }
-  }
 
-  &-tab {
-    @apply px-1 pt-4 pb-3;
-    @apply border-b-[3px];
-
-    &-active {
-      @apply text-primary border-b-primary;
+    &-list {
+      @apply flex items-center gap-1 w-full min-w-0 overflow-hidden py-4;
     }
 
-    &-single {
-      @apply text-neutrals-800;
+    &-item-wrapper {
+      @apply inline-flex items-center min-w-0 shrink;
+    }
 
-      .dataset-tab-title {
-        @apply body-2;
-      }
+    &-item {
+      @apply bg-transparent border-0 p-0 text-left text-neutrals-800 font-semibold text-[14px] leading-[16px] truncate min-w-0 max-w-[220px];
+    }
+
+    &-item-clickable {
+      @apply cursor-pointer;
+    }
+
+    &-separator {
+      @apply bg-neutrals-600 w-px h-[12px] shrink-0 mx-2;
+    }
+
+    &-counter {
+      @apply text-neutrals-1000 font-semibold text-[14px] leading-[16px] shrink-0 mx-2;
     }
   }
 }

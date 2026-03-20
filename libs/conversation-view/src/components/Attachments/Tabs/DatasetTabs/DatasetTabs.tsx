@@ -8,8 +8,15 @@ import {
 import { Locale } from '@epam/statgpt-shared-toolkit';
 import { IconButton } from '@epam/statgpt-ui-components';
 import classNames from 'classnames';
-import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import DatasetTab from './DatasetTab';
+import {
+  FC,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useAdvancedView } from '../../../../context/AdvancedViewContext';
 import { Tooltip } from '../../../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
@@ -100,6 +107,39 @@ const DatasetTabs: FC<Props> = ({
     [selectDataset],
   );
 
+  const datasetItems = useMemo(
+    () =>
+      (datasets || []).map((dataset) => ({
+        urn: generateShortUrn(dataset?.id, dataset?.version, dataset?.agencyID),
+        title: getLocalizedName(dataset, locale || Locale.EN),
+      })),
+    [datasets, locale],
+  );
+
+  const visibleDatasetItems = useMemo(() => {
+    if (datasetItems.length <= 3) {
+      return datasetItems;
+    }
+
+    const selectedDataset = datasetItems.find(
+      (dataset) => dataset.urn === selectedDatasetUrn,
+    );
+
+    if (!selectedDataset) {
+      return datasetItems.slice(0, 3);
+    }
+
+    return [
+      selectedDataset,
+      ...datasetItems.filter((dataset) => dataset.urn !== selectedDataset.urn),
+    ].slice(0, 3);
+  }, [datasetItems, selectedDatasetUrn]);
+
+  const hiddenDatasetsCount = Math.max(
+    datasetItems.length - visibleDatasetItems.length,
+    0,
+  );
+
   return (
     <div
       className={classNames(
@@ -109,27 +149,36 @@ const DatasetTabs: FC<Props> = ({
           'hide-advance-button',
       )}
     >
-      <div className="flex items-center w-full overflow-y-auto gap-4 sm:w-[calc(100%-30px)]">
-        {datasets?.map((dataset) => (
-          <DatasetTab
-            key={dataset?.id}
-            id={dataset?.id}
-            title={getLocalizedName(dataset, locale || Locale.EN)}
-            version={dataset?.version}
-            agency={dataset?.agencyID}
-            isActive={
-              datasets?.length > 1 &&
-              selectedDatasetUrn ===
-                generateShortUrn(
-                  dataset?.id,
-                  dataset?.version,
-                  dataset?.agencyID,
-                )
-            }
-            isSingleTab={datasets?.length === 1}
-            onSelectDataset={onSelectDataset}
-          />
-        ))}
+      <div className="dataset-tabs-list sm:w-[calc(100%-30px)]">
+        {visibleDatasetItems.map((dataset, index) => {
+          const isSingleDataset = datasetItems.length === 1;
+
+          return (
+            <span key={dataset.urn} className="dataset-tabs-item-wrapper">
+              <button
+                type="button"
+                className={classNames(
+                  'dataset-tabs-item',
+                  !isSingleDataset && 'dataset-tabs-item-clickable',
+                )}
+                title={dataset.title}
+                onClick={() => {
+                  if (!isSingleDataset) {
+                    onSelectDataset(dataset.urn);
+                  }
+                }}
+              >
+                {dataset.title}
+              </button>
+              {index < visibleDatasetItems.length - 1 && (
+                <span className="dataset-tabs-separator" aria-hidden="true" />
+              )}
+            </span>
+          );
+        })}
+        {hiddenDatasetsCount > 0 && (
+          <span className="dataset-tabs-counter">+{hiddenDatasetsCount}</span>
+        )}
       </div>
       {!isHideAdvancedViewButton && (
         <div ref={iconRef}>
