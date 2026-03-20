@@ -49,7 +49,6 @@ export const getStructureDataMaps = async (
   dataQueries: DataQuery[],
   getDataSetAction: GetDatasetDetails,
   getDataSetDataAction: GetDatasetData,
-  setIsLoadingGridData: (isLoading: boolean) => void,
 ): Promise<StructureDataMaps> => {
   const structureDataMaps = initStructureDataMaps();
 
@@ -83,15 +82,13 @@ export const getStructureDataMaps = async (
           dataQuery,
           { filterKey, timeFilter },
           getDataSetDataAction,
-        )
-          .then(({ dataMessage, structureDimensions }) => {
-            structureDataMaps?.dataMessagesMap?.set(dataQuery.urn, dataMessage);
-            structureDataMaps?.structureDimensionsMap?.set(
-              dataQuery.urn,
-              structureDimensions || [],
-            );
-          })
-          .finally(() => setIsLoadingGridData(false));
+        ).then(({ dataMessage, structureDimensions }) => {
+          structureDataMaps?.dataMessagesMap?.set(dataQuery.urn, dataMessage);
+          structureDataMaps?.structureDimensionsMap?.set(
+            dataQuery.urn,
+            structureDimensions || [],
+          );
+        });
       }
     }),
   );
