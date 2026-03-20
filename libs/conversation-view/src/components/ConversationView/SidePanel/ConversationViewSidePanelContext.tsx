@@ -81,29 +81,8 @@ export function ConversationViewSidePanelProvider({
   );
 }
 
-function useConversationViewSidePanelContext() {
-  const ctx = useContext(ConversationViewSidePanelContext);
-  if (!ctx) {
-    throw new Error(
-      'useConversationViewSidePanel must be used within ConversationViewSidePanelProvider',
-    );
-  }
-  return ctx;
-}
-
 function useConversationViewSidePanelContextOptional() {
   return useContext(ConversationViewSidePanelContext);
-}
-
-export function useConversationViewSidePanel() {
-  const { openPanel, closePanel, isPanelOpen } =
-    useConversationViewSidePanelContext();
-
-  return {
-    openPanel,
-    closePanel,
-    isPanelOpen,
-  };
 }
 
 export function useConversationViewSidePanelOptional() {
@@ -127,7 +106,13 @@ export function ConversationViewSidePanelOutlet({
 }: {
   scope: 'conversation' | 'advanced';
 }) {
-  const { panel, closePanel } = useConversationViewSidePanelContext();
+  const ctx = useConversationViewSidePanelContextOptional();
+
+  if (!ctx) {
+    return null;
+  }
+
+  const { panel, closePanel } = ctx;
 
   if (!panel) {
     return null;

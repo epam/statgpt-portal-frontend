@@ -4,7 +4,7 @@ import { FC, useCallback } from 'react';
 import AttachmentRenderer from '../Attachments/AttachmentRenderer';
 import type { ComponentProps } from 'react';
 import { useTableSettingsContext } from './TableSettings/TableSettingsContext';
-import { useConversationViewSidePanel } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
+import { useConversationViewSidePanelOptional } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import {
   TABLE_SETTINGS_SIDE_PANEL_ID,
   TableSettingsPanelHeaderExtension,
@@ -18,10 +18,14 @@ export const AdvancedAttachmentRenderer: FC<AttachmentRendererProps> = ({
   ...props
 }) => {
   const { onGridApiReady } = useTableSettingsContext();
-  const { openPanel, closePanel, isPanelOpen } = useConversationViewSidePanel();
+  const sidePanel = useConversationViewSidePanelOptional();
 
   const openTableSettingsPanel = useCallback(() => {
-    openPanel({
+    if (!sidePanel) {
+      return;
+    }
+
+    sidePanel.openPanel({
       id: TABLE_SETTINGS_SIDE_PANEL_ID,
       scope: 'advanced',
       title: attachmentsStyles?.columnsTitle || 'Columns',
@@ -36,16 +40,18 @@ export const AdvancedAttachmentRenderer: FC<AttachmentRendererProps> = ({
   }, [
     attachmentsStyles?.columnsResetTitle,
     attachmentsStyles?.columnsTitle,
-    openPanel,
+    sidePanel,
   ]);
 
   return (
     <AttachmentRenderer
       {...props}
       attachmentsStyles={attachmentsStyles}
-      isTableSettingsOpen={isPanelOpen(TABLE_SETTINGS_SIDE_PANEL_ID)}
-      onTableSettingsOpen={openTableSettingsPanel}
-      onTableSettingsClose={closePanel}
+      isTableSettingsOpen={
+        sidePanel?.isPanelOpen(TABLE_SETTINGS_SIDE_PANEL_ID) ?? false
+      }
+      onTableSettingsOpen={sidePanel ? openTableSettingsPanel : undefined}
+      onTableSettingsClose={sidePanel?.closePanel}
       onGridApiReady={onGridApiReady}
     />
   );

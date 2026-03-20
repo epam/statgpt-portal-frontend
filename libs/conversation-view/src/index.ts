@@ -41,7 +41,6 @@ export {
 
 export {
   ConversationViewSidePanelProvider,
-  useConversationViewSidePanel,
   useConversationViewSidePanelOptional,
 } from './components/ConversationView/SidePanel/ConversationViewSidePanelContext';
 export type {
