@@ -13,7 +13,7 @@ import {
 } from '@epam/statgpt-shared-toolkit';
 import { Filter } from '../models/filters';
 import { getSelectedFilterValues } from './filters';
-import { getFiltersForDataset } from './multiple-filters';
+import { getFiltersForQueryContext } from './multiple-filters';
 
 export const getQueryTimeSeriesFilters = (filters: Filter[]): QueryFilter[] =>
   filters.map(
@@ -43,7 +43,7 @@ export const getQueryFilters = (
   datasetUrn?: string,
 ): DatasetQueryFilters => {
   const selectedFilterValues = getSelectedFilterValues(
-    getFiltersForDataset(filters, datasetUrn),
+    getFiltersForQueryContext(filters, datasetUrn),
   );
   const timePeriodFilter = selectedFilterValues.find(
     (filter) => filter?.isTimeDimension && filter?.timeRange,
@@ -64,7 +64,7 @@ export const setDataQueryFilters = (
   filters: Filter[],
   datasetUrn?: string,
 ): QueryFilter[] => {
-  return getFiltersForDataset(filters, datasetUrn)
+  return getFiltersForQueryContext(filters, datasetUrn)
     ?.filter(
       (filter) =>
         filter.timeRange ||

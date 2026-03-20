@@ -328,7 +328,7 @@ export const getFiltersByConstraints = (
   return mergeSharedFilters(updatedFilters);
 };
 
-export const getFiltersForDataset = (
+export const getFiltersForQueryContext = (
   filters: Filter[],
   datasetUrn?: string,
 ): Filter[] => {

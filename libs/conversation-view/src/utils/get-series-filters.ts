@@ -5,14 +5,14 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { TimeRange } from '@epam/statgpt-shared-toolkit';
 import { Filter } from '../models/filters';
-import { getFiltersForDataset } from './multiple-filters';
+import { getFiltersForQueryContext } from './multiple-filters';
 
 export const getSeriesFilterDto = (
   filters: Filter[],
   datasetUrn?: string,
 ): SeriesFilterDto[] => {
   let seriesFilters: SeriesFilterDto[] = [];
-  getFiltersForDataset(filters, datasetUrn)
+  getFiltersForQueryContext(filters, datasetUrn)
     .filter(
       (filter) =>
         filter.timeRange ||
