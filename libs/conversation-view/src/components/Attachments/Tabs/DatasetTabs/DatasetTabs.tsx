@@ -139,6 +139,15 @@ const DatasetTabs: FC<Props> = ({
     datasetItems.length - visibleDatasetItems.length,
     0,
   );
+  const hiddenDatasetTitles = datasetItems
+    .filter(
+      (dataset) =>
+        !visibleDatasetItems.some(
+          (visibleDataset) => visibleDataset.urn === dataset.urn,
+        ),
+    )
+    .map((dataset) => dataset.title)
+    .join('\n');
 
   return (
     <div
@@ -177,7 +186,9 @@ const DatasetTabs: FC<Props> = ({
           );
         })}
         {hiddenDatasetsCount > 0 && (
-          <span className="dataset-tabs-counter">+{hiddenDatasetsCount}</span>
+          <span className="dataset-tabs-counter" title={hiddenDatasetTitles}>
+            +{hiddenDatasetsCount}
+          </span>
         )}
       </div>
       {!isHideAdvancedViewButton && (

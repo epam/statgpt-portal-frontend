@@ -7,11 +7,11 @@
     }
 
     &-list {
-      @apply flex items-center gap-1 w-full min-w-0 overflow-hidden py-4;
+      @apply flex items-center gap-2 w-full min-w-0 overflow-hidden py-4;
     }
 
     &-item-wrapper {
-      @apply inline-flex items-center min-w-0 shrink;
+      @apply inline-flex items-center min-w-0 shrink gap-2;
     }
 
     &-item {
@@ -23,11 +23,11 @@
     }
 
     &-separator {
-      @apply bg-neutrals-600 w-px h-[12px] shrink-0 mx-2;
+      @apply bg-neutrals-600 w-px h-[12px] shrink-0;
     }
 
     &-counter {
-      @apply text-neutrals-1000 font-semibold text-[14px] leading-[16px] shrink-0 mx-2;
+      @apply text-neutrals-1000 font-semibold text-[14px] leading-[16px] shrink-0;
     }
   }
 }
