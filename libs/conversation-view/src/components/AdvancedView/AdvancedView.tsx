@@ -25,6 +25,7 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { getExternalLink } from '../../utils/attachments-details';
 import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
+import { useCrossDatasetMode } from '../../context/CrossDatasetModeContext';
 import { TableSettingsPanel } from './TableSettings/TableSettingsPanel';
 import {
   TableSettingsProvider,
@@ -82,6 +83,7 @@ const AdvancedViewInternal: FC<Props> = ({
   const lastMessageAttachments =
     props.filtersProps.conversation?.messages?.at(-1)?.custom_content
       ?.attachments;
+  const { isCrossDatasetModeOn } = useCrossDatasetMode();
 
   const {
     tableSettings: {
@@ -116,12 +118,26 @@ const AdvancedViewInternal: FC<Props> = ({
     structuresMap,
     structureDimensionsMap,
     constraintsMap,
-  } = useAttachmentsDataMultipleQueries(actions, attachmentsProps.dataQueries);
+    crossDatasetGridAttachment,
+    isLoadingGridData: isLoadingCrossDsGridData,
+  } = useAttachmentsDataMultipleQueries(
+    actions,
+    locale,
+    attachmentsProps.dataQueries,
+    attachmentsProps.styles?.chartingStyles,
+    formattingSettings,
+    metadataSettings,
+  );
   const [isFiltering, setIsFiltering] = useState<boolean>();
   const [filters, setFilters] = useState<DatasetQueryFilters>({
     filterKey: null,
     timeFilter: null,
   });
+
+  const isDataLoading = useMemo(
+    () => (isCrossDatasetModeOn ? isLoadingCrossDsGridData : isLoadingGridData),
+    [isCrossDatasetModeOn, isLoadingCrossDsGridData, isLoadingGridData],
+  );
 
   const handleFiltersChange = useCallback(
     (
@@ -179,7 +195,7 @@ const AdvancedViewInternal: FC<Props> = ({
               selectDataset={onSelectDataset}
             />
           )}
-          {isLoadingGridData && !isFiltering ? (
+          {isDataLoading && !isFiltering ? (
             <Loader />
           ) : (
             <>
@@ -205,12 +221,16 @@ const AdvancedViewInternal: FC<Props> = ({
                     {...props}
                     titles={titles}
                     actions={actions}
-                    attachments={dataSetAttachments}
+                    attachments={
+                      isCrossDatasetModeOn
+                        ? [crossDatasetGridAttachment]
+                        : dataSetAttachments
+                    }
                     attachmentsDataQuery={attachmentsProps.currentDataQuery}
                     dataQueries={attachmentsProps?.dataQueries}
                     dimensions={dimensions}
                     attachmentsStyles={attachmentsProps.styles}
-                    isDataLoading={isLoadingGridData}
+                    isDataLoading={isDataLoading}
                     locale={locale}
                     filtersProps={{
                       ...props?.filtersProps,
