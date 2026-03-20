@@ -83,6 +83,7 @@ export function useAttachmentsDataMultipleQueries(
         dataQueries,
         actions.getDataSet,
         actions.getDataSetData,
+        setIsLoadingGridData,
       );
 
       setDatasetsMap(structureDataMaps?.datasetsMap);

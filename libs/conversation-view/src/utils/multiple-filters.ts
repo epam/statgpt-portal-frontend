@@ -18,7 +18,6 @@ import { getFilledFilters } from './get-filled-filters';
 
 type SharedFilterConfig = {
   id: string;
-  order: number;
   getMergedValueKey: (value: FilterValue, datasetUrn?: string) => string;
 };
 
@@ -42,12 +41,10 @@ const buildMergedValueDatasetKey = (datasetUrn: string, valueId: string) =>
 const SHARED_FILTERS_CONFIG: SharedFilterConfig[] = [
   {
     id: COMMON_COUNTRY_FILTER_ID,
-    order: 0,
     getMergedValueKey: buildSharedFilterNameMatcher(),
   },
   {
     id: COMMON_FREQUENCY_FILTER_ID,
-    order: 1,
     getMergedValueKey: buildSharedFilterNameMatcher(),
   },
 ];
@@ -105,21 +102,6 @@ const mergeSharedFilterValues = (
   return Array.from(valueMap.values());
 };
 
-const sortSharedFiltersFirst = (filters: Filter[]): Filter[] => {
-  return [...filters].sort((left, right) => {
-    const leftOrder =
-      left?.filterType === 'shared'
-        ? (getSharedFilterConfig(left.id)?.order ?? Number.MAX_SAFE_INTEGER)
-        : Number.MAX_SAFE_INTEGER;
-    const rightOrder =
-      right?.filterType === 'shared'
-        ? (getSharedFilterConfig(right.id)?.order ?? Number.MAX_SAFE_INTEGER)
-        : Number.MAX_SAFE_INTEGER;
-
-    return leftOrder - rightOrder;
-  });
-};
-
 const mergeSharedFilters = (filters: Filter[]): Filter[] => {
   const groupedFilters = new Map<string, Filter[]>();
   const otherFilters: Filter[] = [];
@@ -134,26 +116,24 @@ const mergeSharedFilters = (filters: Filter[]): Filter[] => {
     otherFilters.push(filter);
   });
 
-  const sharedFilters = Array.from(groupedFilters.entries()).flatMap(
-    ([filterId, grouped]) => {
-      const config = getSharedFilterConfig(filterId);
+  const sharedFilters = SHARED_FILTERS_CONFIG.flatMap((config) => {
+    const grouped = groupedFilters.get(config.id);
 
-      if (!config || !grouped.length) {
-        return [];
-      }
+    if (!grouped?.length) {
+      return [];
+    }
 
-      const sharedFilter: Filter = {
-        ...grouped[0],
-        datasetUrn: void 0,
-        filterType: 'shared',
-        dimensionValues: mergeSharedFilterValues(grouped, config),
-      };
+    const sharedFilter: Filter = {
+      ...grouped[0],
+      datasetUrn: void 0,
+      filterType: 'shared',
+      dimensionValues: mergeSharedFilterValues(grouped, config),
+    };
 
-      return sharedFilter;
-    },
-  );
+    return sharedFilter;
+  });
 
-  return sortSharedFiltersFirst([...sharedFilters, ...otherFilters]);
+  return [...sharedFilters, ...otherFilters];
 };
 
 const expandSharedFilter = (filter: Filter): Filter[] => {
