@@ -23,6 +23,7 @@ import {
 import { getDateFormattedValue } from '../../utils/date-format';
 import {
   getDataSetAttributes,
+  getDatasetInfoData,
   getDatasetDescription,
   getDatasetNameItem,
   getStructureAttributes,
@@ -133,6 +134,10 @@ const DatasetInfo: FC<Props> = ({
       titles,
     ],
   );
+  const sidePanelDatasetInfo = useMemo(
+    () => getDatasetInfoData(dataset, lastUpdatedDate, locale, titles),
+    [dataset, lastUpdatedDate, locale, titles],
+  );
 
   const openMetadata = useCallback(() => {
     if (isMetadataInSidePanel && sidePanel) {
@@ -147,6 +152,7 @@ const DatasetInfo: FC<Props> = ({
             locale={locale}
             metadata={datasetMetadata}
             metadataDescription={datasetDescription}
+            datasetInfo={sidePanelDatasetInfo}
           />
         ),
       });
@@ -159,6 +165,7 @@ const DatasetInfo: FC<Props> = ({
   }, [
     datasetDescription,
     datasetMetadata,
+    sidePanelDatasetInfo,
     isMetadataInSidePanel,
     isOpenedAdvancedView,
     locale,

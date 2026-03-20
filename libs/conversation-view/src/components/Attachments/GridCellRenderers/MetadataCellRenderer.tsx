@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Data,
+  getLastUpdatedTime,
   getStructureComponentsMap,
   StructuralData,
   TimeSeries,
@@ -16,6 +17,7 @@ import Metadata from '../../AdvancedView/Metadata/Metadata';
 import SidePanelMetadataContent from '../../AdvancedView/Metadata/SidePanel/SidePanelMetadataContent';
 import {
   getAttributesFromParams,
+  getDatasetInfoData,
   getDatasetNameItem,
   getDimensionsFromParams,
   getMetadataDescriptionItems,
@@ -31,6 +33,7 @@ import { useOnboarding } from '../../../context/OnboardingContext';
 import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
 import { useConversationViewSidePanelOptional } from '../../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import { useAdvancedView } from '../../../context/AdvancedViewContext';
+import { getDateFormattedValue } from '../../../utils/date-format';
 
 interface MetadataCellRendererParams extends ICellRendererParams {
   attributesData: Data;
@@ -97,6 +100,20 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
       ),
     [params],
   );
+  const sidePanelDatasetInfo = useMemo(() => {
+    const dataset = params?.dataSetData?.dataflows?.[0];
+    const lastUpdatedDate = getDateFormattedValue(
+      getLastUpdatedTime(dataset),
+      params?.locale,
+    );
+
+    return getDatasetInfoData(
+      dataset,
+      lastUpdatedDate,
+      params?.locale,
+      params.titles,
+    );
+  }, [params?.dataSetData, params?.locale, params.titles]);
 
   const openMetadata = useCallback(() => {
     if (isMetadataInSidePanel && sidePanel) {
@@ -110,6 +127,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
             titles={params.titles}
             locale={params?.locale}
             metadata={metadata}
+            datasetInfo={sidePanelDatasetInfo}
             metadataDescription={
               params?.metadataSettings?.isMetadataDescription
                 ? metadataDescription
@@ -129,6 +147,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
     isOpenedAdvancedView,
     metadata,
     metadataDescription,
+    sidePanelDatasetInfo,
     params?.locale,
     params?.metadataSettings?.isMetadataDescription,
     params.titles,

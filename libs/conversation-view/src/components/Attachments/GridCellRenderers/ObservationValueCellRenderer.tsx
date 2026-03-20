@@ -6,10 +6,12 @@ import Metadata from '../../AdvancedView/Metadata/Metadata';
 import SidePanelMetadataContent from '../../AdvancedView/Metadata/SidePanel/SidePanelMetadataContent';
 import {
   StructuralData,
+  getLastUpdatedTime,
   getStructureComponentsMap,
 } from '@epam/statgpt-sdmx-toolkit';
 import {
   getDatasetNameItem,
+  getDatasetInfoData,
   getDimensionsFromParams,
   getMetadataDescriptionItems,
   getObsAttributesFromParams,
@@ -22,6 +24,7 @@ import { ConversationViewTitles } from '../../../models/titles';
 import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
 import { useConversationViewSidePanelOptional } from '../../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import { useAdvancedView } from '../../../context/AdvancedViewContext';
+import { getDateFormattedValue } from '../../../utils/date-format';
 
 interface ObservationValueCellRendererParams extends ICellRendererParams {
   dataSetData: StructuralData;
@@ -93,6 +96,20 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
       ),
     [params],
   );
+  const sidePanelDatasetInfo = useMemo(() => {
+    const dataset = params?.dataSetData?.dataflows?.[0];
+    const lastUpdatedDate = getDateFormattedValue(
+      getLastUpdatedTime(dataset),
+      params?.locale,
+    );
+
+    return getDatasetInfoData(
+      dataset,
+      lastUpdatedDate,
+      params?.locale,
+      params?.titles,
+    );
+  }, [params?.dataSetData, params?.locale, params?.titles]);
 
   const openMetadata = useCallback(() => {
     if (isMetadataInSidePanel && sidePanel) {
@@ -106,6 +123,7 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
             titles={params.titles}
             locale={params?.locale}
             metadata={metadata}
+            datasetInfo={sidePanelDatasetInfo}
             metadataDescription={
               params?.metadataSettings?.isMetadataDescription
                 ? metadataDescription
@@ -124,6 +142,7 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
     isOpenedAdvancedView,
     metadata,
     metadataDescription,
+    sidePanelDatasetInfo,
     params?.locale,
     params?.metadataSettings?.isMetadataDescription,
     params.titles,

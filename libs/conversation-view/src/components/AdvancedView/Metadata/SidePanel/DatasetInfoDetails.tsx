@@ -11,7 +11,7 @@ interface Props {
   formatValue: (value: StructureComponentValue['value']) => string;
 }
 
-const SidePanelDatasetInfo: FC<Props> = ({
+const DatasetInfoDetails: FC<Props> = ({
   dataset,
   agency,
   lastUpdated,
@@ -45,4 +45,4 @@ const SidePanelDatasetInfo: FC<Props> = ({
   );
 };
 
-export default SidePanelDatasetInfo;
+export default DatasetInfoDetails;

@@ -4,11 +4,13 @@ import { FC, useCallback, useMemo } from 'react';
 import { StructureComponentValue } from '../../../../models/structure-component';
 import { ConversationViewTitles } from '../../../../models/titles';
 import { DATASET_DESCRIPTION_ITEM_IDS } from '../../../../constants/metadata';
-import SidePanelDatasetInfo from './SidePanelDatasetInfo';
+import DatasetInfoDetails from './DatasetInfoDetails';
+import { DatasetInfoData } from '../../../../models/metadata';
 
 interface Props {
   metadata?: StructureComponentValue[];
   metadataDescription?: StructureComponentValue[];
+  datasetInfo?: DatasetInfoData;
   titles?: ConversationViewTitles;
   locale: string;
 }
@@ -20,6 +22,7 @@ const SPECIAL_DATASET_DESCRIPTION_IDS = new Set<string>(
 const SidePanelMetadataContent: FC<Props> = ({
   metadata,
   metadataDescription = [],
+  datasetInfo,
   titles,
   locale,
 }) => {
@@ -46,15 +49,18 @@ const SidePanelMetadataContent: FC<Props> = ({
 
   const { dataset, agency, lastUpdated, hasStructuredDatasetInfo } =
     useMemo(() => {
-      const dataset = metadataDescription.find(
+      const fallbackDataset = metadataDescription.find(
         (item) => item?.id === DATASET_DESCRIPTION_ITEM_IDS.dataset,
       );
-      const agency = metadataDescription.find(
+      const fallbackAgency = metadataDescription.find(
         (item) => item?.id === DATASET_DESCRIPTION_ITEM_IDS.agency,
       );
-      const lastUpdated = metadataDescription.find(
+      const fallbackLastUpdated = metadataDescription.find(
         (item) => item?.id === DATASET_DESCRIPTION_ITEM_IDS.lastUpdated,
       );
+      const dataset = datasetInfo?.dataset || fallbackDataset;
+      const agency = datasetInfo?.agency || fallbackAgency;
+      const lastUpdated = datasetInfo?.lastUpdated || fallbackLastUpdated;
 
       return {
         dataset,
@@ -62,7 +68,7 @@ const SidePanelMetadataContent: FC<Props> = ({
         lastUpdated,
         hasStructuredDatasetInfo: Boolean(dataset),
       };
-    }, [metadataDescription]);
+    }, [datasetInfo, metadataDescription]);
 
   const genericDescriptionItems = useMemo(
     () =>
@@ -78,7 +84,7 @@ const SidePanelMetadataContent: FC<Props> = ({
   return (
     <div className="flex h-full flex-col overflow-hidden px-5 pb-4">
       {hasStructuredDatasetInfo && dataset && (
-        <SidePanelDatasetInfo
+        <DatasetInfoDetails
           dataset={dataset}
           agency={agency}
           lastUpdated={lastUpdated}
