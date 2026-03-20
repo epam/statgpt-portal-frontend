@@ -13,6 +13,7 @@ import { IconButton } from '@epam/statgpt-ui-components';
 import { ICellRendererParams } from 'ag-grid-community';
 import MetadataIcon from '../../../assets/icons/metadata.svg';
 import Metadata from '../../AdvancedView/Metadata/Metadata';
+import SidePanelMetadataContent from '../../AdvancedView/Metadata/SidePanelMetadataContent';
 import {
   getAttributesFromParams,
   getDatasetNameItem,
@@ -27,6 +28,9 @@ import { Tooltip } from '../../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
 import { OnboardingElements } from '../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../context/OnboardingContext';
+import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
+import { useConversationViewSidePanelOptional } from '../../ConversationView/SidePanel/ConversationViewSidePanelContext';
+import { useAdvancedView } from '../../../context/AdvancedViewContext';
 
 interface MetadataCellRendererParams extends ICellRendererParams {
   attributesData: Data;
@@ -37,12 +41,17 @@ interface MetadataCellRendererParams extends ICellRendererParams {
 }
 
 const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
+  const METADATA_SIDE_PANEL_ID = 'grid-metadata-side-panel';
+
   const [isOpenMetadata, setIsOpenMetadata] = useState<boolean>(false);
   const iconRef = useRef<HTMLDivElement | null>(null);
   const [tooltipTitle, setTooltipTitle] = useState<string>('');
   const [tooltipDescription, setTooltipDescription] = useState<string>('');
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   const { onboardingFileSchema, isShowOnboarding } = useOnboarding();
+  const { isOpenedAdvancedView } = useAdvancedView();
+  const sidePanel = useConversationViewSidePanelOptional();
+  const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
   const [isMetadataClosed, setIsMetadataClosed] = useState(false);
 
   const structureComponentsMap = useMemo(
@@ -90,8 +99,41 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
   );
 
   const openMetadata = useCallback(() => {
+    if (isMetadataInSidePanel && sidePanel) {
+      sidePanel.openPanel({
+        id: METADATA_SIDE_PANEL_ID,
+        scope: isOpenedAdvancedView ? 'advanced' : 'conversation',
+        title: params.titles?.metadata || 'Metadata',
+        bodyClassName: 'overflow-hidden',
+        content: (
+          <SidePanelMetadataContent
+            titles={params.titles}
+            locale={params?.locale}
+            metadata={metadata}
+            metadataDescription={
+              params?.metadataSettings?.isMetadataDescription
+                ? metadataDescription
+                : []
+            }
+          />
+        ),
+      });
+      setIsMetadataClosed(true);
+
+      return;
+    }
+
     setIsOpenMetadata(true);
-  }, []);
+  }, [
+    isMetadataInSidePanel,
+    isOpenedAdvancedView,
+    metadata,
+    metadataDescription,
+    params?.locale,
+    params?.metadataSettings?.isMetadataDescription,
+    params.titles,
+    sidePanel,
+  ]);
 
   const closeMetadata = useCallback(() => {
     setIsOpenMetadata(false);

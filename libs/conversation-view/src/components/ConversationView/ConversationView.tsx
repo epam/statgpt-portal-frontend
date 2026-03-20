@@ -135,6 +135,7 @@ interface Props {
   isFinalMessage?: boolean;
   limitMessages: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
+  children?: ReactNode;
 }
 
 export const ConversationView: FC<Props> = ({
@@ -164,6 +165,7 @@ export const ConversationView: FC<Props> = ({
   isFinalMessage,
   limitMessages,
   attachmentsConfig,
+  children,
 }) => {
   const [conversationSignal, setConversationSignal] =
     useState<AbortController | null>(null);
@@ -930,6 +932,7 @@ export const ConversationView: FC<Props> = ({
                 buttonClassName="text-button-secondary self-center mb-3"
               />
             )}
+            {children}
           </div>
           {!isOpenedAdvancedView && (
             <ConversationViewSidePanelOutlet scope="conversation" />

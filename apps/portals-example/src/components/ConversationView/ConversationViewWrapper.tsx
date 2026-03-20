@@ -408,9 +408,10 @@ const ConversationViewWrapper: FC<Props> = ({
             }}
             scrollBottomIcon={<Down width={20} height={20} />}
             limitMessages={limitMessages}
-          />
+          >
+            <Footer />
+          </ConversationView>
         </div>
-        <Footer />
       </div>
       {isOpenedAdvancedView && (
         <AdvancedView

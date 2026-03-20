@@ -29,6 +29,7 @@ import {
 } from '../../utils/attachments/metadata';
 import { MetadataSettings } from '../../models/metadata';
 import Metadata from './Metadata/Metadata';
+import SidePanelMetadataContent from './Metadata/SidePanelMetadataContent';
 import { ConversationViewTitles } from '../../models/titles';
 import { StructureComponentValue } from '../../models/structure-component';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -36,6 +37,9 @@ import { getTooltipDataByElement } from '../../utils/get-tooltip-data.by-element
 import { OnboardingElements } from '../../constants/onboarding-elements';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { mergeClasses } from '../../utils/mergeClasses';
+import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
+import { useConversationViewSidePanelOptional } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
+import { useAdvancedView } from '../../context/AdvancedViewContext';
 
 export interface DatasetInfoOptions {
   isShowAgency?: boolean;
@@ -81,6 +85,8 @@ const DatasetInfo: FC<Props> = ({
   infoSegmentHeaderClassName,
   nameAndMetadataContainerClassName,
 }) => {
+  const METADATA_SIDE_PANEL_ID = 'dataset-metadata-side-panel';
+
   const [lastUpdatedDate, setLastUpdatedDate] = useState<string>('');
   const [isOpenMetadata, setIsOpenMetadata] = useState<boolean>(false);
 
@@ -89,6 +95,9 @@ const DatasetInfo: FC<Props> = ({
   const [tooltipDescription, setTooltipDescription] = useState<string>('');
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   const { onboardingFileSchema, isShowOnboarding } = useOnboarding();
+  const { isOpenedAdvancedView } = useAdvancedView();
+  const sidePanel = useConversationViewSidePanelOptional();
+  const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
   const [isMetadataClosed, setIsMetadataClosed] = useState(false);
 
   const datasetDescription = useMemo(
@@ -126,8 +135,36 @@ const DatasetInfo: FC<Props> = ({
   );
 
   const openMetadata = useCallback(() => {
+    if (isMetadataInSidePanel && sidePanel) {
+      sidePanel.openPanel({
+        id: METADATA_SIDE_PANEL_ID,
+        scope: isOpenedAdvancedView ? 'advanced' : 'conversation',
+        title: titles?.metadata || 'Metadata',
+        bodyClassName: 'overflow-hidden',
+        content: (
+          <SidePanelMetadataContent
+            titles={titles}
+            locale={locale}
+            metadata={datasetMetadata}
+            metadataDescription={datasetDescription}
+          />
+        ),
+      });
+      setIsMetadataClosed(true);
+
+      return;
+    }
+
     setIsOpenMetadata(true);
-  }, []);
+  }, [
+    datasetDescription,
+    datasetMetadata,
+    isMetadataInSidePanel,
+    isOpenedAdvancedView,
+    locale,
+    sidePanel,
+    titles,
+  ]);
 
   const closeMetadata = useCallback(() => {
     setIsOpenMetadata(false);
