@@ -139,7 +139,7 @@ const DatasetInfo: FC<Props> = ({
       sidePanel.openPanel({
         id: METADATA_SIDE_PANEL_ID,
         scope: isOpenedAdvancedView ? 'advanced' : 'conversation',
-        title: titles?.metadata || 'Metadata',
+        title: 'Dataset Metadata',
         bodyClassName: 'overflow-hidden',
         content: (
           <SidePanelMetadataContent

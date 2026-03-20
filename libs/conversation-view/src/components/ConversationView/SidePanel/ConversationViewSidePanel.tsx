@@ -1,12 +1,13 @@
 'use client';
 
 import { IconX } from '@tabler/icons-react';
-import classNames from 'classnames';
+import { mergeClasses } from '../../../utils/mergeClasses';
 import { ReactNode } from 'react';
 
 export function ConversationViewSidePanel({
   title,
   headerExtension,
+  headerClassName,
   onClose,
   bodyClassName,
   panelClassName,
@@ -14,6 +15,7 @@ export function ConversationViewSidePanel({
 }: {
   title?: ReactNode;
   headerExtension?: ReactNode;
+  headerClassName?: string;
   onClose: () => void;
   bodyClassName?: string;
   panelClassName?: string;
@@ -21,12 +23,17 @@ export function ConversationViewSidePanel({
 }) {
   return (
     <div
-      className={classNames(
+      className={mergeClasses(
         'h-full w-[362px] bg-white border-l border-neutrals-500 flex flex-col overflow-hidden',
         panelClassName,
       )}
     >
-      <div className="flex justify-between border-b border-neutrals-500 px-5 py-6">
+      <div
+        className={mergeClasses(
+          'flex justify-between px-5 py-6',
+          headerClassName,
+        )}
+      >
         <div className="h2 text-neutrals-1000">{title}</div>
         <div className="flex gap-2 items-center">
           {headerExtension}
@@ -37,7 +44,10 @@ export function ConversationViewSidePanel({
         </div>
       </div>
       <div
-        className={classNames('flex-1 min-h-0 overflow-hidden', bodyClassName)}
+        className={mergeClasses(
+          'flex-1 min-h-0 overflow-hidden',
+          bodyClassName,
+        )}
       >
         {children}
       </div>

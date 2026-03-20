@@ -20,6 +20,7 @@ export type ConversationViewSidePanelConfig = {
   scope?: ConversationViewSidePanelScope;
   title?: ReactNode;
   headerExtension?: ReactNode;
+  headerClassName?: string;
   content: ReactNode;
   bodyClassName?: string;
   panelClassName?: string;
@@ -141,6 +142,7 @@ export function ConversationViewSidePanelOutlet({
     <ConversationViewSidePanel
       title={panel.title}
       headerExtension={panel.headerExtension}
+      headerClassName={panel.headerClassName}
       onClose={closePanel}
       bodyClassName={panel.bodyClassName}
       panelClassName={panel.panelClassName}

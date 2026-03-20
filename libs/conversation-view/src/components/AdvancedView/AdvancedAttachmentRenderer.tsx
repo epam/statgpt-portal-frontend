@@ -25,6 +25,7 @@ export const AdvancedAttachmentRenderer: FC<AttachmentRendererProps> = ({
       id: TABLE_SETTINGS_SIDE_PANEL_ID,
       scope: 'advanced',
       title: attachmentsStyles?.columnsTitle || 'Columns',
+      headerClassName: 'border-b border-neutrals-500',
       headerExtension: (
         <TableSettingsPanelHeaderExtension
           resetTitle={attachmentsStyles?.columnsResetTitle}
