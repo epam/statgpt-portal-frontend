@@ -27,13 +27,25 @@ export const getDataConstraintsMap = async (
   const constraintsMap = new Map<string, DataConstraints[]>();
   const filtersDtoMap = getFiltersDtoMapFromDataQuery(dataQueries);
 
-  for (const dataQuery of dataQueries) {
-    const response = await getConstraintsAction(
-      dataQuery.urn,
-      filtersDtoMap?.get(dataQuery.urn),
-    );
-    constraintsMap?.set(dataQuery.urn, response?.data?.dataConstraints || []);
-  }
+  const settledConstraints = await Promise.allSettled(
+    dataQueries.map(async (dataQuery) => ({
+      urn: dataQuery.urn,
+      response: await getConstraintsAction(
+        dataQuery.urn,
+        filtersDtoMap?.get(dataQuery.urn),
+      ),
+    })),
+  );
+
+  settledConstraints.forEach((result) => {
+    if (result.status === 'fulfilled') {
+      constraintsMap.set(
+        result.value.urn,
+        result.value.response?.data?.dataConstraints || [],
+      );
+    }
+  });
+
   return constraintsMap;
 };
 
@@ -53,7 +65,7 @@ export const getStructureDataMaps = async (
 ): Promise<StructureDataMaps> => {
   const structureDataMaps = initStructureDataMaps();
 
-  await Promise.all(
+  await Promise.allSettled(
     dataQueries.map(async (dataQuery) => {
       const dataSet = await getDataSetAction(dataQuery.urn);
 
@@ -91,6 +103,9 @@ export const getStructureDataMaps = async (
               dataQuery.urn,
               structureDimensions || [],
             );
+          })
+          .catch(() => {
+            structureDataMaps?.structureDimensionsMap?.set(dataQuery.urn, []);
           })
           .finally(() => setIsLoadingGridData(false));
       }

@@ -364,12 +364,10 @@ export const isStructureDataMapsReady = (
     return false;
   }
 
-  const expectedSize = dataQueries.length;
-
   return (
-    structureDataMaps?.dimensionsMap?.size === expectedSize &&
-    structureDataMaps?.structuresMap?.size === expectedSize &&
-    structureDataMaps?.structureDimensionsMap?.size === expectedSize &&
-    structureDataMaps?.constraintsMap?.size === expectedSize
+    !!structureDataMaps?.dimensionsMap &&
+    !!structureDataMaps?.structuresMap &&
+    !!structureDataMaps?.structureDimensionsMap &&
+    !!structureDataMaps?.constraintsMap
   );
 };
