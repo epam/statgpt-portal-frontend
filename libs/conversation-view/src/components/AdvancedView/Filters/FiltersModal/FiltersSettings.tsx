@@ -13,6 +13,7 @@ import FiltersFacetsList from './FiltersFacets/FiltersFacetsList';
 import FiltersValuesPanel from './FiltersValuesPanel/FiltersValuesPanel';
 import classNames from 'classnames';
 import { ConversationViewTitles } from '../../../../models/titles';
+import { isSameFilter } from '../../../../utils/filters';
 
 interface Props {
   filtersList: Filter[];
@@ -27,8 +28,8 @@ interface Props {
   datasetIcon?: ReactNode;
   structuresMap?: Map<string, StructuralData | undefined>;
   setSelectedFilter: (filter?: Filter) => void;
-  onSelectDisplayMode: (filterId?: string, displayMode?: string) => void;
-  onDeleteFilter?: (filterId?: string) => void;
+  onSelectDisplayMode: (filter?: Filter, displayMode?: string) => void;
+  onDeleteFilter?: (filter?: Filter) => void;
   updateSelectedFilterValues?: (filter: Filter) => void;
   onTimePeriodChange?: (value: string | number) => void;
   selectedTimeOption?: string | number;
@@ -56,9 +57,18 @@ const FilterSettings: FC<Props> = ({
   const isMobile = useIsMobile();
 
   const onSelectFilter = useCallback(
-    (selectedFilterId?: string) => {
+    (currentFilter?: Filter) => {
+      const foundFilter = filtersList?.find((filter) =>
+        isSameFilter(filter, currentFilter),
+      );
+
+      if (!foundFilter) {
+        setSelectedFilter(void 0);
+        return;
+      }
+
       setSelectedFilter({
-        ...filtersList?.find((filter) => filter?.id === selectedFilterId),
+        ...foundFilter,
         isSelectedFilter: true,
       });
     },
@@ -66,6 +76,10 @@ const FilterSettings: FC<Props> = ({
   );
 
   const onSelectFilterValue = (id: string, isSelectedValue?: boolean) => {
+    if (!selectedFilter) {
+      return;
+    }
+
     const updatedFilter = {
       ...selectedFilter,
       dimensionValues: selectedFilter?.dimensionValues?.map(
@@ -84,6 +98,10 @@ const FilterSettings: FC<Props> = ({
   };
 
   const onSelectHierarchicalNodes = (nodes?: FilterTreeNodeProps[]) => {
+    if (!selectedFilter) {
+      return;
+    }
+
     const updatedFilter = {
       ...selectedFilter,
       dimensionValues: selectedFilter?.dimensionValues?.map(
@@ -103,6 +121,10 @@ const FilterSettings: FC<Props> = ({
   };
 
   const onExpandHierarchicalValue = (node?: FilterTreeNodeProps) => {
+    if (!selectedFilter) {
+      return;
+    }
+
     setSelectedFilter({
       ...selectedFilter,
       dimensionValues: selectedFilter?.dimensionValues?.map(
@@ -120,6 +142,10 @@ const FilterSettings: FC<Props> = ({
     timeRange: TimeRange | null,
     selectedOption: string | number,
   ) => {
+    if (!selectedFilter) {
+      return;
+    }
+
     const updatedFilter = {
       ...selectedFilter,
       timeRange: timeRange || void 0,

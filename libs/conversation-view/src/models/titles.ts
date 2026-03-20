@@ -91,4 +91,7 @@ export interface ConversationViewTitles extends WelcomeViewTitles {
   metadataPerDatasetDescription?: string;
   exitAdvancedViewTitle?: string;
   exitAdvancedViewDescription?: string;
+  countryDimensions?: string;
+  indicatorDimensions?: string;
+  frequency?: string;
 }
