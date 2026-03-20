@@ -54,6 +54,8 @@ export default [
       ...tsPlugin.configs.recommended.rules,
       ...nextPlugin.configs.recommended.rules,
       ...prettierPlugin.configs.recommended.rules,
+      ...reactHooksPlugin.configs.recommended.rules,
+      'react-hooks/exhaustive-deps': 'error',
       '@next/next/no-html-link-for-pages': 'off',
       'no-redeclare': 'off',
       '@typescript-eslint/triple-slash-reference': 'off',
@@ -74,9 +76,7 @@ export default [
       ],
       'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
       'no-empty': 'error',
-
       'no-constant-condition': 'error',
-
       'no-multiple-empty-lines': [
         'warn',
         {
@@ -91,17 +91,8 @@ export default [
           varsIgnorePattern: '^__',
         },
       ],
-
       '@typescript-eslint/no-explicit-any': 'warn',
       'prettier/prettier': 'error',
-
-      'no-multiple-empty-lines': [
-        'warn',
-        {
-          max: 1,
-          maxBOF: 0,
-        },
-      ],
     },
   },
 ];

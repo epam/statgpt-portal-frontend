@@ -131,7 +131,12 @@ export function useAttachmentsDataMultipleQueries(
     if (dataQueries?.length) {
       loadDataSets(dataQueries);
     }
-  }, [dataQueries, loadConstraintsMap, loadStructureData]);
+  }, [
+    dataQueries,
+    loadConstraintsMap,
+    loadDimensionsSchemes,
+    loadStructureData,
+  ]);
 
   useEffect(() => {
     if (
@@ -172,6 +177,8 @@ export function useAttachmentsDataMultipleQueries(
     metadataSettings,
     chartStyles,
     titles,
+    datasetDimensionsSchemesMap,
+    isLoadingGridData,
   ]);
 
   return {
