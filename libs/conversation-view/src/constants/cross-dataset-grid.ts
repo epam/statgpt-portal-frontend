@@ -1,0 +1,11 @@
+export const DEFAULT_DATASET_COL_TITLE = 'Dataset';
+export const DATASET_COL_ID = 'dataset_name';
+export const DEFAULT_AGENCY_COL_TITLE = 'Agency';
+export const AGENCY_COL_ID = 'agency';
+export const DEFAULT_COUNTRY_COL_TITLE = 'Country dimensions';
+export const COUNTRY_COL_ID = 'country_aggregated';
+export const DEFAULT_INDICATOR_COL_TITLE = 'Indicator dimensions';
+export const INDICATOR_COL_ID = 'indicator_aggregated';
+export const DEFAULT_FREQUENCY_COL_TITLE = 'Frequency';
+export const FREQUENCY_COL_ID = 'frequency_aggregated';
+export const INDICATORS_CONCATENATION_SYMBOL = '.';
