@@ -76,7 +76,7 @@ const SidePanelMetadataContent: FC<Props> = ({
   );
 
   return (
-    <div className="flex h-full flex-col overflow-hidden px-5 py-4">
+    <div className="flex h-full flex-col overflow-hidden px-5 pb-4">
       {hasStructuredDatasetInfo && dataset && (
         <SidePanelDatasetInfo
           dataset={dataset}
@@ -87,7 +87,7 @@ const SidePanelMetadataContent: FC<Props> = ({
       )}
 
       {genericDescriptionItems.length > 0 && (
-        <div className="mb-8 flex flex-col gap-2">
+        <div className="mb-4 flex flex-col gap-2">
           {genericDescriptionItems.map((descriptionItem, index) => (
             <div
               key={`${descriptionItem?.id || descriptionItem?.title}-${index}`}
