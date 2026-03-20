@@ -28,6 +28,7 @@ import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsData
 import { TableSettingsProvider } from './TableSettings/TableSettingsContext';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 import { ConversationViewSidePanelOutlet } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
+import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -78,6 +79,7 @@ const AdvancedViewInternal: FC<Props> = ({
   ...props
 }) => {
   const { isOpenedAdvancedView } = useAdvancedView();
+  const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
 
   const lastMessageAttachments =
     props.filtersProps.conversation?.messages?.at(-1)?.custom_content
@@ -147,6 +149,7 @@ const AdvancedViewInternal: FC<Props> = ({
     attachmentsProps.currentDataQuery || attachmentsProps.dataQueries?.[0],
     dimensions,
   );
+  const shouldShowDatasetInfo = !isMetadataInSidePanel;
 
   return (
     <div className="advanced-view flex flex-col flex-1 h-full min-w-0">
@@ -175,18 +178,25 @@ const AdvancedViewInternal: FC<Props> = ({
             <Loader />
           ) : (
             <>
-              <DatasetInfo
-                {...datasetInfoOptions}
-                titles={titles}
-                locale={locale}
-                dataset={dataset}
-                data={dataMessage?.data}
-                structures={structures}
-                metadataSettings={metadataSettings}
-                getDatasetUpdatedTime={getDatasetUpdatedTime}
-                externalLink={externalLink}
-              />
-              <div className="flex flex-1 min-h-0 overflow-auto border-t border-neutrals-500">
+              {shouldShowDatasetInfo && (
+                <DatasetInfo
+                  {...datasetInfoOptions}
+                  titles={titles}
+                  locale={locale}
+                  dataset={dataset}
+                  data={dataMessage?.data}
+                  structures={structures}
+                  metadataSettings={metadataSettings}
+                  getDatasetUpdatedTime={getDatasetUpdatedTime}
+                  externalLink={externalLink}
+                />
+              )}
+              <div
+                className={classNames(
+                  'flex flex-1 min-h-0 overflow-auto',
+                  shouldShowDatasetInfo && 'border-t border-neutrals-500',
+                )}
+              >
                 <div
                   className={classNames(
                     'flex-1 min-h-0 overflow-auto',
