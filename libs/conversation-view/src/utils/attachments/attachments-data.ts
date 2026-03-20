@@ -27,13 +27,25 @@ export const getDataConstraintsMap = async (
   const constraintsMap = new Map<string, DataConstraints[]>();
   const filtersDtoMap = getFiltersDtoMapFromDataQuery(dataQueries);
 
-  for (const dataQuery of dataQueries) {
-    const response = await getConstraintsAction(
-      dataQuery.urn,
-      filtersDtoMap?.get(dataQuery.urn),
-    );
-    constraintsMap?.set(dataQuery.urn, response?.data?.dataConstraints || []);
-  }
+  const settledConstraints = await Promise.allSettled(
+    dataQueries.map(async (dataQuery) => ({
+      urn: dataQuery.urn,
+      response: await getConstraintsAction(
+        dataQuery.urn,
+        filtersDtoMap?.get(dataQuery.urn),
+      ),
+    })),
+  );
+
+  settledConstraints.forEach((result) => {
+    if (result.status === 'fulfilled') {
+      constraintsMap.set(
+        result.value.urn,
+        result.value.response?.data?.dataConstraints || [],
+      );
+    }
+  });
+
   return constraintsMap;
 };
 
@@ -49,12 +61,14 @@ export const getStructureDataMaps = async (
   dataQueries: DataQuery[],
   getDataSetAction: GetDatasetDetails,
   getDataSetDataAction: GetDatasetData,
+  setIsLoadingGridData: (isLoading: boolean) => void,
 ): Promise<StructureDataMaps> => {
   const structureDataMaps = initStructureDataMaps();
 
-  await Promise.all(
+  await Promise.allSettled(
     dataQueries.map(async (dataQuery) => {
       const dataSet = await getDataSetAction(dataQuery.urn);
+
       if (dataSet?.data) {
         const dimensions = getDimensions(dataSet.data);
 
@@ -82,16 +96,22 @@ export const getStructureDataMaps = async (
           dataQuery,
           { filterKey, timeFilter },
           getDataSetDataAction,
-        ).then(({ dataMessage, structureDimensions }) => {
-          structureDataMaps?.dataMessagesMap?.set(dataQuery.urn, dataMessage);
-          structureDataMaps?.structureDimensionsMap?.set(
-            dataQuery.urn,
-            structureDimensions || [],
-          );
-        });
+        )
+          .then(({ dataMessage, structureDimensions }) => {
+            structureDataMaps?.dataMessagesMap?.set(dataQuery.urn, dataMessage);
+            structureDataMaps?.structureDimensionsMap?.set(
+              dataQuery.urn,
+              structureDimensions || [],
+            );
+          })
+          .catch(() => {
+            structureDataMaps?.structureDimensionsMap?.set(dataQuery.urn, []);
+          })
+          .finally(() => setIsLoadingGridData(false));
       }
     }),
   );
+
   return structureDataMaps;
 };
 

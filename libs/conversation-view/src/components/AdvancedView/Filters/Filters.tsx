@@ -16,6 +16,7 @@ import {
   getFiltersAfterClear,
   getFiltersAfterDelete,
   getFiltersPreselectedByDataQuery,
+  isSameFilter,
   getSelectedFilterValues,
   getTotalSelectedValuesLength,
   updateFiltersWithDisabledOption,
@@ -286,18 +287,22 @@ const Filters: FC<FiltersProps> = ({
   );
 
   const onSelectDisplayMode = useCallback(
-    (filterId?: string, displayMode?: string) => {
+    (filter?: Filter, displayMode?: string) => {
       setModalFilters((prevFilters) =>
-        updateFiltersWithDisplayMode(prevFilters, filterId, displayMode),
+        updateFiltersWithDisplayMode(prevFilters, filter, displayMode),
       );
-      if (selectedFilter?.id === filterId) {
-        setSelectedFilter((prevFilter) => ({
-          ...prevFilter,
-          displayMode,
-        }));
+      if (isSameFilter(selectedFilter, filter)) {
+        setSelectedFilter((prevFilter) =>
+          prevFilter
+            ? {
+                ...prevFilter,
+                displayMode,
+              }
+            : prevFilter,
+        );
       }
     },
-    [selectedFilter?.id],
+    [selectedFilter],
   );
 
   const getFiltersChangeParams = useCallback(
@@ -318,8 +323,8 @@ const Filters: FC<FiltersProps> = ({
 
       setSelectedFilter(
         (previousSelectedFilter) =>
-          filledFilters?.find(
-            (filter) => filter?.id === previousSelectedFilter?.id,
+          filledFilters?.find((filter) =>
+            isSameFilter(filter, previousSelectedFilter),
           ) || previousSelectedFilter,
       );
       setModalFilters(filledFilters);
@@ -360,8 +365,8 @@ const Filters: FC<FiltersProps> = ({
   );
 
   const onDeleteFilter = useCallback(
-    (filterId?: string) => {
-      const filtersAfterDelete = getFiltersAfterDelete(modalFilters, filterId);
+    (filter?: Filter) => {
+      const filtersAfterDelete = getFiltersAfterDelete(modalFilters, filter);
 
       handleFiltersDelete(filtersAfterDelete);
     },
