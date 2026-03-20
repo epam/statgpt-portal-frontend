@@ -25,7 +25,7 @@
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": [
-          "libs/conversation-view/**/*.{ts,tsx,js,jsx}",
+          "libs/conversation-view/src",
           "libs/conversation-view/package.json"
         ]
       }

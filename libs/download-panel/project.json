@@ -10,7 +10,7 @@
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": [
-          "libs/download-panel/**/*.{ts,tsx,js,jsx}",
+          "libs/download-panel/src",
           "libs/download-panel/package.json"
         ]
       }

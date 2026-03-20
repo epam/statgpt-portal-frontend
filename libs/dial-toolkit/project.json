@@ -27,7 +27,7 @@
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": [
-          "libs/dial-toolkit/**/*.{ts,tsx,js,jsx}",
+          "libs/dial-toolkit/src",
           "libs/dial-toolkit/package.json"
         ]
       }
