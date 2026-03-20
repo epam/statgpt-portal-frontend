@@ -10,6 +10,7 @@ import {
   getDimValueLocalizedName,
 } from '../localized-value';
 import { GridData } from '../../../types/data-grid/grid-data';
+import { ConversationViewTitles } from '../../../models/titles';
 
 const DEFAULT_COUNTRY_COL_TITLE = 'Country dimensions';
 const COUNTRY_COL_ID = 'country_aggregated';
@@ -23,11 +24,27 @@ export function getCrossDsDimensionsColumns(
   structuresMap: Map<string, StructuralData | undefined>,
   datasetDimensionsSchemesMap: Map<string, DatasetDimensionsScheme | undefined>,
   locale: string,
+  titles?: ConversationViewTitles,
 ): ColDef[] {
   return [
-    buildCountryColDef(structuresMap, datasetDimensionsSchemesMap, locale),
-    buildIndicatorColDef(structuresMap, datasetDimensionsSchemesMap, locale),
-    buildFrequencyColDef(structuresMap, datasetDimensionsSchemesMap, locale),
+    buildCountryColDef(
+      structuresMap,
+      datasetDimensionsSchemesMap,
+      locale,
+      titles,
+    ),
+    buildIndicatorColDef(
+      structuresMap,
+      datasetDimensionsSchemesMap,
+      locale,
+      titles,
+    ),
+    buildFrequencyColDef(
+      structuresMap,
+      datasetDimensionsSchemesMap,
+      locale,
+      titles,
+    ),
   ];
 }
 
@@ -35,6 +52,7 @@ function buildCountryColDef(
   structuresMap: Map<string, StructuralData | undefined>,
   datasetDimensionsSchemesMap: Map<string, DatasetDimensionsScheme | undefined>,
   locale: string,
+  titles?: ConversationViewTitles,
 ): ColDef {
   const valueGetter = (value: ValueGetterParams) => {
     const { structures, urn, data } = getCellParams(value, structuresMap);
@@ -51,13 +69,18 @@ function buildCountryColDef(
     return getDimensionValue(structures, countryDimensionId, data, locale);
   };
 
-  return dimColDef(DEFAULT_COUNTRY_COL_TITLE, COUNTRY_COL_ID, valueGetter);
+  return dimColDef(
+    titles?.countryDimensions || DEFAULT_COUNTRY_COL_TITLE,
+    COUNTRY_COL_ID,
+    valueGetter,
+  );
 }
 
 function buildIndicatorColDef(
   structuresMap: Map<string, StructuralData | undefined>,
   datasetDimensionsSchemesMap: Map<string, DatasetDimensionsScheme | undefined>,
   locale: string,
+  titles?: ConversationViewTitles,
 ): ColDef {
   const valueGetter = (value: ValueGetterParams) => {
     const { structures, urn, data } = getCellParams(value, structuresMap);
@@ -79,13 +102,18 @@ function buildIndicatorColDef(
     return names.join(INDICATORS_CONCATINATION_SYMBOL);
   };
 
-  return dimColDef(DEFAULT_INDICATOR_COL_TITLE, INDICATOR_COL_ID, valueGetter);
+  return dimColDef(
+    titles?.indicatorDimensions || DEFAULT_INDICATOR_COL_TITLE,
+    INDICATOR_COL_ID,
+    valueGetter,
+  );
 }
 
 function buildFrequencyColDef(
   structuresMap: Map<string, StructuralData | undefined>,
   datasetDimensionsSchemesMap: Map<string, DatasetDimensionsScheme | undefined>,
   locale: string,
+  titles?: ConversationViewTitles,
 ): ColDef {
   const valueGetter = (value: ValueGetterParams) => {
     const { structures, urn, data } = getCellParams(value, structuresMap);
@@ -103,7 +131,11 @@ function buildFrequencyColDef(
     return getDimensionValue(structures, frequencyDimensionId, data, locale);
   };
 
-  return dimColDef(DEFAULT_FREQUENCY_COL_TITLE, FREQUENCY_COL_ID, valueGetter);
+  return dimColDef(
+    titles?.frequency || DEFAULT_FREQUENCY_COL_TITLE,
+    FREQUENCY_COL_ID,
+    valueGetter,
+  );
 }
 
 function dimColDef(

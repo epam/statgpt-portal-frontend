@@ -71,6 +71,7 @@ export function buildCrossDatasetGridContent(
       structuresMap,
       datasetDimensionsSchemesMap,
       locale,
+      titles,
     ),
     data: buildCrossDatasetGridData(
       structuresMap,
