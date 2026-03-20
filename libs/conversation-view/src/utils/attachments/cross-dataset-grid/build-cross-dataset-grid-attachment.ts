@@ -11,14 +11,12 @@ import {
   TimeRange,
 } from '@epam/statgpt-shared-toolkit';
 import { MetadataSettings } from '../../../models/metadata';
-import {
-  ChartingStyles,
-  ConversationViewTitles,
-} from '@epam/statgpt-conversation-view';
 import { CrossDatasetGridAttachmentType } from '../../../models/attachments';
 import { GridData } from '../../../types/data-grid/grid-data';
 import { buildCrossDatasetGridColumns } from './build-cross-dataset-grid-columns';
 import { buildCrossDatasetGridData } from './build-cross-dataset-grid-data';
+import { ChartingStyles } from '../../../models/attachments-styles';
+import { ConversationViewTitles } from '../../../models/titles';
 
 export function buildCrossDatasetGridAttachment(
   structuresMap: Map<string, StructuralData | undefined>,
