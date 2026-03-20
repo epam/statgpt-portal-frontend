@@ -54,17 +54,36 @@ export const getDatasetFilters = (
           ? FilterDisplayMode.HIERARCHY
           : FilterDisplayMode.FLAT_LIST,
         datasetUrn,
+        filterType: 'dataset',
       };
     }) || []
   );
 };
+
+export const isSharedFilter = (filter?: Filter): boolean =>
+  filter?.filterType === 'shared';
+
+export const getFilterIdentity = (filter?: Filter): string | undefined => {
+  if (!filter?.id) {
+    return void 0;
+  }
+
+  if (isSharedFilter(filter)) {
+    return `shared:${filter.id}`;
+  }
+
+  return filter?.datasetUrn ? `${filter.datasetUrn}:${filter.id}` : filter.id;
+};
+
+export const isSameFilter = (left?: Filter, right?: Filter): boolean =>
+  getFilterIdentity(left) === getFilterIdentity(right);
 
 export const updateFiltersWithSelectedItem = (
   filters: Filter[],
   selectedFilter?: Filter,
 ): Filter[] => {
   return filters?.map((filterItem) =>
-    selectedFilter && filterItem?.id === selectedFilter?.id
+    selectedFilter && isSameFilter(filterItem, selectedFilter)
       ? { ...selectedFilter, isSelectedFilter: true }
       : {
           ...filterItem,
@@ -75,7 +94,7 @@ export const updateFiltersWithSelectedItem = (
 
 export const updateFiltersWithDisplayMode = (
   filters: Filter[],
-  filterId?: string,
+  currentFilter?: Filter,
   displayMode?: string,
 ): Filter[] => {
   if (!filters) {
@@ -83,7 +102,7 @@ export const updateFiltersWithDisplayMode = (
   }
 
   return filters.map((filter) => {
-    if (filter?.id === filterId) {
+    if (isSameFilter(filter, currentFilter)) {
       return {
         ...filter,
         displayMode,
@@ -138,10 +157,10 @@ export const clearFilterValues = (filter: Filter): Filter => {
 
 export const getFiltersAfterDelete = (
   filters: Filter[],
-  deleteFilterId?: string,
+  deletedFilter?: Filter,
 ): Filter[] => {
   return filters?.map((filter) => {
-    if (filter?.id === deleteFilterId) {
+    if (isSameFilter(filter, deletedFilter)) {
       return clearFilterValues(filter);
     }
     return filter;

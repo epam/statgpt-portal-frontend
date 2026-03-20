@@ -12,14 +12,15 @@ import {
 import { ConversationViewTitles } from '../../../../../models/titles';
 import FiltersFacetItem from './FiltersFacetItem';
 import { getDatasetNameFromFilters } from '../../../../../utils/multiple-filters';
+import { getFilterIdentity } from '../../../../../utils/filters';
 
 interface Props {
   filtersList: Filter[];
   hideFacetCounterByDefault?: boolean;
   locale?: string;
-  onSelectFilter: (filterId?: string) => void;
-  onDeleteFilter?: (filterId?: string) => void;
-  onSelectDisplayMode?: (filterId?: string, displayMode?: string) => void;
+  onSelectFilter: (filter?: Filter) => void;
+  onDeleteFilter?: (filter?: Filter) => void;
+  onSelectDisplayMode?: (filter?: Filter, displayMode?: string) => void;
   filterValuesProps?: FilterValuesProps;
   isDisableValues?: boolean;
   timeRangeOptions?: TimeRangeOptions[];
@@ -66,7 +67,7 @@ const FiltersFacetsList: FC<Props> = ({
           titles={titles}
           locale={locale}
           filter={filter}
-          key={filter?.id}
+          key={getFilterIdentity(filter)}
           onSelectFilter={onSelectFilter}
           onSelectDisplayMode={onSelectDisplayMode}
           onDeleteFilter={onDeleteFilter}

@@ -54,3 +54,7 @@ export function isChartAttachment(attachment: Attachment): boolean {
 export function isCustomCodeSampleAttachment(attachment: Attachment): boolean {
   return attachment.type === AttachmentType.CUSTOM_CODE_SAMPLE;
 }
+
+export function isCrossDatasetGrid(attachment: Attachment): boolean {
+  return attachment.type === AttachmentType.CROSS_DATASET_GRID;
+}
