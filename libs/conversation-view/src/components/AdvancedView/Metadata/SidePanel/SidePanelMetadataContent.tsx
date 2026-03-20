@@ -11,6 +11,7 @@ interface Props {
   metadata?: StructureComponentValue[];
   metadataDescription?: StructureComponentValue[];
   datasetInfo?: DatasetInfoData;
+  externalLink?: string;
   titles?: ConversationViewTitles;
   locale: string;
 }
@@ -23,6 +24,7 @@ const SidePanelMetadataContent: FC<Props> = ({
   metadata,
   metadataDescription = [],
   datasetInfo,
+  externalLink,
   titles,
   locale,
 }) => {
@@ -88,6 +90,7 @@ const SidePanelMetadataContent: FC<Props> = ({
           dataset={dataset}
           agency={agency}
           lastUpdated={lastUpdated}
+          externalLink={externalLink}
           formatValue={formatValue}
         />
       )}

@@ -159,8 +159,13 @@ export const getExternalLink = (
   dataQuery?: DataQuery,
   dimensions?: Dimension[],
 ): string => {
+  const datasetUrl = dataQuery?.metadata?.datasetUrl;
+  if (!datasetUrl) {
+    return '';
+  }
+
   const queryParams = isExternaLinkIncludeFilters
     ? getExternalUrlQueryParam(filters, dataQuery, dimensions)
     : '';
-  return dataQuery?.metadata?.datasetUrl + queryParams;
+  return datasetUrl + queryParams;
 };

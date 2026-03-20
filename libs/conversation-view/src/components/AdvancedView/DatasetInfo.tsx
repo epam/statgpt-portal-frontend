@@ -153,6 +153,7 @@ const DatasetInfo: FC<Props> = ({
             metadata={datasetMetadata}
             metadataDescription={datasetDescription}
             datasetInfo={sidePanelDatasetInfo}
+            externalLink={externalLink}
           />
         ),
       });
@@ -166,6 +167,7 @@ const DatasetInfo: FC<Props> = ({
     datasetDescription,
     datasetMetadata,
     sidePanelDatasetInfo,
+    externalLink,
     isMetadataInSidePanel,
     isOpenedAdvancedView,
     locale,

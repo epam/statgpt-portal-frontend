@@ -42,6 +42,7 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
   const { isOpenedAdvancedView } = useAdvancedView();
   const sidePanel = useConversationViewSidePanelOptional();
   const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
+  const externalLink = params?.context?.externalLink as string | undefined;
   const structureComponentsMap = useMemo(
     () => getStructureComponentsMap(params?.dataSetData),
     [params?.dataSetData],
@@ -124,6 +125,7 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
             locale={params?.locale}
             metadata={metadata}
             datasetInfo={sidePanelDatasetInfo}
+            externalLink={externalLink}
             metadataDescription={
               params?.metadataSettings?.isMetadataDescription
                 ? metadataDescription
@@ -143,6 +145,7 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
     metadata,
     metadataDescription,
     sidePanelDatasetInfo,
+    externalLink,
     params?.locale,
     params?.metadataSettings?.isMetadataDescription,
     params.titles,

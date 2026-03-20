@@ -56,6 +56,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
   const sidePanel = useConversationViewSidePanelOptional();
   const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
   const [isMetadataClosed, setIsMetadataClosed] = useState(false);
+  const externalLink = params?.context?.externalLink as string | undefined;
 
   const structureComponentsMap = useMemo(
     () => getStructureComponentsMap(params?.dataSetData),
@@ -128,6 +129,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
             locale={params?.locale}
             metadata={metadata}
             datasetInfo={sidePanelDatasetInfo}
+            externalLink={externalLink}
             metadataDescription={
               params?.metadataSettings?.isMetadataDescription
                 ? metadataDescription
@@ -148,6 +150,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
     metadata,
     metadataDescription,
     sidePanelDatasetInfo,
+    externalLink,
     params?.locale,
     params?.metadataSettings?.isMetadataDescription,
     params.titles,

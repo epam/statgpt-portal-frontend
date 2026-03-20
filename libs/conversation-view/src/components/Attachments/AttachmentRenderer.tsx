@@ -271,6 +271,7 @@ const AttachmentRenderer: FC<Props> = ({
                       onOpenAdvancedView={onOpenAdvancedView}
                       showLimitMessage={setShowLimitMessage}
                       onGridApiReady={onGridApiReady}
+                      externalLink={externalLink}
                     />
                   )}
                 </div>
