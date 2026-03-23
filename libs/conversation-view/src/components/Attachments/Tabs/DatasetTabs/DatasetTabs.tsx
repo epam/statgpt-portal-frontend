@@ -36,8 +36,6 @@ const DatasetTabs: FC<DatasetTabsProps> = ({
         locale={locale}
         isHideAdvancedViewButton={isHideAdvancedViewButton}
         openAdvancedViewIcon={openAdvancedViewIcon}
-        initialSelectedDatasetUrn={initialSelectedDatasetUrn}
-        selectDataset={selectDataset}
         onOpenAdvancedView={onOpenAdvancedView}
         titles={titles}
       />

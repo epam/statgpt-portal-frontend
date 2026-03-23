@@ -19,13 +19,10 @@ const DatasetTabsCrossMode: FC<DatasetTabsProps> = ({
   locale,
   isHideAdvancedViewButton,
   openAdvancedViewIcon,
-  initialSelectedDatasetUrn,
-  selectDataset,
   onOpenAdvancedView,
   titles,
 }) => {
   const { isOpenedAdvancedView } = useAdvancedView();
-  const [selectedDatasetUrn, setSelectedDatasetUrn] = useState<string>();
 
   const iconRef = useRef<HTMLDivElement | null>(null);
   const [tooltipTitle, setTooltipTitle] = useState<string>('');
@@ -60,24 +57,6 @@ const DatasetTabsCrossMode: FC<DatasetTabsProps> = ({
     }
   }, [onboardingFileSchema?.lastDisplayedElement, isShowOnboarding]);
 
-  useEffect(() => {
-    if (!initialSelectedDatasetUrn && !selectedDatasetUrn && datasets?.[0]) {
-      const datasetUrn = generateShortUrn(
-        datasets[0].id,
-        datasets[0].version,
-        datasets[0].agencyID,
-      );
-      setSelectedDatasetUrn(datasetUrn);
-      selectDataset?.(datasetUrn);
-    } else if (
-      initialSelectedDatasetUrn &&
-      initialSelectedDatasetUrn !== selectedDatasetUrn
-    ) {
-      setSelectedDatasetUrn(initialSelectedDatasetUrn);
-      selectDataset?.(initialSelectedDatasetUrn);
-    }
-  }, [datasets, selectDataset, initialSelectedDatasetUrn, selectedDatasetUrn]);
-
   const datasetItems = useMemo(
     () =>
       (datasets || []).map((dataset) => ({
@@ -87,24 +66,10 @@ const DatasetTabsCrossMode: FC<DatasetTabsProps> = ({
     [datasets, locale],
   );
 
-  const visibleDatasetItems = useMemo(() => {
-    if (datasetItems.length <= MAX_TABS_COUNT) {
-      return datasetItems;
-    }
-
-    const selectedDataset = datasetItems.find(
-      (dataset) => dataset.urn === initialSelectedDatasetUrn,
-    );
-
-    if (!selectedDataset) {
-      return datasetItems.slice(0, MAX_TABS_COUNT);
-    }
-
-    return [
-      selectedDataset,
-      ...datasetItems.filter((dataset) => dataset.urn !== selectedDataset.urn),
-    ].slice(0, MAX_TABS_COUNT);
-  }, [datasetItems, initialSelectedDatasetUrn]);
+  const visibleDatasetItems = useMemo(
+    () => datasetItems.slice(0, MAX_TABS_COUNT),
+    [datasetItems],
+  );
 
   const hiddenDatasetsCount = Math.max(
     datasetItems.length - visibleDatasetItems.length,
