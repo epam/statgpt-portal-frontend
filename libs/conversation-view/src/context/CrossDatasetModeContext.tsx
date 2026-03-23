@@ -5,8 +5,13 @@ export interface CrossDatasetModeContextValue {
   isCrossDatasetModeOn: boolean;
 }
 
-const CrossDatasetModeContext =
-  createContext<CrossDatasetModeContextValue | null>(null);
+const DEFAULT_CROSS_DATASET_MODE_CONTEXT: CrossDatasetModeContextValue = {
+  isCrossDatasetModeOn: false,
+};
+
+const CrossDatasetModeContext = createContext<CrossDatasetModeContextValue>(
+  DEFAULT_CROSS_DATASET_MODE_CONTEXT,
+);
 
 export function CrossDatasetModeProvider({
   children,
@@ -27,11 +32,5 @@ export function CrossDatasetModeProvider({
 }
 
 export function useCrossDatasetMode() {
-  const context = useContext(CrossDatasetModeContext);
-  if (!context) {
-    throw new Error(
-      'useCrossDatasetMode must be used within CrossDatasetModeProvider',
-    );
-  }
-  return context;
+  return useContext(CrossDatasetModeContext);
 }
