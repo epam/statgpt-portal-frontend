@@ -1,9 +1,14 @@
 import {
   DataConstraints,
+  DatasetQueryFilters,
+  Dimension,
   findCodelistByDimension,
   generateShortUrn,
   getAvailableCodesFromConstrains,
+  SeriesFilterDto,
   StructuralData,
+  StructuralMetaData,
+  TIME_PERIOD,
 } from '@epam/statgpt-sdmx-toolkit';
 import {
   Filter,
@@ -12,9 +17,12 @@ import {
   FilterValueSource,
 } from '../models/filters';
 import { getDatasetFilters, getFiltersPreselectedByDataQuery } from './filters';
-import { DataQuery, Locale } from '@epam/statgpt-shared-toolkit';
+import { DataQuery, Locale, QueryFilter } from '@epam/statgpt-shared-toolkit';
 import { StructureDataMaps } from '../models/structure-data';
 import { getFilledFilters } from './get-filled-filters';
+import { getSeriesFilterDto } from './get-series-filters';
+import { buildRequestCacheKey, getCachedRequestResult } from './request-cache';
+import { getQueryFilters, setDataQueryFilters } from './query-filters';
 
 type SharedFilterConfig = {
   id: string;
@@ -349,5 +357,93 @@ export const isStructureDataMapsReady = (
     !!structureDataMaps?.structuresMap &&
     !!structureDataMaps?.structureDimensionsMap &&
     !!structureDataMaps?.constraintsMap
+  );
+};
+
+export const getConstraintsRequests = (
+  dataQueries?: DataQuery[],
+  filtersMap?: Map<string, Filter[]>,
+  actions?: {
+    getConstraints: (
+      urn: string,
+      filters?: SeriesFilterDto[],
+    ) => Promise<StructuralMetaData>;
+  },
+): Promise<StructuralMetaData>[] => {
+  return (
+    dataQueries?.map((dataQuery) => {
+      const attachmentUrn = dataQuery?.urn ?? '';
+      const constraintFilters = getSeriesFilterDto(
+        filtersMap?.get(attachmentUrn) || [],
+      ).filter((filter) => filter.componentCode !== TIME_PERIOD);
+      // TODO: Review cached requests, because they sometimes do not call when needed
+      return actions
+        ? getCachedRequestResult(
+            actions.getConstraints,
+            buildRequestCacheKey(attachmentUrn, constraintFilters),
+            () => actions.getConstraints(attachmentUrn, constraintFilters),
+          )
+        : Promise.resolve({} as StructuralMetaData);
+    }) || []
+  );
+};
+
+export const getConstraintsMap = (
+  constraintsData: StructuralMetaData[],
+): Map<string, DataConstraints[] | undefined> => {
+  return new Map(
+    constraintsData?.map((constraintData) => {
+      const constraint = constraintData?.data?.dataConstraints;
+      return [
+        generateShortUrn(
+          constraint?.[0]?.id,
+          constraint?.[0]?.version,
+          constraint?.[0]?.agencyID,
+        ),
+        constraint,
+      ];
+    }),
+  );
+};
+
+export const getInitialConstraints = (
+  isCrossDatasetModeOn: boolean,
+  filter?: Filter,
+  initialConstraints?: DataConstraints[],
+  initialConstraintsMap?: Map<string, DataConstraints[] | undefined>,
+): DataConstraints[] => {
+  return isCrossDatasetModeOn
+    ? (initialConstraintsMap?.get(filter?.datasetUrn ?? '') ?? [])
+    : (initialConstraints ?? []);
+};
+
+export const getQueryFiltersMap = (
+  filters: Filter[],
+  dataQueries?: DataQuery[],
+  dimensionsMap?: Map<string, Dimension[]>,
+): Map<string, DatasetQueryFilters> => {
+  return new Map(
+    dataQueries?.map((dataQuery) => {
+      const datasetUrn = dataQuery?.urn;
+      return [
+        datasetUrn,
+        getQueryFilters(filters, dimensionsMap?.get(datasetUrn)),
+      ];
+    }),
+  );
+};
+
+export const setDataQueryFiltersMap = (
+  dataQueries?: DataQuery[],
+  filtersMap?: Map<string, Filter[]>,
+): Map<string, QueryFilter[]> => {
+  return new Map(
+    dataQueries?.map((dataQuery) => {
+      const datasetUrn = dataQuery?.urn;
+      return [
+        datasetUrn,
+        setDataQueryFilters(filtersMap?.get(datasetUrn) || []),
+      ];
+    }),
   );
 };

@@ -109,6 +109,11 @@ export interface FiltersProps {
     constraints: DataConstraints[],
     modalFilters?: Filter[],
   ) => void;
+  onMultipleDataFiltersChange?: (
+    filterParamsMap: Map<string, DatasetQueryFilters>,
+    constraintsMap?: Map<string, DataConstraints[] | undefined>,
+    dataQueries?: DataQuery[],
+  ) => void;
   locale?: string;
   timeRangeOptions?: TimeRangeOptions[];
   titles?: ConversationViewTitles;

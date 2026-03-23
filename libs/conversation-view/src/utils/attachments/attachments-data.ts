@@ -115,12 +115,12 @@ export const getStructureDataMaps = async (
   return structureDataMaps;
 };
 
-const getDataSetData = async (
+export const getDataSetData = async (
   dataQuery: DataQuery,
   filterParams: DatasetQueryFilters,
   getDataSetDataAction: GetDatasetData,
 ): Promise<DatasetData> => {
-  return getDataSetDataAction(dataQuery.urn, filterParams).then((data) => {
+  return getDataSetDataAction?.(dataQuery.urn, filterParams).then((data) => {
     return {
       dataMessage: data,
       structureDimensions: getStructureDimensions(data),

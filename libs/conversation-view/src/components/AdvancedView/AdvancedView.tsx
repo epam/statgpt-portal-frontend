@@ -10,7 +10,7 @@ import { ShareConversationProps } from '@statgpt/share-conversation/src/models/s
 import { MetadataSettings } from '../../models/metadata';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { AttachmentsActions } from '../../models/actions';
-import { FormatNumbersType } from '@epam/statgpt-shared-toolkit';
+import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import { Loader } from '@epam/statgpt-ui-components';
 import { useAttachmentsData } from '../../context/AttachmentsData';
 import { AdvanceViewStyles } from '../../models/advance-view-styles';
@@ -114,12 +114,10 @@ const AdvancedViewInternal: FC<Props> = ({
     lastMessageAttachments,
   );
   const {
-    dimensionsMap,
-    structuresMap,
-    structureDimensionsMap,
-    constraintsMap,
+    structureDataMaps,
     crossDatasetGridAttachment,
     isLoadingGridData: isLoadingCrossDsGridData,
+    onMultipleDataFiltersChange,
   } = useAttachmentsDataMultipleQueries(
     actions,
     locale,
@@ -133,6 +131,8 @@ const AdvancedViewInternal: FC<Props> = ({
     filterKey: null,
     timeFilter: null,
   });
+  const [filtersMap, setFiltersMap] =
+    useState<Map<string, DatasetQueryFilters>>();
 
   const isDataLoading = useMemo(
     () => (isCrossDatasetModeOn ? isLoadingCrossDsGridData : isLoadingGridData),
@@ -150,6 +150,19 @@ const AdvancedViewInternal: FC<Props> = ({
       onFiltersChange(filterParams, constraints, modalFilters);
     },
     [onFiltersChange],
+  );
+
+  const handleMultipleDataFiltersChange = useCallback(
+    (
+      filterParamsMap: Map<string, DatasetQueryFilters>,
+      constraintsMap?: Map<string, DataConstraints[] | undefined>,
+      dataQueries?: DataQuery[],
+    ): void => {
+      setFiltersMap(filterParamsMap);
+      setIsFiltering(true);
+      onMultipleDataFiltersChange(filterParamsMap, constraintsMap, dataQueries);
+    },
+    [onMultipleDataFiltersChange],
   );
 
   const onSelectDataset = useCallback(
@@ -236,18 +249,16 @@ const AdvancedViewInternal: FC<Props> = ({
                       ...props?.filtersProps,
                       structureDimensions,
                       structures,
-                      structureDataMaps: {
-                        dimensionsMap,
-                        structuresMap,
-                        structureDimensionsMap,
-                        constraintsMap,
-                      },
+                      structureDataMaps,
                       onFiltersChange,
                       initialConstraints: constraints,
+                      onMultipleDataFiltersChange:
+                        handleMultipleDataFiltersChange,
                     }}
                     setIsFiltering={setIsFiltering}
                     attachmentsConfig={attachmentsConfig}
                     filters={filters}
+                    filtersMap={filtersMap}
                     onFiltersChange={handleFiltersChange}
                   />
                 </div>
