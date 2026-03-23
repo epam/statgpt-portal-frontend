@@ -1,13 +1,5 @@
 .dataset {
   &-tabs {
-    &-cross-dataset-mode {
-      @apply mb-4 border-0;
-
-      &.hide-advance-button {
-        @apply px-6 mb-0;
-      }
-    }
-
     &-list {
       @apply flex items-center gap-2 w-full min-w-0 overflow-hidden py-4 border-b border-b-neutrals-400;
     }

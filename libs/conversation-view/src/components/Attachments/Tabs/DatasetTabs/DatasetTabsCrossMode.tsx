@@ -123,7 +123,7 @@ const DatasetTabsCrossMode: FC<DatasetTabsProps> = ({
   return (
     <div
       className={classNames(
-        'dataset-tabs dataset-tabs-cross-dataset-mode flex justify-between items-center w-full',
+        'dataset-tabs flex justify-between items-center w-full mb-4 border-0',
         isHideAdvancedViewButton &&
           isOpenedAdvancedView &&
           'hide-advance-button',
