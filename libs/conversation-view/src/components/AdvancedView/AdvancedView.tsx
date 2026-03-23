@@ -184,7 +184,7 @@ const AdvancedViewInternal: FC<Props> = ({
         <Loader />
       ) : (
         <>
-          {attachmentsProps?.datasets?.length > 1 && (
+          {attachmentsProps?.datasets?.length > 1 && !isCrossDatasetModeOn && (
             <DatasetTabs
               datasets={attachmentsProps?.datasets}
               initialSelectedDatasetUrn={
@@ -199,17 +199,19 @@ const AdvancedViewInternal: FC<Props> = ({
             <Loader />
           ) : (
             <>
-              <DatasetInfo
-                {...datasetInfoOptions}
-                titles={titles}
-                locale={locale}
-                dataset={dataset}
-                data={dataMessage?.data}
-                structures={structures}
-                metadataSettings={metadataSettings}
-                getDatasetUpdatedTime={getDatasetUpdatedTime}
-                externalLink={externalLink}
-              />
+              {!isCrossDatasetModeOn && (
+                <DatasetInfo
+                  {...datasetInfoOptions}
+                  titles={titles}
+                  locale={locale}
+                  dataset={dataset}
+                  data={dataMessage?.data}
+                  structures={structures}
+                  metadataSettings={metadataSettings}
+                  getDatasetUpdatedTime={getDatasetUpdatedTime}
+                  externalLink={externalLink}
+                />
+              )}
               <div className="flex flex-1 min-h-0 overflow-auto border-t border-neutrals-500">
                 <div
                   className={classNames(
