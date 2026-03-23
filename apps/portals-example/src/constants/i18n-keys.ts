@@ -149,6 +149,9 @@ export enum AttachmentsI18nKeys {
   LIMITS_INFO_P2_4 = 'attachments.limitInfo_p2_part4',
   LIMITS_INFO_P2_5 = 'attachments.limitInfo_p2_part5',
   LIMITS_INFO_LINK = 'attachments.limitInfo_link',
+  COUNTRY_DIMENSIONS = 'attachments.countryDimensionsColumnTitle',
+  INDICATOR_DIMENSIONS = 'attachments.indicatorDimensionsColumnTitle',
+  FREQUENCY = 'attachments.frequencyColumnTitle',
 }
 
 export enum TimeI18nKeys {
