@@ -8,7 +8,15 @@ import {
 import { Locale } from '@epam/statgpt-shared-toolkit';
 import { IconButton } from '@epam/statgpt-ui-components';
 import classNames from 'classnames';
-import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  FC,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import DatasetTab from './DatasetTab';
 import { useAdvancedView } from '../../../../context/AdvancedViewContext';
 import { Tooltip } from '../../../Tooltip/Tooltip';
@@ -16,6 +24,7 @@ import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-e
 import { ConversationViewTitles } from '../../../../models/titles';
 import { OnboardingElements } from '../../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../../context/OnboardingContext';
+import { useCrossDatasetMode } from '../../../../context/CrossDatasetModeContext';
 
 interface Props {
   datasets?: Dataflow[];
@@ -28,6 +37,8 @@ interface Props {
   onOpenAdvancedView?: () => void;
 }
 
+const MAX_TABS_COUNT_CROSS_DATASET = 3;
+
 const DatasetTabs: FC<Props> = ({
   datasets,
   locale,
@@ -39,6 +50,7 @@ const DatasetTabs: FC<Props> = ({
   titles,
 }) => {
   const { isOpenedAdvancedView } = useAdvancedView();
+  const { isCrossDatasetModeOn } = useCrossDatasetMode();
   const [selectedDatasetUrn, setSelectedDatasetUrn] = useState<string>();
 
   const iconRef = useRef<HTMLDivElement | null>(null);
@@ -100,41 +112,109 @@ const DatasetTabs: FC<Props> = ({
     [selectDataset],
   );
 
+  const datasetItems = useMemo(
+    () =>
+      (datasets || []).map((dataset) => ({
+        urn: generateShortUrn(dataset?.id, dataset?.version, dataset?.agencyID),
+        title: getLocalizedName(dataset, locale || Locale.EN),
+      })),
+    [datasets, locale],
+  );
+
+  const visibleDatasetItems = useMemo(() => {
+    if (datasetItems.length <= MAX_TABS_COUNT_CROSS_DATASET) {
+      return datasetItems;
+    }
+
+    const selectedDataset = datasetItems.find(
+      (dataset) => dataset.urn === initialSelectedDatasetUrn,
+    );
+
+    if (!selectedDataset) {
+      return datasetItems.slice(0, MAX_TABS_COUNT_CROSS_DATASET);
+    }
+
+    return [
+      selectedDataset,
+      ...datasetItems.filter((dataset) => dataset.urn !== selectedDataset.urn),
+    ].slice(0, MAX_TABS_COUNT_CROSS_DATASET);
+  }, [datasetItems, initialSelectedDatasetUrn]);
+
+  const hiddenDatasetsCount = Math.max(
+    datasetItems.length - visibleDatasetItems.length,
+    0,
+  );
+  const hiddenDatasetTitles = datasetItems
+    .filter(
+      (dataset) =>
+        !visibleDatasetItems.some(
+          (visibleDataset) => visibleDataset.urn === dataset.urn,
+        ),
+    )
+    .map((dataset) => dataset.title)
+    .join('\n');
+
   return (
     <div
       className={classNames(
         'dataset-tabs flex justify-between items-center w-full',
+        isCrossDatasetModeOn && 'dataset-tabs-cross-dataset-mode',
         isHideAdvancedViewButton &&
           isOpenedAdvancedView &&
           'hide-advance-button',
       )}
     >
-      <div className="flex items-center w-full overflow-y-auto gap-4 sm:w-[calc(100%-30px)]">
-        {datasets?.map((dataset) => (
-          <DatasetTab
-            key={dataset?.id}
-            id={dataset?.id}
-            title={getLocalizedName(dataset, locale || Locale.EN)}
-            version={dataset?.version}
-            agency={dataset?.agencyID}
-            isActive={
-              datasets?.length > 1 &&
-              selectedDatasetUrn ===
-                generateShortUrn(
-                  dataset?.id,
-                  dataset?.version,
-                  dataset?.agencyID,
-                )
-            }
-            isSingleTab={datasets?.length === 1}
-            onSelectDataset={onSelectDataset}
-          />
-        ))}
-      </div>
+      {isCrossDatasetModeOn ? (
+        <div className="dataset-tabs-list sm:w-[calc(100%-30px)]">
+          {visibleDatasetItems.map((dataset, index) => {
+            return (
+              <span key={dataset.urn} className="dataset-tabs-item-wrapper">
+                <span className="dataset-tabs-item" title={dataset.title}>
+                  {dataset.title}
+                </span>
+                {index < visibleDatasetItems.length - 1 && (
+                  <span className="dataset-tabs-separator" aria-hidden="true" />
+                )}
+              </span>
+            );
+          })}
+          {hiddenDatasetsCount > 0 && (
+            <span className="dataset-tabs-counter" title={hiddenDatasetTitles}>
+              +{hiddenDatasetsCount}
+            </span>
+          )}
+        </div>
+      ) : (
+        <div className="flex items-center w-full overflow-y-auto gap-4 sm:w-[calc(100%-30px)]">
+          {datasets?.map((dataset) => (
+            <DatasetTab
+              key={dataset?.id}
+              id={dataset?.id}
+              title={getLocalizedName(dataset, locale || Locale.EN)}
+              version={dataset?.version}
+              agency={dataset?.agencyID}
+              isActive={
+                datasets?.length > 1 &&
+                selectedDatasetUrn ===
+                  generateShortUrn(
+                    dataset?.id,
+                    dataset?.version,
+                    dataset?.agencyID,
+                  )
+              }
+              isSingleTab={datasets?.length === 1}
+              onSelectDataset={onSelectDataset}
+            />
+          ))}
+        </div>
+      )}
       {!isHideAdvancedViewButton && (
         <div ref={iconRef}>
           <IconButton
-            buttonClassName={'advanced-view-button'}
+            buttonClassName={classNames(
+              'advanced-view-button',
+              isCrossDatasetModeOn && 'advanced-view-button-cross-dataset-mode',
+            )}
             icon={openAdvancedViewIcon}
             onClick={onOpenAdvancedView}
           />
