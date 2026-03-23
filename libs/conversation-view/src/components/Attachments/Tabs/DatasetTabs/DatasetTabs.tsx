@@ -8,15 +8,7 @@ import {
 import { Locale } from '@epam/statgpt-shared-toolkit';
 import { IconButton } from '@epam/statgpt-ui-components';
 import classNames from 'classnames';
-import {
-  FC,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { FC, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useAdvancedView } from '../../../../context/AdvancedViewContext';
 import { Tooltip } from '../../../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
@@ -99,14 +91,6 @@ const DatasetTabs: FC<Props> = ({
     }
   }, [datasets, selectDataset, initialSelectedDatasetUrn, selectedDatasetUrn]);
 
-  const onSelectDataset = useCallback(
-    (datasetUrn?: string) => {
-      setSelectedDatasetUrn(datasetUrn);
-      selectDataset?.(datasetUrn);
-    },
-    [selectDataset],
-  );
-
   const datasetItems = useMemo(
     () =>
       (datasets || []).map((dataset) => ({
@@ -171,11 +155,6 @@ const DatasetTabs: FC<Props> = ({
                   !isSingleDataset && 'dataset-tabs-item-clickable',
                 )}
                 title={dataset.title}
-                onClick={() => {
-                  if (!isSingleDataset) {
-                    onSelectDataset(dataset.urn);
-                  }
-                }}
               >
                 {dataset.title}
               </button>
@@ -194,7 +173,7 @@ const DatasetTabs: FC<Props> = ({
       {!isHideAdvancedViewButton && (
         <div ref={iconRef}>
           <IconButton
-            buttonClassName={'advanced-view-button'}
+            buttonClassName={'advanced-view-button ml-4'}
             icon={openAdvancedViewIcon}
             onClick={onOpenAdvancedView}
           />

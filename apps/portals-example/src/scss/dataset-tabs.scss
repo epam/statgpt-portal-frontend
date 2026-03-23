@@ -1,13 +1,13 @@
 .dataset {
   &-tabs {
-    @apply border-b border-b-neutrals-400 mb-4;
+    @apply mb-4;
 
     &.hide-advance-button {
       @apply px-6 mb-0;
     }
 
     &-list {
-      @apply flex items-center gap-2 w-full min-w-0 overflow-hidden py-4;
+      @apply flex items-center gap-2 w-full min-w-0 overflow-hidden py-4 border-b border-b-neutrals-400;
     }
 
     &-item-wrapper {
@@ -27,7 +27,7 @@
     }
 
     &-counter {
-      @apply text-neutrals-1000 font-semibold text-[14px] leading-[16px] shrink-0;
+      @apply text-neutrals-1000 font-semibold text-[14px] leading-[16px] shrink-0 cursor-pointer ml-2;
     }
   }
 }
