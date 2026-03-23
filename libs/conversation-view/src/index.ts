@@ -26,7 +26,6 @@ export { ChatFooter } from './components/ChatFooter/ChatFooter';
 export { ChatOnboardingFooter } from './components/ChatOnboardingFooter/ChatOnboardingFooter';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 export type { ShareConversationProps } from '../../share-conversation/src/models/share-conversation';
-export type { DatasetInfoOptions } from './components/AdvancedView/DatasetInfo';
 
 export {
   DatasetDimensionsMetadataMapProvider,
