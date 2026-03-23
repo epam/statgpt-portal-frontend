@@ -5,38 +5,6 @@
     &.hide-advance-button {
       @apply px-6 mb-0;
     }
-
-    &-cross-dataset-mode {
-      @apply mb-4 border-0;
-
-      &.hide-advance-button {
-        @apply px-6 mb-0;
-      }
-    }
-
-    &-list {
-      @apply flex items-center gap-2 w-full min-w-0 overflow-hidden py-4 border-b border-b-neutrals-400;
-    }
-
-    &-item-wrapper {
-      @apply inline-flex items-center min-w-0 shrink gap-2;
-    }
-
-    &-item {
-      @apply bg-transparent border-0 p-0 text-left text-neutrals-800 font-semibold text-[14px] leading-[16px] truncate min-w-0 max-w-[220px];
-    }
-
-    &-item-clickable {
-      @apply cursor-pointer;
-    }
-
-    &-separator {
-      @apply bg-neutrals-600 w-px h-[12px] shrink-0;
-    }
-
-    &-counter {
-      @apply text-neutrals-1000 font-semibold text-[14px] leading-[16px] shrink-0 cursor-pointer ml-2;
-    }
   }
 
   &-tab {
