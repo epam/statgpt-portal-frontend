@@ -11,8 +11,12 @@ import {
 } from '../../../../../models/filters';
 import { ConversationViewTitles } from '../../../../../models/titles';
 import FiltersFacetItem from './FiltersFacetItem';
-import { getDatasetNameFromFilters } from '../../../../../utils/multiple-filters';
 import { getFilterIdentity } from '../../../../../utils/filters';
+import {
+  getDatasetNameFromFilters,
+  getInitialConstraints,
+} from '../../../../../utils/multiple-filters';
+import { useCrossDatasetMode } from '../../../../../context/CrossDatasetModeContext';
 
 interface Props {
   filtersList: Filter[];
@@ -26,6 +30,7 @@ interface Props {
   timeRangeOptions?: TimeRangeOptions[];
   titles?: ConversationViewTitles;
   initialConstraints?: DataConstraints[];
+  initialConstraintsMap?: Map<string, DataConstraints[] | undefined>;
   datasetIcon?: ReactNode;
   structuresMap?: Map<string, StructuralData | undefined>;
   onTimePeriodChange: (
@@ -48,6 +53,7 @@ const FiltersFacetsList: FC<Props> = ({
   isDisableValues,
   timeRangeOptions,
   initialConstraints,
+  initialConstraintsMap,
   datasetIcon,
   structuresMap,
   onTimePeriodChange,
@@ -56,6 +62,7 @@ const FiltersFacetsList: FC<Props> = ({
   titles,
   expandHierarchicalValue,
 }) => {
+  const { isCrossDatasetModeOn } = useCrossDatasetMode();
   return (
     <div
       className={classNames(
@@ -79,7 +86,12 @@ const FiltersFacetsList: FC<Props> = ({
           expandHierarchicalValue={expandHierarchicalValue}
           onTimePeriodChange={onTimePeriodChange}
           filterValuesProps={filterValuesProps}
-          initialConstraints={initialConstraints}
+          initialConstraints={getInitialConstraints(
+            isCrossDatasetModeOn,
+            filter,
+            initialConstraints,
+            initialConstraintsMap,
+          )}
           datasetIcon={datasetIcon}
           datasetName={getDatasetNameFromFilters(filter, structuresMap)}
         />

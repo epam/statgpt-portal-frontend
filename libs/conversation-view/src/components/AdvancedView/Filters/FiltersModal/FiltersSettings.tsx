@@ -14,6 +14,8 @@ import FiltersValuesPanel from './FiltersValuesPanel/FiltersValuesPanel';
 import classNames from 'classnames';
 import { ConversationViewTitles } from '../../../../models/titles';
 import { isSameFilter } from '../../../../utils/filters';
+import { useCrossDatasetMode } from '../../../../context/CrossDatasetModeContext';
+import { getInitialConstraints } from '../../../../utils/multiple-filters';
 
 interface Props {
   filtersList: Filter[];
@@ -25,6 +27,7 @@ interface Props {
   timeRangeOptions?: TimeRangeOptions[];
   modalProps?: FiltersModalProps;
   initialConstraints?: DataConstraints[];
+  initialConstraintsMap?: Map<string, DataConstraints[] | undefined>;
   datasetIcon?: ReactNode;
   structuresMap?: Map<string, StructuralData | undefined>;
   setSelectedFilter: (filter?: Filter) => void;
@@ -45,6 +48,7 @@ const FilterSettings: FC<Props> = ({
   timeSeriesCount,
   timeRangeOptions,
   initialConstraints,
+  initialConstraintsMap,
   datasetIcon,
   structuresMap,
   setSelectedFilter,
@@ -55,6 +59,7 @@ const FilterSettings: FC<Props> = ({
   selectedTimeOption,
 }) => {
   const isMobile = useIsMobile();
+  const { isCrossDatasetModeOn } = useCrossDatasetMode();
 
   const onSelectFilter = useCallback(
     (currentFilter?: Filter) => {
@@ -180,6 +185,7 @@ const FilterSettings: FC<Props> = ({
           onDeleteFilter={onDeleteFilter}
           isDisableValues={isDisableValues}
           initialConstraints={initialConstraints}
+          initialConstraintsMap={initialConstraintsMap}
           datasetIcon={datasetIcon}
           structuresMap={structuresMap}
           timeRangeOptions={timeRangeOptions}
@@ -207,7 +213,12 @@ const FilterSettings: FC<Props> = ({
           expandHierarchicalValue={onExpandHierarchicalValue}
           onTimePeriodChange={onSelectTimePeriodValue}
           filterValuesProps={modalProps?.filterValuesProps}
-          initialConstraints={initialConstraints}
+          initialConstraints={getInitialConstraints(
+            isCrossDatasetModeOn,
+            selectedFilter,
+            initialConstraints,
+            initialConstraintsMap,
+          )}
           selectedTimeOption={selectedTimeOption}
         />
       )}

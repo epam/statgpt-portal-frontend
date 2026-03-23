@@ -28,7 +28,7 @@ export function buildCrossDatasetGridAttachment(
   metadataSettings?: MetadataSettings,
   chartStyles?: ChartingStyles,
   titles?: ConversationViewTitles,
-  constraintsMap?: Map<string, DataConstraints[]>,
+  constraintsMap?: Map<string, DataConstraints[] | undefined>,
   selectedTimePeriod?: TimeRange,
 ): Partial<CrossDatasetGridAttachmentType> {
   const gridContent = buildCrossDatasetGridContent(
@@ -61,7 +61,7 @@ export function buildCrossDatasetGridContent(
   metadataSettings?: MetadataSettings,
   chartStyles?: ChartingStyles,
   titles?: ConversationViewTitles,
-  constraintsMap?: Map<string, DataConstraints[]>,
+  constraintsMap?: Map<string, DataConstraints[] | undefined>,
   selectedTimePeriod?: TimeRange,
 ): { data: GridData[]; columns: ColDef[] } {
   return {

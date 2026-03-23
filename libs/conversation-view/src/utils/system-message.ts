@@ -4,28 +4,34 @@ import { DataQuery, QueryFilter } from '@epam/statgpt-shared-toolkit';
 import { getLastAssistantMessage } from './messages';
 
 export const prepareSystemMessage = (
-  filters: QueryFilter[],
+  filters?: QueryFilter[],
   currentDataQuery?: DataQuery,
   dataQueries?: DataQuery[],
   message?: Message,
+  queryFiltersMap?: Map<string, QueryFilter[]>,
 ): Message => {
   return {
     role: Role.System,
     content: '',
     custom_content: {
       attachments:
-        dataQueries?.map((dataQuery) => ({
-          type: AttachmentType.JSON,
-          title: dataQuery?.title,
-          data: JSON.stringify({
-            urn: dataQuery?.urn,
-            metadata: dataQuery?.metadata,
-            filters:
-              currentDataQuery?.urn === dataQuery?.urn
-                ? filters
-                : dataQuery?.filters,
-          }),
-        })) || [],
+        dataQueries?.map((dataQuery) => {
+          const singleDataQueryFilters =
+            filters && currentDataQuery?.urn === dataQuery?.urn
+              ? filters
+              : dataQuery?.filters;
+          return {
+            type: AttachmentType.JSON,
+            title: dataQuery?.title,
+            data: JSON.stringify({
+              urn: dataQuery?.urn,
+              metadata: dataQuery?.metadata,
+              filters: queryFiltersMap
+                ? queryFiltersMap?.get(dataQuery?.urn)
+                : singleDataQueryFilters,
+            }),
+          };
+        }) || [],
       form_schema: message?.custom_content?.form_schema,
     },
   } as Message;
@@ -33,9 +39,10 @@ export const prepareSystemMessage = (
 
 export const updateMessagesWithSystemMessage = (
   messages: Message[],
-  filters: QueryFilter[],
-  currentDataQuery?: DataQuery,
   dataQueries?: DataQuery[],
+  queryFiltersMap?: Map<string, QueryFilter[]>,
+  filters?: QueryFilter[],
+  currentDataQuery?: DataQuery,
 ): Message[] => {
   if (!messages) {
     return [];
@@ -54,6 +61,7 @@ export const updateMessagesWithSystemMessage = (
       currentDataQuery,
       dataQueries,
       getLastAssistantMessage(messages),
+      queryFiltersMap,
     ),
   ];
 };
