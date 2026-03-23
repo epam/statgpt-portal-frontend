@@ -123,27 +123,33 @@ const DatasetTabsCrossMode: FC<DatasetTabsProps> = ({
   return (
     <div
       className={classNames(
-        'dataset-tabs flex justify-between items-center w-full mb-4 border-0',
+        'cross-dataset-tabs flex justify-between items-center w-full',
         isHideAdvancedViewButton &&
           isOpenedAdvancedView &&
           'hide-advance-button',
       )}
     >
-      <div className="dataset-tabs-list sm:w-[calc(100%-30px)]">
+      <div className="cross-dataset-tabs-list sm:w-[calc(100%-30px)]">
         {visibleDatasetItems.map((dataset, index) => {
           return (
-            <span key={dataset.urn} className="dataset-tabs-item-wrapper">
-              <span className="dataset-tabs-item" title={dataset.title}>
+            <span key={dataset.urn} className="cross-dataset-tabs-item-wrapper">
+              <span className="cross-dataset-tabs-item" title={dataset.title}>
                 {dataset.title}
               </span>
               {index < visibleDatasetItems.length - 1 && (
-                <span className="dataset-tabs-separator" aria-hidden="true" />
+                <span
+                  className="cross-dataset-tabs-separator"
+                  aria-hidden="true"
+                />
               )}
             </span>
           );
         })}
         {hiddenDatasetsCount > 0 && (
-          <span className="dataset-tabs-counter" title={hiddenDatasetTitles}>
+          <span
+            className="cross-dataset-tabs-counter"
+            title={hiddenDatasetTitles}
+          >
             +{hiddenDatasetsCount}
           </span>
         )}
