@@ -16,6 +16,8 @@ import { ConversationViewTitles } from '../../../../models/titles';
 import { OnboardingElements } from '../../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../../context/OnboardingContext';
 
+const MAX_TABS_COUNT = 3;
+
 interface Props {
   datasets?: Dataflow[];
   locale?: string;
@@ -33,12 +35,10 @@ const DatasetTabs: FC<Props> = ({
   isHideAdvancedViewButton,
   openAdvancedViewIcon,
   initialSelectedDatasetUrn,
-  selectDataset,
   onOpenAdvancedView,
   titles,
 }) => {
   const { isOpenedAdvancedView } = useAdvancedView();
-  const [selectedDatasetUrn, setSelectedDatasetUrn] = useState<string>();
 
   const iconRef = useRef<HTMLDivElement | null>(null);
   const [tooltipTitle, setTooltipTitle] = useState<string>('');
@@ -73,24 +73,6 @@ const DatasetTabs: FC<Props> = ({
     }
   }, [onboardingFileSchema?.lastDisplayedElement, isShowOnboarding]);
 
-  useEffect(() => {
-    if (!initialSelectedDatasetUrn && !selectedDatasetUrn && datasets?.[0]) {
-      const datasetUrn = generateShortUrn(
-        datasets[0].id,
-        datasets[0].version,
-        datasets[0].agencyID,
-      );
-      setSelectedDatasetUrn(datasetUrn);
-      selectDataset?.(datasetUrn);
-    } else if (
-      initialSelectedDatasetUrn &&
-      initialSelectedDatasetUrn !== selectedDatasetUrn
-    ) {
-      setSelectedDatasetUrn(initialSelectedDatasetUrn);
-      selectDataset?.(initialSelectedDatasetUrn);
-    }
-  }, [datasets, selectDataset, initialSelectedDatasetUrn, selectedDatasetUrn]);
-
   const datasetItems = useMemo(
     () =>
       (datasets || []).map((dataset) => ({
@@ -101,23 +83,23 @@ const DatasetTabs: FC<Props> = ({
   );
 
   const visibleDatasetItems = useMemo(() => {
-    if (datasetItems.length <= 3) {
+    if (datasetItems.length <= MAX_TABS_COUNT) {
       return datasetItems;
     }
 
     const selectedDataset = datasetItems.find(
-      (dataset) => dataset.urn === selectedDatasetUrn,
+      (dataset) => dataset.urn === initialSelectedDatasetUrn,
     );
 
     if (!selectedDataset) {
-      return datasetItems.slice(0, 3);
+      return datasetItems.slice(0, MAX_TABS_COUNT);
     }
 
     return [
       selectedDataset,
       ...datasetItems.filter((dataset) => dataset.urn !== selectedDataset.urn),
-    ].slice(0, 3);
-  }, [datasetItems, selectedDatasetUrn]);
+    ].slice(0, MAX_TABS_COUNT);
+  }, [datasetItems, initialSelectedDatasetUrn]);
 
   const hiddenDatasetsCount = Math.max(
     datasetItems.length - visibleDatasetItems.length,
@@ -144,20 +126,11 @@ const DatasetTabs: FC<Props> = ({
     >
       <div className="dataset-tabs-list sm:w-[calc(100%-30px)]">
         {visibleDatasetItems.map((dataset, index) => {
-          const isSingleDataset = datasetItems.length === 1;
-
           return (
             <span key={dataset.urn} className="dataset-tabs-item-wrapper">
-              <button
-                type="button"
-                className={classNames(
-                  'dataset-tabs-item',
-                  !isSingleDataset && 'dataset-tabs-item-clickable',
-                )}
-                title={dataset.title}
-              >
+              <span className="dataset-tabs-item" title={dataset.title}>
                 {dataset.title}
-              </button>
+              </span>
               {index < visibleDatasetItems.length - 1 && (
                 <span className="dataset-tabs-separator" aria-hidden="true" />
               )}
@@ -173,7 +146,7 @@ const DatasetTabs: FC<Props> = ({
       {!isHideAdvancedViewButton && (
         <div ref={iconRef}>
           <IconButton
-            buttonClassName={'advanced-view-button ml-4'}
+            buttonClassName={'advanced-view-button'}
             icon={openAdvancedViewIcon}
             onClick={onOpenAdvancedView}
           />

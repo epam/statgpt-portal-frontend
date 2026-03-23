@@ -15,7 +15,6 @@ import { useAttachmentsData } from '../../context/AttachmentsData';
 import { AdvanceViewStyles } from '../../models/advance-view-styles';
 import classNames from 'classnames';
 import { ConversationViewTitles } from '../../models/titles';
-import { StructureComponentValue } from '../../models/structure-component';
 import { LimitMessages } from '@epam/statgpt-ui-components';
 import {
   DataConstraints,
@@ -39,9 +38,6 @@ interface Props {
   locale: string;
   titles?: ConversationViewTitles;
   advanceViewStyles?: AdvanceViewStyles;
-  getDatasetUpdatedTime?: (
-    attributes: StructureComponentValue[],
-  ) => string | null;
   limitMessages?: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
 }
