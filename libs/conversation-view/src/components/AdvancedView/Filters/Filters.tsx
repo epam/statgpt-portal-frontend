@@ -90,7 +90,7 @@ const Filters: FC<FiltersProps> = ({
   const updateSelectedFilterValues = (filter?: Filter) => {
     const filters = filter
       ? modalFilters.map((oldFilter) =>
-          oldFilter.id === filter.id ? filter : oldFilter,
+          isSameFilter(oldFilter, filter) ? filter : oldFilter,
         )
       : modalFilters;
 
@@ -253,9 +253,10 @@ const Filters: FC<FiltersProps> = ({
             ...conversation,
             messages: updateMessagesWithSystemMessage(
               conversation?.messages,
+              dataQueries,
+              void 0,
               dataQueryFilters,
               attachmentsDataQuery,
-              dataQueries,
             ),
           }
         : null;
@@ -264,9 +265,10 @@ const Filters: FC<FiltersProps> = ({
 
       updateDataQueries?.(
         getUpdatedDataQueries(
+          dataQueries,
+          void 0,
           dataQueryFilters,
           attachmentsDataQuery,
-          dataQueries,
         ),
       );
 

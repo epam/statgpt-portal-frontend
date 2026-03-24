@@ -34,6 +34,7 @@ interface Props {
   limitMessages?: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
   filters?: DatasetQueryFilters;
+  filtersMap?: Map<string, DatasetQueryFilters>;
   onFiltersChange: (
     filterParams: DatasetQueryFilters,
     constraints: DataConstraints[],

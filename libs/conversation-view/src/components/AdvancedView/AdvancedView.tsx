@@ -10,7 +10,7 @@ import { ShareConversationProps } from '@statgpt/share-conversation/src/models/s
 import { MetadataSettings } from '../../models/metadata';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { AttachmentsActions } from '../../models/actions';
-import { FormatNumbersType } from '@epam/statgpt-shared-toolkit';
+import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import { Loader } from '@epam/statgpt-ui-components';
 import { useAttachmentsData } from '../../context/AttachmentsData';
 import { AdvanceViewStyles } from '../../models/advance-view-styles';
@@ -108,12 +108,10 @@ const AdvancedViewInternal: FC<Props> = ({
     lastMessageAttachments,
   );
   const {
-    dimensionsMap,
-    structuresMap,
-    structureDimensionsMap,
-    constraintsMap,
+    structureDataMaps,
     crossDatasetGridAttachment,
     isLoadingGridData: isLoadingCrossDsGridData,
+    onMultipleDataFiltersChange,
   } = useAttachmentsDataMultipleQueries(
     actions,
     locale,
@@ -127,6 +125,8 @@ const AdvancedViewInternal: FC<Props> = ({
     filterKey: null,
     timeFilter: null,
   });
+  const [filtersMap, setFiltersMap] =
+    useState<Map<string, DatasetQueryFilters>>();
 
   const isDataLoading = useMemo(
     () => (isCrossDatasetModeOn ? isLoadingCrossDsGridData : isLoadingGridData),
@@ -144,6 +144,19 @@ const AdvancedViewInternal: FC<Props> = ({
       onFiltersChange(filterParams, constraints, modalFilters);
     },
     [onFiltersChange],
+  );
+
+  const handleMultipleDataFiltersChange = useCallback(
+    (
+      filterParamsMap: Map<string, DatasetQueryFilters>,
+      constraintsMap?: Map<string, DataConstraints[] | undefined>,
+      dataQueries?: DataQuery[],
+    ): void => {
+      setFiltersMap(filterParamsMap);
+      setIsFiltering(true);
+      onMultipleDataFiltersChange(filterParamsMap, constraintsMap, dataQueries);
+    },
+    [onMultipleDataFiltersChange],
   );
 
   const onSelectDataset = useCallback(
@@ -165,7 +178,6 @@ const AdvancedViewInternal: FC<Props> = ({
     attachmentsProps.currentDataQuery || attachmentsProps.dataQueries?.[0],
     dimensions,
   );
-  const shouldShowDatasetInfo = !isMetadataInSidePanel;
 
   return (
     <div className="advanced-view flex flex-col flex-1 h-full min-w-0">
@@ -179,7 +191,7 @@ const AdvancedViewInternal: FC<Props> = ({
         <Loader />
       ) : (
         <>
-          {attachmentsProps?.datasets?.length > 1 && (
+          {attachmentsProps?.datasets?.length > 1 && !isCrossDatasetModeOn && (
             <DatasetTabs
               datasets={attachmentsProps?.datasets}
               initialSelectedDatasetUrn={
@@ -194,7 +206,7 @@ const AdvancedViewInternal: FC<Props> = ({
             <Loader />
           ) : (
             <>
-              {shouldShowDatasetInfo && (
+              {!isCrossDatasetModeOn && (
                 <DatasetInfo
                   {...datasetInfoOptions}
                   titles={titles}
@@ -207,12 +219,7 @@ const AdvancedViewInternal: FC<Props> = ({
                   externalLink={externalLink}
                 />
               )}
-              <div
-                className={classNames(
-                  'flex flex-1 min-h-0 overflow-auto',
-                  shouldShowDatasetInfo && 'border-t border-neutrals-500',
-                )}
-              >
+              <div className="flex flex-1 min-h-0 overflow-auto border-t border-neutrals-500">
                 <div
                   className={classNames(
                     'flex-1 min-h-0 overflow-auto',
@@ -238,18 +245,16 @@ const AdvancedViewInternal: FC<Props> = ({
                       ...props?.filtersProps,
                       structureDimensions,
                       structures,
-                      structureDataMaps: {
-                        dimensionsMap,
-                        structuresMap,
-                        structureDimensionsMap,
-                        constraintsMap,
-                      },
+                      structureDataMaps,
                       onFiltersChange,
                       initialConstraints: constraints,
+                      onMultipleDataFiltersChange:
+                        handleMultipleDataFiltersChange,
                     }}
                     setIsFiltering={setIsFiltering}
                     attachmentsConfig={attachmentsConfig}
                     filters={filters}
+                    filtersMap={filtersMap}
                     onFiltersChange={handleFiltersChange}
                   />
                 </div>

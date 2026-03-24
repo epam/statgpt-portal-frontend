@@ -1,12 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   DataConstraints,
-  Dataflow,
-  DataMessage,
   DatasetDimensionsScheme,
-  Dimension,
-  StructuralData,
-  StructureItemBase,
+  DatasetQueryFilters,
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import {
@@ -16,6 +12,7 @@ import {
 } from '../types/actions';
 import {
   getDataConstraintsMap,
+  getDataSetData,
   getStructureDataMaps,
 } from '../utils/attachments/attachments-data';
 import { CustomGridAttachment } from '../models/attachments';
@@ -27,6 +24,7 @@ import {
 } from '@epam/statgpt-conversation-view';
 import { buildCrossDatasetGridAttachment } from '../utils/attachments/cross-dataset-grid/build-cross-dataset-grid-attachment';
 import { MetadataSettings } from '../models/metadata';
+import { StructureDataMaps } from '../models/structure-data';
 
 export function useAttachmentsDataMultipleQueries(
   actions: {
@@ -40,19 +38,9 @@ export function useAttachmentsDataMultipleQueries(
   formattingSettings?: FormatNumbersType,
   metadataSettings?: MetadataSettings,
 ) {
+  const [structureDataMaps, setStructureDataMaps] =
+    useState<StructureDataMaps>();
   const titles = useConversationViewTitles();
-  const [dataMessagesMap, setDataMessagesMap] =
-    useState<Map<string, DataMessage | null>>();
-  const [datasetsMap, setDatasetsMap] =
-    useState<Map<string, Dataflow | undefined>>();
-  const [constraintsMap, setConstraintsMap] =
-    useState<Map<string, DataConstraints[]>>();
-  const [structuresMap, setStructuresMap] =
-    useState<Map<string, StructuralData | undefined>>();
-  const [dimensionsMap, setDimensionsMap] =
-    useState<Map<string, Dimension[]>>();
-  const [structureDimensionsMap, setStructureDimensionsMap] =
-    useState<Map<string, StructureItemBase[]>>();
   const [datasetDimensionsSchemesMap, setDatasetDimensionsSchemesMap] =
     useState<Map<string, DatasetDimensionsScheme | undefined>>();
   const [isLoadingGridData, setIsLoadingGridData] = useState(false);
@@ -69,12 +57,18 @@ export function useAttachmentsDataMultipleQueries(
           dataQueries,
           actions.getConstraints,
         );
-        setConstraintsMap(constraintsMap);
+        setStructureDataMaps((prevStructureDataMaps) => ({
+          ...prevStructureDataMaps,
+          constraintsMap,
+        }));
       } catch {
-        setConstraintsMap(new Map<string, DataConstraints[]>());
+        setStructureDataMaps((prevStructureDataMaps) => ({
+          ...prevStructureDataMaps,
+          constraintsMap: new Map<string, DataConstraints[]>(),
+        }));
       }
     },
-    [actions, setConstraintsMap],
+    [actions],
   );
 
   const loadStructureData = useCallback(
@@ -85,12 +79,10 @@ export function useAttachmentsDataMultipleQueries(
         actions.getDataSetData,
         setIsLoadingGridData,
       );
-
-      setDatasetsMap(structureDataMaps?.datasetsMap);
-      setStructuresMap(structureDataMaps?.structuresMap);
-      setDimensionsMap(structureDataMaps?.dimensionsMap);
-      setDataMessagesMap(structureDataMaps?.dataMessagesMap);
-      setStructureDimensionsMap(structureDataMaps?.structureDimensionsMap);
+      setStructureDataMaps((prevStructureDataMaps) => ({
+        ...prevStructureDataMaps,
+        ...structureDataMaps,
+      }));
     },
     [actions],
   );
@@ -142,6 +134,8 @@ export function useAttachmentsDataMultipleQueries(
   ]);
 
   useEffect(() => {
+    const { structuresMap, dataMessagesMap, constraintsMap } =
+      structureDataMaps ?? {};
     if (
       structuresMap != null &&
       structuresMap.size > 0 &&
@@ -171,9 +165,7 @@ export function useAttachmentsDataMultipleQueries(
       }));
     }
   }, [
-    structuresMap,
-    dataMessagesMap,
-    constraintsMap,
+    structureDataMaps,
     dataQueries,
     locale,
     formattingSettings,
@@ -184,15 +176,60 @@ export function useAttachmentsDataMultipleQueries(
     isLoadingGridData,
   ]);
 
+  const onMultipleDataFiltersChange = useCallback(
+    (
+      filterParamsMap: Map<string, DatasetQueryFilters>,
+      constraintsMap?: Map<string, DataConstraints[] | undefined>,
+      dataQueries?: DataQuery[],
+    ): void => {
+      try {
+        setIsLoadingGridData(true);
+        setStructureDataMaps((prevStructureDataMaps) => ({
+          ...prevStructureDataMaps,
+          constraintsMap,
+        }));
+        dataQueries?.forEach((dataQuery) => {
+          getDataSetData(
+            dataQuery,
+            filterParamsMap?.get(dataQuery?.urn) as DatasetQueryFilters,
+            actions.getDataSetData,
+          )
+            .then(({ dataMessage, structureDimensions }) => {
+              setStructureDataMaps((prevStructureDataMaps) => {
+                const dataMessagesMap = new Map(
+                  prevStructureDataMaps?.dataMessagesMap,
+                );
+                const structureDimensionsMap = new Map(
+                  prevStructureDataMaps?.structureDimensionsMap,
+                );
+
+                dataMessagesMap.set(dataQuery.urn, dataMessage);
+                structureDimensionsMap.set(
+                  dataQuery.urn,
+                  structureDimensions || [],
+                );
+
+                return {
+                  ...prevStructureDataMaps,
+                  dataMessagesMap,
+                  structureDimensionsMap,
+                };
+              });
+            })
+            .finally(() => setIsLoadingGridData(false));
+        });
+      } catch (err) {
+        console.error('Error loading dataset data', err as object);
+      }
+    },
+    [actions.getDataSetData],
+  );
+
   return {
-    dataMessagesMap,
-    structuresMap,
-    datasetsMap,
-    dimensionsMap,
-    structureDimensionsMap,
-    constraintsMap,
+    structureDataMaps,
     datasetDimensionsSchemesMap,
     isLoadingGridData,
     crossDatasetGridAttachment,
+    onMultipleDataFiltersChange,
   };
 }

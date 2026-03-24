@@ -26,8 +26,21 @@ interface DatasetDimensionsMetadataMapContextValue {
   getDimensionsScheme: (urn: ShortUrn) => DatasetDimensionsScheme | undefined;
 }
 
-const Context = createContext<DatasetDimensionsMetadataMapContextValue | null>(
-  null,
+const EMPTY_DATASET_DIMENSIONS_METADATA_MAP =
+  {} as DatasetDimensionsMetadataMap;
+
+const DEFAULT_CONTEXT_VALUE: DatasetDimensionsMetadataMapContextValue = {
+  map: EMPTY_DATASET_DIMENSIONS_METADATA_MAP,
+  getDimensionsMetadata: () => undefined,
+  getDimensionMetadata: () => undefined,
+  getRegionDimension: () => undefined,
+  getFrequencyDimension: () => undefined,
+  getIndicatorDimensions: () => [],
+  getDimensionsScheme: () => undefined,
+};
+
+const Context = createContext<DatasetDimensionsMetadataMapContextValue>(
+  DEFAULT_CONTEXT_VALUE,
 );
 
 export function DatasetDimensionsMetadataMapProvider({
@@ -98,13 +111,7 @@ export function DatasetDimensionsMetadataMapProvider({
 }
 
 export function useDatasetDimensionsMetadataMap() {
-  const ctx = useContext(Context);
-  if (!ctx) {
-    throw new Error(
-      'useDatasetDimensionsMetadataMap must be used within DatasetDimensionsMetadataMapProvider',
-    );
-  }
-  return ctx;
+  return useContext(Context);
 }
 
 export function useDatasetDimensionsMetadataMapOptional() {
