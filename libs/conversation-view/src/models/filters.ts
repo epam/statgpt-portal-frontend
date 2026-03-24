@@ -39,6 +39,7 @@ export interface DatasetFilter extends FilterBase {
 export interface SharedFilter extends FilterBase {
   filterType: 'shared';
   datasetUrn?: undefined;
+  sourceDatasetUrns?: string[];
 }
 
 export type Filter = DatasetFilter | SharedFilter;
