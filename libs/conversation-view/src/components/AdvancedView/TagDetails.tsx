@@ -1,6 +1,6 @@
 'use client';
 
-import DatasetIcon from '../../assets/icons/dataset.svg';
+import DatasetIcon from '../../assets/icons/dataset-arrow.svg';
 import Explore from '../../assets/icons/explore.svg';
 import { Button } from '@epam/statgpt-ui-components';
 import { Dataflow } from '@epam/statgpt-sdmx-toolkit';

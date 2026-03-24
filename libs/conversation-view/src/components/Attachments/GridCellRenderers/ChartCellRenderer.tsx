@@ -87,6 +87,7 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
           isOpen={isOpenChart}
           onClose={closeChart}
           titles={params.titles}
+          datasetTitle={params.data?.datasetTitle ?? undefined}
         />
       )}
     </>

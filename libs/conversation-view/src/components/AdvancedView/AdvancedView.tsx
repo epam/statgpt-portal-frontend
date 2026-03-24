@@ -107,7 +107,7 @@ const AdvancedViewInternal: FC<Props> = ({
   );
   const {
     structureDataMaps,
-    crossDatasetGridAttachment,
+    crossDatasetAttachments,
     isLoadingGridData: isLoadingCrossDsGridData,
     onMultipleDataFiltersChange,
   } = useAttachmentsDataMultipleQueries(
@@ -235,7 +235,7 @@ const AdvancedViewInternal: FC<Props> = ({
                     actions={actions}
                     attachments={
                       isCrossDatasetModeOn
-                        ? [crossDatasetGridAttachment]
+                        ? crossDatasetAttachments
                         : dataSetAttachments
                     }
                     attachmentsDataQuery={attachmentsProps.currentDataQuery}

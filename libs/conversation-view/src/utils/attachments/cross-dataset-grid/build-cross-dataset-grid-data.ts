@@ -1,6 +1,10 @@
 import { GridData } from '../../../types/data-grid/grid-data';
 import { getRowsData } from '../data-grid/rows-data';
-import { DataMessage, StructuralData } from '@epam/statgpt-sdmx-toolkit';
+import {
+  DataMessage,
+  getLocalizedName,
+  StructuralData,
+} from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import { ChartingStyles } from '@epam/statgpt-conversation-view';
 
@@ -26,12 +30,14 @@ export function buildCrossDatasetGridData(
       locale,
       chartStyles,
     );
+    const datasetTitle = getLocalizedName(structures.dataflows?.[0], locale);
     rows.push(
       ...dsRows.map((row) => ({
         ...row,
         dataset: {
           urn: urn,
         },
+        datasetTitle,
       })),
     );
   });
