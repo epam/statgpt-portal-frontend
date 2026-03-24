@@ -2,6 +2,7 @@
 
 import { createContext, ReactNode, useContext, useMemo } from 'react';
 import type { GridApi } from 'ag-grid-community';
+import type { StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import type { AgGridInitialColumnsState } from './AgGridColumnPanel/types';
 import { useAgGridColumnPreferences } from './AgGridColumnPanel/useAgGridColumnPreferences';
 
@@ -9,6 +10,9 @@ type TableSettingsContextValue = {
   gridApi?: GridApi;
   onGridApiReady: (api: GridApi) => void;
   initialColumnsState: AgGridInitialColumnsState | null;
+  structuresMap?: Map<string, StructuralData | undefined>;
+  locale?: string;
+  dataQueries?: Array<{ urn: string }>;
 };
 
 const TableSettingsContext = createContext<TableSettingsContextValue | null>(
@@ -17,17 +21,37 @@ const TableSettingsContext = createContext<TableSettingsContextValue | null>(
 
 export function TableSettingsProvider({
   currentUrn,
+  structuresMap,
+  locale,
+  dataQueries,
   children,
 }: {
   currentUrn: string;
+  structuresMap?: Map<string, StructuralData | undefined>;
+  locale?: string;
+  dataQueries?: Array<{ urn: string }>;
   children: ReactNode;
 }) {
   const { gridApi, onGridApiReady, initialColumnsState } =
     useAgGridColumnPreferences({ currentUrn });
 
   const value = useMemo<TableSettingsContextValue>(
-    () => ({ gridApi, onGridApiReady, initialColumnsState }),
-    [gridApi, initialColumnsState, onGridApiReady],
+    () => ({
+      gridApi,
+      onGridApiReady,
+      initialColumnsState,
+      structuresMap,
+      locale,
+      dataQueries,
+    }),
+    [
+      gridApi,
+      initialColumnsState,
+      onGridApiReady,
+      structuresMap,
+      locale,
+      dataQueries,
+    ],
   );
 
   return (

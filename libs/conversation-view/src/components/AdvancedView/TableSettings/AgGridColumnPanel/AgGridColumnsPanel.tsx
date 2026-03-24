@@ -1,6 +1,7 @@
 'use client';
 
 import { DraggableList, InputWithIcon } from '@epam/statgpt-ui-components';
+import type { DraggableListItemNode } from '@epam/statgpt-ui-components';
 import { useAgGridColumnsPanel } from './useAgGridColumnsPanel';
 import { ColumnPanelFilter } from './types';
 import { useCallback, useMemo, useState } from 'react';
@@ -10,9 +11,11 @@ import { GridApi } from 'ag-grid-community';
 export function AgGridColumnsPanel({
   api,
   includeColumn,
+  enrichItem,
 }: {
   api: GridApi | null;
   includeColumn?: ColumnPanelFilter;
+  enrichItem?: (item: DraggableListItemNode) => DraggableListItemNode;
 }) {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const changeSearchHandler = useCallback(
@@ -46,6 +49,7 @@ export function AgGridColumnsPanel({
     api,
     includeColumn,
     searchQuery,
+    enrichItem,
   });
 
   return (

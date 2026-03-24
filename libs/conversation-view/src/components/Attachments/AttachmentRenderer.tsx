@@ -159,7 +159,8 @@ const AttachmentRenderer: FC<Props> = ({
     if (
       isTableSettingsOpen &&
       selectedAttachment &&
-      !isCustomGridAttachment(selectedAttachment)
+      !isCustomGridAttachment(selectedAttachment) &&
+      !isCrossDatasetGrid(selectedAttachment)
     ) {
       onTableSettingsClose?.();
     }

@@ -84,6 +84,7 @@ const AttachmentsContentRenderer: FC<Props> = ({
           isChartColumnVisible={isOpenedAdvancedView}
           fixHeight={!isOpenedAdvancedView}
           showLimitMessage={showLimitMessage}
+          onApiReady={onGridApiReady}
         />
       )}
       {isCustomChartAttachment(selectedAttachment) && (
