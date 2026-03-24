@@ -217,7 +217,12 @@ const AdvancedViewInternal: FC<Props> = ({
                   externalLink={externalLink}
                 />
               )}
-              <div className="flex flex-1 min-h-0 overflow-auto border-t border-neutrals-500">
+              <div
+                className={classNames([
+                  'flex flex-1 min-h-0 overflow-auto',
+                  !isCrossDatasetModeOn && 'border-t border-neutrals-500',
+                ])}
+              >
                 <div
                   className={classNames(
                     'flex-1 min-h-0 overflow-auto',
