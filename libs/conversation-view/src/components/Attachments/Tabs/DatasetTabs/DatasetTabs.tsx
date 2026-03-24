@@ -5,7 +5,7 @@ import { FC, ReactNode } from 'react';
 import DatasetTabsDefaultMode from './DatasetTabsDefaultMode';
 import DatasetTabsCrossMode from './DatasetTabsCrossMode';
 import { ConversationViewTitles } from '../../../../models/titles';
-import { useCrossDatasetMode } from '../../../../context/CrossDatasetModeContext';
+import { useConversationViewFeatureToggles } from '../../../../context/ConversationViewFeatureTogglesContext';
 
 export interface DatasetTabsProps {
   datasets?: Dataflow[];
@@ -28,7 +28,7 @@ const DatasetTabs: FC<DatasetTabsProps> = ({
   onOpenAdvancedView,
   titles,
 }) => {
-  const { isCrossDatasetModeOn } = useCrossDatasetMode();
+  const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   if (isCrossDatasetModeOn) {
     return (
       <DatasetTabsCrossMode

@@ -16,7 +16,7 @@ import {
   getDatasetNameFromFilters,
   getInitialConstraints,
 } from '../../../../../utils/multiple-filters';
-import { useCrossDatasetMode } from '../../../../../context/CrossDatasetModeContext';
+import { useConversationViewFeatureToggles } from '../../../../../context/ConversationViewFeatureTogglesContext';
 
 interface Props {
   filtersList: Filter[];
@@ -62,7 +62,7 @@ const FiltersFacetsList: FC<Props> = ({
   titles,
   expandHierarchicalValue,
 }) => {
-  const { isCrossDatasetModeOn } = useCrossDatasetMode();
+  const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   return (
     <div
       className={classNames(

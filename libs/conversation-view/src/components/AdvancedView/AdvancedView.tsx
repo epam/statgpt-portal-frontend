@@ -25,7 +25,6 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { getExternalLink } from '../../utils/attachments-details';
 import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
-import { useCrossDatasetMode } from '../../context/CrossDatasetModeContext';
 import { TableSettingsProvider } from './TableSettings/TableSettingsContext';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 import { ConversationViewSidePanelOutlet } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
@@ -80,8 +79,7 @@ const AdvancedViewInternal: FC<Props> = ({
   ...props
 }) => {
   const { isOpenedAdvancedView } = useAdvancedView();
-  const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
-  const { isCrossDatasetModeOn } = useCrossDatasetMode();
+  const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
 
   const lastMessageAttachments =
     props.filtersProps.conversation?.messages?.at(-1)?.custom_content

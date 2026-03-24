@@ -18,6 +18,7 @@ import {
   RequestLimitMessage,
 } from '@epam/statgpt-ui-components';
 import {
+  isCrossDatasetGrid,
   isCustomGridAttachment,
   isGridAttachment,
 } from '../../utils/attachments/attachment-parser';

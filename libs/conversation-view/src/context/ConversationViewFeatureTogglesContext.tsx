@@ -4,10 +4,14 @@ import { createContext, ReactNode, useContext, useMemo } from 'react';
 
 export interface ConversationViewFeatureToggles {
   isMetadataInSidePanel: boolean;
+  isCrossDatasetModeOn: boolean;
+  isTableSettingsFeatureEnabled: boolean;
 }
 
 const defaultFeatureToggles: ConversationViewFeatureToggles = {
   isMetadataInSidePanel: false,
+  isCrossDatasetModeOn: false,
+  isTableSettingsFeatureEnabled: false,
 };
 
 const ConversationViewFeatureTogglesContext =
@@ -16,15 +20,25 @@ const ConversationViewFeatureTogglesContext =
 export function ConversationViewFeatureTogglesProvider({
   children,
   isMetadataInSidePanel = false,
+  isCrossDatasetModeOn = false,
+  isTableSettingsFeatureEnabled = false,
 }: {
   children: ReactNode;
   isMetadataInSidePanel?: boolean;
+  isCrossDatasetModeOn?: boolean;
+  isTableSettingsFeatureEnabled?: boolean;
 }) {
   const value = useMemo<ConversationViewFeatureToggles>(
     () => ({
       isMetadataInSidePanel,
+      isCrossDatasetModeOn,
+      isTableSettingsFeatureEnabled,
     }),
-    [isMetadataInSidePanel],
+    [
+      isMetadataInSidePanel,
+      isCrossDatasetModeOn,
+      isTableSettingsFeatureEnabled,
+    ],
   );
 
   return (

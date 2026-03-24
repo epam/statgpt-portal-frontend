@@ -24,8 +24,6 @@ import { TextsConfig } from '../../components/configs/TextsConfig/TextsConfig';
 import { ClientProvidersWrapper } from '../../components/ClientProvidersWrapper/ClientProvidersWrapper';
 import { getDatasetsMetadata } from '../actions/datasets-metadata';
 import { buildDatasetDimensionsMetadataMap } from '@epam/statgpt-sdmx-toolkit';
-import { CrossDatasetModeProvider } from '../../../../../libs/conversation-view/src/context/CrossDatasetModeContext';
-import { parseBoolean } from '@epam/statgpt-shared-toolkit';
 
 export default async function LocaleLayout({
   children,
@@ -68,9 +66,8 @@ export default async function LocaleLayout({
 
   const clientContactSupportUrl = process.env.CLIENT_CONTACT_SUPPORT_URL;
   const isCrossDatasetModeOn = !!process.env.CROSS_DATASET_MODE;
-  const isMetadataInSidePanel = parseBoolean(
-    process.env.METADATA_IN_SIDE_PANEL,
-  );
+  const isMetadataInSidePanel = isCrossDatasetModeOn;
+  const isTableSettingsFeatureEnabled = isCrossDatasetModeOn;
 
   const metadata = await getDatasetsMetadata();
   const datasetDimensionsMetadataMap = metadata.data
@@ -84,27 +81,27 @@ export default async function LocaleLayout({
 
     return (
       <DeploymentConfigProvider config={configuration.data}>
-        <CrossDatasetModeProvider isCrossDatasetModeOn={isCrossDatasetModeOn}>
-          <ConversationViewFeatureTogglesProvider
-            isMetadataInSidePanel={isMetadataInSidePanel}
+        <ConversationViewFeatureTogglesProvider
+          isMetadataInSidePanel={isMetadataInSidePanel}
+          isCrossDatasetModeOn={isCrossDatasetModeOn}
+          isTableSettingsFeatureEnabled={isTableSettingsFeatureEnabled}
+        >
+          <ClientProvidersWrapper
+            isAgentAvailable={configuration.success}
+            datasetDimensionsMetadataMap={datasetDimensionsMetadataMap}
           >
-            <ClientProvidersWrapper
-              isAgentAvailable={configuration.success}
-              datasetDimensionsMetadataMap={datasetDimensionsMetadataMap}
-            >
-              <OnboardingProvider>
-                <AdvancedViewProvider>
-                  <ConversationListProvider>
-                    <ChatMessagesProvider>
-                      <ConversationListWrapper />
-                      <main className="flex-1 h-full min-w-0">{children}</main>
-                    </ChatMessagesProvider>
-                  </ConversationListProvider>
-                </AdvancedViewProvider>
-              </OnboardingProvider>
-            </ClientProvidersWrapper>
-          </ConversationViewFeatureTogglesProvider>
-        </CrossDatasetModeProvider>
+            <OnboardingProvider>
+              <AdvancedViewProvider>
+                <ConversationListProvider>
+                  <ChatMessagesProvider>
+                    <ConversationListWrapper />
+                    <main className="flex-1 h-full min-w-0">{children}</main>
+                  </ChatMessagesProvider>
+                </ConversationListProvider>
+              </AdvancedViewProvider>
+            </OnboardingProvider>
+          </ClientProvidersWrapper>
+        </ConversationViewFeatureTogglesProvider>
       </DeploymentConfigProvider>
     );
   };
