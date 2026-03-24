@@ -20,6 +20,8 @@ const SPECIAL_DATASET_DESCRIPTION_IDS = new Set<string>(
   Object.values(DATASET_DESCRIPTION_ITEM_IDS),
 );
 
+const LIST_SEPARATOR = ', ';
+
 const SidePanelMetadataContent: FC<Props> = ({
   metadata,
   metadataDescription = [],
@@ -37,7 +39,7 @@ const SidePanelMetadataContent: FC<Props> = ({
               ? (valueItem?.[locale] ?? '')
               : valueItem,
           )
-          .join(', ');
+          .join(LIST_SEPARATOR);
       }
 
       if (typeof value === 'object' && value !== null) {
