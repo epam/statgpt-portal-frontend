@@ -467,6 +467,7 @@ const ConversationViewWrapper: FC<Props> = ({
           }}
           locale={locale}
           datasetInfoOptions={datasetInfoOptions}
+          titles={conversationViewTitles}
         />
       )}
     </div>
