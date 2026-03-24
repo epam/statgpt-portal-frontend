@@ -38,3 +38,18 @@ export {
   ConversationViewTitlesProvider,
   useConversationViewTitles,
 } from './context/ConversationViewTitlesContext';
+
+export {
+  ConversationViewSidePanelProvider,
+  useConversationViewSidePanelOptional,
+} from './components/ConversationView/SidePanel/ConversationViewSidePanelContext';
+export type {
+  ConversationViewSidePanelConfig,
+  ConversationViewSidePanelScope,
+} from './components/ConversationView/SidePanel/ConversationViewSidePanelContext';
+
+export {
+  ConversationViewFeatureTogglesProvider,
+  useConversationViewFeatureToggles,
+} from './context/ConversationViewFeatureTogglesContext';
+export type { ConversationViewFeatureToggles } from './context/ConversationViewFeatureTogglesContext';

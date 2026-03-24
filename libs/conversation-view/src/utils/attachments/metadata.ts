@@ -14,6 +14,8 @@ import { ICellRendererParams, ColDef } from 'ag-grid-community';
 import { StructureComponentValue } from '../../models/structure-component';
 import { GridData } from '../../types/data-grid/grid-data';
 import { ConversationViewTitles } from '../../models/titles';
+import { DATASET_DESCRIPTION_ITEM_IDS } from '../../constants/metadata';
+import { DatasetInfoData } from '../../models/metadata';
 
 export const getObsAttributesFromParams = (params: ICellRendererParams) =>
   params?.data[params?.colDef?.field || 0]?.obsAttributes;
@@ -56,7 +58,7 @@ export const getStructureComponentsValues = (
       const componentData = structureComponentsMap?.get(componentName);
       const codeList = (componentData as Codelist)?.codes?.length
         ? componentData
-        : void 0;
+        : undefined;
 
       const value = Array.isArray(component?.value)
         ? component?.value.map((value) => getValue(value, locale, codeList))
@@ -86,10 +88,49 @@ export const getDatasetDescription = (
   locale: string,
   titles?: ConversationViewTitles,
 ) => [
-  getDatasetNameItem(dataset, locale, titles),
-  { title: titles?.agency ?? 'Agency', value: dataset?.agencyID },
-  { title: titles?.lastUpdated ?? 'Last updated', value: lastUpdatedDate },
+  {
+    ...getDatasetNameItem(dataset, locale, titles),
+    id: DATASET_DESCRIPTION_ITEM_IDS.dataset,
+  },
+  {
+    id: DATASET_DESCRIPTION_ITEM_IDS.agency,
+    title: titles?.agency ?? 'Agency',
+    value: dataset?.agencyID,
+  },
+  {
+    id: DATASET_DESCRIPTION_ITEM_IDS.lastUpdated,
+    title: titles?.lastUpdated ?? 'Last updated',
+    value: lastUpdatedDate,
+  },
 ];
+
+export const getDatasetInfoData = (
+  dataset: Dataflow | undefined | null,
+  lastUpdatedDate: string,
+  locale: string,
+  titles?: ConversationViewTitles,
+): DatasetInfoData => ({
+  dataset: dataset
+    ? {
+        ...getDatasetNameItem(dataset, locale, titles),
+        id: DATASET_DESCRIPTION_ITEM_IDS.dataset,
+      }
+    : undefined,
+  agency: dataset
+    ? {
+        id: DATASET_DESCRIPTION_ITEM_IDS.agency,
+        title: titles?.agency ?? 'Agency',
+        value: dataset?.agencyID,
+      }
+    : undefined,
+  lastUpdated: dataset
+    ? {
+        id: DATASET_DESCRIPTION_ITEM_IDS.lastUpdated,
+        title: titles?.lastUpdated ?? 'Last updated',
+        value: lastUpdatedDate,
+      }
+    : undefined,
+});
 
 export const getTimeDimensionItem = (
   dataSetData: StructuralData,
@@ -167,7 +208,7 @@ export const getDataSetAttributes = (
         const attributeData = structureComponentsMap?.get(id);
         const codeList = (attributeData as Codelist)?.codes?.length
           ? (attributeData as Codelist)
-          : void 0;
+          : undefined;
 
         const attributeValue =
           getLocalizedName(

@@ -52,6 +52,7 @@ import { useAdvancedView } from '../../context/AdvancedViewContext';
 import classNames from 'classnames';
 import { AttachmentsConfig } from '../../models/attachments';
 import { IconExternalLink } from '@tabler/icons-react';
+import { useConversationViewSidePanelOptional } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
 
 interface Props {
   messages: MessageType[];
@@ -90,8 +91,10 @@ const ChatMessages: FC<Props> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { isOpenedAdvancedView } = useAdvancedView();
+  const sidePanel = useConversationViewSidePanelOptional();
   const [scrollPosition, setScrollPosition] = useState<number | null>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const isConversationPanelVisible = sidePanel?.isPanelOpen() ?? false;
 
   const scrollToBottom = () => {
     const container = containerRef.current?.parentElement;
@@ -230,7 +233,10 @@ const ChatMessages: FC<Props> = ({
       <div
         onClick={scrollToBottom}
         className={classNames(
-          'fixed right-10 lg:right-6 sm:hidden bottom-[88px] rounded-[50%] border-[2px] w-[40px] h-[40px] border-primary cursor-pointer text-primary bg-white',
+          'fixed sm:hidden bottom-[88px] rounded-[50%] border-[2px] w-[40px] h-[40px] border-primary cursor-pointer text-primary bg-white z-10',
+          isConversationPanelVisible
+            ? 'right-[402px] lg:right-[386px]'
+            : 'right-10 lg:right-6',
           'scroll-button-wrapper',
           showScrollButton ? 'block' : 'hidden',
         )}

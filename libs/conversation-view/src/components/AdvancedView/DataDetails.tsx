@@ -17,7 +17,7 @@ import { AttachmentsStyles } from '../../models/attachments-styles';
 import { ConversationViewTitles } from '../../models/titles';
 import { AttachmentsConfig } from '../../models/attachments';
 import MultiDatasetFilters from './MultiDatasetFilters/MultiDatasetFilters';
-import { useCrossDatasetMode } from '../../context/CrossDatasetModeContext';
+import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -62,7 +62,7 @@ const DataDetails: FC<Props> = ({
   const constraintAction = {
     getConstraints: actions.getConstraints,
   };
-  const { isCrossDatasetModeOn } = useCrossDatasetMode();
+  const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
 
   useEffect(() => {
     if (!isDataLoading) {
