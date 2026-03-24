@@ -30,6 +30,7 @@ interface Props {
   actions: AttachmentsActions;
   attachmentsStyles?: AttachmentsStyles;
   isDataLoading?: boolean;
+  externalLink?: string;
   isOpenedAdvancedView?: boolean;
   onOpenAdvancedView?: () => void;
   showLimitMessage: (p: boolean) => void;
@@ -41,6 +42,7 @@ const AttachmentsContentRenderer: FC<Props> = ({
   actions,
   attachmentsStyles,
   isDataLoading,
+  externalLink,
   isOpenedAdvancedView,
   onOpenAdvancedView,
   showLimitMessage,
@@ -72,6 +74,7 @@ const AttachmentsContentRenderer: FC<Props> = ({
           titles={titles}
           showLimitMessage={showLimitMessage}
           onApiReady={onGridApiReady}
+          externalLink={externalLink}
         />
       )}
       {isCrossDatasetGrid(selectedAttachment) && (

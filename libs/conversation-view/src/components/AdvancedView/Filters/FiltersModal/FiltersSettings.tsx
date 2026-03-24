@@ -14,7 +14,7 @@ import FiltersValuesPanel from './FiltersValuesPanel/FiltersValuesPanel';
 import classNames from 'classnames';
 import { ConversationViewTitles } from '../../../../models/titles';
 import { isSameFilter } from '../../../../utils/filters';
-import { useCrossDatasetMode } from '../../../../context/CrossDatasetModeContext';
+import { useConversationViewFeatureToggles } from '../../../../context/ConversationViewFeatureTogglesContext';
 import { getInitialConstraints } from '../../../../utils/multiple-filters';
 
 interface Props {
@@ -59,7 +59,7 @@ const FilterSettings: FC<Props> = ({
   selectedTimeOption,
 }) => {
   const isMobile = useIsMobile();
-  const { isCrossDatasetModeOn } = useCrossDatasetMode();
+  const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
 
   const onSelectFilter = useCallback(
     (currentFilter?: Filter) => {

@@ -25,12 +25,10 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { getExternalLink } from '../../utils/attachments-details';
 import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
-import { useCrossDatasetMode } from '../../context/CrossDatasetModeContext';
-import { TableSettingsPanel } from './TableSettings/TableSettingsPanel';
-import {
-  TableSettingsProvider,
-  useTableSettingsContext,
-} from './TableSettings/TableSettingsContext';
+import { TableSettingsProvider } from './TableSettings/TableSettingsContext';
+import { useAdvancedView } from '../../context/AdvancedViewContext';
+import { ConversationViewSidePanelOutlet } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
+import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -80,18 +78,12 @@ const AdvancedViewInternal: FC<Props> = ({
   datasetInfoOptions,
   ...props
 }) => {
+  const { isOpenedAdvancedView } = useAdvancedView();
+  const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
+
   const lastMessageAttachments =
     props.filtersProps.conversation?.messages?.at(-1)?.custom_content
       ?.attachments;
-  const { isCrossDatasetModeOn } = useCrossDatasetMode();
-
-  const {
-    tableSettings: {
-      isOpen: isTableSettingsPanelOpened,
-      close: closeTableSettingsHandler,
-    },
-    agGrid: { gridApi, initialColumnsState },
-  } = useTableSettingsContext();
 
   const {
     dataMessage,
@@ -225,7 +217,12 @@ const AdvancedViewInternal: FC<Props> = ({
                   externalLink={externalLink}
                 />
               )}
-              <div className="flex flex-1 min-h-0 overflow-auto border-t border-neutrals-500">
+              <div
+                className={classNames([
+                  'flex flex-1 min-h-0 overflow-auto',
+                  !isCrossDatasetModeOn && 'border-t border-neutrals-500',
+                ])}
+              >
                 <div
                   className={classNames(
                     'flex-1 min-h-0 overflow-auto',
@@ -264,14 +261,8 @@ const AdvancedViewInternal: FC<Props> = ({
                     onFiltersChange={handleFiltersChange}
                   />
                 </div>
-                {isTableSettingsPanelOpened && (
-                  <TableSettingsPanel
-                    onClose={closeTableSettingsHandler}
-                    gridApi={gridApi}
-                    initialColumnsState={initialColumnsState}
-                    title={attachmentsProps.styles?.columnsTitle}
-                    resetTitle={attachmentsProps.styles?.columnsResetTitle}
-                  />
+                {isOpenedAdvancedView && (
+                  <ConversationViewSidePanelOutlet scope="advanced" />
                 )}
               </div>
             </>

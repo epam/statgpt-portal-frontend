@@ -55,7 +55,7 @@ import { RequestActionsPanel } from '../RequestActions/RequestActions';
 import MessageEdit from '../MessageEdit/MessageEdit';
 import { ChoiceButtons } from '../../ConversationOnboarding/ChoiceButtons/ChoiceButtons';
 import { useAttachmentsDataMultipleQueries } from '../../../context/AttachmentsDataMultipleQueries';
-import { useCrossDatasetMode } from '../../../context/CrossDatasetModeContext';
+import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
 
 interface Props {
   message: MessageType;
@@ -128,7 +128,7 @@ const Message: FC<Props> = ({
     useState<string>();
   const [isDataSetAttachments, setIsDataSetAttachments] =
     useState<boolean>(false);
-  const { isCrossDatasetModeOn } = useCrossDatasetMode();
+  const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const isUser = message.role === Role.User;
   const isSystem = message.role === Role.System;
   const {

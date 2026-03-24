@@ -104,6 +104,7 @@ import {
 } from '../../utils/errors';
 import { updateConversationErrorContext } from '../../utils/conversation';
 import { clearRequestCache } from '../../utils/request-cache';
+import { ConversationViewSidePanelOutlet } from './SidePanel/ConversationViewSidePanelContext';
 
 interface Props {
   conversationKey: string;
@@ -134,6 +135,7 @@ interface Props {
   isFinalMessage?: boolean;
   limitMessages: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
+  children?: ReactNode;
 }
 
 export const ConversationView: FC<Props> = ({
@@ -163,6 +165,7 @@ export const ConversationView: FC<Props> = ({
   isFinalMessage,
   limitMessages,
   attachmentsConfig,
+  children,
 }) => {
   const [conversationSignal, setConversationSignal] =
     useState<AbortController | null>(null);
@@ -763,7 +766,6 @@ export const ConversationView: FC<Props> = ({
     return () => {
       clearRequestCache();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationKey]);
 
   const messageServerActions = useMemo(
@@ -858,72 +860,84 @@ export const ConversationView: FC<Props> = ({
             shareConversationProps={shareConversationProps}
           />
         )}
-        <div
-          className={classNames(
-            'flex-1 min-h-0 flex flex-col items-end scroll-hidden-container',
-            messageStyles?.messagesWrapperClass,
+        <div className="flex flex-1 min-h-0 w-full">
+          <div className="flex-1 min-h-0 flex flex-col">
+            <div
+              className={classNames(
+                'flex-1 min-h-0 flex flex-col items-end scroll-hidden-container',
+                messageStyles?.messagesWrapperClass,
+              )}
+            >
+              <ChatMessages
+                messages={conversation?.messages || []}
+                actions={messageServerActions}
+                isStreaming={isStreaming}
+                isReadOnly={isReadonlyConversation}
+                messageStyles={messageStyles}
+                attachmentsStyles={attachmentsStyles}
+                formattingSettings={formattingSettings}
+                metadataSettings={metadataSettings}
+                expandStagesIcon={expandStagesIcon}
+                dataQuery={dataQuery}
+                locale={locale}
+                titles={titles}
+                regenerateMessage={(message: Message) =>
+                  regenerateMessage(message, conversation)
+                }
+                selectMessageToSend={(message, choiceId) =>
+                  sendMessageToConversation(
+                    message as string,
+                    conversation,
+                    choiceId as string,
+                  )
+                }
+                messageActionsIcons={messageActionsIcons}
+                rateResponse={rateResponse}
+                editMessage={(message: Message) =>
+                  editMessage(message, conversation)
+                }
+                editMessageTitles={editMessageTitles}
+                scrollBottomIcon={scrollBottomIcon}
+                isReadOnlyConversation={
+                  isReadonlyConversation || isShowOnboarding
+                }
+                limitMessages={limitMessages}
+                attachmentsConfig={attachmentsConfig}
+                conversationViewState={conversationViewState}
+              />
+            </div>
+            {isShowOnboarding ? null : !isReadonlyConversation ? (
+              <div
+                className={classNames(inputMessageStyles.inputContainerClass)}
+              >
+                {getInput()}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center mt-4">
+                <Button
+                  iconBefore={<IconCopy width={20} height={20} />}
+                  title={titles?.duplicate ?? 'Duplicate Chat'}
+                  isSmallButton={true}
+                  onClick={duplicateConversation}
+                  buttonClassName={classNames('text-button-secondary')}
+                />
+              </div>
+            )}
+            {isShowOnboarding && isFinalMessage && (
+              <Button
+                iconBefore={<IconPlus width={24} height={24} />}
+                title={titles?.onboardingFooterLink}
+                onClick={handleOpeningOfNewConversation}
+                isSmallButton={true}
+                buttonClassName="text-button-secondary self-center mb-3"
+              />
+            )}
+            {children}
+          </div>
+          {!isOpenedAdvancedView && (
+            <ConversationViewSidePanelOutlet scope="conversation" />
           )}
-        >
-          <ChatMessages
-            messages={conversation?.messages || []}
-            actions={messageServerActions}
-            isStreaming={isStreaming}
-            isReadOnly={isReadonlyConversation}
-            messageStyles={messageStyles}
-            attachmentsStyles={attachmentsStyles}
-            formattingSettings={formattingSettings}
-            metadataSettings={metadataSettings}
-            expandStagesIcon={expandStagesIcon}
-            dataQuery={dataQuery}
-            locale={locale}
-            titles={titles}
-            regenerateMessage={(message: Message) =>
-              regenerateMessage(message, conversation)
-            }
-            selectMessageToSend={(message, choiceId) =>
-              sendMessageToConversation(
-                message as string,
-                conversation,
-                choiceId as string,
-              )
-            }
-            messageActionsIcons={messageActionsIcons}
-            rateResponse={rateResponse}
-            editMessage={(message: Message) =>
-              editMessage(message, conversation)
-            }
-            editMessageTitles={editMessageTitles}
-            scrollBottomIcon={scrollBottomIcon}
-            isReadOnlyConversation={isReadonlyConversation || isShowOnboarding}
-            limitMessages={limitMessages}
-            attachmentsConfig={attachmentsConfig}
-            conversationViewState={conversationViewState}
-          />
         </div>
-        {isShowOnboarding ? null : !isReadonlyConversation ? (
-          <div className={classNames(inputMessageStyles.inputContainerClass)}>
-            {getInput()}
-          </div>
-        ) : (
-          <div className="flex items-center justify-center mt-4">
-            <Button
-              iconBefore={<IconCopy width={20} height={20} />}
-              title={titles?.duplicate ?? 'Duplicate Chat'}
-              isSmallButton={true}
-              onClick={duplicateConversation}
-              buttonClassName={classNames('text-button-secondary')}
-            />
-          </div>
-        )}
-        {isShowOnboarding && isFinalMessage && (
-          <Button
-            iconBefore={<IconPlus width={24} height={24} />}
-            title={titles?.onboardingFooterLink}
-            onClick={handleOpeningOfNewConversation}
-            isSmallButton={true}
-            buttonClassName="text-button-secondary self-center mb-3"
-          />
-        )}
       </div>
     </ConversationViewTitlesProvider>
   );
