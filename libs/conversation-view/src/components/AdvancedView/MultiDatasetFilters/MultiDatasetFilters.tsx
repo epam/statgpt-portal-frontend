@@ -192,6 +192,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
 
   useEffect(() => {
     if (modalState === PopUpState.Opened) {
+      setSelectedTimeOption(void 0);
       setSelectedFilter({ ...appliedFilters?.[0], isSelectedFilter: true });
       setModalFilters(appliedFilters);
     }
@@ -201,10 +202,10 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   }, [appliedFilters, modalState]);
 
   const addSystemMessage = useCallback(
-    async (filters: Filter[]) => {
+    async (filtersMap: Map<string, Filter[]>) => {
       const dataQueryFiltersMap = setDataQueryFiltersMap(
         dataQueries,
-        buildFiltersMap(filters),
+        filtersMap,
       );
       const updatedConversationWithSystemMessage = conversation
         ? {
@@ -258,9 +259,9 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   );
 
   const getFiltersChangeParamsMap = useCallback(
-    (filters: Filter[]) =>
+    (filtersMap: Map<string, Filter[]>) =>
       getQueryFiltersMap(
-        filters,
+        filtersMap,
         dataQueries,
         structureDataMaps?.dimensionsMap,
       ),
@@ -339,27 +340,40 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   }, [handleFiltersDelete, modalFilters, dataQueries]);
 
   const onApply = useCallback(() => {
-    const filtersParamsMap = getFiltersChangeParamsMap(modalFilters);
+    const appliedFiltersMap = buildFiltersMap(
+      modalFilters,
+      constraintsMapRef.current,
+    );
+    const appliedFilters = getFiltersByConstraints(
+      appliedFiltersMap,
+      {
+        ...structureDataMaps,
+        constraintsMap: constraintsMapRef.current,
+      },
+      locale as Locale,
+    );
+    const filtersParamsMap = getFiltersChangeParamsMap(appliedFiltersMap);
     onMultipleDataFiltersChange?.(
       filtersParamsMap,
       constraintsMapRef.current,
       dataQueries,
     );
 
-    setAppliedFilters(modalFilters);
+    setAppliedFilters(appliedFilters);
     setModalState(PopUpState.Closed);
     setIsModalClosed(true);
 
     startTransition(() => {
-      addSystemMessage(modalFilters);
+      addSystemMessage(appliedFiltersMap);
     });
   }, [
     getFiltersChangeParamsMap,
     modalFilters,
+    structureDataMaps,
+    locale,
     onMultipleDataFiltersChange,
     dataQueries,
     addSystemMessage,
-    constraintsMapRef,
   ]);
   const onTimePeriodChange = (value: string | number) => {
     setSelectedTimeOption(value);

@@ -3,11 +3,14 @@ import {
   DatasetQueryFilters,
   Dimension,
   findCodelistByDimension,
+  getAnnotationPeriod,
   generateShortUrn,
   getAvailableCodesFromConstrains,
   SeriesFilterDto,
   StructuralData,
   StructuralMetaData,
+  TIME_PERIOD_END_ANNOTATION_KEY,
+  TIME_PERIOD_START_ANNOTATION_KEY,
   TIME_PERIOD,
 } from '@epam/statgpt-sdmx-toolkit';
 import {
@@ -15,9 +18,15 @@ import {
   FiltersProps,
   FilterValue,
   FilterValueSource,
+  SharedFilter,
 } from '../models/filters';
 import { getDatasetFilters, getFiltersPreselectedByDataQuery } from './filters';
-import { DataQuery, Locale, QueryFilter } from '@epam/statgpt-shared-toolkit';
+import {
+  DataQuery,
+  Locale,
+  QueryFilter,
+  TimeRange,
+} from '@epam/statgpt-shared-toolkit';
 import { StructureDataMaps } from '../models/structure-data';
 import { getFilledFilters } from './get-filled-filters';
 import { getSeriesFilterDto } from './get-series-filters';
@@ -31,6 +40,7 @@ type SharedFilterConfig = {
 
 export const COMMON_COUNTRY_FILTER_ID = 'COUNTRY';
 export const COMMON_FREQUENCY_FILTER_ID = 'FREQUENCY';
+export const COMMON_TIME_PERIOD_FILTER_ID = 'TIME_PERIOD';
 
 const buildSharedFilterNameMatcher =
   (): SharedFilterConfig['getMergedValueKey'] => (value, datasetUrn) => {
@@ -55,6 +65,10 @@ const SHARED_FILTERS_CONFIG: SharedFilterConfig[] = [
     id: COMMON_FREQUENCY_FILTER_ID,
     getMergedValueKey: buildSharedFilterNameMatcher(),
   },
+  {
+    id: COMMON_TIME_PERIOD_FILTER_ID,
+    getMergedValueKey: (value) => value.id,
+  },
 ];
 
 const SHARED_FILTERS_CONFIG_MAP = new Map(
@@ -67,7 +81,7 @@ const getSharedFilterConfig = (filterId?: string) =>
 const isSharedFilterId = (filterId?: string) =>
   !!getSharedFilterConfig(filterId);
 
-const isSharedFilter = (filter?: Filter) =>
+const isSharedFilter = (filter?: Filter): filter is SharedFilter =>
   filter?.filterType === 'shared' && isSharedFilterId(filter?.id);
 
 const mergeSharedFilterValues = (
@@ -135,8 +149,15 @@ const mergeSharedFilters = (filters: Filter[]): Filter[] => {
       ...grouped[0],
       datasetUrn: void 0,
       filterType: 'shared',
+      sourceDatasetUrns: grouped
+        .map((filter) => filter.datasetUrn)
+        .filter((datasetUrn): datasetUrn is string => !!datasetUrn),
       dimensionValues: mergeSharedFilterValues(grouped, config),
     };
+
+    if (sharedFilter.isTimeDimension) {
+      sharedFilter.timeRange = getMergedSharedTimeRange(grouped);
+    }
 
     return sharedFilter;
   });
@@ -147,6 +168,14 @@ const mergeSharedFilters = (filters: Filter[]): Filter[] => {
 const expandSharedFilter = (filter: Filter): Filter[] => {
   if (!isSharedFilter(filter)) {
     return [filter];
+  }
+
+  if (filter.isTimeDimension) {
+    return (filter.sourceDatasetUrns || []).map((datasetUrn) => ({
+      ...filter,
+      datasetUrn,
+      filterType: 'dataset',
+    }));
   }
 
   const datasetFiltersMap = new Map<string, Filter>();
@@ -180,6 +209,86 @@ const expandSharedFilter = (filter: Filter): Filter[] => {
   });
 
   return Array.from(datasetFiltersMap.values());
+};
+
+const getMergedSharedTimeRange = (filters: Filter[]): TimeRange | undefined => {
+  const startPeriods = filters
+    .map((filter) => filter.timeRange?.startPeriod)
+    .filter((date): date is Date => !!date);
+  const endPeriods = filters
+    .map((filter) => filter.timeRange?.endPeriod)
+    .filter((date): date is Date => !!date);
+
+  if (!startPeriods.length || !endPeriods.length) {
+    return void 0;
+  }
+
+  return {
+    startPeriod: new Date(
+      Math.min(...startPeriods.map((period) => period.getTime())),
+    ),
+    endPeriod: new Date(
+      Math.max(...endPeriods.map((period) => period.getTime())),
+    ),
+  };
+};
+
+const limitTimeRangeByConstraints = (
+  filter: Filter,
+  constraints?: DataConstraints[],
+): Filter => {
+  if (!filter.isTimeDimension || !filter.timeRange) {
+    return filter;
+  }
+
+  const annotationTimeRange = getAnnotationPeriod(
+    constraints?.[0]?.annotations,
+  );
+  const minPeriod = annotationTimeRange.startPeriod;
+  const maxPeriod = annotationTimeRange.endPeriod;
+
+  if (!minPeriod || !maxPeriod) {
+    return filter;
+  }
+
+  const { startPeriod: requestedStart, endPeriod: requestedEnd } =
+    filter.timeRange;
+
+  const isBeforeAvailableRange = requestedEnd && requestedEnd < minPeriod;
+
+  if (isBeforeAvailableRange) {
+    return {
+      ...filter,
+      timeRange: {
+        startPeriod: new Date(minPeriod),
+        endPeriod: new Date(minPeriod),
+      },
+    };
+  }
+
+  const isAfterAvailableRange = requestedStart && requestedStart > maxPeriod;
+
+  if (isAfterAvailableRange) {
+    return {
+      ...filter,
+      timeRange: {
+        startPeriod: new Date(maxPeriod),
+        endPeriod: new Date(maxPeriod),
+      },
+    };
+  }
+
+  return {
+    ...filter,
+    timeRange: {
+      startPeriod: requestedStart
+        ? new Date(Math.max(requestedStart.getTime(), minPeriod.getTime()))
+        : new Date(minPeriod),
+      endPeriod: requestedEnd
+        ? new Date(Math.min(requestedEnd.getTime(), maxPeriod.getTime()))
+        : new Date(maxPeriod),
+    },
+  };
 };
 
 const getDatasetFiltersMapFromMultipleQueries = (
@@ -283,15 +392,22 @@ export const getFiltersPreselectedByDataQueries = (
   );
 };
 
-export const buildFiltersMap = (filters: Filter[]): Map<string, Filter[]> => {
+export const buildFiltersMap = (
+  filters: Filter[],
+  constraintsMap?: Map<string, DataConstraints[] | undefined>,
+): Map<string, Filter[]> => {
   return filters
     ?.flatMap((filter) => expandSharedFilter(filter))
     ?.reduce((filterMap, filter) => {
       const urn = filter?.datasetUrn || '';
+      const filterWithLimitedTimeRange = limitTimeRangeByConstraints(
+        filter,
+        constraintsMap?.get(urn),
+      );
       if (!filterMap.has(urn)) {
         filterMap.set(urn, []);
       }
-      filterMap?.get(urn)?.push(filter);
+      filterMap?.get(urn)?.push(filterWithLimitedTimeRange);
 
       return filterMap;
     }, new Map<string, Filter[]>());
@@ -412,13 +528,56 @@ export const getInitialConstraints = (
   initialConstraints?: DataConstraints[],
   initialConstraintsMap?: Map<string, DataConstraints[] | undefined>,
 ): DataConstraints[] => {
+  if (
+    isCrossDatasetModeOn &&
+    filter?.filterType === 'shared' &&
+    filter?.isTimeDimension
+  ) {
+    const allConstraints = Array.from(
+      initialConstraintsMap?.values() || [],
+    ).flatMap((constraints) => constraints || []);
+    const allRanges = allConstraints
+      .map((constraint) => getAnnotationPeriod(constraint?.annotations))
+      .filter(
+        (range): range is { startPeriod: Date; endPeriod: Date } =>
+          range.startPeriod !== null && range.endPeriod !== null,
+      );
+
+    if (!allRanges.length) {
+      return [];
+    }
+
+    const startPeriod = new Date(
+      Math.min(...allRanges.map((range) => range.startPeriod.getTime())),
+    );
+    const endPeriod = new Date(
+      Math.max(...allRanges.map((range) => range.endPeriod.getTime())),
+    );
+
+    return [
+      {
+        id: filter.id || TIME_PERIOD,
+        annotations: [
+          {
+            id: TIME_PERIOD_START_ANNOTATION_KEY,
+            title: startPeriod.toISOString(),
+          },
+          {
+            id: TIME_PERIOD_END_ANNOTATION_KEY,
+            title: endPeriod.toISOString(),
+          },
+        ],
+      } as DataConstraints,
+    ];
+  }
+
   return isCrossDatasetModeOn
     ? (initialConstraintsMap?.get(filter?.datasetUrn ?? '') ?? [])
     : (initialConstraints ?? []);
 };
 
 export const getQueryFiltersMap = (
-  filters: Filter[],
+  filtersMap: Map<string, Filter[]>,
   dataQueries?: DataQuery[],
   dimensionsMap?: Map<string, Dimension[]>,
 ): Map<string, DatasetQueryFilters> => {
@@ -427,7 +586,10 @@ export const getQueryFiltersMap = (
       const datasetUrn = dataQuery?.urn;
       return [
         datasetUrn,
-        getQueryFilters(filters, dimensionsMap?.get(datasetUrn)),
+        getQueryFilters(
+          filtersMap.get(datasetUrn) || [],
+          dimensionsMap?.get(datasetUrn),
+        ),
       ];
     }),
   );
