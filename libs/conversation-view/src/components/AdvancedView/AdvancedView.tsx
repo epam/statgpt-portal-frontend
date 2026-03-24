@@ -31,6 +31,7 @@ import {
   TableSettingsProvider,
   useTableSettingsContext,
 } from './TableSettings/TableSettingsContext';
+import { ConversationViewTitlesProvider } from '../../context/ConversationViewTitlesContext';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -60,9 +61,11 @@ export const AdvancedView: FC<Props> = ({ attachmentsProps, ...props }) => {
   );
 
   return (
-    <TableSettingsProvider currentUrn={currentUrn}>
-      <AdvancedViewInternal attachmentsProps={attachmentsProps} {...props} />
-    </TableSettingsProvider>
+    <ConversationViewTitlesProvider titles={props.titles}>
+      <TableSettingsProvider currentUrn={currentUrn}>
+        <AdvancedViewInternal attachmentsProps={attachmentsProps} {...props} />
+      </TableSettingsProvider>
+    </ConversationViewTitlesProvider>
   );
 };
 
