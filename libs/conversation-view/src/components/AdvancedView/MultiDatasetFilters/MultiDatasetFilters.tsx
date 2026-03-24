@@ -257,7 +257,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     },
     [selectedFilter],
   );
-  console.log(constraintsMapRef.current);
+
   const getFiltersChangeParamsMap = useCallback(
     (filtersMap: Map<string, Filter[]>) =>
       getQueryFiltersMap(
