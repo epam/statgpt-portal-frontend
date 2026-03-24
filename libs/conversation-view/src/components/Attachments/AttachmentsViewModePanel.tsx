@@ -15,6 +15,7 @@ import AttachmentTabs from './Tabs/AttachmentTabs/AttachmentTabs';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import { ConversationViewTitles } from '../../models/titles';
 import ColumnsIcon from '../../assets/icons/columns.svg';
+import { useCrossDatasetMode } from '../../context/CrossDatasetModeContext';
 
 interface Props {
   attachments: (
@@ -51,7 +52,10 @@ const AttachmentsViewModePanel: FC<Props> = ({
   isTableSettingsOpen,
   onTableSettingsOpen,
 }) => {
+  const { isCrossDatasetModeOn } = useCrossDatasetMode();
+
   const shouldShowColumnsButton =
+    isCrossDatasetModeOn &&
     !showAdvancedView &&
     !!onTableSettingsOpen &&
     !!(selectedAttachment && isCustomGridAttachment(selectedAttachment));
