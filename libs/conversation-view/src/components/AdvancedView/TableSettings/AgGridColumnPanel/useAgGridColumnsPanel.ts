@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import {
   filterDraggableListNodes,
+  type DraggableListItemNode,
   type DraggableListNode,
   type ItemClickEvent,
   type ToggleCheckedEvent,
@@ -23,12 +24,15 @@ export function useAgGridColumnsPanel({
   api,
   searchQuery,
   includeColumn = DEFAULT_INCLUDE_COLUMN,
+  enrichItem,
 }: {
   api: GridApi | null;
   searchQuery: string;
   includeColumn?: ColumnPanelFilter;
+  enrichItem?: (item: DraggableListItemNode) => DraggableListItemNode;
 }) {
   const [gridStateVersion, setGridStateVersion] = useState(0);
+  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
 
   const syncFromGrid = useCallback(() => {
     setGridStateVersion((value) => value + 1);
@@ -36,13 +40,31 @@ export function useAgGridColumnsPanel({
 
   useAgGridColumnGridListeners(api, syncFromGrid);
 
-  const items = useMemo(() => {
-    if (!api) {
+  const rawItems = useMemo(() => {
+    if (!api || !api.getColumnState()) {
       return [];
     }
 
     return mapColumnsToPanelItems(api, includeColumn);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, includeColumn, gridStateVersion]);
+
+  const items = useMemo(() => {
+    const base = enrichItem
+      ? rawItems.map((node) => (node.type === 'item' ? enrichItem(node) : node))
+      : rawItems;
+
+    return base.map((node) =>
+      node.type === 'item' && node.items?.length
+        ? { ...node, isExpanded: !collapsedIds.has(node.id) }
+        : node,
+    );
+  }, [rawItems, enrichItem, collapsedIds]);
+
+  const knownColumnIds = useMemo(
+    () => new Set(rawItems.map((i) => i.id)),
+    [rawItems],
+  );
 
   const visibleItems = useMemo(() => {
     return filterDraggableListNodes(items, searchQuery);
@@ -56,7 +78,7 @@ export function useAgGridColumnsPanel({
 
       const node = getItemNodeByPath(items, e.path);
 
-      if (!node) {
+      if (!node || !knownColumnIds.has(node.id)) {
         return;
       }
 
@@ -66,7 +88,7 @@ export function useAgGridColumnsPanel({
 
       syncFromGrid();
     },
-    [api, items, syncFromGrid],
+    [api, items, knownColumnIds, syncFromGrid],
   );
 
   const handleItemClick = useCallback(
@@ -77,7 +99,7 @@ export function useAgGridColumnsPanel({
 
       const node = getItemNodeByPath(items, e.path);
 
-      if (!node) {
+      if (!node || !knownColumnIds.has(node.id)) {
         return;
       }
 
@@ -93,11 +115,21 @@ export function useAgGridColumnsPanel({
 
       syncFromGrid();
     },
-    [api, items, syncFromGrid],
+    [api, items, knownColumnIds, syncFromGrid],
   );
 
-  const handleToggleExpanded = useCallback((_e: ToggleExpandedEvent) => {
-    // Reserved for future grouped columns support.
+  const handleToggleExpanded = useCallback((e: ToggleExpandedEvent) => {
+    const nodeId = e.path[e.path.length - 1];
+
+    setCollapsedIds((prev) => {
+      const next = new Set(prev);
+      if (e.nextExpanded) {
+        next.delete(nodeId);
+      } else {
+        next.add(nodeId);
+      }
+      return next;
+    });
   }, []);
 
   const handleItemsChange = useCallback(
@@ -107,8 +139,10 @@ export function useAgGridColumnsPanel({
       }
 
       const fullCurrentOrder = api.getColumnState().map((state) => state.colId);
-      const includedCurrentIds = new Set(items.map((item) => item.id));
-      const nextIncludedOrder = flattenIncludedLeafIds(next);
+      const includedCurrentIds = new Set(rawItems.map((item) => item.id));
+      const nextIncludedOrder = flattenIncludedLeafIds(next, (node) =>
+        knownColumnIds.has(node.id),
+      );
 
       const mergedOrder = mergeIncludedOrderIntoFullOrder(
         fullCurrentOrder,
@@ -123,7 +157,7 @@ export function useAgGridColumnsPanel({
 
       syncFromGrid();
     },
-    [api, items, syncFromGrid],
+    [api, rawItems, knownColumnIds, syncFromGrid],
   );
 
   return {

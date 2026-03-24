@@ -1,9 +1,9 @@
 'use client';
 
 import { CrossDatasetGridAttachmentType } from '../../../models/attachments';
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Loader, SERIES_LIMIT } from '@epam/statgpt-ui-components';
-import type { ColDef } from 'ag-grid-community';
+import type { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { GridData } from '../../../types/data-grid/grid-data';
 import { getGridHeight } from '../../../utils/attachments/data-grid/grid-height';
@@ -26,6 +26,7 @@ interface Props {
   isChartColumnVisible?: boolean;
   fixHeight?: boolean;
   showLimitMessage?: (p: boolean) => void;
+  onApiReady?: (api: GridApi) => void;
 }
 
 const CrossDatasetGridAttachment: FC<Props> = ({
@@ -34,6 +35,7 @@ const CrossDatasetGridAttachment: FC<Props> = ({
   isChartColumnVisible,
   fixHeight,
   showLimitMessage,
+  onApiReady,
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [rowData, setRowData] = useState<GridData[]>([]);
@@ -65,6 +67,13 @@ const CrossDatasetGridAttachment: FC<Props> = ({
     }
   }, [rowData, showLimitMessage]);
 
+  const handleGridReady = useCallback(
+    (event: GridReadyEvent) => {
+      onApiReady?.(event.api);
+    },
+    [onApiReady],
+  );
+
   //TODO: replace cell renderers
   const memoizedGrid = useMemo(
     () => (
@@ -82,9 +91,10 @@ const CrossDatasetGridAttachment: FC<Props> = ({
           [OBSERVATION_VALUE_CELL_RENDER]: ObservationValueCellRenderer,
           [CHART_CELL_RENDER]: ChartCellRenderer,
         }}
+        onGridReady={handleGridReady}
       />
     ),
-    [rowData, columnDefs],
+    [rowData, columnDefs, handleGridReady],
   );
 
   if (isLoading || isDataLoading) {

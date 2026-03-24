@@ -59,7 +59,11 @@ const AttachmentsViewModePanel: FC<Props> = ({
     isTableSettingsFeatureEnabled &&
     !showAdvancedView &&
     !!onTableSettingsOpen &&
-    !!(selectedAttachment && isCustomGridAttachment(selectedAttachment));
+    !!(
+      selectedAttachment &&
+      (isCustomGridAttachment(selectedAttachment) ||
+        isCrossDatasetGrid(selectedAttachment))
+    );
 
   return (
     <div className="flex min-w-0 w-full justify-between itms-center">

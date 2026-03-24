@@ -1,8 +1,12 @@
 import { IconRotate } from '@tabler/icons-react';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { AgGridColumnsPanel } from './AgGridColumnPanel/AgGridColumnsPanel';
-import { restoreInitialColumnsState } from './AgGridColumnPanel/helpers';
+import {
+  buildCrossDatasetEnrichItem,
+  restoreInitialColumnsState,
+} from './AgGridColumnPanel/helpers';
 import { useTableSettingsContext } from './TableSettingsContext';
+import { useDatasetDimensionsMetadataMapOptional } from '../../../context/DatasetDimensionsMetadataMapContext';
 
 export const TABLE_SETTINGS_SIDE_PANEL_ID = 'table-settings-side-panel';
 
@@ -36,7 +40,25 @@ export const TableSettingsPanelHeaderExtension = ({
 };
 
 export const TableSettingsPanel = () => {
-  const { gridApi } = useTableSettingsContext();
+  const { gridApi, structuresMap, locale, dataQueries } =
+    useTableSettingsContext();
+  const dimensionsCtx = useDatasetDimensionsMetadataMapOptional();
 
-  return gridApi ? <AgGridColumnsPanel api={gridApi} /> : null;
+  const enrichItem = useMemo(() => {
+    if (!dimensionsCtx || !structuresMap || !locale || !dataQueries?.length) {
+      return undefined;
+    }
+
+    return buildCrossDatasetEnrichItem({
+      dataQueries,
+      structuresMap,
+      getDimensionsScheme: dimensionsCtx.getDimensionsScheme,
+      getDimensionConfig: (urn, dimKey) => dimensionsCtx.map[urn]?.[dimKey],
+      locale,
+    });
+  }, [dimensionsCtx, structuresMap, locale, dataQueries]);
+
+  return gridApi ? (
+    <AgGridColumnsPanel api={gridApi} enrichItem={enrichItem} />
+  ) : null;
 };
