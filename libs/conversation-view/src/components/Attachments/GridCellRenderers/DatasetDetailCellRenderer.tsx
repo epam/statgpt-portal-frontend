@@ -11,15 +11,15 @@ import { useConversationViewSidePanelOptional } from '../../ConversationView/Sid
 import { useAdvancedView } from '../../../context/AdvancedViewContext';
 import { getDateFormattedValue } from '../../../utils/date-format';
 
-interface TextWithTriangleCellRendererParams extends ICellRendererParams {
+interface DatasetDetailCellRendererParams extends ICellRendererParams {
   structuresMap: Map<string, StructuralData | undefined>;
   locale: string;
   titles?: ConversationViewTitles;
 }
 
-const METADATA_SIDE_PANEL_ID = 'text-with-triangle-metadata-side-panel';
+const METADATA_SIDE_PANEL_ID = 'dataset-detail-metadata-side-panel';
 
-const TextWithTriangleCellRenderer: FC<TextWithTriangleCellRendererParams> = (
+const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
   params,
 ) => {
   const { isOpenedAdvancedView } = useAdvancedView();
@@ -44,7 +44,7 @@ const TextWithTriangleCellRenderer: FC<TextWithTriangleCellRendererParams> = (
     );
   }, [structures, params.locale, params.titles]);
 
-  const showTriangle = isMetadataInSidePanel && !!sidePanel && !!params.value;
+  const showIndicator = isMetadataInSidePanel && !!sidePanel && !!params.value;
 
   const openMetadata = useCallback(() => {
     if (!sidePanel) return;
@@ -73,7 +73,7 @@ const TextWithTriangleCellRenderer: FC<TextWithTriangleCellRendererParams> = (
   return (
     <div className="w-full h-full p-2 relative">
       {params.valueFormatted ?? params.value}
-      {showTriangle && (
+      {showIndicator && (
         <div
           className="metadata-indicator"
           title={params.titles?.metadata || 'View details'}
@@ -84,4 +84,4 @@ const TextWithTriangleCellRenderer: FC<TextWithTriangleCellRendererParams> = (
   );
 };
 
-export default TextWithTriangleCellRenderer;
+export default DatasetDetailCellRenderer;

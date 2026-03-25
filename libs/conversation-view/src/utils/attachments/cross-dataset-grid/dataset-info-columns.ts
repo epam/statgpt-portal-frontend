@@ -3,7 +3,7 @@ import { ColDef, ITooltipParams, ValueGetterParams } from 'ag-grid-community';
 import {
   CELL_PADDING_0,
   GRID_COLUMN_FLEX,
-  TEXT_WITH_TRIANGLE_CELL_RENDER,
+  DATASET_DETAIL_CELL_RENDER,
 } from '../../../constants/grid';
 import { ConversationViewTitles } from '../../../models/titles';
 import {
@@ -47,7 +47,7 @@ function buildDatasetColDef(
     ...GRID_COLUMN_FLEX,
     tooltipValueGetter: (p: ITooltipParams) => p.value,
     cellClass: CELL_PADDING_0,
-    cellRenderer: TEXT_WITH_TRIANGLE_CELL_RENDER,
+    cellRenderer: DATASET_DETAIL_CELL_RENDER,
     cellRendererParams: {
       structuresMap,
       locale,

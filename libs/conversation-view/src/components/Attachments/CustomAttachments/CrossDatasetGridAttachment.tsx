@@ -15,13 +15,13 @@ import {
   MERGED_DIMENSION_CELL_RENDER,
   METADATA_CELL_RENDER,
   OBSERVATION_VALUE_CELL_RENDER,
-  TEXT_WITH_TRIANGLE_CELL_RENDER,
+  DATASET_DETAIL_CELL_RENDER,
 } from '../../../constants/grid';
 import MetadataCellRenderer from '../GridCellRenderers/MetadataCellRenderer';
 import ObservationValueCellRenderer from '../GridCellRenderers/ObservationValueCellRenderer';
 import ChartCellRenderer from '../GridCellRenderers/ChartCellRenderer';
 import MergedDimensionCellRenderer from '../GridCellRenderers/MergedDimensionCellRenderer';
-import TextWithTriangleCellRenderer from '../GridCellRenderers/TextWithTriangleCellRenderer';
+import DatasetDetailCellRenderer from '../GridCellRenderers/DatasetDetailCellRenderer';
 import GridContainer from './GridContainer';
 
 interface Props {
@@ -95,7 +95,7 @@ const CrossDatasetGridAttachment: FC<Props> = ({
           [OBSERVATION_VALUE_CELL_RENDER]: ObservationValueCellRenderer,
           [MERGED_DIMENSION_CELL_RENDER]: MergedDimensionCellRenderer,
           [CHART_CELL_RENDER]: ChartCellRenderer,
-          [TEXT_WITH_TRIANGLE_CELL_RENDER]: TextWithTriangleCellRenderer,
+          [DATASET_DETAIL_CELL_RENDER]: DatasetDetailCellRenderer,
         }}
         onGridReady={handleGridReady}
       />
