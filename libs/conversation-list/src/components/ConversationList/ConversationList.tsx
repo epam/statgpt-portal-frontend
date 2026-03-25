@@ -253,6 +253,7 @@ export const ConversationList: FC<Props> = ({
                 selectedConversationId={selectedConversationId}
                 handleConversationClick={handleConversationClick}
                 shareConversationProps={shareConversationProps}
+                isDisabled={isStreaming}
                 actions={{
                   ...actions,
                   deleteConversation: handleDeleteConversation,
