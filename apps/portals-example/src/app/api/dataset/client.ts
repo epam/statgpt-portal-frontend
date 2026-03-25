@@ -32,7 +32,7 @@ export async function getDataSetDataApi(
   filters: DatasetQueryFilters,
 ): Promise<ApiResponse<DataMessage | null>> {
   return apiRequest(
-    `${DATASET_API_ENDPOINT}/${urn}/filter`,
+    `${DATASET_API_ENDPOINT}/${urn}`,
     'Failed to fetch dataset data',
     {
       method: 'POST',

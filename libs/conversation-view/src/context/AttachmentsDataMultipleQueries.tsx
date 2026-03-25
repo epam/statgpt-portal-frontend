@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   DataConstraints,
   DatasetDimensionsScheme,
   DatasetQueryFilters,
+  getLocalizedName,
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import {
@@ -16,7 +17,10 @@ import {
   getStructureDataMaps,
 } from '../utils/attachments/attachments-data';
 import { CustomGridAttachment } from '../models/attachments';
-import { createInitialCrossDatasetGridAttachment } from '../constants/attachments';
+import {
+  createInitialChartAttachment,
+  createInitialCrossDatasetGridAttachment,
+} from '../constants/attachments';
 import { useConversationViewTitles } from './ConversationViewTitlesContext';
 import {
   ChartingStyles,
@@ -25,6 +29,7 @@ import {
 import { buildCrossDatasetGridAttachment } from '../utils/attachments/cross-dataset-grid/build-cross-dataset-grid-attachment';
 import { MetadataSettings } from '../models/metadata';
 import { StructureDataMaps } from '../models/structure-data';
+import { buildChartData } from '../utils/attachments/charting/chart-data';
 
 export function useAttachmentsDataMultipleQueries(
   actions: {
@@ -49,6 +54,8 @@ export function useAttachmentsDataMultipleQueries(
     useState<CustomGridAttachment>(
       createInitialCrossDatasetGridAttachment(titles?.dataGrid),
     );
+  const [crossDatasetChartAttachment, setCrossDatasetChartAttachment] =
+    useState(createInitialChartAttachment(titles?.chart));
 
   const loadConstraintsMap = useCallback(
     async (dataQueries: DataQuery[]) => {
@@ -176,6 +183,54 @@ export function useAttachmentsDataMultipleQueries(
     isLoadingGridData,
   ]);
 
+  useEffect(() => {
+    const { structuresMap, dataMessagesMap } = structureDataMaps ?? {};
+
+    if (
+      structuresMap != null &&
+      structuresMap.size > 0 &&
+      dataMessagesMap != null &&
+      !isLoadingGridData
+    ) {
+      const chartGroups = (dataQueries || []).flatMap((dataQuery) => {
+        const structures = structuresMap.get(dataQuery.urn);
+        const dataMessage = dataMessagesMap.get(dataQuery.urn);
+
+        if (!structures || !dataMessage) {
+          return [];
+        }
+
+        const datasetName = getLocalizedName(structures.dataflows?.[0], locale);
+
+        return [
+          {
+            title: datasetName,
+            units: buildChartData(
+              structures,
+              dataMessage,
+              dataQuery,
+              locale,
+              chartStyles,
+            ).units,
+          },
+        ];
+      });
+
+      setCrossDatasetChartAttachment((prev) => ({
+        ...prev,
+        charting_data: {
+          units: chartGroups.flatMap((group) => group.units),
+          groups: chartGroups,
+        },
+      }));
+    }
+  }, [structureDataMaps, dataQueries, locale, chartStyles, isLoadingGridData]);
+
+  const crossDatasetAttachments = useMemo(
+    () => [crossDatasetGridAttachment, crossDatasetChartAttachment],
+    [crossDatasetGridAttachment, crossDatasetChartAttachment],
+  );
+
   const onMultipleDataFiltersChange = useCallback(
     (
       filterParamsMap: Map<string, DatasetQueryFilters>,
@@ -229,7 +284,7 @@ export function useAttachmentsDataMultipleQueries(
     structureDataMaps,
     datasetDimensionsSchemesMap,
     isLoadingGridData,
-    crossDatasetGridAttachment,
+    crossDatasetAttachments,
     onMultipleDataFiltersChange,
   };
 }

@@ -6,15 +6,23 @@ import { ChartUnit } from '../../models/charting';
 import ReactECharts from 'echarts-for-react';
 import ChartSidebar from './CustomAttachments/ChartSidebar';
 import { ConversationViewTitles } from '../../models/titles';
+import DatasetIcon from '../../assets/icons/dataset.svg';
 
 interface Props {
   chart: ChartUnit;
   isOpen?: boolean;
   titles?: ConversationViewTitles;
+  datasetTitle?: string;
   onClose?: () => void;
 }
 
-const SingleLineChart: FC<Props> = ({ titles, chart, isOpen, onClose }) => {
+const SingleLineChart: FC<Props> = ({
+  titles,
+  chart,
+  isOpen,
+  onClose,
+  datasetTitle,
+}) => {
   const [modalState, setModalState] = useState(PopUpState.Closed);
 
   useEffect(() => {
@@ -48,6 +56,12 @@ const SingleLineChart: FC<Props> = ({ titles, chart, isOpen, onClose }) => {
         >
           <div className="single-chart-popup-content flex flex-row flex-1 gap-4 min-h-0 h-full">
             <div className="flex flex-col flex-1 min-h-0">
+              {datasetTitle && (
+                <div className="flex items-center gap-1 mb-2">
+                  <DatasetIcon className="w-4 h-4 text-neutrals-1000 flex-shrink-0" />
+                  <h4 className="text-neutrals-1000">{datasetTitle}</h4>
+                </div>
+              )}
               <ReactECharts
                 option={chart.config}
                 className="w-full h-full"
