@@ -74,22 +74,15 @@ function buildCountryColDef(
     return getDimensionValue(structures, countryDimensionId, data, locale);
   };
 
-  return {
-    ...dimColDef(
-      titles?.countryDimensions || DEFAULT_COUNTRY_COL_TITLE,
-      COUNTRY_COL_ID,
-      valueGetter,
-    ),
-    cellClass: CELL_PADDING_0,
-    cellRenderer: MERGED_DIMENSION_CELL_RENDER,
-    cellRendererParams: {
-      structuresMap,
-      datasetDimensionsSchemesMap,
-      locale,
-      titles,
-      colId: COUNTRY_COL_ID,
-    },
-  };
+  return dimColDef(
+    titles?.countryDimensions || DEFAULT_COUNTRY_COL_TITLE,
+    COUNTRY_COL_ID,
+    valueGetter,
+    structuresMap,
+    datasetDimensionsSchemesMap,
+    locale,
+    titles,
+  );
 }
 
 function buildIndicatorColDef(
@@ -118,22 +111,15 @@ function buildIndicatorColDef(
     return names.join(INDICATORS_CONCATENATION_SYMBOL);
   };
 
-  return {
-    ...dimColDef(
-      titles?.indicatorDimensions || DEFAULT_INDICATOR_COL_TITLE,
-      INDICATOR_COL_ID,
-      valueGetter,
-    ),
-    cellClass: CELL_PADDING_0,
-    cellRenderer: MERGED_DIMENSION_CELL_RENDER,
-    cellRendererParams: {
-      structuresMap,
-      datasetDimensionsSchemesMap,
-      locale,
-      titles,
-      colId: INDICATOR_COL_ID,
-    },
-  };
+  return dimColDef(
+    titles?.indicatorDimensions || DEFAULT_INDICATOR_COL_TITLE,
+    INDICATOR_COL_ID,
+    valueGetter,
+    structuresMap,
+    datasetDimensionsSchemesMap,
+    locale,
+    titles,
+  );
 }
 
 function buildFrequencyColDef(
@@ -158,28 +144,25 @@ function buildFrequencyColDef(
     return getDimensionValue(structures, frequencyDimensionId, data, locale);
   };
 
-  return {
-    ...dimColDef(
-      titles?.frequency || DEFAULT_FREQUENCY_COL_TITLE,
-      FREQUENCY_COL_ID,
-      valueGetter,
-    ),
-    cellClass: CELL_PADDING_0,
-    cellRenderer: MERGED_DIMENSION_CELL_RENDER,
-    cellRendererParams: {
-      structuresMap,
-      datasetDimensionsSchemesMap,
-      locale,
-      titles,
-      colId: FREQUENCY_COL_ID,
-    },
-  };
+  return dimColDef(
+    titles?.frequency || DEFAULT_FREQUENCY_COL_TITLE,
+    FREQUENCY_COL_ID,
+    valueGetter,
+    structuresMap,
+    datasetDimensionsSchemesMap,
+    locale,
+    titles,
+  );
 }
 
 function dimColDef(
   title: string,
   colId: string,
   valueGetter: (value: ValueGetterParams) => string | undefined,
+  structuresMap: Map<string, StructuralData | undefined>,
+  datasetDimensionsSchemesMap: Map<string, DatasetDimensionsScheme | undefined>,
+  locale: string,
+  titles?: ConversationViewTitles,
 ): ColDef {
   return {
     headerName: title,
@@ -187,7 +170,16 @@ function dimColDef(
     colId: colId,
     valueGetter,
     ...GRID_COLUMN_FLEX,
+    cellClass: CELL_PADDING_0,
+    cellRenderer: MERGED_DIMENSION_CELL_RENDER,
     tooltipValueGetter: (p: ITooltipParams) => p.value,
+    cellRendererParams: {
+      structuresMap,
+      datasetDimensionsSchemesMap,
+      locale,
+      titles,
+      colId,
+    },
   };
 }
 
