@@ -235,6 +235,7 @@ const FilterSettings: FC<Props> = ({
           expandHierarchicalValue={onExpandHierarchicalValue}
           onTimePeriodChange={onSelectTimePeriodValue}
           filterValuesProps={modalProps?.filterValuesProps}
+          structuresMap={structuresMap}
           initialConstraints={getInitialConstraints(
             isCrossDatasetModeOn,
             selectedFilter,
