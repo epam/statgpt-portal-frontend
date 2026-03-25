@@ -3,6 +3,7 @@ import { SIGN_IN_LINK } from '../../../../constants/auth';
 import { getUserToken } from '../../../../utils/auth/auth-request';
 import { getIsEnableAuthToggle } from '../../../../utils/auth/get-auth-toggle';
 import { getIsInvalidSession } from '../../../../utils/auth/is-valid-session';
+import { ConversationViewSidePanelProvider } from '@epam/statgpt-conversation-view';
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
@@ -27,10 +28,12 @@ export default async function Page({
   }
 
   return (
-    <ConversationViewWrapper
-      bucketId={bucketId}
-      conversationId={conversationId}
-      token={token}
-    />
+    <ConversationViewSidePanelProvider>
+      <ConversationViewWrapper
+        bucketId={bucketId}
+        conversationId={conversationId}
+        token={token}
+      />
+    </ConversationViewSidePanelProvider>
   );
 }

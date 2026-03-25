@@ -26,9 +26,9 @@ interface Props {
   filter: Filter;
   locale?: string;
   hideFacetCounterByDefault?: boolean;
-  onSelectFilter: (filterId?: string) => void;
-  onSelectDisplayMode?: (filterId?: string, displayMode?: string) => void;
-  onDeleteFilter?: (filterId?: string) => void;
+  onSelectFilter: (filter?: Filter) => void;
+  onSelectDisplayMode?: (filter?: Filter, displayMode?: string) => void;
+  onDeleteFilter?: (filter?: Filter) => void;
   filterValuesProps?: FilterValuesProps;
   isDisableValues?: boolean;
   timeRangeOptions?: TimeRangeOptions[];
@@ -83,7 +83,7 @@ const FiltersFacetItem: FC<Props> = ({
   }, [filter?.dimensionValues]);
 
   const onSelectFilterDisplayMode = (filterDisplayMode: string) => {
-    onSelectDisplayMode?.(filter?.id, filterDisplayMode);
+    onSelectDisplayMode?.(filter, filterDisplayMode);
   };
 
   const showSelectedValuesCounter = hideFacetCounterByDefault
@@ -100,7 +100,7 @@ const FiltersFacetItem: FC<Props> = ({
     if (isMobile) {
       setIsSelected((prev) => !prev);
     }
-    onSelectFilter(filter?.id);
+    onSelectFilter(filter);
   };
 
   return (
@@ -185,7 +185,7 @@ const FiltersFacetItem: FC<Props> = ({
                   title={titles?.reset || 'Reset'}
                   onClick={(e) => {
                     e.stopPropagation();
-                    onDeleteFilter?.(filter?.id);
+                    onDeleteFilter?.(filter);
                   }}
                 />
               )}

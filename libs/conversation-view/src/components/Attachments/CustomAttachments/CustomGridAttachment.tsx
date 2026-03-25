@@ -32,6 +32,7 @@ interface Props {
   isChartColumnVisible?: boolean;
   fixHeight?: boolean;
   titles?: ConversationViewTitles;
+  externalLink?: string;
   showLimitMessage?: (p: boolean) => void;
   onApiReady?: (api: GridApi) => void;
 }
@@ -42,6 +43,7 @@ const CustomDataGridAttachment: FC<Props> = ({
   isChartColumnVisible,
   fixHeight,
   titles,
+  externalLink,
   showLimitMessage,
   onApiReady,
 }) => {
@@ -146,6 +148,7 @@ const CustomDataGridAttachment: FC<Props> = ({
         rowData={rowData}
         enableCellTextSelection
         columnDefs={columnDefs}
+        context={{ externalLink }}
         domLayout="normal"
         tooltipShowDelay={0}
         tooltipShowMode="whenTruncated"
@@ -156,7 +159,7 @@ const CustomDataGridAttachment: FC<Props> = ({
         }}
       />
     ),
-    [rowData, columnDefs, handleGridReady],
+    [rowData, columnDefs, handleGridReady, externalLink],
   );
 
   if (isLoading || isDataLoading) {

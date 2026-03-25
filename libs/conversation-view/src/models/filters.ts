@@ -19,7 +19,7 @@ import { Conversation } from '@epam/ai-dial-shared';
 import { ConversationViewTitles } from './titles';
 import { StructureDataMaps } from './structure-data';
 
-export interface Filter {
+interface FilterBase {
   id?: string;
   title?: string;
   dimensionValues?: FilterValue[];
@@ -29,7 +29,26 @@ export interface Filter {
   isHierarchical?: boolean;
   isDisabled?: boolean;
   displayMode?: string;
+}
+
+export interface DatasetFilter extends FilterBase {
+  filterType: 'dataset';
   datasetUrn?: string;
+}
+
+export interface SharedFilter extends FilterBase {
+  filterType: 'shared';
+  datasetUrn?: undefined;
+  sourceDatasetUrns?: string[];
+}
+
+export type Filter = DatasetFilter | SharedFilter;
+
+export interface FilterValueSource {
+  datasetUrn?: string;
+  id: string;
+  name?: string;
+  parent?: string;
 }
 
 export interface FilterValue {
@@ -38,6 +57,7 @@ export interface FilterValue {
   isSelectedValue?: boolean;
   isExpanded?: boolean;
   parent?: string;
+  sourceValues?: FilterValueSource[];
 }
 
 export interface FilterTreeNodeProps extends FilterValue {
@@ -64,6 +84,8 @@ export interface FiltersModalProps {
   isShowTimeSeriesCount?: boolean;
   isShowClearIcon?: boolean;
   isShowCancelButton?: boolean;
+  isShowClearAllButton?: boolean;
+  footerActionsPosition?: 'left' | 'right';
   filterValuesProps?: FilterValuesProps;
   resetIcon?: ReactNode;
 }
@@ -89,6 +111,11 @@ export interface FiltersProps {
     filterParams: DatasetQueryFilters,
     constraints: DataConstraints[],
     modalFilters?: Filter[],
+  ) => void;
+  onMultipleDataFiltersChange?: (
+    filterParamsMap: Map<string, DatasetQueryFilters>,
+    constraintsMap?: Map<string, DataConstraints[] | undefined>,
+    dataQueries?: DataQuery[],
   ) => void;
   locale?: string;
   timeRangeOptions?: TimeRangeOptions[];

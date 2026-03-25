@@ -63,6 +63,7 @@ export enum AdvancedViewI18nKeys {
   CONTENT = 'advancedView.content',
   CLEAR_ALL = 'advancedView.clearAll',
   CLEAR_ALL_FILTERS = 'advancedView.clearAllFilters',
+  APPLIED_FILTERS = 'advancedView.appliedFilters',
   RESET_SELECTED_VALUES = 'advancedView.resetSelectedValues',
   DISPLAY_ORDER = 'advancedView.displayOrder',
   FLAT_LIST = 'advancedView.list',
@@ -149,6 +150,9 @@ export enum AttachmentsI18nKeys {
   LIMITS_INFO_P2_4 = 'attachments.limitInfo_p2_part4',
   LIMITS_INFO_P2_5 = 'attachments.limitInfo_p2_part5',
   LIMITS_INFO_LINK = 'attachments.limitInfo_link',
+  COUNTRY_DIMENSIONS = 'attachments.countryDimensionsColumnTitle',
+  INDICATOR_DIMENSIONS = 'attachments.indicatorDimensionsColumnTitle',
+  FREQUENCY = 'attachments.frequencyColumnTitle',
 }
 
 export enum TimeI18nKeys {

@@ -171,7 +171,7 @@ export function useAttachmentsData(
   }, [applyStructureData, initialDatasetStructure]);
 
   useEffect(() => {
-    async function loadDatSet(dataQuery: DataQuery) {
+    async function loadDataSet(dataQuery: DataQuery) {
       setIsLoadingGridData(true);
       try {
         await Promise.all([
@@ -187,7 +187,7 @@ export function useAttachmentsData(
       dataQuery != null &&
       !(isInitialDatasetStructureLoading && !initialDatasetStructure)
     ) {
-      loadDatSet(dataQuery);
+      loadDataSet(dataQuery);
     } else if (dataQuery != null && isInitialDatasetStructureLoading) {
       setIsLoadingGridData(true);
     }

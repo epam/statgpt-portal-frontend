@@ -10,7 +10,7 @@ export interface CustomGridAttachment extends Attachment {
   grid_data?: { data: GridData[]; columns: ColDef[] };
 }
 
-export interface CrossDatasetGridAttachment extends Attachment {
+export interface CrossDatasetGridAttachmentType extends Attachment {
   gridContent?: { data: GridData[]; columns: ColDef[] };
 }
 

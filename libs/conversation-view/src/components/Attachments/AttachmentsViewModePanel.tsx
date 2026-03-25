@@ -4,6 +4,7 @@ import { Attachment } from '@epam/ai-dial-shared';
 import { FC } from 'react';
 import { Button, LimitMessages, CopyButton } from '@epam/statgpt-ui-components';
 import {
+  isCrossDatasetGrid,
   isCustomCodeSampleAttachment,
   isCustomGridAttachment,
 } from '../../utils/attachments/attachment-parser';
@@ -15,6 +16,7 @@ import AttachmentTabs from './Tabs/AttachmentTabs/AttachmentTabs';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import { ConversationViewTitles } from '../../models/titles';
 import ColumnsIcon from '../../assets/icons/columns.svg';
+import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
 
 interface Props {
   attachments: (
@@ -51,10 +53,17 @@ const AttachmentsViewModePanel: FC<Props> = ({
   isTableSettingsOpen,
   onTableSettingsOpen,
 }) => {
+  const { isTableSettingsFeatureEnabled } = useConversationViewFeatureToggles();
+
   const shouldShowColumnsButton =
+    isTableSettingsFeatureEnabled &&
     !showAdvancedView &&
     !!onTableSettingsOpen &&
-    !!(selectedAttachment && isCustomGridAttachment(selectedAttachment));
+    !!(
+      selectedAttachment &&
+      (isCustomGridAttachment(selectedAttachment) ||
+        isCrossDatasetGrid(selectedAttachment))
+    );
 
   return (
     <div className="flex min-w-0 w-full justify-between itms-center">

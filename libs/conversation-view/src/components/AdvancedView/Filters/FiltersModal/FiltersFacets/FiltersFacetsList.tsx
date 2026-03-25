@@ -11,20 +11,26 @@ import {
 } from '../../../../../models/filters';
 import { ConversationViewTitles } from '../../../../../models/titles';
 import FiltersFacetItem from './FiltersFacetItem';
-import { getDatasetNameFromFilters } from '../../../../../utils/multiple-filters';
+import { getFilterIdentity } from '../../../../../utils/filters';
+import {
+  getDatasetNameFromFilters,
+  getInitialConstraints,
+} from '../../../../../utils/multiple-filters';
+import { useConversationViewFeatureToggles } from '../../../../../context/ConversationViewFeatureTogglesContext';
 
 interface Props {
   filtersList: Filter[];
   hideFacetCounterByDefault?: boolean;
   locale?: string;
-  onSelectFilter: (filterId?: string) => void;
-  onDeleteFilter?: (filterId?: string) => void;
-  onSelectDisplayMode?: (filterId?: string, displayMode?: string) => void;
+  onSelectFilter: (filter?: Filter) => void;
+  onDeleteFilter?: (filter?: Filter) => void;
+  onSelectDisplayMode?: (filter?: Filter, displayMode?: string) => void;
   filterValuesProps?: FilterValuesProps;
   isDisableValues?: boolean;
   timeRangeOptions?: TimeRangeOptions[];
   titles?: ConversationViewTitles;
   initialConstraints?: DataConstraints[];
+  initialConstraintsMap?: Map<string, DataConstraints[] | undefined>;
   datasetIcon?: ReactNode;
   structuresMap?: Map<string, StructuralData | undefined>;
   onTimePeriodChange: (
@@ -47,6 +53,7 @@ const FiltersFacetsList: FC<Props> = ({
   isDisableValues,
   timeRangeOptions,
   initialConstraints,
+  initialConstraintsMap,
   datasetIcon,
   structuresMap,
   onTimePeriodChange,
@@ -55,6 +62,7 @@ const FiltersFacetsList: FC<Props> = ({
   titles,
   expandHierarchicalValue,
 }) => {
+  const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   return (
     <div
       className={classNames(
@@ -66,7 +74,7 @@ const FiltersFacetsList: FC<Props> = ({
           titles={titles}
           locale={locale}
           filter={filter}
-          key={filter?.id}
+          key={getFilterIdentity(filter)}
           onSelectFilter={onSelectFilter}
           onSelectDisplayMode={onSelectDisplayMode}
           onDeleteFilter={onDeleteFilter}
@@ -78,7 +86,12 @@ const FiltersFacetsList: FC<Props> = ({
           expandHierarchicalValue={expandHierarchicalValue}
           onTimePeriodChange={onTimePeriodChange}
           filterValuesProps={filterValuesProps}
-          initialConstraints={initialConstraints}
+          initialConstraints={getInitialConstraints(
+            isCrossDatasetModeOn,
+            filter,
+            initialConstraints,
+            initialConstraintsMap,
+          )}
           datasetIcon={datasetIcon}
           datasetName={getDatasetNameFromFilters(filter, structuresMap)}
         />

@@ -18,6 +18,7 @@ import {
   RequestLimitMessage,
 } from '@epam/statgpt-ui-components';
 import {
+  isCrossDatasetGrid,
   isCustomGridAttachment,
   isGridAttachment,
 } from '../../utils/attachments/attachment-parser';
@@ -158,7 +159,8 @@ const AttachmentRenderer: FC<Props> = ({
     if (
       isTableSettingsOpen &&
       selectedAttachment &&
-      !isCustomGridAttachment(selectedAttachment)
+      !isCustomGridAttachment(selectedAttachment) &&
+      !isCrossDatasetGrid(selectedAttachment)
     ) {
       onTableSettingsClose?.();
     }
@@ -271,6 +273,7 @@ const AttachmentRenderer: FC<Props> = ({
                       onOpenAdvancedView={onOpenAdvancedView}
                       showLimitMessage={setShowLimitMessage}
                       onGridApiReady={onGridApiReady}
+                      externalLink={externalLink}
                     />
                   )}
                 </div>

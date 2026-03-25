@@ -1,30 +1,18 @@
 'use client';
 
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import { createContext, ReactNode, useContext, useMemo } from 'react';
 import type { GridApi } from 'ag-grid-community';
+import type { StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import type { AgGridInitialColumnsState } from './AgGridColumnPanel/types';
 import { useAgGridColumnPreferences } from './AgGridColumnPanel/useAgGridColumnPreferences';
 
-type TableSettingsState = {
-  isOpen: boolean;
-  open: () => void;
-  close: () => void;
-};
-
 type TableSettingsContextValue = {
-  tableSettings: TableSettingsState;
-  agGrid: {
-    gridApi?: GridApi;
-    onGridApiReady: (api: GridApi) => void;
-    initialColumnsState: AgGridInitialColumnsState | null;
-  };
+  gridApi?: GridApi;
+  onGridApiReady: (api: GridApi) => void;
+  initialColumnsState: AgGridInitialColumnsState | null;
+  structuresMap?: Map<string, StructuralData | undefined>;
+  locale?: string;
+  dataQueries?: Array<{ urn: string }>;
 };
 
 const TableSettingsContext = createContext<TableSettingsContextValue | null>(
@@ -33,25 +21,37 @@ const TableSettingsContext = createContext<TableSettingsContextValue | null>(
 
 export function TableSettingsProvider({
   currentUrn,
+  structuresMap,
+  locale,
+  dataQueries,
   children,
 }: {
   currentUrn: string;
+  structuresMap?: Map<string, StructuralData | undefined>;
+  locale?: string;
+  dataQueries?: Array<{ urn: string }>;
   children: ReactNode;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const open = useCallback(() => setIsOpen(true), []);
-  const close = useCallback(() => setIsOpen(false), []);
-
   const { gridApi, onGridApiReady, initialColumnsState } =
     useAgGridColumnPreferences({ currentUrn });
 
   const value = useMemo<TableSettingsContextValue>(
     () => ({
-      tableSettings: { isOpen, open, close },
-      agGrid: { gridApi, onGridApiReady, initialColumnsState },
+      gridApi,
+      onGridApiReady,
+      initialColumnsState,
+      structuresMap,
+      locale,
+      dataQueries,
     }),
-    [gridApi, initialColumnsState, isOpen, onGridApiReady, open, close],
+    [
+      gridApi,
+      initialColumnsState,
+      onGridApiReady,
+      structuresMap,
+      locale,
+      dataQueries,
+    ],
   );
 
   return (

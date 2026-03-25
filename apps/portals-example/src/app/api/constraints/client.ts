@@ -12,7 +12,7 @@ export async function getConstraintsApi(
   filters?: SeriesFilterDto[],
 ): Promise<ApiResponse<StructuralMetaData>> {
   return apiRequest(
-    `${CONSTRAINTS_API_ENDPOINT}/${urn}/filter`,
+    `${CONSTRAINTS_API_ENDPOINT}/${urn}`,
     'Failed to fetch constraints',
     {
       method: 'POST',

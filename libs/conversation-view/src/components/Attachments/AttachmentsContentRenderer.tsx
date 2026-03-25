@@ -14,6 +14,7 @@ import {
   isGridAttachment,
   isMarkdownAttachment,
   isUrlAttachment,
+  isCrossDatasetGrid,
 } from '../../utils/attachments/attachment-parser';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import GridAttachment from './BaseAttachments/GridAttachment';
@@ -22,12 +23,14 @@ import CustomChartAttachment from './CustomAttachments/CustomChartAttachment';
 import { CodeAttachment } from './CustomAttachments/CodeAttachment';
 import { AttachmentsActions } from '../../models/actions';
 import { useConversationViewTitles } from '../../context/ConversationViewTitlesContext';
+import CrossDatasetGridAttachment from './CustomAttachments/CrossDatasetGridAttachment';
 
 interface Props {
   selectedAttachment: Attachment;
   actions: AttachmentsActions;
   attachmentsStyles?: AttachmentsStyles;
   isDataLoading?: boolean;
+  externalLink?: string;
   isOpenedAdvancedView?: boolean;
   onOpenAdvancedView?: () => void;
   showLimitMessage: (p: boolean) => void;
@@ -39,6 +42,7 @@ const AttachmentsContentRenderer: FC<Props> = ({
   actions,
   attachmentsStyles,
   isDataLoading,
+  externalLink,
   isOpenedAdvancedView,
   onOpenAdvancedView,
   showLimitMessage,
@@ -68,6 +72,17 @@ const AttachmentsContentRenderer: FC<Props> = ({
           isChartColumnVisible={isOpenedAdvancedView}
           fixHeight={!isOpenedAdvancedView}
           titles={titles}
+          showLimitMessage={showLimitMessage}
+          onApiReady={onGridApiReady}
+          externalLink={externalLink}
+        />
+      )}
+      {isCrossDatasetGrid(selectedAttachment) && (
+        <CrossDatasetGridAttachment
+          attachment={selectedAttachment}
+          isDataLoading={isDataLoading}
+          isChartColumnVisible={isOpenedAdvancedView}
+          fixHeight={!isOpenedAdvancedView}
           showLimitMessage={showLimitMessage}
           onApiReady={onGridApiReady}
         />

@@ -46,6 +46,7 @@
     "content": "Content",
     "clearAll": "Clear All",
     "clearAllFilters": "Clear all filters",
+    "appliedFilters": "Applied filters",
     "resetSelectedValues": "Reset selected values",
     "displayOrder": "Display order",
     "list": "Flat List",
@@ -117,7 +118,10 @@
     "limitInfo_p2_part3": "your request, or",
     "limitInfo_p2_part4": "refine",
     "limitInfo_p2_part5": "it in the chat.",
-    "limitInfo_link": "Open Advanced Mode"
+    "limitInfo_link": "Open Advanced Mode",
+    "countryDimensionsColumnTitle": "Country dimensions",
+    "indicatorDimensionsColumnTitle": "Indicator dimensions",
+    "frequencyColumnTitle": "Frequency"
   },
   "time": {
     "quarterly": "Q",

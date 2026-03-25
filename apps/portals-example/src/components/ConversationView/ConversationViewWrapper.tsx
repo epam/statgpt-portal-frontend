@@ -5,6 +5,7 @@ import {
   ConversationView,
   DatasetInfoOptions,
   useAdvancedView,
+  useConversationViewFeatureToggles,
 } from '@epam/statgpt-conversation-view';
 import { openDownloadWindow } from '@epam/statgpt-sdmx-toolkit';
 import {
@@ -104,6 +105,7 @@ const ConversationViewWrapper: FC<Props> = ({
 }) => {
   const router = useRouter();
   const { isOpenedAdvancedView } = useAdvancedView();
+  const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const { setConversations } = useConversationList();
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [currentDataQuery, setCurrentDataQuery] = useState<
@@ -187,6 +189,7 @@ const ConversationViewWrapper: FC<Props> = ({
     searchPlaceholder: t(AppI18nKeys.SEARCH),
     clearAll: t(AdvancedViewI18nKeys.CLEAR_ALL),
     clearAllFilters: t(AdvancedViewI18nKeys.CLEAR_ALL_FILTERS),
+    appliedFilters: t(AdvancedViewI18nKeys.APPLIED_FILTERS),
     settings: t(AdvancedViewI18nKeys.SETTINGS),
     content: t(AdvancedViewI18nKeys.CONTENT),
     advanceViewTitle: t(AdvancedViewI18nKeys.TITLE),
@@ -199,6 +202,9 @@ const ConversationViewWrapper: FC<Props> = ({
     quarterly: t(TimeI18nKeys.QUARTERLY),
     monthly: t(TimeI18nKeys.MONTHLY),
     dataGrid: t(AttachmentsI18nKeys.DATA_GRID),
+    countryDimensions: t(AttachmentsI18nKeys.COUNTRY_DIMENSIONS),
+    indicatorDimensions: t(AttachmentsI18nKeys.INDICATOR_DIMENSIONS),
+    frequency: t(AttachmentsI18nKeys.FREQUENCY),
     queryUpdatedManually: t(MessageI18nKeys.QUERY_UPDATED_MANUALLY),
     setTo: t(MessageI18nKeys.SET_TO),
     signOut: t(AuthI18nKeys.SIGN_OUT),
@@ -408,9 +414,10 @@ const ConversationViewWrapper: FC<Props> = ({
             }}
             scrollBottomIcon={<Down width={20} height={20} />}
             limitMessages={limitMessages}
-          />
+          >
+            <Footer />
+          </ConversationView>
         </div>
-        <Footer />
       </div>
       {isOpenedAdvancedView && (
         <AdvancedView
@@ -427,6 +434,8 @@ const ConversationViewWrapper: FC<Props> = ({
               isShowCancelButton: true,
               isShowTimeSeriesCount: true,
               isShowClearIcon: true,
+              isShowClearAllButton: !isCrossDatasetModeOn,
+              footerActionsPosition: isCrossDatasetModeOn ? 'right' : 'left',
               filterValuesProps: {
                 searchIconSize: 16,
                 checkboxIcon: (
@@ -463,6 +472,7 @@ const ConversationViewWrapper: FC<Props> = ({
           }}
           locale={locale}
           datasetInfoOptions={datasetInfoOptions}
+          titles={conversationViewTitles}
         />
       )}
     </div>

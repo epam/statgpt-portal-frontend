@@ -2,6 +2,7 @@ import {
   AdvancedViewProvider,
   OnboardingProvider,
   ChatMessagesProvider,
+  ConversationViewFeatureTogglesProvider,
 } from '@epam/statgpt-conversation-view';
 import ConversationListWrapper from '../../components/ConversationList/ConversationListWrapper';
 import { ConversationListProvider } from '../../context/ConversationListContext';
@@ -23,7 +24,6 @@ import { TextsConfig } from '../../components/configs/TextsConfig/TextsConfig';
 import { ClientProvidersWrapper } from '../../components/ClientProvidersWrapper/ClientProvidersWrapper';
 import { getDatasetsMetadata } from '../actions/datasets-metadata';
 import { buildDatasetDimensionsMetadataMap } from '@epam/statgpt-sdmx-toolkit';
-import { CrossDatasetModeProvider } from '../../../../../libs/conversation-view/src/context/CrossDatasetModeContext';
 
 export default async function LocaleLayout({
   children,
@@ -66,6 +66,8 @@ export default async function LocaleLayout({
 
   const clientContactSupportUrl = process.env.CLIENT_CONTACT_SUPPORT_URL;
   const isCrossDatasetModeOn = !!process.env.CROSS_DATASET_MODE;
+  const isMetadataInSidePanel = isCrossDatasetModeOn;
+  const isTableSettingsFeatureEnabled = isCrossDatasetModeOn;
 
   const metadata = await getDatasetsMetadata();
   const datasetDimensionsMetadataMap = metadata.data
@@ -79,7 +81,11 @@ export default async function LocaleLayout({
 
     return (
       <DeploymentConfigProvider config={configuration.data}>
-        <CrossDatasetModeProvider isCrossDatasetModeOn={isCrossDatasetModeOn}>
+        <ConversationViewFeatureTogglesProvider
+          isMetadataInSidePanel={isMetadataInSidePanel}
+          isCrossDatasetModeOn={isCrossDatasetModeOn}
+          isTableSettingsFeatureEnabled={isTableSettingsFeatureEnabled}
+        >
           <ClientProvidersWrapper
             isAgentAvailable={configuration.success}
             datasetDimensionsMetadataMap={datasetDimensionsMetadataMap}
@@ -95,7 +101,7 @@ export default async function LocaleLayout({
               </AdvancedViewProvider>
             </OnboardingProvider>
           </ClientProvidersWrapper>
-        </CrossDatasetModeProvider>
+        </ConversationViewFeatureTogglesProvider>
       </DeploymentConfigProvider>
     );
   };

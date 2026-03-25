@@ -1,14 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   DataConstraints,
-  Dataflow,
-  DataMessage,
   DatasetDimensionsScheme,
-  Dimension,
-  StructuralData,
-  StructureItemBase,
+  DatasetQueryFilters,
+  getLocalizedName,
 } from '@epam/statgpt-sdmx-toolkit';
-import { DataQuery } from '@epam/statgpt-shared-toolkit';
+import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import {
   getConstraints,
   GetDatasetData,
@@ -16,9 +13,23 @@ import {
 } from '../types/actions';
 import {
   getDataConstraintsMap,
+  getDataSetData,
   getStructureDataMaps,
 } from '../utils/attachments/attachments-data';
-import { useDatasetDimensionsMetadataMap } from '@epam/statgpt-conversation-view';
+import { CustomGridAttachment } from '../models/attachments';
+import {
+  createInitialChartAttachment,
+  createInitialCrossDatasetGridAttachment,
+} from '../constants/attachments';
+import { useConversationViewTitles } from './ConversationViewTitlesContext';
+import {
+  ChartingStyles,
+  useDatasetDimensionsMetadataMap,
+} from '@epam/statgpt-conversation-view';
+import { buildCrossDatasetGridAttachment } from '../utils/attachments/cross-dataset-grid/build-cross-dataset-grid-attachment';
+import { MetadataSettings } from '../models/metadata';
+import { StructureDataMaps } from '../models/structure-data';
+import { buildChartData } from '../utils/attachments/charting/chart-data';
 
 export function useAttachmentsDataMultipleQueries(
   actions: {
@@ -26,23 +37,25 @@ export function useAttachmentsDataMultipleQueries(
     getDataSetData: GetDatasetData;
     getConstraints: getConstraints;
   },
+  locale: string,
   dataQueries?: DataQuery[],
+  chartStyles?: ChartingStyles,
+  formattingSettings?: FormatNumbersType,
+  metadataSettings?: MetadataSettings,
 ) {
-  const [dataMessagesMap, setDataMessagesMap] =
-    useState<Map<string, DataMessage | null>>();
-  const [datasetsMap, setDatasetsMap] =
-    useState<Map<string, Dataflow | undefined>>();
-  const [constraintsMap, setConstraintsMap] =
-    useState<Map<string, DataConstraints[]>>();
-  const [structuresMap, setStructuresMap] =
-    useState<Map<string, StructuralData | undefined>>();
-  const [dimensionsMap, setDimensionsMap] =
-    useState<Map<string, Dimension[]>>();
-  const [structureDimensionsMap, setStructureDimensionsMap] =
-    useState<Map<string, StructureItemBase[]>>();
+  const [structureDataMaps, setStructureDataMaps] =
+    useState<StructureDataMaps>();
+  const titles = useConversationViewTitles();
   const [datasetDimensionsSchemesMap, setDatasetDimensionsSchemesMap] =
     useState<Map<string, DatasetDimensionsScheme | undefined>>();
   const [isLoadingGridData, setIsLoadingGridData] = useState(false);
+
+  const [crossDatasetGridAttachment, setCrossDatasetGridAttachment] =
+    useState<CustomGridAttachment>(
+      createInitialCrossDatasetGridAttachment(titles?.dataGrid),
+    );
+  const [crossDatasetChartAttachment, setCrossDatasetChartAttachment] =
+    useState(createInitialChartAttachment(titles?.chart));
 
   const loadConstraintsMap = useCallback(
     async (dataQueries: DataQuery[]) => {
@@ -51,12 +64,18 @@ export function useAttachmentsDataMultipleQueries(
           dataQueries,
           actions.getConstraints,
         );
-        setConstraintsMap(constraintsMap);
+        setStructureDataMaps((prevStructureDataMaps) => ({
+          ...prevStructureDataMaps,
+          constraintsMap,
+        }));
       } catch {
-        setConstraintsMap(new Map<string, DataConstraints[]>());
+        setStructureDataMaps((prevStructureDataMaps) => ({
+          ...prevStructureDataMaps,
+          constraintsMap: new Map<string, DataConstraints[]>(),
+        }));
       }
     },
-    [actions, setConstraintsMap],
+    [actions],
   );
 
   const loadStructureData = useCallback(
@@ -67,31 +86,32 @@ export function useAttachmentsDataMultipleQueries(
         actions.getDataSetData,
         setIsLoadingGridData,
       );
-
-      setDatasetsMap(structureDataMaps?.datasetsMap);
-      setStructuresMap(structureDataMaps?.structuresMap);
-      setDimensionsMap(structureDataMaps?.dimensionsMap);
-      setDataMessagesMap(structureDataMaps?.dataMessagesMap);
-      setStructureDimensionsMap(structureDataMaps?.structureDimensionsMap);
+      setStructureDataMaps((prevStructureDataMaps) => ({
+        ...prevStructureDataMaps,
+        ...structureDataMaps,
+      }));
     },
     [actions],
   );
 
   const { getDimensionsScheme } = useDatasetDimensionsMetadataMap();
 
-  const loadDimensionsSchemes = useCallback((dataQueries: DataQuery[]) => {
-    const dimensionSchemesMap = new Map<
-      string,
-      DatasetDimensionsScheme | undefined
-    >();
-    for (const dataQuery of dataQueries) {
-      dimensionSchemesMap.set(
-        dataQuery.urn,
-        getDimensionsScheme(dataQuery.urn),
-      );
-    }
-    setDatasetDimensionsSchemesMap(dimensionSchemesMap);
-  }, []);
+  const loadDimensionsSchemes = useCallback(
+    (dataQueries: DataQuery[]) => {
+      const dimensionSchemesMap = new Map<
+        string,
+        DatasetDimensionsScheme | undefined
+      >();
+      for (const dataQuery of dataQueries) {
+        dimensionSchemesMap.set(
+          dataQuery.urn,
+          getDimensionsScheme(dataQuery.urn),
+        );
+      }
+      setDatasetDimensionsSchemesMap(dimensionSchemesMap);
+    },
+    [getDimensionsScheme],
+  );
 
   useEffect(() => {
     async function loadDataSets(dataQueries: DataQuery[]) {
@@ -113,16 +133,158 @@ export function useAttachmentsDataMultipleQueries(
     if (dataQueries?.length) {
       loadDataSets(dataQueries);
     }
-  }, [dataQueries, loadConstraintsMap, loadStructureData]);
+  }, [
+    dataQueries,
+    loadConstraintsMap,
+    loadDimensionsSchemes,
+    loadStructureData,
+  ]);
 
-  return {
-    dataMessagesMap,
-    structuresMap,
-    datasetsMap,
-    dimensionsMap,
-    structureDimensionsMap,
-    constraintsMap,
+  useEffect(() => {
+    const { structuresMap, dataMessagesMap, constraintsMap } =
+      structureDataMaps ?? {};
+    if (
+      structuresMap != null &&
+      structuresMap.size > 0 &&
+      dataMessagesMap != null &&
+      constraintsMap != null &&
+      datasetDimensionsSchemesMap != null &&
+      !isLoadingGridData
+    ) {
+      setCrossDatasetGridAttachment((prev) => ({
+        ...prev,
+        ...buildCrossDatasetGridAttachment(
+          structuresMap,
+          dataMessagesMap,
+          datasetDimensionsSchemesMap,
+          dataQueries || [],
+          locale,
+          formattingSettings,
+          metadataSettings,
+          chartStyles,
+          titles,
+          constraintsMap,
+          {
+            startPeriod: null,
+            endPeriod: null,
+          },
+        ),
+      }));
+    }
+  }, [
+    structureDataMaps,
+    dataQueries,
+    locale,
+    formattingSettings,
+    metadataSettings,
+    chartStyles,
+    titles,
     datasetDimensionsSchemesMap,
     isLoadingGridData,
+  ]);
+
+  useEffect(() => {
+    const { structuresMap, dataMessagesMap } = structureDataMaps ?? {};
+
+    if (
+      structuresMap != null &&
+      structuresMap.size > 0 &&
+      dataMessagesMap != null &&
+      !isLoadingGridData
+    ) {
+      const chartGroups = (dataQueries || []).flatMap((dataQuery) => {
+        const structures = structuresMap.get(dataQuery.urn);
+        const dataMessage = dataMessagesMap.get(dataQuery.urn);
+
+        if (!structures || !dataMessage) {
+          return [];
+        }
+
+        const datasetName = getLocalizedName(structures.dataflows?.[0], locale);
+
+        return [
+          {
+            title: datasetName,
+            units: buildChartData(
+              structures,
+              dataMessage,
+              dataQuery,
+              locale,
+              chartStyles,
+            ).units,
+          },
+        ];
+      });
+
+      setCrossDatasetChartAttachment((prev) => ({
+        ...prev,
+        charting_data: {
+          units: chartGroups.flatMap((group) => group.units),
+          groups: chartGroups,
+        },
+      }));
+    }
+  }, [structureDataMaps, dataQueries, locale, chartStyles, isLoadingGridData]);
+
+  const crossDatasetAttachments = useMemo(
+    () => [crossDatasetGridAttachment, crossDatasetChartAttachment],
+    [crossDatasetGridAttachment, crossDatasetChartAttachment],
+  );
+
+  const onMultipleDataFiltersChange = useCallback(
+    (
+      filterParamsMap: Map<string, DatasetQueryFilters>,
+      constraintsMap?: Map<string, DataConstraints[] | undefined>,
+      dataQueries?: DataQuery[],
+    ): void => {
+      try {
+        setIsLoadingGridData(true);
+        setStructureDataMaps((prevStructureDataMaps) => ({
+          ...prevStructureDataMaps,
+          constraintsMap,
+        }));
+        dataQueries?.forEach((dataQuery) => {
+          getDataSetData(
+            dataQuery,
+            filterParamsMap?.get(dataQuery?.urn) as DatasetQueryFilters,
+            actions.getDataSetData,
+          )
+            .then(({ dataMessage, structureDimensions }) => {
+              setStructureDataMaps((prevStructureDataMaps) => {
+                const dataMessagesMap = new Map(
+                  prevStructureDataMaps?.dataMessagesMap,
+                );
+                const structureDimensionsMap = new Map(
+                  prevStructureDataMaps?.structureDimensionsMap,
+                );
+
+                dataMessagesMap.set(dataQuery.urn, dataMessage);
+                structureDimensionsMap.set(
+                  dataQuery.urn,
+                  structureDimensions || [],
+                );
+
+                return {
+                  ...prevStructureDataMaps,
+                  dataMessagesMap,
+                  structureDimensionsMap,
+                };
+              });
+            })
+            .finally(() => setIsLoadingGridData(false));
+        });
+      } catch (err) {
+        console.error('Error loading dataset data', err as object);
+      }
+    },
+    [actions.getDataSetData],
+  );
+
+  return {
+    structureDataMaps,
+    datasetDimensionsSchemesMap,
+    isLoadingGridData,
+    crossDatasetAttachments,
+    onMultipleDataFiltersChange,
   };
 }

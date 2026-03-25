@@ -1,12 +1,7 @@
 'use client';
 
-import {
-  DataConstraints,
-  generateShortUrn,
-  getTimeSeriesCount,
-  TIME_PERIOD,
-} from '@epam/statgpt-sdmx-toolkit';
-import { Locale } from '@epam/statgpt-shared-toolkit';
+import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
+import { DataQuery, Locale } from '@epam/statgpt-shared-toolkit';
 import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
 import { Filter, FiltersProps } from '../../../models/filters';
 import {
@@ -14,51 +9,45 @@ import {
   getFiltersAfterDelete,
   getSelectedFilterValues,
   getTotalSelectedValuesLength,
+  isSameFilter,
   updateFiltersWithDisabledOption,
   updateFiltersWithDisplayMode,
   updateFiltersWithSelectedItem,
 } from '../../../utils/filters';
-import { getFilledFilters } from '../../../utils/get-filled-filters';
-import { getSeriesFilterDto } from '../../../utils/get-series-filters';
-import {
-  getQueryFilters,
-  setDataQueryFilters,
-} from '../../../utils/query-filters';
 import {
   FC,
   startTransition,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 import { updateMessagesWithSystemMessage } from '../../../utils/system-message';
 import { getUpdatedDataQueries } from '../../../utils/get-updated-data-queries';
-import {
-  buildRequestCacheKey,
-  getCachedRequestResult,
-} from '../../../utils/request-cache';
 import FilterButton from '../Filters/FilterButton/FilterButton';
 import FilterSettings from '../Filters/FiltersModal/FiltersSettings';
 import ModalFooter from '../Filters/FiltersModal/ModalFooter';
 import {
   buildFiltersMap,
+  getConstraintsMap,
+  getConstraintsRequests,
   getFilledDatasetFiltersMap,
   getFiltersByConstraints,
   getFiltersPreselectedByDataQueries,
+  isStructureDataMapsReady,
+  getQueryFiltersMap,
+  setDataQueryFiltersMap,
 } from '../../../utils/multiple-filters';
+import { StructureDataMaps } from '../../../models/structure-data';
 
 const MultiDatasetFilters: FC<FiltersProps> = ({
   actions,
   structureDataMaps,
-  dimensions,
-  structures,
   buttonProps,
   modalProps,
-  attachmentsDataQuery,
   dataQueries,
-  initialConstraints,
-  onFiltersChange,
+  onMultipleDataFiltersChange,
   locale,
   timeRangeOptions,
   titles,
@@ -81,21 +70,24 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   const [selectedTimeOption, setSelectedTimeOption] = useState<
     string | number | undefined
   >(undefined);
-  const constraintsRef = useRef<DataConstraints[]>(initialConstraints || []);
   const constraintsMapRef = useRef<Map<string, DataConstraints[] | undefined>>(
     structureDataMaps?.constraintsMap,
   );
-  const [initialModalConstraints, setInitialModalConstraints] = useState<
-    DataConstraints[]
-  >([]);
+  const [initialModalConstraintsMap, setInitialModalConstraintsMap] =
+    useState<Map<string, DataConstraints[] | undefined>>();
   const [isConstraintsLoading, setIsConstraintsLoading] = useState<boolean>();
   const [isDisableFilterValues, setIsDisableFilterValues] = useState<boolean>();
   const [isModalClosed, setIsModalClosed] = useState(false);
 
+  const isStructureDataReady = useMemo(
+    () => isStructureDataMapsReady(dataQueries, structureDataMaps),
+    [dataQueries, structureDataMaps],
+  );
+
   const updateSelectedFilterValues = (filter?: Filter) => {
     const filters = filter
       ? modalFilters.map((oldFilter) =>
-          oldFilter.id === filter.id ? filter : oldFilter,
+          isSameFilter(oldFilter, filter) ? filter : oldFilter,
         )
       : modalFilters;
 
@@ -113,7 +105,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
 
   useEffect(() => {
     if (modalState === PopUpState.Closed) {
-      setInitialModalConstraints(constraintsRef.current);
+      setInitialModalConstraintsMap(constraintsMapRef.current);
     }
   }, [modalState]);
 
@@ -124,36 +116,10 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       setIsConstraintsLoading?: (isLoading: boolean) => void,
     ) => {
       const filtersMap = buildFiltersMap(filters);
-      const requests =
-        dataQueries?.map((dataQuery) => {
-          const attachmentUrn = dataQuery?.urn ?? '';
-          const constraintFilters = getSeriesFilterDto(
-            filtersMap?.get(attachmentUrn) || [],
-          ).filter((filter) => filter.componentCode !== TIME_PERIOD);
-          return actions
-            ? getCachedRequestResult(
-                actions.getConstraints,
-                buildRequestCacheKey(attachmentUrn, constraintFilters),
-                () => actions.getConstraints(attachmentUrn, constraintFilters),
-              )
-            : Promise.resolve(undefined);
-        }) || [];
 
-      Promise.all(requests)
+      Promise.all(getConstraintsRequests(dataQueries, filtersMap, actions))
         .then((constraintsData) => {
-          const currentConstraintsMap = new Map(
-            constraintsData?.map((constraintData) => {
-              const constraint = constraintData?.data?.dataConstraints;
-              return [
-                generateShortUrn(
-                  constraint?.[0]?.id,
-                  constraint?.[0]?.version,
-                  constraint?.[0]?.agencyID,
-                ),
-                constraint,
-              ];
-            }),
-          );
+          const currentConstraintsMap = getConstraintsMap(constraintsData);
           constraintsMapRef.current = currentConstraintsMap;
           setIsConstraintsLoading?.(false);
           setFilters(
@@ -184,6 +150,11 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   );
 
   useEffect(() => {
+    if (!isStructureDataReady) {
+      setIsConstraintsLoading(true);
+      return;
+    }
+
     const filledDatasetFiltersMap = getFilledDatasetFiltersMap(
       structureDataMaps,
       locale,
@@ -199,7 +170,13 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       setAppliedFilters,
       setIsConstraintsLoading,
     );
-  }, [dataQueries, locale, structureDataMaps, handleFiltersWithConstraints]);
+  }, [
+    dataQueries,
+    handleFiltersWithConstraints,
+    isStructureDataReady,
+    locale,
+    structureDataMaps,
+  ]);
 
   useEffect(() => {
     if (appliedFilters?.length) {
@@ -215,6 +192,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
 
   useEffect(() => {
     if (modalState === PopUpState.Opened) {
+      setSelectedTimeOption(void 0);
       setSelectedFilter({ ...appliedFilters?.[0], isSelectedFilter: true });
       setModalFilters(appliedFilters);
     }
@@ -224,16 +202,18 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   }, [appliedFilters, modalState]);
 
   const addSystemMessage = useCallback(
-    async (filters: Filter[]) => {
-      const dataQueryFilters = setDataQueryFilters(filters);
+    async (filtersMap: Map<string, Filter[]>) => {
+      const dataQueryFiltersMap = setDataQueryFiltersMap(
+        dataQueries,
+        filtersMap,
+      );
       const updatedConversationWithSystemMessage = conversation
         ? {
             ...conversation,
             messages: updateMessagesWithSystemMessage(
               conversation?.messages,
-              dataQueryFilters,
-              attachmentsDataQuery,
               dataQueries,
+              dataQueryFiltersMap,
             ),
           }
         : null;
@@ -241,11 +221,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       setConversation?.(updatedConversationWithSystemMessage);
 
       updateDataQueries?.(
-        getUpdatedDataQueries(
-          dataQueryFilters,
-          attachmentsDataQuery,
-          dataQueries,
-        ),
+        getUpdatedDataQueries(dataQueries, dataQueryFiltersMap),
       );
 
       await updateConversation(decodeURI(conversationKey), {
@@ -254,7 +230,6 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       });
     },
     [
-      attachmentsDataQuery,
       conversation,
       conversationKey,
       dataQueries,
@@ -265,125 +240,144 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   );
 
   const onSelectDisplayMode = useCallback(
-    (filterId?: string, displayMode?: string) => {
+    (filter?: Filter, displayMode?: string) => {
       setModalFilters((prevFilters) =>
-        updateFiltersWithDisplayMode(prevFilters, filterId, displayMode),
+        updateFiltersWithDisplayMode(prevFilters, filter, displayMode),
       );
-      if (selectedFilter?.id === filterId) {
-        setSelectedFilter((prevFilter) => ({
-          ...prevFilter,
-          displayMode,
-        }));
+      if (isSameFilter(selectedFilter, filter)) {
+        setSelectedFilter((prevFilter) =>
+          prevFilter
+            ? {
+                ...prevFilter,
+                displayMode,
+              }
+            : prevFilter,
+        );
       }
     },
-    [selectedFilter?.id],
+    [selectedFilter],
   );
 
-  const getFiltersChangeParams = useCallback(
-    (filters: Filter[]) => getQueryFilters(filters, dimensions),
-    [dimensions],
+  const getFiltersChangeParamsMap = useCallback(
+    (filtersMap: Map<string, Filter[]>) =>
+      getQueryFiltersMap(
+        filtersMap,
+        dataQueries,
+        structureDataMaps?.dimensionsMap,
+      ),
+    [dataQueries, structureDataMaps?.dimensionsMap],
   );
 
   const updateViewAfterDelete = useCallback(
-    (dataConstraints: DataConstraints[], filtersToUpdate: Filter[]) => {
-      const filledFilters = getFilledFilters(
-        filtersToUpdate,
-        dimensions,
-        structures,
-        dataConstraints,
+    (
+      filtersToUpdateMap: Map<string, Filter[]>,
+      structureDataMaps?: StructureDataMaps,
+    ) => {
+      const filledFilters = getFiltersByConstraints(
+        filtersToUpdateMap,
+        structureDataMaps,
         locale as Locale,
       );
-      constraintsRef.current = dataConstraints;
+      constraintsMapRef.current = structureDataMaps?.constraintsMap;
 
       setSelectedFilter(
         (previousSelectedFilter) =>
-          filledFilters?.find(
-            (filter) => filter?.id === previousSelectedFilter?.id,
+          filledFilters?.find((filter) =>
+            isSameFilter(filter, previousSelectedFilter),
           ) || previousSelectedFilter,
       );
       setModalFilters(filledFilters);
       setIsDisableFilterValues(false);
     },
-    [dimensions, locale, structures],
+    [locale],
   );
 
   const handleFiltersDelete = useCallback(
-    (filtersToUpdate: Filter[]) => {
+    (filtersToUpdate: Filter[], dataQueries?: DataQuery[]) => {
       setIsDisableFilterValues(true);
       setModalFilters(updateFiltersWithDisabledOption(filtersToUpdate));
-      const attachmentUrn = attachmentsDataQuery?.urn ?? '';
-      const constraintFilters = getSeriesFilterDto(filtersToUpdate).filter(
-        (filter) => filter.componentCode !== TIME_PERIOD,
-      );
+      const filtersMap = buildFiltersMap(filtersToUpdate);
 
-      const request = actions
-        ? getCachedRequestResult(
-            actions.getConstraints,
-            buildRequestCacheKey(attachmentUrn, constraintFilters),
-            () => actions.getConstraints(attachmentUrn, constraintFilters),
-          )
-        : Promise.resolve(undefined);
-
-      request
-        .then((constraints) => {
-          updateViewAfterDelete(
-            constraints?.data?.dataConstraints || [],
-            filtersToUpdate,
-          );
+      Promise.all(getConstraintsRequests(dataQueries, filtersMap, actions))
+        .then((constraintsData) => {
+          updateViewAfterDelete(filtersMap, {
+            ...structureDataMaps,
+            constraintsMap: getConstraintsMap(constraintsData),
+          });
         })
         .catch(() => {
-          updateViewAfterDelete([], filtersToUpdate);
+          updateViewAfterDelete(filtersMap, {
+            ...structureDataMaps,
+            constraintsMap: new Map(),
+          });
         });
     },
-    [actions, attachmentsDataQuery?.urn, updateViewAfterDelete],
+    [actions, structureDataMaps, updateViewAfterDelete],
   );
 
   const onDeleteFilter = useCallback(
-    (filterId?: string) => {
-      const filtersAfterDelete = getFiltersAfterDelete(modalFilters, filterId);
+    (filter?: Filter) => {
+      const dataQuery = dataQueries?.find(
+        (dataQuery) => dataQuery?.urn === filter?.datasetUrn,
+      );
+      const filtersAfterDelete = getFiltersAfterDelete(modalFilters, filter);
 
-      handleFiltersDelete(filtersAfterDelete);
+      handleFiltersDelete(filtersAfterDelete, dataQuery ? [dataQuery] : []);
     },
-    [handleFiltersDelete, modalFilters],
+    [handleFiltersDelete, modalFilters, dataQueries],
   );
 
   const onCloseModal = useCallback(() => {
-    constraintsRef.current = initialModalConstraints;
+    constraintsMapRef.current = initialModalConstraintsMap;
     setModalState(PopUpState.Closed);
     setIsModalClosed(true);
-  }, [initialModalConstraints]);
+  }, [initialModalConstraintsMap]);
 
   const onClearAllFilters = useCallback(() => {
     const filtersAfterClear = getFiltersAfterClear(modalFilters);
 
-    handleFiltersDelete(filtersAfterClear);
-  }, [handleFiltersDelete, modalFilters]);
+    handleFiltersDelete(filtersAfterClear, dataQueries);
+  }, [handleFiltersDelete, modalFilters, dataQueries]);
 
   const onApply = useCallback(() => {
-    const params = getFiltersChangeParams(modalFilters);
-    onFiltersChange?.(params, constraintsRef.current, modalFilters);
+    const appliedFiltersMap = buildFiltersMap(
+      modalFilters,
+      constraintsMapRef.current,
+    );
+    const appliedFilters = getFiltersByConstraints(
+      appliedFiltersMap,
+      {
+        ...structureDataMaps,
+        constraintsMap: constraintsMapRef.current,
+      },
+      locale as Locale,
+    );
+    const filtersParamsMap = getFiltersChangeParamsMap(appliedFiltersMap);
+    onMultipleDataFiltersChange?.(
+      filtersParamsMap,
+      constraintsMapRef.current,
+      dataQueries,
+    );
 
-    setAppliedFilters(modalFilters);
+    setAppliedFilters(appliedFilters);
     setModalState(PopUpState.Closed);
     setIsModalClosed(true);
 
     startTransition(() => {
-      addSystemMessage(modalFilters);
+      addSystemMessage(appliedFiltersMap);
     });
   }, [
-    getFiltersChangeParams,
+    getFiltersChangeParamsMap,
     modalFilters,
-    onFiltersChange,
+    structureDataMaps,
+    locale,
+    onMultipleDataFiltersChange,
+    dataQueries,
     addSystemMessage,
-    constraintsRef,
   ]);
   const onTimePeriodChange = (value: string | number) => {
     setSelectedTimeOption(value);
   };
-
-  const timeSeriesCount = Number(
-    getTimeSeriesCount(constraintsRef?.current?.[0]?.annotations),
-  );
 
   return (
     <div className="filters-container">
@@ -398,7 +392,6 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         isModalClosed={isModalClosed}
         warningIcon={limitMessages?.warningIcon}
         filterIconClassName={filterIconClassName}
-        timeSeriesCount={timeSeriesCount}
       />
       <>
         {modalState === PopUpState.Opened && (
@@ -419,13 +412,13 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               selectedFilter={selectedFilter}
               isDisableValues={isDisableFilterValues}
               modalProps={modalProps}
-              initialConstraints={initialConstraints}
+              initialConstraintsMap={structureDataMaps?.constraintsMap}
               datasetIcon={datasetIcon}
               structuresMap={structureDataMaps?.structuresMap}
-              timeSeriesCount={`${timeSeriesCount}`}
               setSelectedFilter={setSelectedFilter}
               onSelectDisplayMode={onSelectDisplayMode}
               onDeleteFilter={onDeleteFilter}
+              onClearAllFilters={onClearAllFilters}
               updateSelectedFilterValues={updateSelectedFilterValues}
               onTimePeriodChange={onTimePeriodChange}
               selectedTimeOption={selectedTimeOption}
@@ -437,7 +430,6 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               onClearAllFilters={onClearAllFilters}
               modalProps={modalProps}
               applyDisabled={isConstraintsLoading || isDisableFilterValues}
-              timeseriesLength={timeSeriesCount}
               limitMessages={limitMessages}
             />
           </Popup>

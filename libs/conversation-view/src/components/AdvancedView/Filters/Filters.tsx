@@ -16,6 +16,7 @@ import {
   getFiltersAfterClear,
   getFiltersAfterDelete,
   getFiltersPreselectedByDataQuery,
+  isSameFilter,
   getSelectedFilterValues,
   getTotalSelectedValuesLength,
   updateFiltersWithDisabledOption,
@@ -89,7 +90,7 @@ const Filters: FC<FiltersProps> = ({
   const updateSelectedFilterValues = (filter?: Filter) => {
     const filters = filter
       ? modalFilters.map((oldFilter) =>
-          oldFilter.id === filter.id ? filter : oldFilter,
+          isSameFilter(oldFilter, filter) ? filter : oldFilter,
         )
       : modalFilters;
 
@@ -252,9 +253,10 @@ const Filters: FC<FiltersProps> = ({
             ...conversation,
             messages: updateMessagesWithSystemMessage(
               conversation?.messages,
+              dataQueries,
+              void 0,
               dataQueryFilters,
               attachmentsDataQuery,
-              dataQueries,
             ),
           }
         : null;
@@ -263,9 +265,10 @@ const Filters: FC<FiltersProps> = ({
 
       updateDataQueries?.(
         getUpdatedDataQueries(
+          dataQueries,
+          void 0,
           dataQueryFilters,
           attachmentsDataQuery,
-          dataQueries,
         ),
       );
 
@@ -286,18 +289,22 @@ const Filters: FC<FiltersProps> = ({
   );
 
   const onSelectDisplayMode = useCallback(
-    (filterId?: string, displayMode?: string) => {
+    (filter?: Filter, displayMode?: string) => {
       setModalFilters((prevFilters) =>
-        updateFiltersWithDisplayMode(prevFilters, filterId, displayMode),
+        updateFiltersWithDisplayMode(prevFilters, filter, displayMode),
       );
-      if (selectedFilter?.id === filterId) {
-        setSelectedFilter((prevFilter) => ({
-          ...prevFilter,
-          displayMode,
-        }));
+      if (isSameFilter(selectedFilter, filter)) {
+        setSelectedFilter((prevFilter) =>
+          prevFilter
+            ? {
+                ...prevFilter,
+                displayMode,
+              }
+            : prevFilter,
+        );
       }
     },
-    [selectedFilter?.id],
+    [selectedFilter],
   );
 
   const getFiltersChangeParams = useCallback(
@@ -318,8 +325,8 @@ const Filters: FC<FiltersProps> = ({
 
       setSelectedFilter(
         (previousSelectedFilter) =>
-          filledFilters?.find(
-            (filter) => filter?.id === previousSelectedFilter?.id,
+          filledFilters?.find((filter) =>
+            isSameFilter(filter, previousSelectedFilter),
           ) || previousSelectedFilter,
       );
       setModalFilters(filledFilters);
@@ -360,8 +367,8 @@ const Filters: FC<FiltersProps> = ({
   );
 
   const onDeleteFilter = useCallback(
-    (filterId?: string) => {
-      const filtersAfterDelete = getFiltersAfterDelete(modalFilters, filterId);
+    (filter?: Filter) => {
+      const filtersAfterDelete = getFiltersAfterDelete(modalFilters, filter);
 
       handleFiltersDelete(filtersAfterDelete);
     },
@@ -445,6 +452,7 @@ const Filters: FC<FiltersProps> = ({
               setSelectedFilter={setSelectedFilter}
               onSelectDisplayMode={onSelectDisplayMode}
               onDeleteFilter={onDeleteFilter}
+              onClearAllFilters={onClearAllFilters}
               updateSelectedFilterValues={updateSelectedFilterValues}
               onTimePeriodChange={onTimePeriodChange}
               selectedTimeOption={selectedTimeOption}
