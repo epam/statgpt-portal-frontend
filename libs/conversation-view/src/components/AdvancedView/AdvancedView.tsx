@@ -29,6 +29,7 @@ import { TableSettingsProvider } from './TableSettings/TableSettingsContext';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 import { ConversationViewSidePanelOutlet } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
+import { ConversationViewTitlesProvider } from '../../context/ConversationViewTitlesContext';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -172,104 +173,106 @@ export const AdvancedView: FC<Props> = ({
   );
 
   return (
-    <TableSettingsProvider
-      currentUrn={currentUrn}
-      structuresMap={structureDataMaps?.structuresMap}
-      locale={locale}
-      dataQueries={attachmentsProps?.dataQueries}
-    >
-      <div className="advanced-view flex flex-col flex-1 h-full min-w-0">
-        <Header
-          titles={titles}
-          locale={locale}
-          shareConversationProps={shareConversationProps}
-          isShowShare={advanceViewStyles?.isShowShare}
-        />
-        {!attachmentsProps?.datasets?.length ? (
-          <Loader />
-        ) : (
-          <>
-            {attachmentsProps?.datasets?.length > 1 && (
-              <DatasetTabs
-                datasets={attachmentsProps?.datasets}
-                initialSelectedDatasetUrn={
-                  attachmentsProps?.currentDataQuery?.urn
-                }
-                locale={locale}
-                isHideAdvancedViewButton={true}
-                selectDataset={onSelectDataset}
-              />
-            )}
-            {isDataLoading && !isFiltering ? (
-              <Loader />
-            ) : (
-              <>
-                {shouldShowDatasetInfo && (
-                  <DatasetInfo
-                    {...datasetInfoOptions}
-                    titles={titles}
-                    locale={locale}
-                    dataset={dataset}
-                    data={dataMessage?.data}
-                    structures={structures}
-                    metadataSettings={metadataSettings}
-                    getDatasetUpdatedTime={getDatasetUpdatedTime}
-                    externalLink={externalLink}
-                  />
-                )}
-                <div
-                  className={classNames(
-                    'flex flex-1 min-h-0 overflow-auto',
-                    shouldShowDatasetInfo && 'border-t border-neutrals-500',
+    <ConversationViewTitlesProvider titles={titles}>
+      <TableSettingsProvider
+        currentUrn={currentUrn}
+        structuresMap={structureDataMaps?.structuresMap}
+        locale={locale}
+        dataQueries={attachmentsProps?.dataQueries}
+      >
+        <div className="advanced-view flex flex-col flex-1 h-full min-w-0">
+          <Header
+            titles={titles}
+            locale={locale}
+            shareConversationProps={shareConversationProps}
+            isShowShare={advanceViewStyles?.isShowShare}
+          />
+          {!attachmentsProps?.datasets?.length ? (
+            <Loader />
+          ) : (
+            <>
+              {attachmentsProps?.datasets?.length > 1 && (
+                <DatasetTabs
+                  datasets={attachmentsProps?.datasets}
+                  initialSelectedDatasetUrn={
+                    attachmentsProps?.currentDataQuery?.urn
+                  }
+                  locale={locale}
+                  isHideAdvancedViewButton={true}
+                  selectDataset={onSelectDataset}
+                />
+              )}
+              {isDataLoading && !isFiltering ? (
+                <Loader />
+              ) : (
+                <>
+                  {shouldShowDatasetInfo && (
+                    <DatasetInfo
+                      {...datasetInfoOptions}
+                      titles={titles}
+                      locale={locale}
+                      dataset={dataset}
+                      data={dataMessage?.data}
+                      structures={structures}
+                      metadataSettings={metadataSettings}
+                      getDatasetUpdatedTime={getDatasetUpdatedTime}
+                      externalLink={externalLink}
+                    />
                   )}
-                >
                   <div
                     className={classNames(
-                      'flex-1 min-h-0 overflow-auto',
-                      'advanced-view-filters',
+                      'flex flex-1 min-h-0 overflow-auto',
+                      shouldShowDatasetInfo && 'border-t border-neutrals-500',
                     )}
                   >
-                    <DataDetails
-                      {...props}
-                      titles={titles}
-                      actions={actions}
-                      attachments={
-                        isCrossDatasetModeOn
-                          ? crossDatasetAttachments
-                          : dataSetAttachments
-                      }
-                      attachmentsDataQuery={attachmentsProps.currentDataQuery}
-                      dataQueries={attachmentsProps?.dataQueries}
-                      dimensions={dimensions}
-                      attachmentsStyles={attachmentsProps.styles}
-                      isDataLoading={isDataLoading}
-                      locale={locale}
-                      filtersProps={{
-                        ...props?.filtersProps,
-                        structureDimensions,
-                        structures,
-                        structureDataMaps,
-                        onFiltersChange,
-                        onMultipleDataFiltersChange:
-                          handleMultipleDataFiltersChange,
-                        initialConstraints: constraints,
-                      }}
-                      setIsFiltering={setIsFiltering}
-                      attachmentsConfig={attachmentsConfig}
-                      filters={filters}
-                      filtersMap={filtersMap}
-                      onFiltersChange={handleFiltersChange}
-                    />
+                    <div
+                      className={classNames(
+                        'flex-1 min-h-0 overflow-auto',
+                        'advanced-view-filters',
+                      )}
+                    >
+                      <DataDetails
+                        {...props}
+                        titles={titles}
+                        actions={actions}
+                        attachments={
+                          isCrossDatasetModeOn
+                            ? crossDatasetAttachments
+                            : dataSetAttachments
+                        }
+                        attachmentsDataQuery={attachmentsProps.currentDataQuery}
+                        dataQueries={attachmentsProps?.dataQueries}
+                        dimensions={dimensions}
+                        attachmentsStyles={attachmentsProps.styles}
+                        isDataLoading={isDataLoading}
+                        locale={locale}
+                        filtersProps={{
+                          ...props?.filtersProps,
+                          structureDimensions,
+                          structures,
+                          structureDataMaps,
+                          onFiltersChange,
+                          onMultipleDataFiltersChange:
+                            handleMultipleDataFiltersChange,
+                          initialConstraints: constraints,
+                        }}
+                        setIsFiltering={setIsFiltering}
+                        attachmentsConfig={attachmentsConfig}
+                        filters={filters}
+                        filtersMap={filtersMap}
+                        onFiltersChange={handleFiltersChange}
+                      />
+                    </div>
+                    {isOpenedAdvancedView && (
+                      <ConversationViewSidePanelOutlet scope="advanced" />
+                    )}
                   </div>
-                  {isOpenedAdvancedView && (
-                    <ConversationViewSidePanelOutlet scope="advanced" />
-                  )}
-                </div>
-              </>
-            )}
-          </>
-        )}
-      </div>
-    </TableSettingsProvider>
+                </>
+              )}
+            </>
+          )}
+        </div>
+      </TableSettingsProvider>
+    </ConversationViewTitlesProvider>
   );
 };
