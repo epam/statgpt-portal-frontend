@@ -168,7 +168,7 @@ const Message: FC<Props> = ({
     );
 
   const {
-    crossDatasetGridAttachment,
+    crossDatasetAttachments,
     isLoadingGridData: isLoadingCrossDsGridData,
   } = useAttachmentsDataMultipleQueries(
     actions,
@@ -310,7 +310,7 @@ const Message: FC<Props> = ({
         attachments={
           isDataSetAttachments
             ? isCrossDatasetModeOn
-              ? [crossDatasetGridAttachment]
+              ? crossDatasetAttachments
               : dataSetAttachments
             : baseGridAttachments
         }
@@ -339,7 +339,7 @@ const Message: FC<Props> = ({
       isDataSetAttachments,
       dataSetAttachments,
       baseGridAttachments,
-      crossDatasetGridAttachment,
+      crossDatasetAttachments,
       datasets,
       initialSelectedDatasetUrn,
       messageStyles,
@@ -356,6 +356,7 @@ const Message: FC<Props> = ({
       onAdvancedViewOpen,
       limitMessages,
       attachmentsConfig,
+      isCrossDatasetModeOn,
     ],
   );
 

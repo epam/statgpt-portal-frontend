@@ -12,6 +12,11 @@ export interface ChartUnit extends ChartUnitRows {
   limitedByRowsAmountTo: number | undefined;
 }
 
+export interface ChartUnitGroup {
+  title?: string;
+  units: ChartUnit[];
+}
+
 export interface DimensionInfo {
   id: string;
   title: string;
@@ -20,6 +25,7 @@ export interface DimensionInfo {
 
 export interface ChartingData {
   units: ChartUnit[];
+  groups?: ChartUnitGroup[];
 }
 
 export interface ChartingTooltipFormatterParams {
