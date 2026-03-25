@@ -189,6 +189,7 @@ const ConversationViewWrapper: FC<Props> = ({
     searchPlaceholder: t(AppI18nKeys.SEARCH),
     clearAll: t(AdvancedViewI18nKeys.CLEAR_ALL),
     clearAllFilters: t(AdvancedViewI18nKeys.CLEAR_ALL_FILTERS),
+    appliedFilters: t(AdvancedViewI18nKeys.APPLIED_FILTERS),
     settings: t(AdvancedViewI18nKeys.SETTINGS),
     content: t(AdvancedViewI18nKeys.CONTENT),
     advanceViewTitle: t(AdvancedViewI18nKeys.TITLE),
@@ -433,6 +434,7 @@ const ConversationViewWrapper: FC<Props> = ({
               isShowCancelButton: true,
               isShowTimeSeriesCount: true,
               isShowClearIcon: true,
+              isShowClearAllButton: !isCrossDatasetModeOn,
               footerActionsPosition: isCrossDatasetModeOn ? 'right' : 'left',
               filterValuesProps: {
                 searchIconSize: 16,

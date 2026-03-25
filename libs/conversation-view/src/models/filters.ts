@@ -84,6 +84,7 @@ export interface FiltersModalProps {
   isShowTimeSeriesCount?: boolean;
   isShowClearIcon?: boolean;
   isShowCancelButton?: boolean;
+  isShowClearAllButton?: boolean;
   footerActionsPosition?: 'left' | 'right';
   filterValuesProps?: FilterValuesProps;
   resetIcon?: ReactNode;

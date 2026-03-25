@@ -49,6 +49,7 @@ export interface ConversationViewTitles extends WelcomeViewTitles {
   monthly?: string;
   clearAll?: string;
   clearAllFilters?: string;
+  appliedFilters?: string;
   to?: string;
   from?: string;
   all?: string;

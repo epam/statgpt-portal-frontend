@@ -34,6 +34,7 @@ const ModalFooter: FC<Props> = ({
   const isMobile = useIsMobile();
   const isRightAligned = modalProps?.footerActionsPosition === 'right';
   const hasCancelButton = modalProps?.isShowCancelButton;
+  const shouldShowClearAllButton = modalProps?.isShowClearAllButton ?? true;
 
   const wrapperClasses = hasCancelButton
     ? isRightAligned
@@ -65,17 +66,19 @@ const ModalFooter: FC<Props> = ({
         />
       )}
       <div className={classNames('flex', buttonsContainerClasses)}>
-        <Button
-          iconBefore={isMobile ? modalProps?.resetIcon : undefined}
-          buttonClassName="text-button-tertiary p-0"
-          title={
-            modalProps?.isShowClearIcon
-              ? (titles?.clearAllFilters ?? 'Clear All Filters')
-              : (titles?.clearAll ?? 'Clear All')
-          }
-          onClick={() => onClearAllFilters()}
-          isSmallButton={isMobile}
-        />
+        {shouldShowClearAllButton && (
+          <Button
+            iconBefore={isMobile ? modalProps?.resetIcon : undefined}
+            buttonClassName="text-button-tertiary p-0"
+            title={
+              modalProps?.isShowClearIcon
+                ? (titles?.clearAllFilters ?? 'Clear All Filters')
+                : (titles?.clearAll ?? 'Clear All')
+            }
+            onClick={() => onClearAllFilters()}
+            isSmallButton={isMobile}
+          />
+        )}
         <div className="flex items-center gap-x-3">
           {modalProps?.isShowCancelButton ? (
             <Button
