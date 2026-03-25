@@ -11,6 +11,7 @@ import { Tooltip } from '../../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
 import { OnboardingElements } from '../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../context/OnboardingContext';
+import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
 
 interface ChartCellRendererParams extends ICellRendererParams {
   attributesData: Data;
@@ -27,6 +28,7 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
   const [tooltipDescription, setTooltipDescription] = useState<string>('');
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   const { onboardingFileSchema, isShowOnboarding } = useOnboarding();
+  const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const [isChartClosed, setIsChartClosed] = useState(false);
 
   const openChart = useCallback(() => {
@@ -87,7 +89,11 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
           isOpen={isOpenChart}
           onClose={closeChart}
           titles={params.titles}
-          datasetTitle={params.data?.datasetTitle ?? undefined}
+          datasetTitle={
+            isCrossDatasetModeOn
+              ? (params.data?.datasetTitle ?? undefined)
+              : undefined
+          }
         />
       )}
     </>
