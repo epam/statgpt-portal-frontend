@@ -36,8 +36,9 @@ import { useAdvancedView } from '../../../context/AdvancedViewContext';
 import { getDateFormattedValue } from '../../../utils/date-format';
 
 interface MetadataCellRendererParams extends ICellRendererParams {
-  attributesData: Data;
-  dataSetData: StructuralData;
+  attributesData?: Data;
+  dataSetData?: StructuralData;
+  structuresMap?: Map<string, StructuralData | undefined>;
   locale: Locale;
   metadataSettings?: MetadataSettings;
   titles: ConversationViewTitles;
@@ -58,14 +59,22 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
   const [isMetadataClosed, setIsMetadataClosed] = useState(false);
   const externalLink = params?.context?.externalLink as string | undefined;
 
+  const resolvedDataSetData = useMemo(() => {
+    if (params.structuresMap) {
+      const urn = params?.data?.dataset?.urn as string | undefined;
+      return urn != null ? params.structuresMap.get(urn) : undefined;
+    }
+    return params.dataSetData;
+  }, [params.structuresMap, params.data, params.dataSetData]);
+
   const structureComponentsMap = useMemo(
-    () => getStructureComponentsMap(params?.dataSetData),
-    [params?.dataSetData],
+    () => getStructureComponentsMap(resolvedDataSetData),
+    [resolvedDataSetData],
   );
   const metadata = useMemo(
     () => [
       getDatasetNameItem(
-        params?.dataSetData?.dataflows?.[0],
+        resolvedDataSetData?.dataflows?.[0],
         params?.locale,
         params.titles,
       ),
@@ -81,28 +90,28 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
       ),
       ...getDimensionGroupAttributes(
         params?.attributesData,
-        params?.dataSetData?.dataStructures?.[0],
+        resolvedDataSetData?.dataStructures?.[0],
         structureComponentsMap,
         (params?.data?.originalData as TimeSeries)?.parsedTimeSeriesValue,
         params?.locale,
       ),
     ],
-    [params, structureComponentsMap],
+    [params, resolvedDataSetData, structureComponentsMap],
   );
   const metadataDescription = useMemo(
     () =>
       getMetadataDescriptionItems(
-        params?.dataSetData,
+        resolvedDataSetData,
         params?.locale,
         params?.valueFormatted || params?.value,
         params.titles,
         params?.colDef,
         params?.data,
       ),
-    [params],
+    [params, resolvedDataSetData],
   );
   const sidePanelDatasetInfo = useMemo(() => {
-    const dataset = params?.dataSetData?.dataflows?.[0];
+    const dataset = resolvedDataSetData?.dataflows?.[0];
     const lastUpdatedDate = getDateFormattedValue(
       getLastUpdatedTime(dataset),
       params?.locale,
@@ -114,7 +123,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
       params?.locale,
       params.titles,
     );
-  }, [params?.dataSetData, params?.locale, params.titles]);
+  }, [resolvedDataSetData, params?.locale, params.titles]);
 
   const openMetadata = useCallback(() => {
     if (isMetadataInSidePanel && sidePanel) {

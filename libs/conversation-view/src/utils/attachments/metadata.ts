@@ -133,7 +133,7 @@ export const getDatasetInfoData = (
 });
 
 export const getTimeDimensionItem = (
-  dataSetData: StructuralData,
+  dataSetData: StructuralData | undefined,
   locale: string,
   colDef?: ColDef,
 ) => ({
@@ -154,7 +154,7 @@ export const getObservationItem = (
 });
 
 export const getMetadataDescriptionItems = (
-  dataSetData: StructuralData,
+  dataSetData: StructuralData | undefined,
   locale: string,
   value: string,
   titles?: ConversationViewTitles,

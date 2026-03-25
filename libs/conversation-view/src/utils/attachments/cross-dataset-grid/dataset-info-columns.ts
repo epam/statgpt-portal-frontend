@@ -1,6 +1,10 @@
 import { getLocalizedName, StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import { ColDef, ITooltipParams, ValueGetterParams } from 'ag-grid-community';
-import { GRID_COLUMN_FLEX } from '../../../constants/grid';
+import {
+  CELL_PADDING_0,
+  GRID_COLUMN_FLEX,
+  TEXT_WITH_TRIANGLE_CELL_RENDER,
+} from '../../../constants/grid';
 import { ConversationViewTitles } from '../../../models/titles';
 import {
   AGENCY_COL_ID,
@@ -42,6 +46,13 @@ function buildDatasetColDef(
     valueGetter,
     ...GRID_COLUMN_FLEX,
     tooltipValueGetter: (p: ITooltipParams) => p.value,
+    cellClass: CELL_PADDING_0,
+    cellRenderer: TEXT_WITH_TRIANGLE_CELL_RENDER,
+    cellRendererParams: {
+      structuresMap,
+      locale,
+      titles,
+    },
   };
 }
 

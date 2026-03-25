@@ -16,6 +16,8 @@ export const CHART_COLUMN_WIDTH = GRID_HEADER_HEIGHT;
 export const OBSERVATION_VALUE_CELL_RENDER = 'observationValueCell';
 export const METADATA_CELL_RENDER = 'metadataCell';
 export const CHART_CELL_RENDER = 'chartCell';
+export const MERGED_DIMENSION_CELL_RENDER = 'mergedDimensionCell';
+export const TEXT_WITH_TRIANGLE_CELL_RENDER = 'textWithTriangleCell';
 
 export const CHART_COLUMN_ID = 'Chart_column';
 
