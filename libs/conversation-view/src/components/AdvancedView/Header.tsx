@@ -87,9 +87,7 @@ const Header: FC<Props> = ({
             shouldMoveToNextStep
           />
         )}
-        <h2 className="sm:h-3">
-          {titles?.advanceViewTitle ?? 'Advanced view'}
-        </h2>
+        <h2>{titles?.advanceViewTitle ?? 'Advanced view'}</h2>
       </div>
       {isShowShare && (
         <ShareConversation locale={locale} {...shareConversationProps} />
