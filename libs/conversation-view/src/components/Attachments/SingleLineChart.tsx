@@ -59,9 +59,7 @@ const SingleLineChart: FC<Props> = ({
               {datasetTitle && (
                 <div className="flex items-center gap-1 mb-2">
                   <DatasetIcon className="w-4 h-4 text-neutrals-1000 flex-shrink-0" />
-                  <span className="text-[12px] leading-4 font-semibold text-neutrals-1000">
-                    {datasetTitle}
-                  </span>
+                  <h4 className="text-neutrals-1000">{datasetTitle}</h4>
                 </div>
               )}
               <ReactECharts

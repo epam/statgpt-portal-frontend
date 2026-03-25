@@ -150,9 +150,9 @@ const CustomChartAttachment: FC<Props> = ({
                   {selectedGroupTitle && (
                     <div className="flex items-center gap-1 mb-1">
                       <DatasetIcon className="w-4 h-4 text-neutrals-1000 flex-shrink-0" />
-                      <span className="text-[12px] leading-4 font-semibold text-neutrals-1000">
+                      <h4 className="text-neutrals-1000">
                         {selectedGroupTitle}
-                      </span>
+                      </h4>
                     </div>
                   )}
                   <div className="flex flex-col flex-1 min-h-0 min-w-0 gap-4">
