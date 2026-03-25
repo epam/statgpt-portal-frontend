@@ -1,7 +1,7 @@
-import { apiLogger } from './../../../../../core/logger';
+import { apiLogger } from '../../../../core/logger';
 import { NextRequest, NextResponse } from 'next/server';
-import { datasetApi } from '../../../api';
-import { withAuth } from '../../../../../utils/auth/withAuth';
+import { availabilityApi } from '../../api';
+import { withAuth } from '../../../../utils/auth/withAuth';
 
 export const POST = withAuth(
   async (
@@ -19,13 +19,13 @@ export const POST = withAuth(
 
       const body = await req.json();
       const { filters } = body;
-      const data = await datasetApi.getDatasetData(urn, filters);
+      const constraints = await availabilityApi.getConstraints(urn, filters);
 
-      return NextResponse.json(data);
+      return NextResponse.json(constraints);
     } catch (error) {
-      apiLogger.error('Dataset data API error:', error);
+      apiLogger.error('Constraints API error:', error);
       return NextResponse.json(
-        { error: 'Failed to fetch dataset data' },
+        { error: 'Failed to fetch constraints' },
         { status: 500 },
       );
     }
