@@ -8,7 +8,7 @@ import { DataMessage } from '../models/data/data-message';
 import { StructureItemBase } from '../models/data/structure';
 
 export function getDimensions(
-  structures: StructuralData,
+  structures?: StructuralData,
 ): DimensionList | undefined {
   return structures?.dataStructures?.[0]?.dataStructureComponents
     ?.dimensionList;
