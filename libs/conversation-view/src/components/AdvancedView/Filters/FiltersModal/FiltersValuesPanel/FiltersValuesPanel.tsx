@@ -3,6 +3,7 @@
 import {
   DataConstraints,
   getFilteredItemsWithParents,
+  StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
 import {
   CalendarResolution,
@@ -31,6 +32,7 @@ interface Props {
   isDisableValues?: boolean;
   timeRangeOptions?: TimeRangeOptions[];
   initialConstraints?: DataConstraints[];
+  structuresMap?: Map<string, StructuralData | undefined>;
   onTimePeriodChange: (
     timeRange: TimeRange | null,
     selectedOption: string | number,
@@ -52,6 +54,7 @@ const FiltersValuesPanel: FC<Props> = ({
   selectFilterValue,
   titles,
   initialConstraints,
+  structuresMap,
   selectHierarchicalNodes,
   expandHierarchicalValue,
   selectedTimeOption,
@@ -129,12 +132,14 @@ const FiltersValuesPanel: FC<Props> = ({
           />
           <div className="flex flex-col mt-3 body-2 overflow-auto flex-1 min-h-0">
             <FilterValues
+              selectedFilter={selectedFilter}
               filterValues={
                 searchQuery ? searchResults : selectedFilter?.dimensionValues
               }
               checkboxIcon={filterValuesProps?.checkboxIcon}
               isHierarchicalView={isHierarchicalView}
               isDisableValues={isDisableValues}
+              structuresMap={structuresMap}
               selectFilterValue={selectFilterValue}
               selectHierarchicalNodes={selectHierarchicalNodes}
               expandHierarchicalValue={expandHierarchicalValue}

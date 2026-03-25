@@ -32,41 +32,53 @@ const ModalFooter: FC<Props> = ({
   limitMessages,
 }) => {
   const isMobile = useIsMobile();
+  const isRightAligned = modalProps?.footerActionsPosition === 'right';
+  const hasCancelButton = modalProps?.isShowCancelButton;
+  const shouldShowClearAllButton = modalProps?.isShowClearAllButton ?? true;
+
+  const wrapperClasses = hasCancelButton
+    ? isRightAligned
+      ? 'justify-end'
+      : 'justify-start'
+    : isRightAligned
+      ? 'flex-row items-center justify-between sm:flex-col-reverse sm:gap-y-4'
+      : 'gap-x-8 flex-row-reverse items-center justify-between sm:flex-col sm:gap-y-4';
+
+  const buttonsContainerClasses = hasCancelButton
+    ? isRightAligned
+      ? 'items-center gap-x-8'
+      : 'justify-between'
+    : isRightAligned
+      ? 'flex-row justify-end items-center sm:flex-col-reverse sm:gap-y-4'
+      : 'gap-x-8 flex-row-reverse justify-end items-center sm:flex-col-reverse sm:gap-y-4';
+
   return (
     <div
       className={classNames(
-        'flex py-4 px-6',
-        'modal-footer-wrapper',
-        modalProps?.isShowCancelButton
-          ? 'justify-between'
-          : 'gap-x-8 flex-row-reverse items-center justify-between sm:flex-col sm:gap-y-4 items-center',
+        'flex py-4 px-6 modal-footer-wrapper',
+        wrapperClasses,
       )}
     >
-      {!modalProps?.isShowCancelButton && (
+      {!hasCancelButton && (
         <FiltersCounter
           timeseriesLength={timeseriesLength}
           limitMessages={limitMessages}
         />
       )}
-      <div
-        className={classNames(
-          'flex',
-          modalProps?.isShowCancelButton
-            ? 'justify-between'
-            : 'gap-x-8 flex-row-reverse justify-end sm:flex-col-reverse sm:gap-y-4 items-center',
+      <div className={classNames('flex', buttonsContainerClasses)}>
+        {shouldShowClearAllButton && (
+          <Button
+            iconBefore={isMobile ? modalProps?.resetIcon : undefined}
+            buttonClassName="text-button-tertiary p-0"
+            title={
+              modalProps?.isShowClearIcon
+                ? (titles?.clearAllFilters ?? 'Clear All Filters')
+                : (titles?.clearAll ?? 'Clear All')
+            }
+            onClick={() => onClearAllFilters()}
+            isSmallButton={isMobile}
+          />
         )}
-      >
-        <Button
-          iconBefore={isMobile ? modalProps?.resetIcon : undefined}
-          buttonClassName="text-button-tertiary p-0"
-          title={
-            modalProps?.isShowClearIcon
-              ? (titles?.clearAllFilters ?? 'Clear All Filters')
-              : (titles?.clearAll ?? 'Clear All')
-          }
-          onClick={() => onClearAllFilters()}
-          isSmallButton={isMobile}
-        />
         <div className="flex items-center gap-x-3">
           {modalProps?.isShowCancelButton ? (
             <Button
