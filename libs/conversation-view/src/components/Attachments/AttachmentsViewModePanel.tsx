@@ -75,7 +75,7 @@ const AttachmentsViewModePanel: FC<Props> = ({
         onSelectedAttachmentChange={onSelectedAttachmentChange}
         titles={titles}
       />
-      <div className="flex gap-x-3 items-center flex-wrap w-fit justify-end">
+      <div className="flex gap-x-3 items-center flex-wrap w-fit justify-end attachments-buttons">
         {selectedAttachment &&
           isCustomGridAttachment(selectedAttachment) &&
           isExternaLinkIncludeFilters && (
