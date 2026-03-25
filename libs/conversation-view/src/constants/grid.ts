@@ -83,3 +83,23 @@ export function getChartColumn(
     },
   };
 }
+
+export function getCrossDatasetMetadataColumn(
+  structuresMap: Map<string, StructuralData | undefined>,
+  locale: string,
+  titles?: ConversationViewTitles,
+): ColDef {
+  return {
+    headerName: '',
+    suppressHeaderMenuButton: true,
+    suppressNavigable: true,
+    sortable: false,
+    editable: false,
+    pinned: true,
+    width: 32,
+    maxWidth: 32,
+    cellClass: CELL_PADDING_0,
+    cellRenderer: METADATA_CELL_RENDER,
+    cellRendererParams: { structuresMap, locale, titles },
+  };
+}

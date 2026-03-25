@@ -9,28 +9,10 @@ import {
 import { FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import { ColDef } from 'ag-grid-community';
 import { ConversationViewTitles } from '../../../models/titles';
-import { getChartColumn } from '../../../constants/grid';
-import { CELL_PADDING_0, METADATA_CELL_RENDER } from '../../../constants/grid';
-
-function getCrossDatasetMetadataColumn(
-  structuresMap: Map<string, StructuralData | undefined>,
-  locale: string,
-  titles?: ConversationViewTitles,
-): ColDef {
-  return {
-    headerName: '',
-    suppressHeaderMenuButton: true,
-    suppressNavigable: true,
-    sortable: false,
-    editable: false,
-    pinned: true,
-    width: 32,
-    maxWidth: 32,
-    cellClass: CELL_PADDING_0,
-    cellRenderer: METADATA_CELL_RENDER,
-    cellRendererParams: { structuresMap, locale, titles },
-  };
-}
+import {
+  getChartColumn,
+  getCrossDatasetMetadataColumn,
+} from '../../../constants/grid';
 
 export function buildCrossDatasetGridColumns(
   structuresMap: Map<string, StructuralData | undefined>,
