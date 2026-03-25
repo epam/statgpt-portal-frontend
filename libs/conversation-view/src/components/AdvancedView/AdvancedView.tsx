@@ -75,6 +75,8 @@ export const AdvancedView: FC<Props> = ({
   const { isCrossDatasetModeOn, isMetadataInSidePanel } =
     useConversationViewFeatureToggles();
   const shouldShowDatasetInfo = !isMetadataInSidePanel;
+  const datasets = attachmentsProps.datasets ?? [];
+  const showDatasetTabs = datasets.length > 1 && !isCrossDatasetModeOn;
 
   const lastMessageAttachments =
     props.filtersProps.conversation?.messages?.at(-1)?.custom_content
@@ -187,13 +189,13 @@ export const AdvancedView: FC<Props> = ({
             shareConversationProps={shareConversationProps}
             isShowShare={advanceViewStyles?.isShowShare}
           />
-          {!attachmentsProps?.datasets?.length ? (
+          {!datasets.length ? (
             <Loader />
           ) : (
             <>
-              {attachmentsProps?.datasets?.length > 1 && (
+              {showDatasetTabs && (
                 <DatasetTabs
-                  datasets={attachmentsProps?.datasets}
+                  datasets={datasets}
                   initialSelectedDatasetUrn={
                     attachmentsProps?.currentDataQuery?.urn
                   }
