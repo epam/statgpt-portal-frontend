@@ -418,6 +418,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               setSelectedFilter={setSelectedFilter}
               onSelectDisplayMode={onSelectDisplayMode}
               onDeleteFilter={onDeleteFilter}
+              onClearAllFilters={onClearAllFilters}
               updateSelectedFilterValues={updateSelectedFilterValues}
               onTimePeriodChange={onTimePeriodChange}
               selectedTimeOption={selectedTimeOption}

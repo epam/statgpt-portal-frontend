@@ -2,7 +2,7 @@
 
 import { DataConstraints, StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
-import { useIsMobile } from '@epam/statgpt-ui-components';
+import { Button, useIsMobile } from '@epam/statgpt-ui-components';
 import { FC, ReactNode, useCallback } from 'react';
 import {
   Filter,
@@ -13,7 +13,11 @@ import FiltersFacetsList from './FiltersFacets/FiltersFacetsList';
 import FiltersValuesPanel from './FiltersValuesPanel/FiltersValuesPanel';
 import classNames from 'classnames';
 import { ConversationViewTitles } from '../../../../models/titles';
-import { isSameFilter } from '../../../../utils/filters';
+import {
+  getSelectedFilterValues,
+  getTotalSelectedValuesLength,
+  isSameFilter,
+} from '../../../../utils/filters';
 import { useConversationViewFeatureToggles } from '../../../../context/ConversationViewFeatureTogglesContext';
 import { getInitialConstraints } from '../../../../utils/multiple-filters';
 
@@ -33,6 +37,7 @@ interface Props {
   setSelectedFilter: (filter?: Filter) => void;
   onSelectDisplayMode: (filter?: Filter, displayMode?: string) => void;
   onDeleteFilter?: (filter?: Filter) => void;
+  onClearAllFilters?: () => void;
   updateSelectedFilterValues?: (filter: Filter) => void;
   onTimePeriodChange?: (value: string | number) => void;
   selectedTimeOption?: string | number;
@@ -54,12 +59,16 @@ const FilterSettings: FC<Props> = ({
   setSelectedFilter,
   onSelectDisplayMode,
   onDeleteFilter,
+  onClearAllFilters,
   updateSelectedFilterValues,
   onTimePeriodChange,
   selectedTimeOption,
 }) => {
   const isMobile = useIsMobile();
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
+  const allAppliedFilters = getTotalSelectedValuesLength(
+    getSelectedFilterValues(filtersList),
+  );
 
   const onSelectFilter = useCallback(
     (currentFilter?: Filter) => {
@@ -175,6 +184,19 @@ const FilterSettings: FC<Props> = ({
           modalProps?.isShowTimeSeriesCount && 'flex flex-col justify-between',
         )}
       >
+        {isCrossDatasetModeOn && (
+          <div className="mb-4 flex items-center justify-between gap-x-4">
+            <span className="body-3 text-neutrals-900">
+              {titles?.appliedFilters ?? 'Applied filters'}: {allAppliedFilters}
+            </span>
+            <Button
+              buttonClassName="text-button-tertiary p-0"
+              title={titles?.clearAll ?? 'Clear All'}
+              onClick={onClearAllFilters}
+              isSmallButton={isMobile}
+            />
+          </div>
+        )}
         <FiltersFacetsList
           filtersList={filtersList}
           hideFacetCounterByDefault={modalProps?.isHideFacetCounterByDefault}
@@ -213,6 +235,7 @@ const FilterSettings: FC<Props> = ({
           expandHierarchicalValue={onExpandHierarchicalValue}
           onTimePeriodChange={onSelectTimePeriodValue}
           filterValuesProps={modalProps?.filterValuesProps}
+          structuresMap={structuresMap}
           initialConstraints={getInitialConstraints(
             isCrossDatasetModeOn,
             selectedFilter,
