@@ -5,6 +5,7 @@ import {
   ConversationView,
   DatasetInfoOptions,
   useAdvancedView,
+  useConversationViewFeatureToggles,
 } from '@epam/statgpt-conversation-view';
 import { openDownloadWindow } from '@epam/statgpt-sdmx-toolkit';
 import {
@@ -104,6 +105,7 @@ const ConversationViewWrapper: FC<Props> = ({
 }) => {
   const router = useRouter();
   const { isOpenedAdvancedView } = useAdvancedView();
+  const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const { setConversations } = useConversationList();
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [currentDataQuery, setCurrentDataQuery] = useState<
@@ -431,6 +433,7 @@ const ConversationViewWrapper: FC<Props> = ({
               isShowCancelButton: true,
               isShowTimeSeriesCount: true,
               isShowClearIcon: true,
+              footerActionsPosition: isCrossDatasetModeOn ? 'right' : 'left',
               filterValuesProps: {
                 searchIconSize: 16,
                 checkboxIcon: (
