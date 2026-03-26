@@ -78,9 +78,12 @@ const FiltersValuesPanel: FC<Props> = ({
   const isHierarchicalView =
     selectedFilter?.displayMode === FilterDisplayMode.HIERARCHY;
   const selectedFilterIdentity = getFilterIdentity(selectedFilter);
+  const isSharedSelectedFilter = selectedFilter?.filterType === 'shared';
 
   const normalizedSearchQuery = searchQuery?.trim().toLowerCase();
   const hasSearchQuery = !!normalizedSearchQuery;
+  const shouldUseGlobalSearch =
+    hasSearchQuery && isCrossDatasetModeOn && !isSharedSelectedFilter;
 
   const getFilteredValues = useCallback(
     (filter?: Filter) => {
@@ -112,7 +115,7 @@ const FiltersValuesPanel: FC<Props> = ({
   );
 
   const otherCrossDatasetSections = useMemo(() => {
-    if (!hasSearchQuery || !isCrossDatasetModeOn) {
+    if (!shouldUseGlobalSearch) {
       return [];
     }
 
@@ -124,7 +127,10 @@ const FiltersValuesPanel: FC<Props> = ({
         isHierarchicalView: boolean;
       }[]
     >((sections, filter) => {
-      if (isSameFilter(filter, selectedFilter)) {
+      if (
+        isSameFilter(filter, selectedFilter) ||
+        filter.filterType === 'shared'
+      ) {
         return sections;
       }
 
@@ -145,13 +151,7 @@ const FiltersValuesPanel: FC<Props> = ({
         },
       ];
     }, []);
-  }, [
-    hasSearchQuery,
-    isCrossDatasetModeOn,
-    filtersList,
-    selectedFilter,
-    getFilteredValues,
-  ]);
+  }, [shouldUseGlobalSearch, filtersList, selectedFilter, getFilteredValues]);
 
   const otherResultsCount = useMemo(
     () =>
@@ -213,16 +213,17 @@ const FiltersValuesPanel: FC<Props> = ({
             }
           />
           <div className="flex flex-col mt-3 body-2 overflow-auto flex-1 min-h-0">
-            {hasSearchQuery && isCrossDatasetModeOn ? (
+            {shouldUseGlobalSearch ? (
               <>
                 {selectedFilter && (
-                  <div className="flex min-h-0 flex-col pb-4">
+                  <div className="shrink-0 pb-4">
                     <FilterValues
                       selectedFilter={selectedFilter}
                       filterValues={currentFilterResults}
                       checkboxIcon={filterValuesProps?.checkboxIcon}
                       isHierarchicalView={isHierarchicalView}
                       isVirtualized={false}
+                      isScrollable={false}
                       isDisableValues={isDisableValues}
                       structuresMap={structuresMap}
                       selectFilterValue={selectFilterValue}
@@ -246,7 +247,7 @@ const FiltersValuesPanel: FC<Props> = ({
                     isHierarchicalView: isSectionTree,
                   }) => (
                     <div
-                      className="flex min-h-0 flex-col pb-4 last:pb-0"
+                      className="shrink-0 pb-4 last:pb-0"
                       key={getFilterIdentity(filter)}
                     >
                       <FilterValues
@@ -255,6 +256,7 @@ const FiltersValuesPanel: FC<Props> = ({
                         checkboxIcon={filterValuesProps?.checkboxIcon}
                         isHierarchicalView={isSectionTree}
                         isVirtualized={false}
+                        isScrollable={false}
                         isDisableValues={isDisableValues}
                         structuresMap={structuresMap}
                         selectFilterValue={(id, isSelectedValue) =>

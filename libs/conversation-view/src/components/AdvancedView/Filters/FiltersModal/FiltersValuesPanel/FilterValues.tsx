@@ -26,6 +26,7 @@ interface Props {
   checkboxIcon?: ReactNode;
   isHierarchicalView?: boolean;
   isVirtualized?: boolean;
+  isScrollable?: boolean;
   isDisableValues?: boolean;
   structuresMap?: Map<string, StructuralData | undefined>;
   selectFilterValue: (id: string, isSelectedValue?: boolean) => void;
@@ -47,6 +48,7 @@ const FilterValues: FC<Props> = ({
   checkboxIcon,
   isHierarchicalView,
   isVirtualized = true,
+  isScrollable = true,
   isDisableValues,
   structuresMap,
   selectFilterValue,
@@ -71,7 +73,7 @@ const FilterValues: FC<Props> = ({
     <div
       className={classNames(
         isDisableValues && 'pointer-events-none opacity-[0.7]',
-        'flex h-full min-h-0 flex-col',
+        isScrollable ? 'flex h-full min-h-0 flex-col' : 'flex flex-col',
       )}
     >
       {shouldShowHeader && (
@@ -83,8 +85,14 @@ const FilterValues: FC<Props> = ({
         </div>
       )}
       <div
-        className="min-h-0 flex-1 overflow-auto"
-        style={{ height: isMobile ? `${containerHeight}px` : undefined }}
+        className={classNames(
+          isScrollable ? 'min-h-0 flex-1 overflow-auto' : 'overflow-visible',
+        )}
+        style={
+          isScrollable && isMobile
+            ? { height: `${containerHeight}px` }
+            : undefined
+        }
       >
         {isHierarchicalView ? (
           <FilterTreeView
