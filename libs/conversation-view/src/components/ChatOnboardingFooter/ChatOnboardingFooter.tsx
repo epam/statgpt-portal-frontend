@@ -12,11 +12,11 @@ export const ChatOnboardingFooter: FC<Props> = ({
   openNewConversation,
 }) => {
   return (
-    <div className="text-center bg-accent-300 body-3 p-2">
+    <div className="body-3 bg-accent-300 p-2 text-center">
       <span className="mr-2 text-neutrals-900">{titles?.onboardingFooter}</span>
       <span
         onClick={openNewConversation}
-        className="cursor-pointer inline-flex align-top"
+        className="inline-flex cursor-pointer align-top"
       >
         <IconPlus width={15} height={15} />
         <p className="ml-1">{titles?.onboardingFooterLink}</p>

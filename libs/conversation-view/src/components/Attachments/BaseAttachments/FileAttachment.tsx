@@ -31,13 +31,13 @@ const FileAttachment: FC<Props> = ({
 
   return (
     <div
-      className={`border rounded-lg p-3 bg-white transition-colors ${className}`}
+      className={`rounded-lg border bg-white p-3 transition-colors ${className}`}
     >
       <div className="flex items-center gap-3">
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span
-              className="body-2 text-neutrals-800 truncate"
+              className="body-2 truncate text-neutrals-800"
               title={attachment.title}
             >
               {attachment.title}
@@ -46,7 +46,7 @@ const FileAttachment: FC<Props> = ({
         </div>
 
         {fileUrl && (
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <Button
               title={downloadTitles ?? 'Download'}
               onClick={() => downloadAttachment(attachment.url)}
@@ -57,7 +57,7 @@ const FileAttachment: FC<Props> = ({
       </div>
       {fileContent && (
         <div className="mt-3">
-          <pre className="bg-white p-3 rounded-md overflow-x-auto">
+          <pre className="overflow-x-auto rounded-md bg-white p-3">
             <code>{JSON.stringify(fileContent, null, 2)}</code>
           </pre>
         </div>

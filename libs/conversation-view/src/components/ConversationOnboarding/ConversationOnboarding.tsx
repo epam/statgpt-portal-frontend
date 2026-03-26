@@ -24,7 +24,7 @@ export const ConversationOnboarding: FC<Props> = ({
   handleOnboardingSkip,
 }) => {
   return (
-    <div className="onboarding w-full h-full flex flex-col flex-1 overflow-auto">
+    <div className="onboarding flex size-full flex-1 flex-col overflow-auto">
       <ConversationViewHeader
         conversation={
           {
@@ -41,7 +41,7 @@ export const ConversationOnboarding: FC<Props> = ({
             onClick={onClick}
           />
         </div>
-        <div className="flex mt-8">
+        <div className="mt-8 flex">
           <Button
             title={titles?.skipOnboardingNow}
             buttonClassName="text-button-secondary mr-4"

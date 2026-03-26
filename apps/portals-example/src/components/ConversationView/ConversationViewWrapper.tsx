@@ -6,14 +6,20 @@ import {
   DatasetInfoOptions,
   useAdvancedView,
   useConversationViewFeatureToggles,
+  AttachmentsActions,
+  AttachmentsStyles,
+  ChartingIcon,
+  ConversationViewTitles,
+  MessageActionIcons,
 } from '@epam/statgpt-conversation-view';
-import { openDownloadWindow } from '@epam/statgpt-sdmx-toolkit';
+import { openDownloadWindow, Dataflow } from '@epam/statgpt-sdmx-toolkit';
 import {
   CUSTOM_PERIOD,
   DataQuery,
   HTTP_ERROR_CODES,
   HttpError,
   TimeRangeOptions,
+  ApiResponse,
 } from '@epam/statgpt-shared-toolkit';
 import { useConversationList } from '../../context/ConversationListContext';
 import MessageIcon from '../../../public/images/chat/message-icon.svg';
@@ -36,8 +42,11 @@ import {
   TimeI18nKeys,
   WelcomeI18nKeys,
 } from '../../constants/i18n-keys';
-import { getFileApi } from '../../app/api/files/client';
-import { getFileBlobApi, putFileApi } from '../../app/api/files/client';
+import {
+  getFileApi,
+  getFileBlobApi,
+  putFileApi,
+} from '../../app/api/files/client';
 import { getConstraintsApi } from '../../app/api/constraints/client';
 import {
   getConversationApi,
@@ -79,15 +88,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { JWT } from 'next-auth/jwt';
 import { Conversation } from '@epam/ai-dial-shared';
 import { signOut } from 'next-auth/react';
-import {
-  AttachmentsActions,
-  AttachmentsStyles,
-  ChartingIcon,
-  ConversationViewTitles,
-  MessageActionIcons,
-} from '@epam/statgpt-conversation-view';
-import { Dataflow } from '@epam/statgpt-sdmx-toolkit';
-import { ApiResponse } from '@epam/statgpt-shared-toolkit';
 import { SIGN_IN_LINK } from '../../constants/auth';
 import { wrapWithAuthHandler } from '../../utils/auth/requests-wrapper';
 import { LimitMessages } from '@epam/statgpt-ui-components';
@@ -260,10 +260,10 @@ const ConversationViewWrapper: FC<Props> = ({
 
   const attachmentsStyles: AttachmentsStyles = {
     showTabIcon: true,
-    downloadIcon: <DownloadIcon className="w-5 h-5" />,
-    downloadChevronIcon: <ChevronSolidDownIcon className="w-6 h-6" />,
+    downloadIcon: <DownloadIcon className="size-5" />,
+    downloadChevronIcon: <ChevronSolidDownIcon className="size-6" />,
     successDownloadIcon: (
-      <SuccessIcon className="w-6 h-6 text-semantic-success" />
+      <SuccessIcon className="size-6 text-semantic-success" />
     ),
     closeTitle: t(AppI18nKeys.CLOSE),
     downloadTitle: t(DownloadI18nKeys.DOWNLOAD),
@@ -271,8 +271,8 @@ const ConversationViewWrapper: FC<Props> = ({
     columnsResetTitle: t(AttachmentsI18nKeys.COLUMNS_RESET),
     openLinkTitle: t(AttachmentsI18nKeys.OPEN_URL),
     dataGridTitle: t(AttachmentsI18nKeys.DATA_GRID),
-    errorDownloadIcon: <ErrorIcon className="w-6 h-6 text-semantic-error" />,
-    datasetIcon: <Dataset className="w-5 h-5" />,
+    errorDownloadIcon: <ErrorIcon className="size-6 text-semantic-error" />,
+    datasetIcon: <Dataset className="size-5" />,
     chartingIcons,
     copyTitle: t(ChatI18nKeys.COPY),
     copiedTitle: t(ChatI18nKeys.SHARE_COPIED_LINK),
@@ -310,7 +310,7 @@ const ConversationViewWrapper: FC<Props> = ({
   };
 
   const limitMessages: LimitMessages = {
-    warningIcon: <WarningIcon className="text-semantic-warning size-4" />,
+    warningIcon: <WarningIcon className="size-4 text-semantic-warning" />,
     largeQuery: t(AdvancedViewI18nKeys.LARGE_QUERY),
     showingLimit: (limit: number) =>
       t(AdvancedViewI18nKeys.SHOWING_LIMIT, { limit }),
@@ -368,7 +368,7 @@ const ConversationViewWrapper: FC<Props> = ({
             handleInvalidStreaming={handleInvalidStreaming}
             signOutAction={signOutAction}
             messageStyles={{
-              advanceViewIcon: <AdvancedModeIcon className="w-4 h-4" />,
+              advanceViewIcon: <AdvancedModeIcon className="size-4" />,
               processingTitle: t(MessageI18nKeys.PROCESSING_REVIEW),
               openAdvanceViewTitle: t(
                 AdvancedViewI18nKeys.OPENED_IN_ADVANCED_VIEW,
@@ -405,7 +405,7 @@ const ConversationViewWrapper: FC<Props> = ({
             metadataSettings={{
               isMetadataDescription: true,
             }}
-            expandStagesIcon={<IconChevronRight className="w-5 h-5" />}
+            expandStagesIcon={<IconChevronRight className="size-5" />}
             conversationsRoute={ApplicationRoute.Conversations}
             token={token?.access_token as string}
             dataQuery={currentDataQuery}
@@ -450,8 +450,8 @@ const ConversationViewWrapper: FC<Props> = ({
                     className="absolute"
                   />
                 ),
-                calendarIcon: <IconCalendarWeek className="w-4 h-4" />,
-                radioIcon: <IconCircleFilled className="w-3 h-3" />,
+                calendarIcon: <IconCalendarWeek className="size-4" />,
+                radioIcon: <IconCircleFilled className="size-3" />,
                 dateFormat: 'm-d-Y',
               },
               resetIcon: <Reset />,

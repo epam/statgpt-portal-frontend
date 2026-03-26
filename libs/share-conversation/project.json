@@ -10,7 +10,7 @@
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": [
-          "libs/share-conversation/**/*.{ts,tsx,js,jsx}",
+          "libs/share-conversation/src",
           "libs/share-conversation/package.json"
         ]
       }

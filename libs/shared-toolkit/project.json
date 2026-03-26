@@ -26,7 +26,7 @@
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": [
-          "libs/shared-toolkit/**/*.{ts,tsx,js,jsx}",
+          "libs/shared-toolkit/src",
           "libs/shared-toolkit/package.json"
         ]
       }

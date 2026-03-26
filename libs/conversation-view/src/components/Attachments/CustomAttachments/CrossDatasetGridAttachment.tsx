@@ -108,7 +108,7 @@ const CrossDatasetGridAttachment: FC<Props> = ({
   }
 
   return (
-    <div className="w-full h-full">
+    <div className="size-full">
       <GridContainer fixHeight={fixHeight} gridHeight={gridHeight}>
         {memoizedGrid}
       </GridContainer>

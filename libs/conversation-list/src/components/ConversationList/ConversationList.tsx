@@ -219,7 +219,7 @@ export const ConversationList: FC<Props> = ({
           )}
         >
           {!isExpandedSearch && (
-            <h3 className="text-neutrals-700 sm:body-2">
+            <h3 className="sm:body-2 text-neutrals-700">
               {conversationStyles?.titles?.allChats ?? 'All Chats'}
             </h3>
           )}

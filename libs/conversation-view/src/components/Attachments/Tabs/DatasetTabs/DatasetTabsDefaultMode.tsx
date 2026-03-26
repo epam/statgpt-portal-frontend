@@ -94,7 +94,7 @@ const DatasetTabsDefaultMode: FC<DatasetTabsProps> = ({
           'hide-advance-button',
       )}
     >
-      <div className="flex items-center w-full overflow-y-auto gap-4 sm:w-[calc(100%-30px)]">
+      <div className="flex w-full items-center gap-4 overflow-y-auto sm:w-[calc(100%-30px)]">
         {datasets?.map((dataset) => (
           <DatasetTab
             key={dataset?.id}

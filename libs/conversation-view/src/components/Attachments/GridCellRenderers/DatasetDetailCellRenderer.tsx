@@ -71,7 +71,7 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
   ]);
 
   return (
-    <div className="w-full h-full p-2 relative">
+    <div className="relative size-full p-2">
       {params.valueFormatted ?? params.value}
       {showIndicator && (
         <div

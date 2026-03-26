@@ -48,7 +48,7 @@ const ConversationsGroup: FC<Props> = ({
   return (
     <div key={groupLabel}>
       <div
-        className="inline-flex gap-1 items-center text-neutrals-700 mb-3 cursor-pointer conversation-group-items-title"
+        className="conversation-group-items-title mb-3 inline-flex cursor-pointer items-center gap-1 text-neutrals-700"
         onClick={toggleGroupCollapse}
       >
         <IconCaretRightFilled

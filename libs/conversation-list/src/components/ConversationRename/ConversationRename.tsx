@@ -48,7 +48,7 @@ const ConversationRename: FC<Props> = ({
       onClose={onCloseModal}
       closeButtonTitle={titles?.close ?? 'Cancel'}
     >
-      <div className="py-4 px-6 sm:px-0" lang={locale}>
+      <div className="px-6 py-4 sm:px-0" lang={locale}>
         <Input
           inputId="rename"
           value={value}
@@ -56,7 +56,7 @@ const ConversationRename: FC<Props> = ({
           cssClass="w-full"
         />
       </div>
-      <div className="flex justify-end gap-x-2 py-3 px-6 delete-conversation-popup-footer">
+      <div className="delete-conversation-popup-footer flex justify-end gap-x-2 px-6 py-3">
         <Button
           buttonClassName="cancel-button"
           title={titles?.cancel ?? 'Cancel'}

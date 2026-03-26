@@ -128,12 +128,12 @@ const DownloadSettings: FC<Props> = ({
     >
       <div className="download-info flex flex-col gap-1 px-6">
         <div className="download-info-text flex gap-1">
-          <p className="text-neutrals-800 body-3">
+          <p className="body-3 text-neutrals-800">
             {titles?.dataset || 'Dataset'}:
           </p>
-          <span className="h4 flex flex-row gap-x-1 flex-1 min-w-0">
+          <span className="h4 flex min-w-0 flex-1 flex-row gap-x-1">
             {isDisplayDatasetIcon && datasetIcon}
-            <p className="flex-1 min-w-0 truncate">{datasetName}</p>
+            <p className="min-w-0 flex-1 truncate">{datasetName}</p>
           </span>
         </div>
         {showLimitMessage && (
@@ -174,7 +174,7 @@ const DownloadSettings: FC<Props> = ({
           }
         >
           <div
-            className={`flex gap-4 cursor-pointer download-metadata ${isMetadata ? 'download-metadata-active' : ''}`}
+            className={`download-metadata flex cursor-pointer gap-4 ${isMetadata ? 'download-metadata-active' : ''}`}
           >
             {isMetadata ? (
               <ToggleActiveIcon
@@ -199,7 +199,7 @@ const DownloadSettings: FC<Props> = ({
           </div>
         </CollapsibleBlock>
       </div>
-      <div className="download-button flex p-6 mt-auto">
+      <div className="download-button mt-auto flex p-6">
         <Button
           buttonClassName="text-button-primary"
           title={titles?.download || 'Download'}

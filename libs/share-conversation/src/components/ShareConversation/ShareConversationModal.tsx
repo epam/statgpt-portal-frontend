@@ -180,32 +180,32 @@ const ShareConversationModal: FC<Props> = ({
       closeButtonTitle={close ?? 'Close'}
     >
       {!isLinkLoaded ? (
-        <div className="flex justify-center items-center py-6 px-6">
+        <div className="flex items-center justify-center p-6">
           <Loader />
         </div>
       ) : (
-        <div className="share flex flex-col gap-y-4 px-6 pb-6 overflow-auto sm:p-0">
+        <div className="share flex flex-col gap-y-4 overflow-auto px-6 pb-6 sm:p-0">
           {conversation?.name ? (
-            <div className="flex share-info w-full">
-              <p className="share-info-title text-neutrals-800 mr-1 body-1">
+            <div className="share-info flex w-full">
+              <p className="share-info-title body-1 mr-1 text-neutrals-800">
                 {chatName ?? 'Chat name:'}
               </p>
               <h3
-                className="flex-1 min-w-0 truncate"
+                className="min-w-0 flex-1 truncate"
                 title={conversation?.name}
               >
                 {conversation?.name}
               </h3>
             </div>
           ) : null}
-          <div className="flex share-info">
-            <p className="share-info-title text-neutrals-800 mr-1 body-1">
+          <div className="share-info flex">
+            <p className="share-info-title body-1 mr-1 text-neutrals-800">
               {chatExpiration ?? 'Link expiration date:'}
             </p>
             <h3>3 {chatExpirationDays ?? 'days'}</h3>
           </div>
           <QRCodeSVG
-            className="self-center border border-neutrals-600 p-2 rounded min-h-[200px]"
+            className="min-h-[200px] self-center rounded border border-neutrals-600 p-2"
             value={conversationLink}
             size={200}
           />
@@ -236,7 +236,7 @@ const ShareConversationModal: FC<Props> = ({
             />
           </div>
         ) : (
-          <p className="body-2 text-neutrals-800 share-footer">
+          <p className="body-2 share-footer text-neutrals-800">
             {chatWarning ?? 'This chat has not been shared with anyone yet.'}
           </p>
         )

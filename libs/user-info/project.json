@@ -10,7 +10,7 @@
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": [
-          "libs/user-info/**/*.{ts,tsx,js,jsx}",
+          "libs/user-info/src",
           "libs/user-info/package.json"
         ]
       }

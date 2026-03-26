@@ -376,11 +376,11 @@ const Message: FC<Props> = ({
               (isSystem || isEditing) && 'w-full',
             )}
           >
-            <div className="mr-2 relative">
+            <div className="relative mr-2">
               {getMessageIcon()}
               {isCurrentMessageStreaming && <Loader />}
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               <div
                 className={classNames(
                   isUser ? 'bg-neutrals-300 px-6' : 'pt-0',
@@ -398,7 +398,7 @@ const Message: FC<Props> = ({
                   />
                 ) : (
                   isCurrentMessageStreaming && (
-                    <p className="body-1 text-neutrals-700 loading-message">
+                    <p className="body-1 loading-message text-neutrals-700">
                       {titles?.loading}
                     </p>
                   )

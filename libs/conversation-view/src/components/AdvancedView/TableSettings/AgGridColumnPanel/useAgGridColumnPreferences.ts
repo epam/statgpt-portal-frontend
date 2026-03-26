@@ -45,6 +45,7 @@ export function useAgGridColumnPreferences({
         api.setColumnGroupState(userState.columnGroupState);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentUrn],
   );
 

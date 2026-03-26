@@ -91,7 +91,7 @@ const ConversationItem: FC<Props> = ({
           : conversationName
       }
     >
-      <div className="flex flex-1 min-w-0 items-center">
+      <div className="flex min-w-0 flex-1 items-center">
         {conversationStyles.conversationItemIcon
           ? conversationStyles.conversationItemIcon
           : null}

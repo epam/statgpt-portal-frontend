@@ -19,8 +19,8 @@ const AttachmentDetailsItem: FC<Props> = ({
   return (
     <div>
       {datasetName && isShowDatasetDetails && (
-        <p className="caption mt-4 inline-flex items-center attachment-dataset-name">
-          <span className="mr-1 attachment-dataset-icon">{datasetIcon}</span>
+        <p className="caption attachment-dataset-name mt-4 inline-flex items-center">
+          <span className="attachment-dataset-icon mr-1">{datasetIcon}</span>
           {datasetName}
         </p>
       )}

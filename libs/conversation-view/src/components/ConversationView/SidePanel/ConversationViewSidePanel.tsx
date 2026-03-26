@@ -35,9 +35,9 @@ export function ConversationViewSidePanel({
         )}
       >
         <div className="h2 text-neutrals-1000">{title}</div>
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {headerExtension}
-          {headerExtension && <div className="h-3 w-[1px] bg-neutrals-600" />}
+          {headerExtension && <div className="h-3 w-px bg-neutrals-600" />}
           <button type="button" onClick={onClose}>
             <IconX className="size-5 text-neutrals-1000" />
           </button>

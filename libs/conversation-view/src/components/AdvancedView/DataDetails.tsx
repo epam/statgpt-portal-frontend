@@ -71,9 +71,9 @@ const DataDetails: FC<Props> = ({
   }, [isDataLoading, setIsFiltering]);
 
   return (
-    <div className="bg-white rounded h-full min-h-0">
-      <div className="flex flex-col gap-4 h-full overflow-x-hidden">
-        <div className="data-details-header flex justify-between items-center">
+    <div className="h-full min-h-0 rounded bg-white">
+      <div className="flex h-full flex-col gap-4 overflow-x-hidden">
+        <div className="data-details-header flex items-center justify-between">
           <h2>{titles?.content ?? 'Content'}</h2>
           {isCrossDatasetModeOn ? (
             <MultiDatasetFilters
@@ -103,7 +103,7 @@ const DataDetails: FC<Props> = ({
             />
           )}
         </div>
-        <div className="advanced-view-attachments-container flex-1 min-h-0">
+        <div className="advanced-view-attachments-container min-h-0 flex-1">
           <AdvancedAttachmentRenderer
             titles={titles}
             attachments={attachments}

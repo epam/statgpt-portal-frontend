@@ -43,7 +43,7 @@ const ConversationsSearchField: FC<Props> = ({
       ) : (
         <Button
           buttonClassName="text-button-tertiary p-0 search-button"
-          iconBefore={searchIcon || <IconSearch className="w-5 h-5" />}
+          iconBefore={searchIcon || <IconSearch className="size-5" />}
           onClick={toggleSearchField}
         />
       )}

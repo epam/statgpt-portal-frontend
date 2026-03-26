@@ -20,7 +20,7 @@ const MetadataContent: FC<Props> = ({
   locale,
 }) => {
   return (
-    <div className="metadata-content overflow-hidden h-full">
+    <div className="metadata-content h-full overflow-hidden">
       {metadataDescription?.length > 0 && (
         <div className="metadata-description">
           {metadataDescription?.map((descriptionItem) => (
@@ -32,7 +32,7 @@ const MetadataContent: FC<Props> = ({
           ))}
         </div>
       )}
-      <div className="h-full overflow-y-auto metadata-list">
+      <div className="metadata-list h-full overflow-y-auto">
         {metadata && metadata?.length > 0 ? (
           metadata?.map((metadataItem) => (
             <MetadataItem
@@ -44,7 +44,7 @@ const MetadataContent: FC<Props> = ({
             />
           ))
         ) : (
-          <div className="metadata-empty text-neutrals-700 flex h-full justify-center items-center">
+          <div className="metadata-empty flex h-full items-center justify-center text-neutrals-700">
             {titles?.noMetadata || 'No metadata'}
           </div>
         )}

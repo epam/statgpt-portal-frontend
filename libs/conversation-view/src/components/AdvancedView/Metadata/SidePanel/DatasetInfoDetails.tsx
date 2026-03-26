@@ -21,29 +21,29 @@ const DatasetInfoDetails: FC<Props> = ({
 }) => {
   return (
     <div className="mb-6 flex flex-col gap-2">
-      <div className="flex gap-2 items-center">
+      <div className="flex items-center gap-2">
         <IconDatabase className="size-4 text-neutrals-700" />
-        <p className="h4 text-neutrals-1000 break-words">
+        <p className="h4 break-words text-neutrals-1000">
           {formatValue(dataset?.value)}
         </p>
         {externalLink && (
           <a href={externalLink} target="_blank" rel="noopener noreferrer">
-            <IconExternalLink className="text-primary cursor-pointer w-4 h-4 shrink-0" />
+            <IconExternalLink className="size-4 shrink-0 cursor-pointer text-primary" />
           </a>
         )}
       </div>
       {agency && (
-        <div className="flex gap-1 body-3">
+        <div className="body-3 flex gap-1">
           <span className="text-neutrals-800">{agency?.title}:</span>
-          <span className="text-neutrals-1000 break-words">
+          <span className="break-words text-neutrals-1000">
             {formatValue(agency?.value)}
           </span>
         </div>
       )}
       {lastUpdated && (
-        <div className="flex gap-1 body-3">
+        <div className="body-3 flex gap-1">
           <span className="text-neutrals-800">{lastUpdated?.title}:</span>
-          <span className="text-neutrals-1000 break-words">
+          <span className="break-words text-neutrals-1000">
             {formatValue(lastUpdated?.value)}
           </span>
         </div>

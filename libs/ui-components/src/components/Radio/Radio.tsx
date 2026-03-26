@@ -28,10 +28,10 @@ export const Radio: FC<Props> = ({
 
   return (
     <label
-      className="flex flex-col cursor-pointer min-w-0 py-[6px]"
+      className="flex min-w-0 cursor-pointer flex-col py-[6px]"
       htmlFor={id}
     >
-      <p className="radio-label flex items-center min-w-0">
+      <p className="radio-label flex min-w-0 items-center">
         <span
           className={classNames(
             'flex justify-center items-center w-4 h-4 mr-2 relative',
@@ -43,7 +43,7 @@ export const Radio: FC<Props> = ({
         </span>
         {label && (
           <span
-            className="radio-title body-1 text-neutrals-1000 flex-1 min-w-0 truncate pr-2"
+            className="radio-title body-1 min-w-0 flex-1 truncate pr-2 text-neutrals-1000"
             title={label}
           >
             {label}
@@ -52,7 +52,7 @@ export const Radio: FC<Props> = ({
       </p>
       {description && (
         <span
-          className="radio-description ml-6 text-neutrals-800 body-2 w-auto flex items-center"
+          className="radio-description body-2 ml-6 flex w-auto items-center text-neutrals-800"
           title={description}
         >
           {description}

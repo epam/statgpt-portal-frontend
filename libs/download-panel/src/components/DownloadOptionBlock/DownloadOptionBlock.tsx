@@ -32,7 +32,7 @@ const DownloadOptionBlock: FC<Props> = ({
               onChange={() => {
                 setSelectedValue(type);
               }}
-              radioIcon={<IconCircleFilled className="w-3 h-3" />}
+              radioIcon={<IconCircleFilled className="size-3" />}
             />
           </div>
         ))}

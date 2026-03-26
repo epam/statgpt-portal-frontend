@@ -57,7 +57,7 @@ export const Alert: FC<Props> = ({
             errorIcon
           )}
         </div>
-        <div className="flex flex-col gap-2 max-w-[300px]">
+        <div className="flex max-w-[300px] flex-col gap-2">
           <h3 className="truncate">{alertDetails?.title}</h3>
           {alertDetails?.text && (
             <div className="alert-text truncate" title={alertDetails?.text}>

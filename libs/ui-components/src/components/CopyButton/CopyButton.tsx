@@ -56,7 +56,7 @@ export const CopyButton = ({
   onClick,
 }: CopyButtonProps) => {
   const [copied, setCopied] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleClick = () => {
     onClick();
@@ -96,7 +96,7 @@ export const CopyButton = ({
       />
 
       {tooltip && copied && (
-        <div className="absolute left-1/2 top-full z-50 mt-1 -translate-x-1/2 whitespace-nowrap rounded border border-neutrals-400 bg-white px-3 py-4 text-neutrals-900 h4 shadow">
+        <div className="h4 border-neutrals-400 text-neutrals-900 absolute left-1/2 top-full z-50 mt-1 -translate-x-1/2 whitespace-nowrap rounded border bg-white px-3 py-4 shadow">
           {tooltip}
         </div>
       )}

@@ -18,7 +18,11 @@
     "publish:dry": "nx run-many -t publish --output-style=static --dry",
     "affected:build": "nx affected --target=build",
     "affected:test": "nx affected --target=test",
-    "affected:lint": "nx affected --target=lint"
+    "affected:lint": "nx affected --target=lint",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": "eslint"
   },
   "private": true,
   "dependencies": {
@@ -83,17 +87,18 @@
     "eslint": "9.32.0",
     "eslint-config-next": "16.0.1",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-cypress": "^5.1.0",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-prettier": "^5.5.3",
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-react-hooks": "5.2.0",
     "eslint-plugin-tailwindcss": "^3.18.2",
+    "husky": "^9.1.7",
     "jest": "30.0.5",
     "jest-environment-jsdom": "30.0.5",
     "jest-util": "30.0.5",
     "jsonc-eslint-parser": "^2.4.0",
+    "lint-staged": "^16.4.0",
     "nx": "22.5.3",
     "postcss": "8.5.4",
     "prettier": "^3.5.3",
@@ -113,6 +118,10 @@
     "dompurify": "3.3.2",
     "koa": "3.1.2",
     "minimatch": "10.2.3",
-    "serialize-javascript": "7.0.3"
+    "picomatch": "4.0.4",
+    "serialize-javascript": "7.0.3",
+    "eslint-plugin-jsx-a11y": {
+      "minimatch": "^3.1.2"
+    }
   }
 }
