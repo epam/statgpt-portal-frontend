@@ -50,6 +50,7 @@ export interface ConversationViewTitles extends WelcomeViewTitles {
   clearAll?: string;
   clearAllFilters?: string;
   appliedFilters?: string;
+  otherResults?: string;
   to?: string;
   from?: string;
   all?: string;

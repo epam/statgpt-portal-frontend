@@ -5,8 +5,7 @@ import { Checkbox } from '@epam/statgpt-ui-components';
 import { CSSProperties, FC, ReactNode } from 'react';
 
 interface Props {
-  index: number;
-  style: CSSProperties;
+  style?: CSSProperties;
   filterValue: FilterValue;
   checkboxIcon: ReactNode;
   selectFilterValue: (id: string, isSelectedValue?: boolean) => void;

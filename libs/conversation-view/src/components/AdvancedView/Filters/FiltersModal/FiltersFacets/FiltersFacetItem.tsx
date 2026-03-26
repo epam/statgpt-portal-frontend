@@ -23,6 +23,7 @@ import FiltersValuesPanel from '../FiltersValuesPanel/FiltersValuesPanel';
 import { ConversationViewTitles } from '../../../../../models/titles';
 
 interface Props {
+  filtersList?: Filter[];
   filter: Filter;
   locale?: string;
   hideFacetCounterByDefault?: boolean;
@@ -40,12 +41,23 @@ interface Props {
     timeRange: TimeRange | null,
     selectedOption: string | number,
   ) => void;
-  selectFilterValue: (id: string, isSelectedValue?: boolean) => void;
-  selectHierarchicalNodes: (nodes?: FilterTreeNodeProps[]) => void;
-  expandHierarchicalValue: (value?: FilterTreeNodeProps) => void;
+  selectFilterValue: (
+    id: string,
+    isSelectedValue?: boolean,
+    filter?: Filter,
+  ) => void;
+  selectHierarchicalNodes: (
+    nodes?: FilterTreeNodeProps[],
+    filter?: Filter,
+  ) => void;
+  expandHierarchicalValue: (
+    value?: FilterTreeNodeProps,
+    filter?: Filter,
+  ) => void;
 }
 
 const FiltersFacetItem: FC<Props> = ({
+  filtersList,
   filter,
   onSelectFilter,
   onSelectDisplayMode,
@@ -195,6 +207,7 @@ const FiltersFacetItem: FC<Props> = ({
       </div>
       {isSelected && (
         <FiltersValuesPanel
+          filtersList={filtersList}
           titles={titles}
           selectedFilter={filter}
           locale={locale}

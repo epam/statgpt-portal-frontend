@@ -25,6 +25,7 @@ interface Props {
   filterValues?: FilterValue[];
   checkboxIcon?: ReactNode;
   isHierarchicalView?: boolean;
+  isVirtualized?: boolean;
   isDisableValues?: boolean;
   structuresMap?: Map<string, StructuralData | undefined>;
   selectFilterValue: (id: string, isSelectedValue?: boolean) => void;
@@ -45,6 +46,7 @@ const FilterValues: FC<Props> = ({
   filterValues,
   checkboxIcon,
   isHierarchicalView,
+  isVirtualized = true,
   isDisableValues,
   structuresMap,
   selectFilterValue,
@@ -92,6 +94,17 @@ const FilterValues: FC<Props> = ({
             selectHierarchicalNodes={selectHierarchicalNodes}
             expandHierarchicalValue={expandHierarchicalValue}
           />
+        ) : !isVirtualized ? (
+          <div className="flex flex-col gap-y-1">
+            {filterValues.map((filterValue) => (
+              <CheckboxRow
+                key={filterValue.id}
+                filterValue={filterValue}
+                checkboxIcon={checkboxIcon}
+                selectFilterValue={selectFilterValue}
+              />
+            ))}
+          </div>
         ) : (
           <AutoSizer>
             {({ width, height }) => (
@@ -103,7 +116,6 @@ const FilterValues: FC<Props> = ({
               >
                 {({ index, style }: RowProps) => (
                   <CheckboxRow
-                    index={index}
                     style={style}
                     filterValue={filterValues[index]}
                     checkboxIcon={checkboxIcon}
