@@ -38,31 +38,41 @@ const MessageStage: FC<Props> = ({ stage, stageRef, isCurrentStage }) => {
                 <strong className="text-neutrals-1000" {...props} />
               ),
               a: ({ href, children, ...props }) => (
-                <a href={href} target="_blank" {...props}>
+                <a href={href} target="_blank" rel="noreferrer" {...props}>
                   {children}
                 </a>
               ),
-              h1: (props) => (
-                <h1 className="h1 text-neutrals-1000" {...props} />
+              h1: ({ children, ...props }) => (
+                <h1 className="h1 text-neutrals-1000" {...props}>
+                  {children}
+                </h1>
               ),
-              h2: (props) => (
-                <h2 className="h2 text-neutrals-1000" {...props} />
+              h2: ({ children, ...props }) => (
+                <h2 className="h2 text-neutrals-1000" {...props}>
+                  {children}
+                </h2>
               ),
-              h3: (props) => (
-                <h3 className="h3 text-neutrals-1000" {...props} />
+              h3: ({ children, ...props }) => (
+                <h3 className="h3 text-neutrals-1000" {...props}>
+                  {children}
+                </h3>
               ),
-              h4: (props) => (
-                <h4 className="h4 text-neutrals-1000" {...props} />
+              h4: ({ children, ...props }) => (
+                <h4 className="h4 text-neutrals-1000" {...props}>
+                  {children}
+                </h4>
               ),
-              h5: (props) => (
-                <h5 className="h5 text-neutrals-1000" {...props} />
+              h5: ({ children, ...props }) => (
+                <h5 className="h5 text-neutrals-1000" {...props}>
+                  {children}
+                </h5>
               ),
               code: (props) => (
                 <code className="text-neutrals-900" {...props} />
               ),
               pre: (props) => (
                 <pre
-                  className="border border-neutrals-600 bg-neutrals-100"
+                  className="border-neutrals-600 bg-neutrals-100 border"
                   {...props}
                 />
               ),

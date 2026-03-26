@@ -387,13 +387,7 @@ export const ConversationView: FC<Props> = ({
 
       return { assistantMessage, errorContext };
     },
-    [
-      handleInvalidStreaming,
-      statusMessages.serverError,
-      statusMessages.serverOverloaded,
-      statusMessages.contentFilterError,
-      updateAssistantMessage,
-    ],
+    [handleInvalidStreaming, statusMessages, updateAssistantMessage],
   );
 
   const handleStreamingResponse = useCallback(
@@ -766,6 +760,7 @@ export const ConversationView: FC<Props> = ({
     return () => {
       clearRequestCache();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationKey]);
 
   const messageServerActions = useMemo(

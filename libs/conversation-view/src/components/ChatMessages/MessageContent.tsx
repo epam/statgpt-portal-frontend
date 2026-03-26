@@ -27,7 +27,7 @@ const MessageContent: FC<Props> = ({ content, textColorClass }) => {
         components={{
           strong: (props) => <strong className={textColorClass} {...props} />,
           a: ({ href, children, ...props }) => (
-            <a href={href} target="_blank" {...props}>
+            <a href={href} target="_blank" rel="noreferrer" {...props}>
               {children}
             </a>
           ),
