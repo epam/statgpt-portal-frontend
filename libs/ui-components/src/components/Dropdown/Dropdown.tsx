@@ -85,7 +85,7 @@ export const Dropdown: FC<Props> = ({
                 )}
               >
                 <div
-                  className="dropdown-item-text flex h-full items-center gap-x-2 p-2 hover:bg-hues-100"
+                  className="dropdown-item-text hover:bg-hues-100 flex h-full items-center gap-x-2 p-2"
                   title={option.title}
                 >
                   {option.icon ? option.icon : null}
