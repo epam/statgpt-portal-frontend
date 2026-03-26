@@ -6,8 +6,10 @@ import globals from 'globals';
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
-import nextPlugin from '@next/eslint-plugin-next';
 import prettierPlugin from 'eslint-plugin-prettier';
+import eslintConfigPrettier from 'eslint-config-prettier';
+import importPlugin from 'eslint-plugin-import';
+import tailwindPlugin from 'eslint-plugin-tailwindcss';
 
 export default [
   {
@@ -16,29 +18,33 @@ export default [
       '**/next',
       '**/.next',
       '**/next-env.d.ts',
-      '**/**.config.js',
-      '**/**.config.mjs',
+      '**/*.config.js',
+      '**/*.config.mjs',
       '**/jest.config.ts',
-      '**/**.spec.ts',
-      '**/**.spec.tsx',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
       '**/test-setup.js',
     ],
   },
+
+  // ── Core TypeScript / React rules ────────────────────────────────────────
   {
     files: ['**/*.{ts,tsx,js,jsx}'],
     languageOptions: {
       parser: tsParser,
-      ecmaVersion: 5,
-      sourceType: 'commonjs',
+      ecmaVersion: 'latest',
+      sourceType: 'module',
       parserOptions: {
-        project: ['tsconfig.*?.json'],
+        project: true,
       },
       globals: {
         ...globals.browser,
         ...globals.node,
         globalThis: 'readonly',
-        NodeJS: 'readonly',
       },
+    },
+    settings: {
+      react: { version: 'detect' },
     },
     plugins: {
       '@nx': nx,
@@ -47,16 +53,18 @@ export default [
       '@typescript-eslint': tsPlugin,
       'react-hooks': reactHooksPlugin,
       'jsx-a11y': jsxA11yPlugin,
-      '@next/next': nextPlugin,
     },
     rules: {
       ...js.configs.recommended.rules,
       ...tsPlugin.configs.recommended.rules,
-      ...nextPlugin.configs.recommended.rules,
-      ...prettierPlugin.configs.recommended.rules,
+      ...reactPlugin.configs.recommended.rules,
+      ...jsxA11yPlugin.flatConfigs.recommended.rules,
+      ...eslintConfigPrettier.rules,
       ...reactHooksPlugin.configs.recommended.rules,
+      'react/react-in-jsx-scope': 'off',
+      'react/jsx-uses-react': 'off',
+      'react/prop-types': 'off',
       'react-hooks/exhaustive-deps': 'error',
-      '@next/next/no-html-link-for-pages': 'off',
       'no-redeclare': 'off',
       '@typescript-eslint/triple-slash-reference': 'off',
       '@nx/enforce-module-boundaries': [
@@ -65,7 +73,6 @@ export default [
           enforceBuildableLibDependency: true,
           allowCircularSelfDependency: true,
           allow: [],
-
           depConstraints: [
             {
               sourceTag: '*',
@@ -88,11 +95,45 @@ export default [
         'error',
         {
           argsIgnorePattern: '^_',
-          varsIgnorePattern: '^__',
+          varsIgnorePattern: '^_',
         },
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
       'prettier/prettier': 'error',
     },
   },
+
+  // ── Import plugin (TypeScript-aware) ─────────────────────────────────────
+  {
+    ...importPlugin.flatConfigs.recommended,
+    files: ['**/*.{ts,tsx,js,jsx}'],
+  },
+  {
+    ...importPlugin.flatConfigs.typescript,
+    files: ['**/*.{ts,tsx,js,jsx}'],
+  },
+  {
+    files: ['**/*.{ts,tsx,js,jsx}'],
+    settings: {
+      // Use eslint-import-resolver-typescript to resolve Nx path aliases
+      'import/resolver': {
+        typescript: {
+          alwaysTryTypes: true,
+        },
+      },
+    },
+    rules: {
+      // TypeScript already enforces these; no need to duplicate
+      'import/no-unresolved': 'off',
+      'import/default': 'off',
+      'import/namespace': 'off',
+      // Keep the valuable ones
+      'import/no-duplicates': 'error',
+      'import/no-named-as-default': 'warn',
+      'import/no-named-as-default-member': 'off',
+    },
+  },
+
+  // ── Tailwind CSS ─────────────────────────────────────────────────────────
+  ...tailwindPlugin.configs['flat/recommended'],
 ];
