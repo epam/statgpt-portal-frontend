@@ -113,7 +113,7 @@ const ConversationListWrapper = () => {
         },
       ),
     }),
-    [authHandler],
+    [authHandler, locale, router],
   );
 
   const titles: ConversationListTitles = {
