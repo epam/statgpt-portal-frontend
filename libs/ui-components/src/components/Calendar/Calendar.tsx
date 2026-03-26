@@ -128,11 +128,11 @@ export const Calendar: FC<Props> = ({
   };
 
   return (
-    <div className="relative calendar" ref={ref}>
-      <div className="mb-1 calendar-title">{label}</div>
+    <div className="calendar relative" ref={ref}>
+      <div className="calendar-title mb-1">{label}</div>
       <label
         htmlFor={id}
-        className="absolute cursor-pointer right-[11px] top-[29px]"
+        className="absolute right-[11px] top-[29px] cursor-pointer"
       >
         {icon || <IconCalendarEvent />}
       </label>

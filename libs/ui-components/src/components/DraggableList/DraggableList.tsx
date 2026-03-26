@@ -205,14 +205,14 @@ export function DraggableList({
               return (
                 <li
                   key={node.id}
-                  className="m-0 mt-2 first:mt-0 flex flex-col gap-2 p-0"
+                  className="m-0 mt-2 flex flex-col gap-2 p-0 first:mt-0"
                 >
-                  <div className="text-neutrals-1000 h5 flex items-center gap-2 py-1">
+                  <div className="h5 flex items-center gap-2 py-1 text-neutrals-1000">
                     <IconDatabase size={12} className="shrink-0" />
                     {node.label}
                   </div>
 
-                  <div className="pl-2 border-l border-neutrals-600">
+                  <div className="border-l border-neutrals-600 pl-2">
                     {renderNodes(node.items, [...parentPath, node.id])}
                   </div>
                 </li>

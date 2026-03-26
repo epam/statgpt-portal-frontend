@@ -96,7 +96,7 @@ export const CopyButton = ({
       />
 
       {tooltip && copied && (
-        <div className="absolute left-1/2 top-full z-50 mt-1 -translate-x-1/2 whitespace-nowrap rounded border border-neutrals-400 bg-white px-3 py-4 text-neutrals-900 h4 shadow">
+        <div className="h4 absolute left-1/2 top-full z-50 mt-1 -translate-x-1/2 whitespace-nowrap rounded border border-neutrals-400 bg-white px-3 py-4 text-neutrals-900 shadow">
           {tooltip}
         </div>
       )}

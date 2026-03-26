@@ -20,8 +20,8 @@ export function DraggableListOverlay({
   isExpanded?: boolean;
 }) {
   return (
-    <div className="rounded bg-neutrals-200 shadow cursor-grabbing relative">
-      <div className="absolute -left-[0.5px] top-0.5 w-0.5 h-5 rounded-full bg-gradients-light" />
+    <div className="relative cursor-grabbing rounded bg-neutrals-200 shadow">
+      <div className="absolute -left-[0.5px] top-0.5 h-5 w-0.5 rounded-full bg-gradients-light" />
       <div className="flex items-stretch overflow-hidden rounded">
         {showDragHandle ? (
           <div className="flex w-6 items-center justify-center">
@@ -35,7 +35,7 @@ export function DraggableListOverlay({
           {showCheckbox ? (
             <Checkbox id={id} checked={!!isChecked} className="p-0" />
           ) : null}
-          <span className="truncate body-3">{label}</span>
+          <span className="body-3 truncate">{label}</span>
         </div>
 
         {hasChildren ? (

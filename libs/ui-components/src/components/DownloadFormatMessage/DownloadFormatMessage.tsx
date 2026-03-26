@@ -8,21 +8,21 @@ interface Props {
 
 export const DownloadFormatMessage: FC<Props> = ({ limitMessages, query }) => {
   return (
-    <div className="bg-hues-100 px-2 py-1 flex justify-between flex-wrap items-center">
+    <div className="flex flex-wrap items-center justify-between bg-hues-100 px-2 py-1">
       <div className="flex gap-x-[4px]">
         <div className="flex flex-col">
           <div className="flex gap-x-[4px]">
-            <span className="text-primary h5">
+            <span className="h5 text-primary">
               {limitMessages?.excelFormatTitle}{' '}
             </span>
-            <span className="text-neutrals-800 body-3">
+            <span className="body-3 text-neutrals-800">
               {limitMessages?.excelFormatText}
             </span>
           </div>
         </div>
       </div>
-      <a href={query} target="_blank">
-        <span className="flex gap-x-[4px] body-3 cursor-pointer items-center">
+      <a href={query} target="_blank" rel="noreferrer">
+        <span className="body-3 flex cursor-pointer items-center gap-x-[4px]">
           {limitMessages?.dataExplorerIcon}
           {limitMessages?.dataExplorer}
         </span>

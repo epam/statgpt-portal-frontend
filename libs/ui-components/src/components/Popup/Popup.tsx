@@ -90,10 +90,10 @@ const PopupView: FC<Props> = ({
               })}
             >
               {
-                <div className="flex flex-row justify-between py-3 px-6 items-center mb-2 modal-heading sm:p-0 sm:pb-2">
+                <div className="modal-heading mb-2 flex flex-row items-center justify-between px-6 py-3 sm:p-0 sm:pb-2">
                   {heading &&
                     (typeof heading === 'string' ? (
-                      <h2 className="flex-1 min-w-0 mr-3 modal-heading-title sm:h3">
+                      <h2 className="modal-heading-title sm:h3 mr-3 min-w-0 flex-1">
                         {heading}
                       </h2>
                     ) : (

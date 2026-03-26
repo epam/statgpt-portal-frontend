@@ -44,7 +44,7 @@ export const RequestLimitMessage: FC<Props> = ({
         limitMessages?.containerClassName,
       )}
     >
-      <div className="flex gap-x-2 items-center">
+      <div className="flex items-center gap-x-2">
         <span>{limitMessages?.warningIcon}</span>
         <div className="flex flex-col gap-1">
           <div className="flex gap-x-[4px]">
@@ -83,15 +83,15 @@ export const RequestLimitMessage: FC<Props> = ({
       {showAdvancedViewButton && (
         <span
           onClick={() => onAdvancedViewClick?.()}
-          className="flex gap-x-[4px] h4 cursor-pointer items-center text-primary"
+          className="h4 flex cursor-pointer items-center gap-x-[4px] text-primary"
         >
           {limitMessages?.editIcon}
           {limitMessages?.refineInAdvancedView}
         </span>
       )}
       {isDownload && (
-        <a href={query || ''} target="_blank">
-          <span className="flex gap-x-[4px] body-3 cursor-pointer items-center">
+        <a href={query || ''} target="_blank" rel="noreferrer">
+          <span className="body-3 flex cursor-pointer items-center gap-x-[4px]">
             {limitMessages?.dataExplorerIcon}
             {limitMessages?.dataExplorer}
           </span>
