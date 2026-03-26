@@ -72,7 +72,7 @@ const MessageStage: FC<Props> = ({ stage, stageRef, isCurrentStage }) => {
               ),
               pre: (props) => (
                 <pre
-                  className="border-neutrals-600 bg-neutrals-100 border"
+                  className="border border-neutrals-600 bg-neutrals-100"
                   {...props}
                 />
               ),

@@ -115,10 +115,11 @@ const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
   }, [
     sidePanel,
     isOpenedAdvancedView,
-    metadata,
-    datasetInfo,
+    params.colId,
     params.titles,
     params.locale,
+    metadata,
+    datasetInfo,
   ]);
 
   return (
