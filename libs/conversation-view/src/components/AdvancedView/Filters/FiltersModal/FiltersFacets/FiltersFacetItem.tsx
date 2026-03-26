@@ -147,7 +147,7 @@ const FiltersFacetItem: FC<Props> = ({
           )}
         </h3>
 
-        <div className="ml-2 flex items-center gap-2 text-neutrals-800">
+        <div className="text-neutrals-800 ml-2 flex items-center gap-2">
           {isTimeDimension && (
             <span className="filters-facet-item-counter border-none">
               {timePeriodValue}

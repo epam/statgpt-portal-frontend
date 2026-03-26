@@ -78,9 +78,9 @@ const FilterValues: FC<Props> = ({
     >
       {shouldShowHeader && (
         <div className="mb-2 flex items-center gap-x-1">
-          <DatasetIcon className="size-4 shrink-0 text-neutrals-700" />
+          <DatasetIcon className="text-neutrals-700 size-4 shrink-0" />
           <span className="h4 text-neutrals-800">{datasetName}</span>
-          <ChevronRightIcon className="size-4 shrink-0 text-neutrals-1000" />
+          <ChevronRightIcon className="text-neutrals-1000 size-4 shrink-0" />
           <span className="h4 text-neutrals-1000">{selectedFilter?.title}</span>
         </div>
       )}

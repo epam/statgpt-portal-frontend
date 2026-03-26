@@ -251,7 +251,7 @@ const FilterSettings: FC<Props> = ({
           filterValuesProps={modalProps?.filterValuesProps}
         />
         {modalProps?.isShowTimeSeriesCount && timeSeriesCount ? (
-          <h4 className="my-4 text-neutrals-800">
+          <h4 className="text-neutrals-800 my-4">
             {titles?.timeSeries ?? 'Timeseries'}: {timeSeriesCount}
           </h4>
         ) : null}
