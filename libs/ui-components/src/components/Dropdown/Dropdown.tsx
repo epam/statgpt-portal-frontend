@@ -66,7 +66,7 @@ export const Dropdown: FC<Props> = ({
         <div
           ref={refs.setFloating}
           style={floatingStyles}
-          className="flex flex-col z-10 dropdown-menu-shadow bg-white dropdown-container rounded"
+          className="dropdown-menu-shadow dropdown-container z-10 flex flex-col rounded bg-white"
           {...getFloatingProps()}
         >
           {content && content}
@@ -85,7 +85,7 @@ export const Dropdown: FC<Props> = ({
                 )}
               >
                 <div
-                  className="p-2 hover:bg-hues-100 h-full dropdown-item-text flex items-center gap-x-2"
+                  className="dropdown-item-text hover:bg-hues-100 flex h-full items-center gap-x-2 p-2"
                   title={option.title}
                 >
                   {option.icon ? option.icon : null}

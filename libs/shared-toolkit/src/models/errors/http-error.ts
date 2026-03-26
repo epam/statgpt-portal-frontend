@@ -24,12 +24,13 @@ export class HttpError<D = unknown> extends Error {
 }
 
 export function isHttpError(e: unknown): e is HttpError {
+  const err = e as Record<string, unknown>;
   return (
     typeof e === 'object' &&
     e !== null &&
-    (e as any).isHttpError === true &&
-    typeof (e as any).status === 'number' &&
-    typeof (e as any).message === 'string' &&
-    ((e as any).code === undefined || typeof (e as any).code === 'string')
+    err['isHttpError'] === true &&
+    typeof err['status'] === 'number' &&
+    typeof err['message'] === 'string' &&
+    (err['code'] === undefined || typeof err['code'] === 'string')
   );
 }

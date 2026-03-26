@@ -124,9 +124,9 @@ const CustomChartAttachment: FC<Props> = ({
   }
 
   return (
-    <div className="chart-attachment w-full h-full" ref={chartAttachmentRef}>
+    <div className="chart-attachment size-full" ref={chartAttachmentRef}>
       {attachment.charting_data && (
-        <div className="flex flex-col w-full h-full gap-4">
+        <div className="flex size-full flex-col gap-4">
           {flatUnits.length == 0 || selectedUnit == null ? (
             <h4 className="ml-1">{titles?.chartInfo || 'No data'}</h4>
           ) : (
@@ -135,7 +135,7 @@ const CustomChartAttachment: FC<Props> = ({
                 <h3 className="chart-attachment-title">
                   {titles?.chart || 'Chart'} {chartIndex + 1}/{flatUnits.length}
                 </h3>
-                <span className="text-neutrals-700 h4 chart-attachment-info">
+                <span className="h4 chart-attachment-info text-neutrals-700">
                   {titles?.chartInfo || 'Chart Information'}
                 </span>
               </div>
@@ -146,16 +146,16 @@ const CustomChartAttachment: FC<Props> = ({
                   !fixHeight && 'min-h-[300px]',
                 )}
               >
-                <div className="flex flex-col flex-1 min-h-0 min-w-0">
+                <div className="flex min-h-0 min-w-0 flex-1 flex-col">
                   {selectedGroupTitle && (
-                    <div className="flex items-center gap-1 mb-1">
-                      <DatasetIcon className="w-4 h-4 text-neutrals-1000 flex-shrink-0" />
+                    <div className="mb-1 flex items-center gap-1">
+                      <DatasetIcon className="size-4 shrink-0 text-neutrals-1000" />
                       <h4 className="text-neutrals-1000">
                         {selectedGroupTitle}
                       </h4>
                     </div>
                   )}
-                  <div className="flex flex-col flex-1 min-h-0 min-w-0 gap-4">
+                  <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4">
                     <ResponsiveEChart
                       option={selectedUnit.config}
                       style={{

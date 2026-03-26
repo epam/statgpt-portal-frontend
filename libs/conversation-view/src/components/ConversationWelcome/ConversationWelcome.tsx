@@ -4,11 +4,11 @@ import {
   FormSchemaButtonOption,
   DialSchemaProperties,
   MessageFormSchema,
+  ConversationInfo,
 } from '@epam/ai-dial-shared';
 import InputForAsk from '../InputForAsk/InputForAsk';
 import { FC, ReactNode, useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { ConversationInfo } from '@epam/ai-dial-shared';
 import {
   CreateConversationRequest,
   getSharedConversationsRequest,
@@ -22,8 +22,8 @@ import {
   InlineAlertType,
   Loader,
   useAgentAvailability,
+  Tag,
 } from '@epam/statgpt-ui-components';
-import { Tag } from '@epam/statgpt-ui-components';
 import { transformSharedConversations } from '@epam/statgpt-conversation-list';
 import { getCreateConversationRequest } from '../../utils/conversation-request';
 import { generateOnboardingConversation } from '../../utils/generate-onboarding-conversation';
@@ -251,7 +251,7 @@ export const ConversationWelcome: FC<Props> = ({
           sendMessageIcon={inputMessageStyles.sendMessageIcon}
           onSendMessage={createConversation}
         />
-        <div className="max-w-full overflow-x-auto no-scrollbar">
+        <div className="no-scrollbar max-w-full overflow-x-auto">
           <div
             className={classNames(
               'flex flex-wrap justify-center gap-2 sm:flex-nowrap',
@@ -276,7 +276,7 @@ export const ConversationWelcome: FC<Props> = ({
   };
 
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex size-full flex-col">
       {isCreatingConversation || (prompt && isBucketLoading) ? (
         <Loader />
       ) : isShowOnboarding ? (
@@ -293,7 +293,7 @@ export const ConversationWelcome: FC<Props> = ({
           onClick={createConversation}
         />
       ) : (
-        <div className="flex flex-col h-full items-center justify-center sm:px-4">
+        <div className="flex h-full flex-col items-center justify-center sm:px-4">
           <div
             className={classNames(
               'flex items-center max-w-full sm-min:px-4',
@@ -301,7 +301,7 @@ export const ConversationWelcome: FC<Props> = ({
             )}
           >
             {titleIcon}
-            <h1 className="text-hues-800 text-center sm:h2">
+            <h1 className="sm:h2 text-center text-hues-800">
               {welcomeText ?? titles?.welcomeTitle ?? 'How can I help you?'}
             </h1>
           </div>

@@ -16,10 +16,10 @@ const MessageStage: FC<Props> = ({ stage, stageRef, isCurrentStage }) => {
   return (
     <div
       ref={stageRef}
-      className="message-stage flex relative pb-8 last:pb-0 last:mb-8"
+      className="message-stage relative flex pb-8 last:mb-8 last:pb-0"
     >
-      <span className="message-stage-line absolute border-l h-full"></span>
-      <IconPointFilled className="message-stage-indicator flex shrink-0 z-10" />
+      <span className="message-stage-line absolute h-full border-l"></span>
+      <IconPointFilled className="message-stage-indicator z-10 flex shrink-0" />
       <div className="ml-2 w-full">
         <div
           className={classNames(
@@ -38,31 +38,41 @@ const MessageStage: FC<Props> = ({ stage, stageRef, isCurrentStage }) => {
                 <strong className="text-neutrals-1000" {...props} />
               ),
               a: ({ href, children, ...props }) => (
-                <a href={href} target="_blank" {...props}>
+                <a href={href} target="_blank" rel="noreferrer" {...props}>
                   {children}
                 </a>
               ),
-              h1: (props) => (
-                <h1 className="h1 text-neutrals-1000" {...props} />
+              h1: ({ children, ...props }) => (
+                <h1 className="h1 text-neutrals-1000" {...props}>
+                  {children}
+                </h1>
               ),
-              h2: (props) => (
-                <h2 className="h2 text-neutrals-1000" {...props} />
+              h2: ({ children, ...props }) => (
+                <h2 className="h2 text-neutrals-1000" {...props}>
+                  {children}
+                </h2>
               ),
-              h3: (props) => (
-                <h3 className="h3 text-neutrals-1000" {...props} />
+              h3: ({ children, ...props }) => (
+                <h3 className="h3 text-neutrals-1000" {...props}>
+                  {children}
+                </h3>
               ),
-              h4: (props) => (
-                <h4 className="h4 text-neutrals-1000" {...props} />
+              h4: ({ children, ...props }) => (
+                <h4 className="h4 text-neutrals-1000" {...props}>
+                  {children}
+                </h4>
               ),
-              h5: (props) => (
-                <h5 className="h5 text-neutrals-1000" {...props} />
+              h5: ({ children, ...props }) => (
+                <h5 className="h5 text-neutrals-1000" {...props}>
+                  {children}
+                </h5>
               ),
               code: (props) => (
                 <code className="text-neutrals-900" {...props} />
               ),
               pre: (props) => (
                 <pre
-                  className="bg-neutrals-100 border border-neutrals-600"
+                  className="border border-neutrals-600 bg-neutrals-100"
                   {...props}
                 />
               ),

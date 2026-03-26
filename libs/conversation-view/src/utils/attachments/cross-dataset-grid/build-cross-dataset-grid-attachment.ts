@@ -61,8 +61,8 @@ export function buildCrossDatasetGridContent(
   metadataSettings?: MetadataSettings,
   chartStyles?: ChartingStyles,
   titles?: ConversationViewTitles,
-  constraintsMap?: Map<string, DataConstraints[] | undefined>,
-  selectedTimePeriod?: TimeRange,
+  _constraintsMap?: Map<string, DataConstraints[] | undefined>,
+  _selectedTimePeriod?: TimeRange,
 ): { data: GridData[]; columns: ColDef[] } {
   return {
     columns: buildCrossDatasetGridColumns(

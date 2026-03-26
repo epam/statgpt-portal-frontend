@@ -50,7 +50,7 @@ const AttachmentsContentRenderer: FC<Props> = ({
 }) => {
   const titles = useConversationViewTitles();
   return (
-    <div className="flex flex-1 w-full justify-center min-h-0">
+    <div className="flex min-h-0 w-full flex-1 justify-center">
       {isFileAttachment(selectedAttachment) && (
         <FileAttachment
           actions={actions}

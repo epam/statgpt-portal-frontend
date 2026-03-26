@@ -5,8 +5,7 @@ import classNames from 'classnames';
 import ChevronSolidDownIcon from '../../../../../assets/icons/chevron-solid-down.svg';
 import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
 import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
-import { Dropdown, IconButton } from '@epam/statgpt-ui-components';
-import { useIsMobile } from '@epam/statgpt-ui-components';
+import { Dropdown, IconButton, useIsMobile } from '@epam/statgpt-ui-components';
 import {
   Filter,
   FilterTreeNodeProps,
@@ -122,7 +121,7 @@ const FiltersFacetItem: FC<Props> = ({
         onClick={onFilterClick}
       >
         <h3
-          className="w-full truncate flex-1 min-w-0 sm:flex sm:items-center"
+          className="w-full min-w-0 flex-1 truncate sm:flex sm:items-center"
           title={filter?.title}
         >
           <span className="truncate">{filter?.title}</span>
@@ -136,7 +135,7 @@ const FiltersFacetItem: FC<Props> = ({
           )}
         </h3>
 
-        <div className="ml-2 flex gap-2 items-center text-neutrals-800">
+        <div className="ml-2 flex items-center gap-2 text-neutrals-800">
           {isTimeDimension && (
             <span className="filters-facet-item-counter border-none">
               {timePeriodValue}
@@ -157,7 +156,7 @@ const FiltersFacetItem: FC<Props> = ({
           )}
 
           {isTimeDimension ? null : (
-            <div className="flex items-center gap-2 filters-facet-item-settings">
+            <div className="filters-facet-item-settings flex items-center gap-2">
               <Dropdown
                 triggerButton={
                   <IconButton

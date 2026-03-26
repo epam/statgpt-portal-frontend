@@ -40,7 +40,7 @@ const ChartLimitationInfo: FC<Props> = ({
         ref={refs.setReference}
         {...getReferenceProps()}
       >
-        <div className="flex bg-hues-100 w-fit px-4 mt-1 py-2 gap-1">
+        <div className="mt-1 flex w-fit gap-1 bg-hues-100 px-4 py-2">
           <h5 className="font-bold">{titles?.limits || 'Limited to'}</h5>
           <h5>
             {limitAmount} {titles?.timeseriesLimit || 'Timeseries'}
@@ -54,14 +54,14 @@ const ChartLimitationInfo: FC<Props> = ({
           style={floatingStyles}
           {...getFloatingProps()}
         >
-          <div className="flex flex-col bg-white z-10 p-4 rounded shadow w-[300px] mb-2 gap-2">
+          <div className="z-10 mb-2 flex w-[300px] flex-col gap-2 rounded bg-white p-4 shadow">
             <div>
               <h5 className="text-neutrals-900">
                 <span className="pr-0.5">
                   {titles?.limitLinkInfoP1_1 ||
                     'The number of timeseries displayed in a single chart i'}
                 </span>
-                <span className="font-bold pr-0.5">
+                <span className="pr-0.5 font-bold">
                   {titles?.limitLinkInfoP1_2 || 'limited to'} {limitAmount}
                 </span>
                 {titles?.limitLinkInfoP1_3 ||
@@ -72,13 +72,13 @@ const ChartLimitationInfo: FC<Props> = ({
                   {titles?.limitLinkInfoP2_1 ||
                     'To visualize specific timeseries'}
                 </span>
-                <span className="font-bold pr-0.5">
+                <span className="pr-0.5 font-bold">
                   {titles?.limitLinkInfoP2_2 || 'filter'}
                 </span>
                 <span className="pr-0.5">
                   {titles?.limitLinkInfoP2_3 || 'your request, or'}
                 </span>
-                <span className="font-bold pr-0.5">
+                <span className="pr-0.5 font-bold">
                   {titles?.limitLinkInfoP2_4 || 'refine'}
                 </span>
                 {titles?.limitLinkInfoP2_5 || 'it in the chat.'}

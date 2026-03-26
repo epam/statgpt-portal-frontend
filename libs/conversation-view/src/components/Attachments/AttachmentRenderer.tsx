@@ -247,7 +247,7 @@ const AttachmentRenderer: FC<Props> = ({
                   'attachments-wrapper h-full min-h-0',
                 )}
               >
-                <div className="flex flex-col max-w-full items-center gap-4 h-full">
+                <div className="flex h-full max-w-full flex-col items-center gap-4">
                   <AttachmentsViewModePanel
                     attachments={attachments}
                     selectedAttachmentIndex={selectedAttachmentIndex}

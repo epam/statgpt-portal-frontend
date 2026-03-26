@@ -26,7 +26,7 @@
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": [
-          "libs/sdmx-toolkit/**/*.{ts,tsx,js,jsx}",
+          "libs/sdmx-toolkit/src",
           "libs/sdmx-toolkit/package.json"
         ]
       }

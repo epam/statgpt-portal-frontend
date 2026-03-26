@@ -15,15 +15,15 @@ const MarkdownAttachment: FC<Props> = ({ attachment, className = '' }) => {
   if (!contentString) return null;
 
   return (
-    <div className={`attachment-json border rounded-lg bg-white ${className}`}>
-      <div className="flex items-center justify-between px-3 py-2 border-b border-neutrals-200 bg-neutrals-100 rounded-t-lg">
+    <div className={`attachment-json rounded-lg border bg-white ${className}`}>
+      <div className="flex items-center justify-between rounded-t-lg border-b border-neutrals-200 bg-neutrals-100 px-3 py-2">
         <div className="flex items-center gap-2">
           <h3 className="text-neutrals-900">{attachment.title}</h3>
         </div>
       </div>
 
       <div className="p-3">
-        <pre className="text-neutrals-800 overflow-x-auto whitespace-pre-wrap break-words max-h-96 overflow-y-auto">
+        <pre className="max-h-96 overflow-auto whitespace-pre-wrap break-words text-neutrals-800">
           <code>{contentString}</code>
         </pre>
       </div>

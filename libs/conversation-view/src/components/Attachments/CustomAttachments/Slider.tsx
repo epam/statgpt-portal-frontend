@@ -74,7 +74,7 @@ const Slider: FC<Props> = ({
     totalCount > 0 ? Math.max(fullWidth / totalCount, MIN_ITEM_WIDTH) : 0;
 
   return (
-    <div className="w-full flex flex-row items-center gap-2 justify-center">
+    <div className="flex w-full flex-row items-center justify-center gap-2">
       <div
         className={classNames(
           'h-[20px] w-[20px] cursor-pointer',
@@ -86,13 +86,13 @@ const Slider: FC<Props> = ({
       </div>
       <div className="flex flex-col items-center gap-1 pt-[20px]">
         <div
-          className="h-[4px] rounded-full bg-neutral-300 relative"
+          className="relative h-[4px] rounded-full bg-neutral-300"
           style={{
             width: `${fullWidth}px`,
           }}
         >
           <div
-            className="h-full rounded-full bg-primary absolute"
+            className="absolute h-full rounded-full bg-primary"
             style={{
               left: `${leftShiftPercentage}%`,
               width: `${itemWidth}px`,

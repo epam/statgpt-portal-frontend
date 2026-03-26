@@ -95,7 +95,7 @@ export default async function LocaleLayout({
                 <ConversationListProvider>
                   <ChatMessagesProvider>
                     <ConversationListWrapper />
-                    <main className="flex-1 h-full min-w-0">{children}</main>
+                    <main className="h-full min-w-0 flex-1">{children}</main>
                   </ChatMessagesProvider>
                 </ConversationListProvider>
               </AdvancedViewProvider>
@@ -111,7 +111,7 @@ export default async function LocaleLayout({
 
   return (
     <I18nProvider locale={locale}>
-      <div className="flex h-full flex-row w-full main-layout">
+      <div className="main-layout flex size-full flex-row">
         <ComponentsConfig>
           <TextsConfig
             clientContactSupportUrl={clientContactSupportUrl}

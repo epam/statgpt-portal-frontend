@@ -53,7 +53,7 @@ const MetadataItem: FC<Props> = ({
         <div
           title={attachedKeyTitle}
           key={attachedKeyTitle}
-          className="metadata-item-key pr-3 mb-1 text-neutrals-800"
+          className="metadata-item-key mb-1 pr-3 text-neutrals-800"
         >
           {attachedKeyTitle}
         </div>

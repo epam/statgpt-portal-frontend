@@ -226,15 +226,15 @@ const DatasetInfo: FC<Props> = ({
   );
 
   return (
-    <div className="flex flex-col bg-white gap-3 dataset-info">
+    <div className="dataset-info flex flex-col gap-3 bg-white">
       {isShowDatasetBadge && (
-        <div className="flex gap-1 items-center py-1 px-2 rounded-[20px] bg-accent-500 body-2 w-fit">
+        <div className="bg-accent-500 body-2 flex w-fit items-center gap-1 rounded-[20px] px-2 py-1">
           {datasetIcon}
           {titles?.dataset ?? 'Dataset'}
         </div>
       )}
       <div className="flex flex-col gap-1">
-        <div className="flex gap-1 items-center">
+        <div className="flex items-center gap-1">
           <div
             role="heading"
             aria-level={4}
@@ -263,12 +263,12 @@ const DatasetInfo: FC<Props> = ({
           {externalLink && (
             <a href={externalLink} target="_blank" rel="noopener noreferrer">
               {externalLinkIcon || (
-                <IconExternalLink className="text-primary cursor-pointer w-4 h-4 shrink-0" />
+                <IconExternalLink className="size-4 shrink-0 cursor-pointer text-primary" />
               )}
             </a>
           )}
         </div>
-        <div className="flex gap-2 body-3 items-center">
+        <div className="body-3 flex items-center gap-2">
           {isShowAgency && (
             <>
               {renderInfoSegment(
@@ -277,7 +277,7 @@ const DatasetInfo: FC<Props> = ({
               )}
               <div
                 aria-hidden="true"
-                className="border-l border-l-neutral-500 h-[14px]"
+                className="h-[14px] border-l border-l-neutral-500"
               />
             </>
           )}

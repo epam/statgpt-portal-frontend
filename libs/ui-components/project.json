@@ -43,7 +43,7 @@
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": [
-          "libs/ui-components/**/*.{ts,tsx,js,jsx}",
+          "libs/ui-components/src",
           "libs/ui-components/package.json"
         ]
       }

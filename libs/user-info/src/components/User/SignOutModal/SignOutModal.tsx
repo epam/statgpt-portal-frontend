@@ -31,10 +31,10 @@ const SignOutModal: FC<Props> = ({
       onClose={onCloseModal}
       closeButtonTitle={'Cancel'}
     >
-      <div className="py-4 px-6 sm:px-0" lang={locale}>
+      <div className="px-6 py-4 sm:px-0" lang={locale}>
         {titles?.popupText}
       </div>
-      <div className="flex justify-end gap-x-2 py-3 px-6 delete-conversation-popup-footer">
+      <div className="delete-conversation-popup-footer flex justify-end gap-x-2 px-6 py-3">
         <Button
           buttonClassName="cancel-button"
           title={titles?.popupCancel || 'Cancel'}

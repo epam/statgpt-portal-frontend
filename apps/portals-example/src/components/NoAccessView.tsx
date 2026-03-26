@@ -18,23 +18,23 @@ export const NoAccessView = ({
   const t = useI18n() as TranslateI18nFn;
 
   return (
-    <div className="size-full flex">
-      <div className="h-full w-[362px] relative overflow-hidden shrink-0">
+    <div className="flex size-full">
+      <div className="relative h-full w-[362px] shrink-0 overflow-hidden">
         <div
-          className="absolute inset-0 pointer-events-none bg-[url('/images/left-panel-bg.svg')] bg-no-repeat bg-cover bg-center"
+          className="pointer-events-none absolute inset-0 bg-[url('/images/left-panel-bg.svg')] bg-cover bg-center bg-no-repeat"
           aria-hidden="true"
         />
         <div className="flex flex-row items-center px-6 py-5 ">
           <LogoIcon width={34} height={34} />
-          <span className="text-hues-900 text-start logo ml-3">
-            <p className="font-semibold mr-1 inline mb-1">
+          <span className="logo ml-3 text-start text-hues-900">
+            <p className="mb-1 mr-1 inline font-semibold">
               {t(I18nKeys.App.TITLE_GLOBAL)}
             </p>
             <p className="inline">{t(I18nKeys.App.TITLE)}</p>
           </span>
         </div>
       </div>
-      <div className="flex items-center justify-center size-full">
+      <div className="flex size-full items-center justify-center">
         <div className="flex flex-col gap-5">
           <h1 className="h1">
             {t(StatusMessagesI18nKeys.AGENT_UNAVAILABLE_TITLE)}

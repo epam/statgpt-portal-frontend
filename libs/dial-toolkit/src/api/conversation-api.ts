@@ -7,7 +7,11 @@
  * URL encoding for the AI DIAL backend.
  */
 
-import { Conversation, Entity as DialEntity } from '@epam/ai-dial-shared';
+import {
+  Conversation,
+  Entity as DialEntity,
+  ConversationInfo,
+} from '@epam/ai-dial-shared';
 
 import { Message } from '../models/message';
 import { DialApiClient } from './dial-api-client';
@@ -18,7 +22,6 @@ import {
 } from '../utils/parse-conversation-name';
 import { encodeApiUrl } from '../utils/url';
 import { DIAL_API_ROUTES } from '../constants/api-urls';
-import { ConversationInfo } from '@epam/ai-dial-shared';
 import {
   ConversationData,
   CreateConversationRequest,

@@ -76,7 +76,7 @@ const FilterButton: FC<Props> = ({
   }, [onboardingFileSchema?.lastDisplayedElement, isShowOnboarding]);
 
   return (
-    <div className="relative filter-button-container" ref={filtersRef}>
+    <div className="filter-button-container relative" ref={filtersRef}>
       {isLoading ? (
         <Loader />
       ) : (

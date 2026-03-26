@@ -25,7 +25,7 @@ export const CollapsibleBlock: FC<Props> = ({
         onClick={() => setOpen(!open)}
       >
         <div className={`${open ? 'rotate-180' : ''} transition-transform`}>
-          {icon || <IconChevronDown className="w-5 h-5 mr-3" />}
+          {icon || <IconChevronDown className="mr-3 size-5" />}
         </div>
         <div className="flex flex-1 items-center justify-between">
           <span>{title}</span>

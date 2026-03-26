@@ -31,7 +31,7 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions);
 
   return (
-    <html>
+    <html lang="en">
       <head>
         <link rel="icon" href={'/images/favicon.ico'} sizes="any" />
         <link rel="apple-touch-icon" href={'/images/favicon.ico'} />

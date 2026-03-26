@@ -6,7 +6,7 @@ import { useI18n } from '../../locales/client';
 const Footer = () => {
   const t = useI18n();
   return (
-    <h4 className="flex justify-center text-neutrals-700 my-3">
+    <h4 className="my-3 flex justify-center text-neutrals-700">
       <span>©</span>
       <span className="mx-1">{new Date().getFullYear()}</span>
       <span>{t(I18nKeys.App.FOOTER)}</span>

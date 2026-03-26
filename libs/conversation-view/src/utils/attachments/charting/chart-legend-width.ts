@@ -1,8 +1,8 @@
-import { LegendComponentOption } from 'echarts';
+import type { ECharts, LegendComponentOption } from 'echarts';
 import { ChartingPainterBase } from '../../../models/charting';
 
 export function estimateLegendItemWidth(
-  chart: echarts.ECharts,
+  chart: ECharts,
   text: string,
   legendOpts: LegendComponentOption,
 ) {

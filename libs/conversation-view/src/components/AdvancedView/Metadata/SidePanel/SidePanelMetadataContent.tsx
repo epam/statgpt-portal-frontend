@@ -93,7 +93,7 @@ const SidePanelMetadataContent: FC<Props> = ({
   return (
     <div className="flex h-full flex-col overflow-hidden px-5 pb-4">
       {!hasAnyContent ? (
-        <div className="flex h-full items-center justify-center text-neutrals-700 body-3">
+        <div className="body-3 flex h-full items-center justify-center text-neutrals-700">
           {titles?.noMetadata || 'No metadata'}
         </div>
       ) : (
@@ -113,7 +113,7 @@ const SidePanelMetadataContent: FC<Props> = ({
               {genericDescriptionItems.map((descriptionItem, index) => (
                 <div
                   key={`${descriptionItem?.id || descriptionItem?.title}-${index}`}
-                  className="flex gap-2 body-3"
+                  className="body-3 flex gap-2"
                 >
                   <span className="shrink-0 text-neutrals-800">
                     {descriptionItem?.title || descriptionItem?.id}:
@@ -126,7 +126,7 @@ const SidePanelMetadataContent: FC<Props> = ({
             </div>
           )}
 
-          <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="min-h-0 flex-1 overflow-y-auto">
             <div className="flex flex-col gap-4">
               {metadata?.map((metadataItem) => (
                 <div

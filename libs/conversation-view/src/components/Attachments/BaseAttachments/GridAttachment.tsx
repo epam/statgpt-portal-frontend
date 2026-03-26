@@ -86,7 +86,7 @@ const GridAttachment: FC<Props> = ({
   return (
     <div className={`w-full ${className}`}>
       <div
-        className="ag-theme-quartz w-full min-h-[80px] max-h-[400px]"
+        className="ag-theme-quartz max-h-[400px] min-h-[80px] w-full"
         style={{ height: gridHeight }}
       >
         {memoizedGrid}

@@ -115,14 +115,15 @@ const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
   }, [
     sidePanel,
     isOpenedAdvancedView,
-    metadata,
-    datasetInfo,
+    params.colId,
     params.titles,
     params.locale,
+    metadata,
+    datasetInfo,
   ]);
 
   return (
-    <div className="w-full h-full p-2 relative">
+    <div className="relative size-full p-2">
       {params.valueFormatted ?? params.value}
       {showTriangle && (
         <div
