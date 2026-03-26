@@ -35,7 +35,7 @@ export default [
       ecmaVersion: 'latest',
       sourceType: 'module',
       parserOptions: {
-        project: true,
+        projectService: true,
       },
       globals: {
         ...globals.browser,
