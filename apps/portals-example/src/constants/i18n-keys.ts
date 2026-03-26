@@ -154,6 +154,10 @@ export enum AttachmentsI18nKeys {
   COUNTRY_DIMENSIONS = 'attachments.countryDimensionsColumnTitle',
   INDICATOR_DIMENSIONS = 'attachments.indicatorDimensionsColumnTitle',
   FREQUENCY = 'attachments.frequencyColumnTitle',
+  TIMESERIES_METADATA_PANEL = 'attachments.timeseriesMetadataPanel',
+  DATASET_METADATA_PANEL = 'attachments.datasetMetadataPanel',
+  COUNTRY_METADATA_PANEL = 'attachments.countryMetadataPanel',
+  INDICATOR_METADATA_PANEL = 'attachments.indicatorMetadataPanel',
 }
 
 export enum TimeI18nKeys {

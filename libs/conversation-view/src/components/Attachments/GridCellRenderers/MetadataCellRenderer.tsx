@@ -130,7 +130,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
       sidePanel.openPanel({
         id: METADATA_SIDE_PANEL_ID,
         scope: isOpenedAdvancedView ? 'advanced' : 'conversation',
-        title: 'Timeseries Metadata',
+        title: params.titles?.timeseriesMetadataPanel || 'Timeseries Metadata',
         bodyClassName: 'overflow-hidden',
         content: (
           <SidePanelMetadataContent
