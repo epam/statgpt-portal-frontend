@@ -22,8 +22,7 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{ts,tsx}": "eslint",
-    "*.{ts,tsx,js,mjs,json,css,scss,md}": "prettier --check"
+    "*.{ts,tsx}": "eslint"
   },
   "private": true,
   "dependencies": {
