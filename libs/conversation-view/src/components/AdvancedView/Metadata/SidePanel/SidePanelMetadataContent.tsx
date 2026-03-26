@@ -85,74 +85,83 @@ const SidePanelMetadataContent: FC<Props> = ({
     [hasStructuredDatasetInfo, metadataDescription],
   );
 
+  const hasAnyContent =
+    hasStructuredDatasetInfo ||
+    genericDescriptionItems.length > 0 ||
+    !!metadata?.length;
+
   return (
     <div className="flex h-full flex-col overflow-hidden px-5 pb-4">
-      {hasStructuredDatasetInfo && dataset && (
-        <DatasetInfoDetails
-          dataset={dataset}
-          agency={agency}
-          lastUpdated={lastUpdated}
-          externalLink={externalLink}
-          formatValue={formatValue}
-        />
-      )}
-
-      {genericDescriptionItems.length > 0 && (
-        <div className="mb-4 flex flex-col gap-2">
-          {genericDescriptionItems.map((descriptionItem, index) => (
-            <div
-              key={`${descriptionItem?.id || descriptionItem?.title}-${index}`}
-              className="flex gap-2 body-3"
-            >
-              <span className="shrink-0 text-neutrals-800">
-                {descriptionItem?.title}:
-              </span>
-              <span className="min-w-0 truncate font-semibold text-neutrals-1000">
-                {formatValue(descriptionItem?.value)}
-              </span>
-            </div>
-          ))}
+      {!hasAnyContent ? (
+        <div className="flex h-full items-center justify-center text-neutrals-700 body-3">
+          {titles?.noMetadata || 'No metadata'}
         </div>
-      )}
+      ) : (
+        <>
+          {hasStructuredDatasetInfo && dataset && (
+            <DatasetInfoDetails
+              dataset={dataset}
+              agency={agency}
+              lastUpdated={lastUpdated}
+              externalLink={externalLink}
+              formatValue={formatValue}
+            />
+          )}
 
-      <div className="flex-1 min-h-0 overflow-y-auto">
-        {metadata?.length ? (
-          <div className="flex flex-col gap-4">
-            {metadata.map((metadataItem) => (
-              <div
-                key={metadataItem?.id || metadataItem?.title}
-                className="flex flex-col gap-1"
-              >
-                {metadataItem?.attachedKeysTitles?.map((attachedKeyTitle) => (
-                  <div
-                    key={attachedKeyTitle}
-                    title={attachedKeyTitle}
+          {genericDescriptionItems.length > 0 && (
+            <div className="mb-4 flex flex-col gap-2">
+              {genericDescriptionItems.map((descriptionItem, index) => (
+                <div
+                  key={`${descriptionItem?.id || descriptionItem?.title}-${index}`}
+                  className="flex gap-2 body-3"
+                >
+                  <span className="shrink-0 text-neutrals-800">
+                    {descriptionItem?.title || descriptionItem?.id}:
+                  </span>
+                  <span className="min-w-0 truncate font-semibold text-neutrals-1000">
+                    {formatValue(descriptionItem?.value)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <div className="flex flex-col gap-4">
+              {metadata?.map((metadataItem) => (
+                <div
+                  key={metadataItem?.id || metadataItem?.title}
+                  className="flex flex-col gap-1"
+                >
+                  {metadataItem?.attachedKeysTitles?.map(
+                    (attachedKeyTitle, index) => (
+                      <div
+                        key={`${attachedKeyTitle}-${index}`}
+                        title={attachedKeyTitle}
+                        className="body-3 text-neutrals-800"
+                      >
+                        {attachedKeyTitle}
+                      </div>
+                    ),
+                  )}
+                  <p
+                    title={metadataItem?.title}
                     className="body-3 text-neutrals-800"
                   >
-                    {attachedKeyTitle}
-                  </div>
-                ))}
-                <p
-                  title={metadataItem?.title}
-                  className="body-3 text-neutrals-800"
-                >
-                  {metadataItem?.title}
-                </p>
-                <p
-                  title={formatValue(metadataItem?.value)}
-                  className="body-2 break-words text-neutrals-1000"
-                >
-                  {formatValue(metadataItem?.value)}
-                </p>
-              </div>
-            ))}
+                    {metadataItem?.title || metadataItem?.id}
+                  </p>
+                  <p
+                    title={formatValue(metadataItem?.value)}
+                    className="body-2 break-words text-neutrals-1000"
+                  >
+                    {formatValue(metadataItem?.value)}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
-        ) : (
-          <div className="flex h-full items-center justify-center text-neutrals-700 body-3">
-            {titles?.noMetadata || 'No metadata'}
-          </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 };
