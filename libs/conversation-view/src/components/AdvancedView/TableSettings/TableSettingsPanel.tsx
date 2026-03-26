@@ -28,10 +28,10 @@ export const TableSettingsPanelHeaderExtension = ({
   const headerExtension = (
     <button
       type="button"
-      className="text-neutrals-800 flex gap-1 items-center"
+      className="flex items-center gap-1 text-neutrals-800"
       onClick={resetColumns}
     >
-      <IconRotate className="rotate-180 size-4" />
+      <IconRotate className="size-4 rotate-180" />
       <span className="h4">{resetTitle || 'Reset'}</span>
     </button>
   );

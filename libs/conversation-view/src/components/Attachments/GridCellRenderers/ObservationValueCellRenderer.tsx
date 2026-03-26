@@ -162,7 +162,7 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
 
   return (
     <>
-      <div className="w-full h-full p-2 text-end relative">
+      <div className="relative size-full p-2 text-end">
         {params?.valueFormatted || params?.value}
         {attributes?.length > 0 && (
           <div

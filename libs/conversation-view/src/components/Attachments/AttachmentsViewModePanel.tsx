@@ -66,7 +66,7 @@ const AttachmentsViewModePanel: FC<Props> = ({
     );
 
   return (
-    <div className="flex min-w-0 w-full justify-between itms-center">
+    <div className="itms-center flex w-full min-w-0 justify-between">
       <AttachmentTabs
         dataGridTitle={attachmentsStyles?.dataGridTitle}
         attachments={attachments}
@@ -75,11 +75,11 @@ const AttachmentsViewModePanel: FC<Props> = ({
         onSelectedAttachmentChange={onSelectedAttachmentChange}
         titles={titles}
       />
-      <div className="flex gap-x-3 items-center flex-wrap w-fit justify-end attachments-buttons">
+      <div className="attachments-buttons flex w-fit flex-wrap items-center justify-end gap-x-3">
         {selectedAttachment &&
           isCustomGridAttachment(selectedAttachment) &&
           isExternaLinkIncludeFilters && (
-            <a href={externalLink} target="_blank">
+            <a href={externalLink} target="_blank" rel="noreferrer">
               <Button
                 title={limitMessages?.dataExplorer || 'Data explorer'}
                 buttonClassName="text-button-tertiary small-icon-button [&>svg]:h-[16px] [&>svg]:w-[16px] whitespace-nowrap"

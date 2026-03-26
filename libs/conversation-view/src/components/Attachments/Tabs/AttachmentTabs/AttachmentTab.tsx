@@ -141,7 +141,7 @@ const AttachmentTab: FC<Props> = ({
       onClick={() => onSelectedAttachmentChange(index)}
     >
       {getTypeIcon(attachment, `w-4 h-4`)}
-      <h4 className="truncate max-w-[130px]" title={getTabTitle(attachment)}>
+      <h4 className="max-w-[130px] truncate" title={getTabTitle(attachment)}>
         {getTabTitle(attachment)}
       </h4>
       {isTooltipVisible && (

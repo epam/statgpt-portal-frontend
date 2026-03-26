@@ -167,7 +167,7 @@ const CustomDataGridAttachment: FC<Props> = ({
   }
 
   return (
-    <div className="w-full h-full">
+    <div className="size-full">
       <GridContainer
         ref={gridRef}
         fixHeight={fixHeight}

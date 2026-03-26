@@ -54,12 +54,12 @@ const TagDetails: FC<Props> = ({ datasets = [], locale, titles }) => {
             : '',
         )}
       >
-        <DatasetIcon className="w-4 h-3" />
+        <DatasetIcon className="h-3 w-4" />
         {titles?.dataset ?? 'Dataset'}
       </p>
       {showTagDetails && (
-        <div className="absolute w-[363px] min-h-[100px] left-0 top-[26px] z-[4] text-black">
-          <div className="bg-white shadow mt-1 flex flex-col gap-1">
+        <div className="absolute left-0 top-[26px] z-[4] min-h-[100px] w-[363px] text-black">
+          <div className="mt-1 flex flex-col gap-1 bg-white shadow">
             {datasets.length > 1 ? (
               <div
                 className={classNames(
@@ -90,7 +90,7 @@ const TagDetails: FC<Props> = ({ datasets = [], locale, titles }) => {
                 </p>
               </div>
             ) : null}
-            <div className="px-[16px] pt-[8px] flex flex-col gap-1">
+            <div className="flex flex-col gap-1 px-[16px] pt-[8px]">
               <p
                 className={classNames(
                   'gap-1 items-center relative inline-block w-[fit-content]',
@@ -98,7 +98,7 @@ const TagDetails: FC<Props> = ({ datasets = [], locale, titles }) => {
                   'py-1 px-2 rounded-[20px] bg-accent-500 body-3',
                 )}
               >
-                <DatasetIcon className="w-4 h-4" />
+                <DatasetIcon className="size-4" />
                 {titles?.dataset ?? 'Dataset'}
               </p>
               <h3 className="two-lines max-h-[48px]">
@@ -107,7 +107,7 @@ const TagDetails: FC<Props> = ({ datasets = [], locale, titles }) => {
               </h3>
               <p
                 className={
-                  'text-neutrals-700 two-lines max-h-[32px] body-3  dataset-tag-details-description'
+                  'two-lines body-3 dataset-tag-details-description max-h-[32px]  text-neutrals-700'
                 }
               >
                 {datasets?.[activeTab]?.descriptions?.[locale] ||

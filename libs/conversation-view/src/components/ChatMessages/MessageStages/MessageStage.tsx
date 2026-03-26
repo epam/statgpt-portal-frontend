@@ -16,10 +16,10 @@ const MessageStage: FC<Props> = ({ stage, stageRef, isCurrentStage }) => {
   return (
     <div
       ref={stageRef}
-      className="message-stage flex relative pb-8 last:pb-0 last:mb-8"
+      className="message-stage relative flex pb-8 last:mb-8 last:pb-0"
     >
-      <span className="message-stage-line absolute border-l h-full"></span>
-      <IconPointFilled className="message-stage-indicator flex shrink-0 z-10" />
+      <span className="message-stage-line absolute h-full border-l"></span>
+      <IconPointFilled className="message-stage-indicator z-10 flex shrink-0" />
       <div className="ml-2 w-full">
         <div
           className={classNames(
@@ -62,7 +62,7 @@ const MessageStage: FC<Props> = ({ stage, stageRef, isCurrentStage }) => {
               ),
               pre: (props) => (
                 <pre
-                  className="bg-neutrals-100 border border-neutrals-600"
+                  className="border border-neutrals-600 bg-neutrals-100"
                   {...props}
                 />
               ),

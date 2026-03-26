@@ -211,7 +211,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
         <IconButton
           title={params.titles?.metadata || 'View details'}
           buttonClassName="!text-neutrals-1000 !border-none !p-1"
-          icon={<MetadataIcon className="w-5 h-5" />}
+          icon={<MetadataIcon className="size-5" />}
           onClick={openMetadata}
         />
       </div>

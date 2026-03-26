@@ -33,7 +33,7 @@ export function AgGridColumnsPanel({
   const clearSearchButton = useMemo(
     () => (
       <button type="button" onClick={clearSearchHandler}>
-        <IconX className="text-neutrals-1000 size-4" />
+        <IconX className="size-4 text-neutrals-1000" />
       </button>
     ),
     [clearSearchHandler],
@@ -53,18 +53,18 @@ export function AgGridColumnsPanel({
   });
 
   return (
-    <div className="px-5 py-7 flex flex-col gap-2 flex-1 min-h-0">
+    <div className="flex min-h-0 flex-1 flex-col gap-2 px-5 py-7">
       <InputWithIcon
         inputId="columns-search-input"
         containerClasses={'items-center filters-search-input gap-1 !p-2'}
         cssClass="filters-search-input-text"
         placeholder="Search"
-        iconBeforeInput={<IconSearch className="text-neutrals-1000 size-4" />}
+        iconBeforeInput={<IconSearch className="size-4 text-neutrals-1000" />}
         iconAfterInput={searchQuery ? clearSearchButton : undefined}
         value={searchQuery}
         onChange={changeSearchHandler}
       />
-      <div className="overflow-y-auto flex-1 min-h-0">
+      <div className="min-h-0 flex-1 overflow-y-auto">
         <DraggableList
           items={visibleItems}
           onItemsChange={handleItemsChange}

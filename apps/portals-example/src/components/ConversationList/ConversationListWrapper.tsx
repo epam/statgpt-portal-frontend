@@ -9,6 +9,8 @@ import {
   SignOutTitles,
   UserInfo,
   User,
+  ActionMenuItem,
+  ConversationListTitles,
 } from '@epam/statgpt-conversation-list';
 import MessageIcon from '../../../public/images/message-dots.svg';
 import {
@@ -46,13 +48,9 @@ import { useConversationList } from '../../context/ConversationListContext';
 import {
   getConversationNavPath,
   getConversationId,
+  ApiResponse,
 } from '@epam/statgpt-shared-toolkit';
-import {
-  ActionMenuItem,
-  ConversationListTitles,
-} from '@epam/statgpt-conversation-list';
 import { SIGN_IN_LINK } from '../../constants/auth';
-import { ApiResponse } from '@epam/statgpt-shared-toolkit';
 import { wrapWithAuthHandler } from '../../utils/auth/requests-wrapper';
 import { signOut, useSession } from 'next-auth/react';
 import { ConversationInfo } from '@epam/ai-dial-shared';
@@ -213,7 +211,7 @@ const ConversationListWrapper = () => {
         isCollapsed ? 'w-[64px]' : 'w-[362px]',
       )}
     >
-      <div className="flex flex-col h-[calc(100%-108px)] sm:h-[calc(100%-80px)]">
+      <div className="flex h-[calc(100%-108px)] flex-col sm:h-[calc(100%-80px)]">
         <div
           className={classNames(
             'flex flex-row items-center py-[14px]',
@@ -221,13 +219,13 @@ const ConversationListWrapper = () => {
           )}
         >
           <div
-            className="flex flex-row items-center cursor-pointer"
+            className="flex cursor-pointer flex-row items-center"
             onClick={redirectToMainView}
           >
             <Logo width={34} height={34} />
             {!isCollapsed ? (
-              <span className="text-hues-900 text-start logo ml-3">
-                <p className="font-semibold mr-1 inline mb-1">
+              <span className="logo ml-3 text-start text-hues-900">
+                <p className="mb-1 mr-1 inline font-semibold">
                   {t(I18nKeys.App.TITLE_GLOBAL)}
                 </p>
                 <p className="inline">{t(I18nKeys.App.TITLE)}</p>
@@ -237,7 +235,7 @@ const ConversationListWrapper = () => {
 
           {!isCollapsed ? (
             <i
-              className="text-primary cursor-pointer"
+              className="cursor-pointer text-primary"
               title={t(I18nKeys.App.COLLAPSE)}
               onClick={onToggleCollapse}
             >
@@ -254,7 +252,7 @@ const ConversationListWrapper = () => {
           <div className="flex flex-col gap-3">
             {isCollapsed && (
               <button
-                className="flex self-center justify-center items-center text-primary size-9"
+                className="flex size-9 items-center justify-center self-center text-primary"
                 title={t(I18nKeys.App.EXPAND)}
                 onClick={onToggleCollapse}
               >
@@ -296,7 +294,7 @@ const ConversationListWrapper = () => {
               titles,
               isSmallModalButton: true,
               conversationItemIcon: (
-                <i className="w-[20px] h-[20px] mr-4">
+                <i className="mr-4 size-[20px]">
                   <MessageIcon width={20} height={20} />
                 </i>
               ),
@@ -318,7 +316,7 @@ const ConversationListWrapper = () => {
             isCollapsed && '!p-0 !w-fit !self-center mb-6',
           )}
         >
-          <div className="border border-neutrals-500 p-[7px] rounded-[100px] w-full flex">
+          <div className="flex w-full rounded-[100px] border border-neutrals-500 p-[7px]">
             <User
               userInfo={session?.user as UserInfo}
               signOutAction={signOutAction}

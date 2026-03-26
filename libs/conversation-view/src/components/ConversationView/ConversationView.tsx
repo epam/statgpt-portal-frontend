@@ -860,8 +860,8 @@ export const ConversationView: FC<Props> = ({
             shareConversationProps={shareConversationProps}
           />
         )}
-        <div className="flex flex-1 min-h-0 w-full">
-          <div className="flex-1 min-h-0 flex flex-col">
+        <div className="flex min-h-0 w-full flex-1">
+          <div className="flex min-h-0 flex-1 flex-col">
             <div
               className={classNames(
                 'flex-1 min-h-0 flex flex-col items-end scroll-hidden-container',
@@ -913,7 +913,7 @@ export const ConversationView: FC<Props> = ({
                 {getInput()}
               </div>
             ) : (
-              <div className="flex items-center justify-center mt-4">
+              <div className="mt-4 flex items-center justify-center">
                 <Button
                   iconBefore={<IconCopy width={20} height={20} />}
                   title={titles?.duplicate ?? 'Duplicate Chat'}

@@ -13,13 +13,13 @@ const MetadataDescriptionItem: FC<StructureComponentValue> = ({
   );
 
   return (
-    <div className="flex gap-x-3 body-3">
+    <div className="body-3 flex gap-x-3">
       <p title={title} className="text-neutrals-800">
         {title}:
       </p>
       <p
         title={getMetadataDescriptionValue()}
-        className="font-semibold truncate pr-3"
+        className="truncate pr-3 font-semibold"
       >
         {getMetadataDescriptionValue()}
       </p>

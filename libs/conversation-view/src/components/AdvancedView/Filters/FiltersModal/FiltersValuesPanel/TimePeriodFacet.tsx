@@ -149,7 +149,7 @@ const TimePeriodFacet: FC<Props> = ({
   );
 
   return (
-    <div className="mt-3 overflow-auto flex flex-col pt-2 pb-2 pr-3 h-full flex-1 min-w-0">
+    <div className="mt-3 flex h-full min-w-0 flex-1 flex-col overflow-auto py-2 pr-3">
       <div className="w-full">
         {filteredPeriodsButtons.map((periodButton) => (
           <Radio
@@ -175,7 +175,7 @@ const TimePeriodFacet: FC<Props> = ({
 
       <div className="w-full">
         {selectedTimeOption === CUSTOM_PERIOD && (
-          <div className="flex filters-time-period gap-4 mt-3 caption text-neutral-700">
+          <div className="filters-time-period caption mt-3 flex gap-4 text-neutral-700">
             <Calendar
               onChange={pickStartDate}
               options={startPickerOptions}

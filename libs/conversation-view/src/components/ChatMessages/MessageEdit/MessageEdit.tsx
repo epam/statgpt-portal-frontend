@@ -51,7 +51,7 @@ const MessageEdit: FC<Props> = ({
     >
       <textarea
         ref={textRef}
-        className="resize-none overflow-hidden outline-none bg-neutrals-300 w-full"
+        className="w-full resize-none overflow-hidden bg-neutrals-300 outline-none"
         defaultValue={content}
         onInput={onInput}
       />

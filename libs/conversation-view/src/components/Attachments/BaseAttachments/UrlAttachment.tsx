@@ -28,26 +28,26 @@ const UrlAttachment: FC<Props> = ({
 
   return (
     <div
-      className={`border rounded-lg bg-white pl-4 py-3 pr-3 max-w-[500px] ${className}`}
+      className={`max-w-[500px] rounded-lg border bg-white py-3 pl-4 pr-3 ${className}`}
     >
       <div className="flex items-start gap-2">
         <span
-          className="text-hues-800 flex-shrink-0 mt-1"
+          className="mt-1 shrink-0 text-hues-800"
           role="img"
           aria-label="Link"
         >
           <LinkIcon width={16} height={16} />
         </span>
 
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="mb-1">
             <Link url={url} title={attachment.title} />
           </div>
 
-          <div className="text-neutrals-600 break-all truncate">{url}</div>
+          <div className="truncate break-all text-neutrals-600">{url}</div>
         </div>
 
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <Button
             title={openLinkTitle ?? 'Open link'}
             onClick={() => openUrl(url)}

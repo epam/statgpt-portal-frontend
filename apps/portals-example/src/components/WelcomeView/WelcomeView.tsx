@@ -81,7 +81,7 @@ const WelcomeView = () => {
       titles={conversationViewTitles}
       suggestionsList={suggestionsList}
       welcomeText={welcomeText}
-      titleIcon={<WelcomeTitleIcon className="w-9 h-9 mr-4" />}
+      titleIcon={<WelcomeTitleIcon className="mr-4 size-9" />}
       handleConversationClick={handleConversationSelect}
       actions={serverActions}
       inputMessageStyles={{

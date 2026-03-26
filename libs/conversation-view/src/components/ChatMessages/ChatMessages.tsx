@@ -172,7 +172,7 @@ const ChatMessages: FC<Props> = ({
               rel="noopener noreferrer"
               className="inline-flex items-center align-middle"
             >
-              <IconExternalLink className="text-primary cursor-pointer w-4 h-4 shrink-0" />
+              <IconExternalLink className="size-4 shrink-0 cursor-pointer text-primary" />
             </a>
           );
         })}
@@ -181,8 +181,8 @@ const ChatMessages: FC<Props> = ({
   }, []);
 
   return (
-    <div ref={containerRef} className="h-full w-full flex justify-center">
-      <div className="flex flex-col gap-y-6 w-full chat-messages-wrapper">
+    <div ref={containerRef} className="flex size-full justify-center">
+      <div className="chat-messages-wrapper flex w-full flex-col gap-y-6">
         {messages.map((message, index) => {
           const key = message.id ?? index;
 
@@ -241,7 +241,7 @@ const ChatMessages: FC<Props> = ({
           showScrollButton ? 'block' : 'hidden',
         )}
       >
-        <div className="flex justify-center items-center w-full h-full">
+        <div className="flex size-full items-center justify-center">
           {scrollBottomIcon}
         </div>
       </div>

@@ -11,14 +11,13 @@ import { MetadataSettings } from '../../models/metadata';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { AttachmentsActions } from '../../models/actions';
 import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
-import { Loader } from '@epam/statgpt-ui-components';
+import { Loader, LimitMessages } from '@epam/statgpt-ui-components';
 import { useAttachmentsData } from '../../context/AttachmentsData';
 import { AdvanceViewStyles } from '../../models/advance-view-styles';
 import classNames from 'classnames';
 import DatasetTabs from '../Attachments/Tabs/DatasetTabs/DatasetTabs';
 import { ConversationViewTitles } from '../../models/titles';
 import { StructureComponentValue } from '../../models/structure-component';
-import { LimitMessages } from '@epam/statgpt-ui-components';
 import {
   DataConstraints,
   DatasetQueryFilters,
@@ -182,7 +181,7 @@ export const AdvancedView: FC<Props> = ({
         locale={locale}
         dataQueries={attachmentsProps?.dataQueries}
       >
-        <div className="advanced-view flex flex-col flex-1 h-full min-w-0">
+        <div className="advanced-view flex h-full min-w-0 flex-1 flex-col">
           <Header
             titles={titles}
             locale={locale}

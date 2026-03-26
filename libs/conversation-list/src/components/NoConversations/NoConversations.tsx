@@ -9,11 +9,11 @@ interface Props {
 
 const NoConversations: FC<Props> = ({ titles }) => {
   return (
-    <div className="p-8 text-center flex flex-col">
+    <div className="flex flex-col p-8 text-center">
       <p className="text-neutrals-800">
         {titles?.noConversation ?? 'No conversations yet'}
       </p>
-      <p className="text-sm text-neutrals-800 mt-2">
+      <p className="mt-2 text-sm text-neutrals-800">
         {titles?.clickNewChat ?? 'Click "New Chat" to start a conversation'}
       </p>
     </div>

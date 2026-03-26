@@ -70,7 +70,7 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
         <IconButton
           title={params.titles?.chart ?? 'Chart'}
           buttonClassName="!text-neutrals-1000 !border-none !p-1"
-          icon={<ChartIcon className="w-5 h-5" />}
+          icon={<ChartIcon className="size-5" />}
           onClick={openChart}
         />
       </div>
