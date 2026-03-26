@@ -9,7 +9,10 @@ import {
 import { FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import { ColDef } from 'ag-grid-community';
 import { ConversationViewTitles } from '../../../models/titles';
-import { getChartColumn } from '../../../constants/grid';
+import {
+  getChartColumn,
+  getCrossDatasetMetadataColumn,
+} from '../../../constants/grid';
 
 export function buildCrossDatasetGridColumns(
   structuresMap: Map<string, StructuralData | undefined>,
@@ -32,10 +35,14 @@ export function buildCrossDatasetGridColumns(
   );
   const timeColumns = getCrossDatasetTimeseriesColumns(
     dataMessagesMap,
+    structuresMap,
+    locale,
     formattingSettings,
     titles,
   );
+
   return [
+    getCrossDatasetMetadataColumn(structuresMap, locale, titles),
     ...datasetInfoColumns,
     ...dimColumns,
     ...timeColumns,

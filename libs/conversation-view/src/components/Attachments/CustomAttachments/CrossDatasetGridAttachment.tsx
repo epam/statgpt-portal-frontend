@@ -12,12 +12,16 @@ import {
   CHART_COLUMN_ID,
   GRID_HEADER_HEIGHT,
   GRID_ROW_HEIGHT,
+  MERGED_DIMENSION_CELL_RENDER,
   METADATA_CELL_RENDER,
   OBSERVATION_VALUE_CELL_RENDER,
+  DATASET_DETAIL_CELL_RENDER,
 } from '../../../constants/grid';
 import MetadataCellRenderer from '../GridCellRenderers/MetadataCellRenderer';
 import ObservationValueCellRenderer from '../GridCellRenderers/ObservationValueCellRenderer';
 import ChartCellRenderer from '../GridCellRenderers/ChartCellRenderer';
+import MergedDimensionCellRenderer from '../GridCellRenderers/MergedDimensionCellRenderer';
+import DatasetDetailCellRenderer from '../GridCellRenderers/DatasetDetailCellRenderer';
 import GridContainer from './GridContainer';
 
 interface Props {
@@ -89,7 +93,9 @@ const CrossDatasetGridAttachment: FC<Props> = ({
         components={{
           [METADATA_CELL_RENDER]: MetadataCellRenderer,
           [OBSERVATION_VALUE_CELL_RENDER]: ObservationValueCellRenderer,
+          [MERGED_DIMENSION_CELL_RENDER]: MergedDimensionCellRenderer,
           [CHART_CELL_RENDER]: ChartCellRenderer,
+          [DATASET_DETAIL_CELL_RENDER]: DatasetDetailCellRenderer,
         }}
         onGridReady={handleGridReady}
       />

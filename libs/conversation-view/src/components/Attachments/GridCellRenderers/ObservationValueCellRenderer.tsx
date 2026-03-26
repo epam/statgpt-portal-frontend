@@ -28,6 +28,7 @@ import { getDateFormattedValue } from '../../../utils/date-format';
 
 interface ObservationValueCellRendererParams extends ICellRendererParams {
   dataSetData: StructuralData;
+  structuresMap?: Map<string, StructuralData | undefined>;
   locale: string;
   metadataSettings?: MetadataSettings;
   titles?: ConversationViewTitles;
@@ -43,9 +44,16 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
   const sidePanel = useConversationViewSidePanelOptional();
   const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
   const externalLink = params?.context?.externalLink as string | undefined;
+  const dataSetData = useMemo(() => {
+    if (params.structuresMap) {
+      const urn = params?.data?.dataset?.urn as string | undefined;
+      return urn != null ? params.structuresMap.get(urn) : undefined;
+    }
+    return params.dataSetData;
+  }, [params.structuresMap, params.data, params.dataSetData]);
   const structureComponentsMap = useMemo(
-    () => getStructureComponentsMap(params?.dataSetData),
-    [params?.dataSetData],
+    () => getStructureComponentsMap(dataSetData),
+    [dataSetData],
   );
   const attributes = useMemo(
     () =>
@@ -59,7 +67,7 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
   const metadata = useMemo(
     () => [
       getDatasetNameItem(
-        params?.dataSetData?.dataflows?.[0],
+        dataSetData?.dataflows?.[0],
         params?.locale,
         params?.titles,
       ),
@@ -70,11 +78,7 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
       ),
       ...(!params?.metadataSettings?.isMetadataDescription
         ? [
-            getTimeDimensionItem(
-              params?.dataSetData,
-              params?.locale,
-              params?.colDef,
-            ),
+            getTimeDimensionItem(dataSetData, params?.locale, params?.colDef),
             getObservationItem(
               params?.valueFormatted || params?.value,
               params?.titles,
@@ -83,22 +87,22 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
         : []),
       ...attributes,
     ],
-    [params, structureComponentsMap, attributes],
+    [params, dataSetData, structureComponentsMap, attributes],
   );
   const metadataDescription = useMemo(
     () =>
       getMetadataDescriptionItems(
-        params?.dataSetData,
+        dataSetData,
         params?.locale,
         params?.valueFormatted || params?.value,
         params?.titles,
         params?.colDef,
         params?.data,
       ),
-    [params],
+    [params, dataSetData],
   );
   const sidePanelDatasetInfo = useMemo(() => {
-    const dataset = params?.dataSetData?.dataflows?.[0];
+    const dataset = dataSetData?.dataflows?.[0];
     const lastUpdatedDate = getDateFormattedValue(
       getLastUpdatedTime(dataset),
       params?.locale,
@@ -110,7 +114,7 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
       params?.locale,
       params?.titles,
     );
-  }, [params?.dataSetData, params?.locale, params?.titles]);
+  }, [dataSetData, params?.locale, params?.titles]);
 
   const openMetadata = useCallback(() => {
     if (isMetadataInSidePanel && sidePanel) {

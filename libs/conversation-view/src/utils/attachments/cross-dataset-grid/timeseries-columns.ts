@@ -2,6 +2,7 @@ import {
   DataMessage,
   getTimePeriods,
   sortPeriods,
+  StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
 import {
   defaultFormatNumbers,
@@ -19,6 +20,8 @@ import { ConversationViewTitles } from '../../../models/titles';
 
 export function getCrossDatasetTimeseriesColumns(
   dataMessagesMap: Map<string, DataMessage | null>,
+  structuresMap: Map<string, StructuralData | undefined>,
+  locale: string,
   formattingSettings?: FormatNumbersType,
   titles?: ConversationViewTitles,
 ): ColDef[] {
@@ -35,6 +38,8 @@ export function getCrossDatasetTimeseriesColumns(
       cellRenderer: OBSERVATION_VALUE_CELL_RENDER,
       width: DEFAULT_GRID_COLUMN_WITH,
       cellRendererParams: {
+        structuresMap,
+        locale,
         titles,
       },
     };

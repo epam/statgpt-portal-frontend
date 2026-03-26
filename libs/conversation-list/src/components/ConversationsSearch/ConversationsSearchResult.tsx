@@ -22,6 +22,7 @@ interface Props {
   actions: ConversationListActions;
   shareConversationProps?: ShareConversationProps;
   handleConversationClick: (folder: string, conversationId: string) => void;
+  isDisabled?: boolean;
 }
 
 const ConversationsSearchResult: FC<Props> = ({
@@ -33,6 +34,7 @@ const ConversationsSearchResult: FC<Props> = ({
   actions,
   locale,
   shareConversationProps,
+  isDisabled,
 }) => {
   const [filteredConversations, setFilteredConversations] = useState<
     ConversationInfo[]
@@ -68,6 +70,7 @@ const ConversationsSearchResult: FC<Props> = ({
             onConversationClick={handleConversationClick}
             actions={actions}
             shareConversationProps={shareConversationProps}
+            isDisabled={isDisabled}
           />
         ))
       )}
