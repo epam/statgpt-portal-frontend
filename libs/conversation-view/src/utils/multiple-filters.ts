@@ -29,7 +29,10 @@ import {
 } from '@epam/statgpt-shared-toolkit';
 import { StructureDataMaps } from '../models/structure-data';
 import { getFilledFilters } from './get-filled-filters';
-import { getSeriesFilterDto } from './get-series-filters';
+import {
+  getSeriesFilterDto,
+  normalizeConstraintFilters,
+} from './get-series-filters';
 import { buildRequestCacheKey, getCachedRequestResult } from './request-cache';
 import { getQueryFilters, setDataQueryFilters } from './query-filters';
 
@@ -489,10 +492,11 @@ export const getConstraintsRequests = (
   return (
     dataQueries?.map((dataQuery) => {
       const attachmentUrn = dataQuery?.urn ?? '';
-      const constraintFilters = getSeriesFilterDto(
-        filtersMap?.get(attachmentUrn) || [],
-      ).filter((filter) => filter.componentCode !== TIME_PERIOD);
-      // TODO: Review cached requests, because they sometimes do not call when needed
+      const constraintFilters = normalizeConstraintFilters(
+        getSeriesFilterDto(filtersMap?.get(attachmentUrn) || []).filter(
+          (filter) => filter.componentCode !== TIME_PERIOD,
+        ),
+      );
       return actions
         ? getCachedRequestResult(
             actions.getConstraints,

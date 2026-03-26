@@ -65,6 +65,13 @@ export const getTimeSeriesFilterDto = (
     },
   ];
 };
+export const normalizeConstraintFilters = (
+  filters: SeriesFilterDto[],
+): SeriesFilterDto[] =>
+  [...filters]
+    .map((f) => ({ ...f, value: f.value.split(',').sort().join(',') }))
+    .sort((a, b) => a.componentCode.localeCompare(b.componentCode));
+
 export const ONE_DAY_MS = 1000 * 60 * 60 * 24;
 
 export const getTimeFilter = (date: Date, increment = 0): string => {

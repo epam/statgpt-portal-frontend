@@ -19,6 +19,8 @@ import {
 } from '../../types/actions';
 import { getTimeQueryFilterFromAttachment } from '../query-filters';
 import { DatasetData, StructureDataMaps } from '../../models/structure-data';
+import { buildRequestCacheKey, getCachedRequestResult } from '../request-cache';
+import { normalizeConstraintFilters } from '../get-series-filters';
 
 export const getDataConstraintsMap = async (
   dataQueries: DataQuery[],
@@ -28,13 +30,19 @@ export const getDataConstraintsMap = async (
   const filtersDtoMap = getFiltersDtoMapFromDataQuery(dataQueries);
 
   const settledConstraints = await Promise.allSettled(
-    dataQueries.map(async (dataQuery) => ({
-      urn: dataQuery.urn,
-      response: await getConstraintsAction(
-        dataQuery.urn,
-        filtersDtoMap?.get(dataQuery.urn),
-      ),
-    })),
+    dataQueries.map(async (dataQuery) => {
+      const filtersDto = normalizeConstraintFilters(
+        filtersDtoMap?.get(dataQuery.urn) || [],
+      );
+      return {
+        urn: dataQuery.urn,
+        response: await getCachedRequestResult(
+          getConstraintsAction,
+          buildRequestCacheKey(dataQuery.urn, filtersDto),
+          () => getConstraintsAction(dataQuery.urn, filtersDto),
+        ),
+      };
+    }),
   );
 
   settledConstraints.forEach((result) => {
@@ -67,7 +75,11 @@ export const getStructureDataMaps = async (
 
   await Promise.allSettled(
     dataQueries.map(async (dataQuery) => {
-      const dataSet = await getDataSetAction(dataQuery.urn);
+      const dataSet = await getCachedRequestResult(
+        getDataSetAction,
+        buildRequestCacheKey(dataQuery.urn),
+        () => getDataSetAction(dataQuery.urn),
+      );
 
       if (dataSet?.data) {
         const dimensions = getDimensions(dataSet.data);
@@ -120,10 +132,13 @@ export const getDataSetData = async (
   filterParams: DatasetQueryFilters,
   getDataSetDataAction: GetDatasetData,
 ): Promise<DatasetData> => {
-  return getDataSetDataAction?.(dataQuery.urn, filterParams).then((data) => {
-    return {
-      dataMessage: data,
-      structureDimensions: getStructureDimensions(data),
-    };
-  });
+  const data = await getCachedRequestResult(
+    getDataSetDataAction,
+    buildRequestCacheKey(dataQuery.urn, filterParams),
+    () => getDataSetDataAction(dataQuery.urn, filterParams),
+  );
+  return {
+    dataMessage: data,
+    structureDimensions: getStructureDimensions(data),
+  };
 };
