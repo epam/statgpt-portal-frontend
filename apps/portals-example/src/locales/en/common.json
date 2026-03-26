@@ -121,7 +121,11 @@
     "limitInfo_link": "Open Advanced Mode",
     "countryDimensionsColumnTitle": "Country dimensions",
     "indicatorDimensionsColumnTitle": "Indicator dimensions",
-    "frequencyColumnTitle": "Frequency"
+    "frequencyColumnTitle": "Frequency",
+    "timeseriesMetadataPanel": "Timeseries Metadata",
+    "datasetMetadataPanel": "Dataset Metadata",
+    "countryMetadataPanel": "Country dimension details",
+    "indicatorMetadataPanel": "Indicator dimension details"
   },
   "time": {
     "quarterly": "Q",

@@ -43,6 +43,14 @@ function getDimKeysForColumn(
   return [];
 }
 
+function getPanelTitle(colId: string, titles?: ConversationViewTitles): string {
+  if (colId === INDICATOR_COL_ID)
+    return titles?.indicatorMetadataPanel || 'Indicator dimension details';
+  if (colId === COUNTRY_COL_ID)
+    return titles?.countryMetadataPanel || 'Country dimension details';
+  return titles?.metadata || 'Metadata';
+}
+
 const METADATA_SIDE_PANEL_ID = 'merged-dimension-metadata-side-panel';
 
 const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
@@ -93,7 +101,7 @@ const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
     sidePanel.openPanel({
       id: METADATA_SIDE_PANEL_ID,
       scope: isOpenedAdvancedView ? 'advanced' : 'conversation',
-      title: params.titles?.metadata || 'Metadata',
+      title: getPanelTitle(params.colId, params.titles),
       bodyClassName: 'overflow-hidden',
       content: (
         <SidePanelMetadataContent

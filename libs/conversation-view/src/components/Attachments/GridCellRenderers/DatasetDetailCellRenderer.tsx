@@ -51,7 +51,7 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
     sidePanel.openPanel({
       id: METADATA_SIDE_PANEL_ID,
       scope: isOpenedAdvancedView ? 'advanced' : 'conversation',
-      title: params.titles?.metadata || 'Metadata',
+      title: params.titles?.datasetMetadataPanel || 'Dataset Metadata',
       bodyClassName: 'overflow-hidden',
       content: (
         <SidePanelMetadataContent

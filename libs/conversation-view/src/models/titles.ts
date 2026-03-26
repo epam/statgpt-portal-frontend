@@ -95,4 +95,8 @@ export interface ConversationViewTitles extends WelcomeViewTitles {
   countryDimensions?: string;
   indicatorDimensions?: string;
   frequency?: string;
+  timeseriesMetadataPanel?: string;
+  datasetMetadataPanel?: string;
+  countryMetadataPanel?: string;
+  indicatorMetadataPanel?: string;
 }
