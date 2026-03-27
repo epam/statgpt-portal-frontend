@@ -42,6 +42,7 @@ import {
   buildRequestCacheKey,
   getCachedRequestResult,
 } from '../utils/request-cache';
+import { normalizeConstraintFilters } from '../utils/normalize-constraint-filters';
 import {
   createInitialGridAttachment,
   createInitialChartAttachment,
@@ -110,7 +111,9 @@ export function useAttachmentsData(
 
   const loadConstraints = useCallback(
     async (dataQuery: DataQuery) => {
-      const filtersDto = getFiltersDtoFromDataQuery(dataQuery);
+      const filtersDto = normalizeConstraintFilters(
+        getFiltersDtoFromDataQuery(dataQuery),
+      );
 
       try {
         const response = await getCachedRequestResult(

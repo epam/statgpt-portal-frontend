@@ -2,36 +2,11 @@ type AsyncAction<TArgs extends readonly unknown[], TResult> = (
   ...args: TArgs
 ) => Promise<TResult>;
 
-type ResolvedCache = Map<string, unknown>;
-type InFlightCache = Map<string, Promise<unknown>>;
+const resolvedRequests = new Map<string, unknown>();
+const inFlightRequests = new Map<string, Promise<unknown>>();
 
-const resolvedRequests = new WeakMap<object, ResolvedCache>();
-const inFlightRequests = new WeakMap<object, InFlightCache>();
-const cacheRegistry = new Set<ResolvedCache | InFlightCache>();
-
-function getOrCreateCache<TCache extends ResolvedCache | InFlightCache>(
-  storage: WeakMap<object, TCache>,
-  action: object,
-  createCache: () => TCache,
-): TCache {
-  const existingCache = storage.get(action);
-  if (existingCache) {
-    return existingCache;
-  }
-
-  const nextCache = createCache();
-  storage.set(action, nextCache);
-  cacheRegistry.add(nextCache);
-
-  return nextCache;
-}
-
-function getResolvedMap(action: object) {
-  return getOrCreateCache(resolvedRequests, action, () => new Map());
-}
-
-function getInFlightMap(action: object) {
-  return getOrCreateCache(inFlightRequests, action, () => new Map());
+function getFullKey(action: object, key: string): string {
+  return `${(action as { name?: string }).name ?? ''}::${key}`;
 }
 
 export function buildRequestCacheKey(...parts: readonly unknown[]) {
@@ -46,31 +21,32 @@ export async function getCachedRequestResult<
   key: string,
   request: () => Promise<TResult>,
 ): Promise<TResult> {
-  const resolvedCache = getResolvedMap(action as object);
-  if (resolvedCache.has(key)) {
-    return resolvedCache.get(key) as TResult;
+  const fullKey = getFullKey(action, key);
+
+  if (resolvedRequests.has(fullKey)) {
+    return resolvedRequests.get(fullKey) as TResult;
   }
 
-  const inFlightCache = getInFlightMap(action as object);
-  const inFlightRequest = inFlightCache.get(key);
+  const inFlightRequest = inFlightRequests.get(fullKey);
   if (inFlightRequest) {
     return inFlightRequest as Promise<TResult>;
   }
 
   const nextRequest = request()
     .then((result) => {
-      resolvedCache.set(key, result);
+      resolvedRequests.set(fullKey, result);
       return result;
     })
     .finally(() => {
-      inFlightCache.delete(key);
+      inFlightRequests.delete(fullKey);
     });
 
-  inFlightCache.set(key, nextRequest);
+  inFlightRequests.set(fullKey, nextRequest);
 
   return nextRequest;
 }
 
 export function clearRequestCache() {
-  cacheRegistry.forEach((cache) => cache.clear());
+  resolvedRequests.clear();
+  inFlightRequests.clear();
 }

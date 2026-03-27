@@ -25,6 +25,7 @@ import {
 } from '../../../utils/filters';
 import { getFilledFilters } from '../../../utils/get-filled-filters';
 import { getSeriesFilterDto } from '../../../utils/get-series-filters';
+import { normalizeConstraintFilters } from '../../../utils/normalize-constraint-filters';
 import {
   getQueryFilters,
   setDataQueryFilters,
@@ -119,8 +120,10 @@ const Filters: FC<FiltersProps> = ({
       setIsConstraintsLoading?: (isLoading: boolean) => void,
     ) => {
       const attachmentUrn = attachmentsDataQuery?.urn ?? '';
-      const constraintFilters = getSeriesFilterDto(filters).filter(
-        (filter) => filter.componentCode !== TIME_PERIOD,
+      const constraintFilters = normalizeConstraintFilters(
+        getSeriesFilterDto(filters).filter(
+          (filter) => filter.componentCode !== TIME_PERIOD,
+        ),
       );
       const request = actions
         ? getCachedRequestResult(
@@ -200,6 +203,7 @@ const Filters: FC<FiltersProps> = ({
     });
 
     if (!isPreselectedFromDataQuery.current) {
+      if (!structures) return;
       const filtersFromDataQuery = getFiltersPreselectedByDataQuery(
         dataFiltersFilled,
         attachmentsDataQuery,
@@ -340,8 +344,10 @@ const Filters: FC<FiltersProps> = ({
       setIsDisableFilterValues(true);
       setModalFilters(updateFiltersWithDisabledOption(filtersToUpdate));
       const attachmentUrn = attachmentsDataQuery?.urn ?? '';
-      const constraintFilters = getSeriesFilterDto(filtersToUpdate).filter(
-        (filter) => filter.componentCode !== TIME_PERIOD,
+      const constraintFilters = normalizeConstraintFilters(
+        getSeriesFilterDto(filtersToUpdate).filter(
+          (filter) => filter.componentCode !== TIME_PERIOD,
+        ),
       );
 
       const request = actions

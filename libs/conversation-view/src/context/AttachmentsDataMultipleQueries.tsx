@@ -57,12 +57,18 @@ export function useAttachmentsDataMultipleQueries(
   const [crossDatasetChartAttachment, setCrossDatasetChartAttachment] =
     useState(createInitialChartAttachment(titles?.chart));
 
+  const {
+    getConstraints,
+    getDataSet,
+    getDataSetData: getDataSetDataAction,
+  } = actions;
+
   const loadConstraintsMap = useCallback(
     async (dataQueries: DataQuery[]) => {
       try {
         const constraintsMap = await getDataConstraintsMap(
           dataQueries,
-          actions.getConstraints,
+          getConstraints,
         );
         setStructureDataMaps((prevStructureDataMaps) => ({
           ...prevStructureDataMaps,
@@ -75,15 +81,15 @@ export function useAttachmentsDataMultipleQueries(
         }));
       }
     },
-    [actions],
+    [getConstraints],
   );
 
   const loadStructureData = useCallback(
     async (dataQueries: DataQuery[]) => {
       const structureDataMaps = await getStructureDataMaps(
         dataQueries,
-        actions.getDataSet,
-        actions.getDataSetData,
+        getDataSet,
+        getDataSetDataAction,
         setIsLoadingGridData,
       );
       setStructureDataMaps((prevStructureDataMaps) => ({
@@ -91,7 +97,7 @@ export function useAttachmentsDataMultipleQueries(
         ...structureDataMaps,
       }));
     },
-    [actions],
+    [getDataSet, getDataSetDataAction],
   );
 
   const { getDimensionsScheme } = useDatasetDimensionsMetadataMap();
@@ -247,7 +253,7 @@ export function useAttachmentsDataMultipleQueries(
           getDataSetData(
             dataQuery,
             filterParamsMap?.get(dataQuery?.urn) as DatasetQueryFilters,
-            actions.getDataSetData,
+            getDataSetDataAction,
           )
             .then(({ dataMessage, structureDimensions }) => {
               setStructureDataMaps((prevStructureDataMaps) => {
@@ -277,7 +283,7 @@ export function useAttachmentsDataMultipleQueries(
         console.error('Error loading dataset data', err as object);
       }
     },
-    [actions.getDataSetData],
+    [getDataSetDataAction],
   );
 
   return {
