@@ -89,14 +89,22 @@ const FilterSettings: FC<Props> = ({
     [filtersList, setSelectedFilter],
   );
 
-  const onSelectFilterValue = (id: string, isSelectedValue?: boolean) => {
-    if (!selectedFilter) {
+  const onSelectFilterValue = (
+    id: string,
+    isSelectedValue?: boolean,
+    targetFilter?: Filter,
+  ) => {
+    const filterToUpdate = targetFilter || selectedFilter;
+    const shouldUpdateSelectedFilter =
+      !targetFilter || isSameFilter(targetFilter, selectedFilter);
+
+    if (!filterToUpdate) {
       return;
     }
 
     const updatedFilter = {
-      ...selectedFilter,
-      dimensionValues: selectedFilter?.dimensionValues?.map(
+      ...filterToUpdate,
+      dimensionValues: filterToUpdate?.dimensionValues?.map(
         (dimensionValue) => {
           if (dimensionValue?.id === id) {
             return { ...dimensionValue, isSelectedValue };
@@ -105,20 +113,29 @@ const FilterSettings: FC<Props> = ({
         },
       ),
     };
-    setSelectedFilter(updatedFilter);
+    if (shouldUpdateSelectedFilter) {
+      setSelectedFilter(updatedFilter);
+    }
     if (updateSelectedFilterValues) {
       updateSelectedFilterValues(updatedFilter);
     }
   };
 
-  const onSelectHierarchicalNodes = (nodes?: FilterTreeNodeProps[]) => {
-    if (!selectedFilter) {
+  const onSelectHierarchicalNodes = (
+    nodes?: FilterTreeNodeProps[],
+    targetFilter?: Filter,
+  ) => {
+    const filterToUpdate = targetFilter || selectedFilter;
+    const shouldUpdateSelectedFilter =
+      !targetFilter || isSameFilter(targetFilter, selectedFilter);
+
+    if (!filterToUpdate) {
       return;
     }
 
     const updatedFilter = {
-      ...selectedFilter,
-      dimensionValues: selectedFilter?.dimensionValues?.map(
+      ...filterToUpdate,
+      dimensionValues: filterToUpdate?.dimensionValues?.map(
         (dimensionValue) => {
           const nodeValue = nodes?.find(
             (node) => node?.id === dimensionValue?.id,
@@ -127,21 +144,30 @@ const FilterSettings: FC<Props> = ({
         },
       ),
     };
-    setSelectedFilter(updatedFilter);
+    if (shouldUpdateSelectedFilter) {
+      setSelectedFilter(updatedFilter);
+    }
 
     if (updateSelectedFilterValues) {
       updateSelectedFilterValues(updatedFilter);
     }
   };
 
-  const onExpandHierarchicalValue = (node?: FilterTreeNodeProps) => {
-    if (!selectedFilter) {
+  const onExpandHierarchicalValue = (
+    node?: FilterTreeNodeProps,
+    targetFilter?: Filter,
+  ) => {
+    const filterToUpdate = targetFilter || selectedFilter;
+    const shouldUpdateSelectedFilter =
+      !targetFilter || isSameFilter(targetFilter, selectedFilter);
+
+    if (!filterToUpdate) {
       return;
     }
 
-    setSelectedFilter({
-      ...selectedFilter,
-      dimensionValues: selectedFilter?.dimensionValues?.map(
+    const updatedFilter = {
+      ...filterToUpdate,
+      dimensionValues: filterToUpdate?.dimensionValues?.map(
         (dimensionValue) => {
           if (dimensionValue?.id === node?.id) {
             return { ...dimensionValue, isExpanded: !node?.isExpanded };
@@ -149,7 +175,14 @@ const FilterSettings: FC<Props> = ({
           return dimensionValue;
         },
       ),
-    });
+    };
+
+    if (shouldUpdateSelectedFilter) {
+      setSelectedFilter(updatedFilter);
+    }
+    if (updateSelectedFilterValues) {
+      updateSelectedFilterValues(updatedFilter);
+    }
   };
 
   const onSelectTimePeriodValue = (
@@ -218,13 +251,14 @@ const FilterSettings: FC<Props> = ({
           filterValuesProps={modalProps?.filterValuesProps}
         />
         {modalProps?.isShowTimeSeriesCount && timeSeriesCount ? (
-          <h4 className="my-4 text-neutrals-800">
+          <h4 className="text-neutrals-800 my-4">
             {titles?.timeSeries ?? 'Timeseries'}: {timeSeriesCount}
           </h4>
         ) : null}
       </div>
       {!isMobile && (
         <FiltersValuesPanel
+          filtersList={filtersList}
           selectedFilter={selectedFilter}
           locale={locale}
           titles={titles}

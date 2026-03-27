@@ -25,6 +25,8 @@ interface Props {
   filterValues?: FilterValue[];
   checkboxIcon?: ReactNode;
   isHierarchicalView?: boolean;
+  isVirtualized?: boolean;
+  isScrollable?: boolean;
   isDisableValues?: boolean;
   structuresMap?: Map<string, StructuralData | undefined>;
   selectFilterValue: (id: string, isSelectedValue?: boolean) => void;
@@ -45,6 +47,8 @@ const FilterValues: FC<Props> = ({
   filterValues,
   checkboxIcon,
   isHierarchicalView,
+  isVirtualized = true,
+  isScrollable = true,
   isDisableValues,
   structuresMap,
   selectFilterValue,
@@ -69,20 +73,26 @@ const FilterValues: FC<Props> = ({
     <div
       className={classNames(
         isDisableValues && 'pointer-events-none opacity-[0.7]',
-        'flex h-full min-h-0 flex-col',
+        isScrollable ? 'flex h-full min-h-0 flex-col' : 'flex flex-col',
       )}
     >
       {shouldShowHeader && (
         <div className="mb-2 flex items-center gap-x-1">
-          <DatasetIcon className="size-4 shrink-0 text-neutrals-700" />
+          <DatasetIcon className="text-neutrals-700 size-4 shrink-0" />
           <span className="h4 text-neutrals-800">{datasetName}</span>
-          <ChevronRightIcon className="size-4 shrink-0 text-neutrals-1000" />
+          <ChevronRightIcon className="text-neutrals-1000 size-4 shrink-0" />
           <span className="h4 text-neutrals-1000">{selectedFilter?.title}</span>
         </div>
       )}
       <div
-        className="min-h-0 flex-1 overflow-auto"
-        style={{ height: isMobile ? `${containerHeight}px` : undefined }}
+        className={classNames(
+          isScrollable ? 'min-h-0 flex-1 overflow-auto' : 'overflow-visible',
+        )}
+        style={
+          isScrollable && isMobile
+            ? { height: `${containerHeight}px` }
+            : undefined
+        }
       >
         {isHierarchicalView ? (
           <FilterTreeView
@@ -92,6 +102,17 @@ const FilterValues: FC<Props> = ({
             selectHierarchicalNodes={selectHierarchicalNodes}
             expandHierarchicalValue={expandHierarchicalValue}
           />
+        ) : !isVirtualized ? (
+          <div className="flex flex-col gap-y-1">
+            {filterValues.map((filterValue) => (
+              <CheckboxRow
+                key={filterValue.id}
+                filterValue={filterValue}
+                checkboxIcon={checkboxIcon}
+                selectFilterValue={selectFilterValue}
+              />
+            ))}
+          </div>
         ) : (
           <AutoSizer>
             {({ width, height }) => (
@@ -103,7 +124,6 @@ const FilterValues: FC<Props> = ({
               >
                 {({ index, style }: RowProps) => (
                   <CheckboxRow
-                    index={index}
                     style={style}
                     filterValue={filterValues[index]}
                     checkboxIcon={checkboxIcon}

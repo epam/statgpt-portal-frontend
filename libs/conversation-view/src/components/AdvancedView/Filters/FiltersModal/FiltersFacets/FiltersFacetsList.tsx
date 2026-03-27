@@ -37,9 +37,19 @@ interface Props {
     timeRange: TimeRange | null,
     selectedOption: string | number,
   ) => void;
-  selectFilterValue: (id: string, isSelectedValue?: boolean) => void;
-  selectHierarchicalNodes: (nodes?: FilterTreeNodeProps[]) => void;
-  expandHierarchicalValue: (value?: FilterTreeNodeProps) => void;
+  selectFilterValue: (
+    id: string,
+    isSelectedValue?: boolean,
+    filter?: Filter,
+  ) => void;
+  selectHierarchicalNodes: (
+    nodes?: FilterTreeNodeProps[],
+    filter?: Filter,
+  ) => void;
+  expandHierarchicalValue: (
+    value?: FilterTreeNodeProps,
+    filter?: Filter,
+  ) => void;
 }
 
 const FiltersFacetsList: FC<Props> = ({
@@ -71,6 +81,7 @@ const FiltersFacetsList: FC<Props> = ({
     >
       {filtersList?.map((filter) => (
         <FiltersFacetItem
+          filtersList={filtersList}
           titles={titles}
           locale={locale}
           filter={filter}

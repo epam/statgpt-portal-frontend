@@ -64,6 +64,7 @@ export enum AdvancedViewI18nKeys {
   CLEAR_ALL = 'advancedView.clearAll',
   CLEAR_ALL_FILTERS = 'advancedView.clearAllFilters',
   APPLIED_FILTERS = 'advancedView.appliedFilters',
+  OTHER_RESULTS = 'advancedView.otherResults',
   RESET_SELECTED_VALUES = 'advancedView.resetSelectedValues',
   DISPLAY_ORDER = 'advancedView.displayOrder',
   FLAT_LIST = 'advancedView.list',
