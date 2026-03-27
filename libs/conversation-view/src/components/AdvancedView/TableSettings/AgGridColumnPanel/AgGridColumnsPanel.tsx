@@ -12,10 +12,19 @@ export function AgGridColumnsPanel({
   api,
   includeColumn,
   enrichItem,
+  onSubItemOrderChange,
+  onSubItemVisibilityChange,
 }: {
   api: GridApi | null;
   includeColumn?: ColumnPanelFilter;
   enrichItem?: (item: DraggableListItemNode) => DraggableListItemNode;
+  onSubItemOrderChange?: (urn: string, colId: string, order: string[]) => void;
+  onSubItemVisibilityChange?: (
+    urn: string,
+    colId: string,
+    dimensionKey: string,
+    hidden: boolean,
+  ) => void;
 }) {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const changeSearchHandler = useCallback(
@@ -50,6 +59,8 @@ export function AgGridColumnsPanel({
     includeColumn,
     searchQuery,
     enrichItem,
+    onSubItemOrderChange,
+    onSubItemVisibilityChange,
   });
 
   return (

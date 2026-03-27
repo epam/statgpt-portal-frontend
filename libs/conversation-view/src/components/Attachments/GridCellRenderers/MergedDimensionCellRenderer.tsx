@@ -22,7 +22,11 @@ import {
   COUNTRY_COL_ID,
   FREQUENCY_COL_ID,
   INDICATOR_COL_ID,
+  INDICATORS_CONCATENATION_SYMBOL,
 } from '../../../constants/cross-dataset-grid';
+import { useTableSettingsContextOptional } from '../../AdvancedView/TableSettings/TableSettingsContext';
+import { getDimensionValue } from '../../../utils/attachments/cross-dataset-grid/dimensions-columns';
+import { applyDimensionKeyCustomization } from '../../AdvancedView/TableSettings/AgGridColumnPanel/helpers';
 
 interface MergedDimensionCellRendererParams extends ICellRendererParams {
   structuresMap: Map<string, StructuralData | undefined>;
@@ -59,11 +63,39 @@ const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
   const { isOpenedAdvancedView } = useAdvancedView();
   const sidePanel = useConversationViewSidePanelOptional();
   const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
+  const tableSettings = useTableSettingsContextOptional();
 
   const urn: string | undefined = params?.data?.dataset?.urn;
   const structures = urn != null ? params.structuresMap.get(urn) : undefined;
   const scheme =
     urn != null ? params.datasetDimensionsSchemesMap.get(urn) : undefined;
+
+  const dimensionCustomization = tableSettings?.dimensionCustomization;
+
+  const displayValue = useMemo(() => {
+    if (!structures || !scheme || urn == null) {
+      return params.valueFormatted ?? params.value;
+    }
+    const custom = dimensionCustomization?.get(urn)?.get(params.colId);
+    const dimensionKeys = applyDimensionKeyCustomization(
+      getDimKeysForColumn(params.colId, scheme),
+      custom,
+    );
+    const names = dimensionKeys
+      .map((k) => getDimensionValue(structures, k, params.data, params.locale))
+      .filter(Boolean);
+    return names.join(INDICATORS_CONCATENATION_SYMBOL);
+  }, [
+    dimensionCustomization,
+    structures,
+    scheme,
+    urn,
+    params.valueFormatted,
+    params.value,
+    params.colId,
+    params.data,
+    params.locale,
+  ]);
 
   const metadata = useMemo(() => {
     if (!structures || !scheme) return [];
@@ -124,7 +156,7 @@ const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
 
   return (
     <div className="relative size-full p-2">
-      {params.valueFormatted ?? params.value}
+      {displayValue}
       {showTriangle && (
         <div
           className="metadata-indicator"

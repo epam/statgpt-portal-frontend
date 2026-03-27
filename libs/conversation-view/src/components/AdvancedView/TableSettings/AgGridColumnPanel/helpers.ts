@@ -9,6 +9,10 @@ import type {
   DimensionConfig,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
+import type {
+  DimensionCustomizationMap,
+  DimensionKeyCustomization,
+} from '../types';
 import {
   getDimensionTitle,
   getDimensions,
@@ -130,7 +134,7 @@ export function flattenIncludedLeafIds(
   return result;
 }
 
-export interface CrossDatasetColumnsInfo {
+interface CrossDatasetColumnsInfo {
   dataQueries: Array<{ urn: string }>;
   structuresMap: Map<string, StructuralData | undefined>;
   getDimensionsScheme: (urn: string) => DatasetDimensionsScheme | undefined;
@@ -139,6 +143,24 @@ export interface CrossDatasetColumnsInfo {
     dimKey: string,
   ) => DimensionConfig | undefined;
   locale: string;
+  dimensionCustomization?: DimensionCustomizationMap;
+}
+
+export function applyDimensionKeyCustomization(
+  dimensionKeys: string[],
+  custom: DimensionKeyCustomization | undefined,
+): string[] {
+  let result = dimensionKeys;
+  if (custom?.order.length) {
+    result = [
+      ...custom.order.filter((k) => dimensionKeys.includes(k)),
+      ...dimensionKeys.filter((k) => !custom.order.includes(k)),
+    ];
+  }
+  if (custom?.hidden.size) {
+    result = result.filter((k) => !custom.hidden.has(k));
+  }
+  return result;
 }
 
 const AGGREGATED_COL_IDS = new Set([
@@ -186,6 +208,24 @@ function resolveDimLabel(
   );
 }
 
+const DIMENSION_SUB_ITEM_SEPARATOR = '::';
+
+export function buildDimensionSubItemId(urn: string, dimensionKey: string) {
+  return `${urn}${DIMENSION_SUB_ITEM_SEPARATOR}${dimensionKey}`;
+}
+
+export function isDimensionSubItemId(id: string) {
+  return id.includes(DIMENSION_SUB_ITEM_SEPARATOR);
+}
+
+export function parseDimensionSubItemId(id: string) {
+  const idx = id.indexOf(DIMENSION_SUB_ITEM_SEPARATOR);
+  return {
+    urn: id.slice(0, idx),
+    dimensionKey: id.slice(idx + DIMENSION_SUB_ITEM_SEPARATOR.length),
+  };
+}
+
 export function buildCrossDatasetEnrichItem(
   info: CrossDatasetColumnsInfo,
 ): (item: DraggableListItemNode) => DraggableListItemNode {
@@ -197,21 +237,32 @@ export function buildCrossDatasetEnrichItem(
     const groups: DraggableListGroupNode[] = [];
 
     for (const { urn } of info.dataQueries) {
-      const dimKeys = getDimKeysForColId(
+      const baseDimensionKeys = getDimKeysForColId(
         item.id,
         urn,
         info.getDimensionsScheme,
       );
-      if (!dimKeys.length) continue;
+      if (!baseDimensionKeys.length) continue;
 
-      const leafItems: DraggableListItemNode[] = dimKeys.map((dimKey) => ({
-        id: `${urn}::${dimKey}`,
-        type: 'item' as const,
-        label: resolveDimLabel(info, urn, dimKey),
-        isChecked: true,
-        draggable: false,
-        checkable: false,
-      }));
+      const custom = info.dimensionCustomization?.get(urn)?.get(item.id);
+      const orderedDimensionKeys = custom?.order.length
+        ? applyDimensionKeyCustomization(baseDimensionKeys, {
+            order: custom.order,
+            hidden: new Set(),
+          })
+        : baseDimensionKeys;
+
+      const interactive = orderedDimensionKeys.length > 1;
+      const leafItems: DraggableListItemNode[] = orderedDimensionKeys.map(
+        (dimensionKey) => ({
+          id: buildDimensionSubItemId(urn, dimensionKey),
+          type: 'item' as const,
+          label: resolveDimLabel(info, urn, dimensionKey),
+          isChecked: !custom?.hidden.has(dimensionKey),
+          draggable: interactive,
+          checkable: interactive,
+        }),
+      );
 
       const structuralData = info.structuresMap.get(urn);
       const groupLabel =

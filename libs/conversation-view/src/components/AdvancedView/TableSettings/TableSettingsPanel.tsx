@@ -15,7 +15,8 @@ export const TableSettingsPanelHeaderExtension = ({
 }: {
   resetTitle?: string;
 }) => {
-  const { gridApi, initialColumnsState } = useTableSettingsContext();
+  const { gridApi, initialColumnsState, resetDimensionCustomization } =
+    useTableSettingsContext();
 
   const resetColumns = useCallback(() => {
     if (!gridApi) {
@@ -23,7 +24,8 @@ export const TableSettingsPanelHeaderExtension = ({
     }
 
     restoreInitialColumnsState(gridApi, initialColumnsState);
-  }, [gridApi, initialColumnsState]);
+    resetDimensionCustomization();
+  }, [gridApi, initialColumnsState, resetDimensionCustomization]);
 
   const headerExtension = (
     <button
@@ -40,8 +42,15 @@ export const TableSettingsPanelHeaderExtension = ({
 };
 
 export const TableSettingsPanel = () => {
-  const { gridApi, structuresMap, locale, dataQueries } =
-    useTableSettingsContext();
+  const {
+    gridApi,
+    structuresMap,
+    locale,
+    dataQueries,
+    dimensionCustomization,
+    setDimensionKeyOrder,
+    setDimensionKeyHidden,
+  } = useTableSettingsContext();
   const dimensionsCtx = useDatasetDimensionsMetadataMapOptional();
 
   const enrichItem = useMemo(() => {
@@ -55,10 +64,16 @@ export const TableSettingsPanel = () => {
       getDimensionsScheme: dimensionsCtx.getDimensionsScheme,
       getDimensionConfig: (urn, dimKey) => dimensionsCtx.map[urn]?.[dimKey],
       locale,
+      dimensionCustomization,
     });
-  }, [dimensionsCtx, structuresMap, locale, dataQueries]);
+  }, [dimensionsCtx, structuresMap, locale, dataQueries, dimensionCustomization]);
 
   return gridApi ? (
-    <AgGridColumnsPanel api={gridApi} enrichItem={enrichItem} />
+    <AgGridColumnsPanel
+      api={gridApi}
+      enrichItem={enrichItem}
+      onSubItemOrderChange={setDimensionKeyOrder}
+      onSubItemVisibilityChange={setDimensionKeyHidden}
+    />
   ) : null;
 };
