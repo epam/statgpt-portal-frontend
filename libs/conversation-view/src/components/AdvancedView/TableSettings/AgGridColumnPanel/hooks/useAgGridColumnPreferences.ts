@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GridApi } from 'ag-grid-community';
-import type { AgGridInitialColumnsState } from './types';
-import { captureInitialColumnsState } from './helpers/columnStateSnapshot';
+import type { AgGridInitialColumnsState } from '../types';
+import { captureInitialColumnsState } from '../helpers/columnStateSnapshot';
 import { useAgGridColumnGridListeners } from './useAgGridColumnGridListeners';
 
 export function useAgGridColumnPreferences({

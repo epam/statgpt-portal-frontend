@@ -11,7 +11,7 @@ import {
 import type { GridApi } from 'ag-grid-community';
 import type { StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import type { AgGridInitialColumnsState } from './AgGridColumnPanel/types';
-import { useAgGridColumnPreferences } from './AgGridColumnPanel/useAgGridColumnPreferences';
+import { useAgGridColumnPreferences } from './AgGridColumnPanel/hooks/useAgGridColumnPreferences';
 import type {
   DimensionCustomizationMap,
   DimensionKeyCustomization,

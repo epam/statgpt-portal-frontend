@@ -2,7 +2,7 @@
 
 import { DraggableList, InputWithIcon } from '@epam/statgpt-ui-components';
 import type { DraggableListItemNode } from '@epam/statgpt-ui-components';
-import { useAgGridColumnsPanel } from './useAgGridColumnsPanel';
+import { useAgGridColumnsPanel } from './hooks/useAgGridColumnsPanel';
 import { ColumnPanelFilter } from './types';
 import { useCallback, useMemo, useState } from 'react';
 import { IconSearch, IconX } from '@tabler/icons-react';

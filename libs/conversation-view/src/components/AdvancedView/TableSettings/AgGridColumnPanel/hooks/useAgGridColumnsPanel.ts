@@ -9,20 +9,20 @@ import {
   type ToggleCheckedEvent,
   type ToggleExpandedEvent,
 } from '@epam/statgpt-ui-components';
-import type { ColumnPanelFilter } from './types';
+import type { ColumnPanelFilter } from '../types';
 import {
   DEFAULT_INCLUDE_COLUMN,
   mapColumnsToPanelItems,
   mergeIncludedOrderIntoFullOrder,
-} from './helpers/columnPanelMapping';
+} from '../helpers/columnPanelMapping';
 import {
   flattenIncludedLeafIds,
   getItemNodeByPath,
-} from './helpers/draggableListUtils';
+} from '../helpers/draggableListUtils';
 import {
   isDimensionSubItemId,
   parseDimensionSubItemId,
-} from '../helpers/dimensionSubItemId';
+} from '../../helpers/dimensionSubItemId';
 import { GridApi } from 'ag-grid-community';
 import { useAgGridColumnGridListeners } from './useAgGridColumnGridListeners';
 
