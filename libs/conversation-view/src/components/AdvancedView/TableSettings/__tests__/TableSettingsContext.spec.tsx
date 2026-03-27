@@ -96,7 +96,12 @@ describe('TableSettingsProvider — setDimensionKeyOrder', () => {
     const { result } = renderHook(() => useTableSettingsContext(), { wrapper });
 
     act(() => {
-      result.current.setDimensionKeyHidden('urn:1', 'indicator_col', 'IND1', true);
+      result.current.setDimensionKeyHidden(
+        'urn:1',
+        'indicator_col',
+        'IND1',
+        true,
+      );
     });
     act(() => {
       result.current.setDimensionKeyOrder('urn:1', 'indicator_col', ['IND2']);
@@ -145,7 +150,12 @@ describe('TableSettingsProvider — setDimensionKeyHidden', () => {
     const { result } = renderHook(() => useTableSettingsContext(), { wrapper });
 
     act(() => {
-      result.current.setDimensionKeyHidden('urn:1', 'indicator_col', 'IND1', true);
+      result.current.setDimensionKeyHidden(
+        'urn:1',
+        'indicator_col',
+        'IND1',
+        true,
+      );
     });
 
     const hidden = result.current.dimensionCustomization
@@ -158,7 +168,12 @@ describe('TableSettingsProvider — setDimensionKeyHidden', () => {
     const { result } = renderHook(() => useTableSettingsContext(), { wrapper });
 
     act(() => {
-      result.current.setDimensionKeyHidden('urn:1', 'indicator_col', 'IND1', true);
+      result.current.setDimensionKeyHidden(
+        'urn:1',
+        'indicator_col',
+        'IND1',
+        true,
+      );
     });
     act(() => {
       result.current.setDimensionKeyHidden(
@@ -179,8 +194,18 @@ describe('TableSettingsProvider — setDimensionKeyHidden', () => {
     const { result } = renderHook(() => useTableSettingsContext(), { wrapper });
 
     act(() => {
-      result.current.setDimensionKeyHidden('urn:1', 'indicator_col', 'IND1', true);
-      result.current.setDimensionKeyHidden('urn:1', 'indicator_col', 'IND2', true);
+      result.current.setDimensionKeyHidden(
+        'urn:1',
+        'indicator_col',
+        'IND1',
+        true,
+      );
+      result.current.setDimensionKeyHidden(
+        'urn:1',
+        'indicator_col',
+        'IND2',
+        true,
+      );
     });
 
     const hidden = result.current.dimensionCustomization
@@ -203,7 +228,12 @@ describe('TableSettingsProvider — resetDimensionCustomization', () => {
 
     act(() => {
       result.current.setDimensionKeyOrder('urn:1', 'indicator_col', ['IND2']);
-      result.current.setDimensionKeyHidden('urn:1', 'indicator_col', 'IND1', true);
+      result.current.setDimensionKeyHidden(
+        'urn:1',
+        'indicator_col',
+        'IND1',
+        true,
+      );
     });
 
     expect(result.current.dimensionCustomization.size).toBeGreaterThan(0);

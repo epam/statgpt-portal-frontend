@@ -105,7 +105,10 @@ describe('AgGridColumnsPanel', () => {
       { type: 'item' as const, id: 'col1', label: 'Column 1' },
       { type: 'item' as const, id: 'col2', label: 'Column 2' },
     ];
-    mockUseAgGridColumnsPanel.mockReturnValue({ ...mockHandlers, visibleItems });
+    mockUseAgGridColumnsPanel.mockReturnValue({
+      ...mockHandlers,
+      visibleItems,
+    });
 
     renderPanel();
 
