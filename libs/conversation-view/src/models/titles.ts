@@ -16,9 +16,7 @@ interface FooterTitles {
 }
 
 export interface WelcomeViewTitles
-  extends InputForAskTitles,
-    OnboardingTitles,
-    FooterTitles {
+  extends InputForAskTitles, OnboardingTitles, FooterTitles {
   newChat?: string;
   welcomeTitle?: string;
   close?: string;
