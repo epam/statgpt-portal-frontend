@@ -60,7 +60,10 @@ function makeInfo(overrides: {
     dimKey: string,
   ) => DimensionConfig | undefined;
   locale?: string;
-  dimensionCustomization?: Map<string, Map<string, { order: string[]; hidden: Set<string> }>>;
+  dimensionCustomization?: Map<
+    string,
+    Map<string, { order: string[]; hidden: Set<string> }>
+  >;
 }) {
   return {
     dataQueries: [],
@@ -262,7 +265,10 @@ describe('buildCrossDatasetEnrichItem', () => {
   it('marks hidden dimension keys as isChecked: false', () => {
     const urn = 'urn:abc';
     const dimensionCustomization = new Map([
-      [urn, new Map([[INDICATOR_COL_ID, { order: [], hidden: new Set(['IND1']) }]])],
+      [
+        urn,
+        new Map([[INDICATOR_COL_ID, { order: [], hidden: new Set(['IND1']) }]]),
+      ],
     ]);
     const enrich = buildCrossDatasetEnrichItem(
       makeInfo({
@@ -276,8 +282,12 @@ describe('buildCrossDatasetEnrichItem', () => {
     const group = result.items![0];
     if (group.type !== 'group') throw new Error('expected group');
 
-    const ind1 = group.items.find((i) => i.id === buildDimensionSubItemId(urn, 'IND1'));
-    const ind2 = group.items.find((i) => i.id === buildDimensionSubItemId(urn, 'IND2'));
+    const ind1 = group.items.find(
+      (i) => i.id === buildDimensionSubItemId(urn, 'IND1'),
+    );
+    const ind2 = group.items.find(
+      (i) => i.id === buildDimensionSubItemId(urn, 'IND2'),
+    );
     expect(ind1?.type === 'item' && ind1.isChecked).toBe(false);
     expect(ind2?.type === 'item' && ind2.isChecked).toBe(true);
   });

@@ -9,7 +9,9 @@ import { useAgGridColumnPreferences } from '../useAgGridColumnPreferences';
 function mockApi(overrides: Partial<Record<string, jest.Mock>> = {}) {
   return {
     getColumnState: jest.fn().mockReturnValue([{ colId: 'a', hide: false }]),
-    getColumnGroupState: jest.fn().mockReturnValue([{ groupId: 'g1', open: true }]),
+    getColumnGroupState: jest
+      .fn()
+      .mockReturnValue([{ groupId: 'g1', open: true }]),
     applyColumnState: jest.fn(),
     setColumnGroupState: jest.fn(),
     addEventListener: jest.fn(),
@@ -78,7 +80,9 @@ describe('useAgGridColumnPreferences', () => {
       getColumnState: jest.fn().mockReturnValue(firstState),
     });
     const api2 = mockApi({
-      getColumnState: jest.fn().mockReturnValue([{ colId: 'updated', hide: true }]),
+      getColumnState: jest
+        .fn()
+        .mockReturnValue([{ colId: 'updated', hide: true }]),
     });
 
     const { result } = renderHook(() =>
@@ -103,7 +107,8 @@ describe('useAgGridColumnPreferences', () => {
   it('resets initialColumnsState to null when switching to an unknown URN', () => {
     const api = mockApi();
     const { result, rerender } = renderHook(
-      ({ urn }: { urn: string }) => useAgGridColumnPreferences({ currentUrn: urn }),
+      ({ urn }: { urn: string }) =>
+        useAgGridColumnPreferences({ currentUrn: urn }),
       { initialProps: { urn: 'urn:1' } },
     );
 
@@ -123,11 +128,14 @@ describe('useAgGridColumnPreferences', () => {
 
   it('restores saved initial state when switching back to a known URN', () => {
     const urn1State = [{ colId: 'x', hide: false }];
-    const api1 = mockApi({ getColumnState: jest.fn().mockReturnValue(urn1State) });
+    const api1 = mockApi({
+      getColumnState: jest.fn().mockReturnValue(urn1State),
+    });
     const api2 = mockApi();
 
     const { result, rerender } = renderHook(
-      ({ urn }: { urn: string }) => useAgGridColumnPreferences({ currentUrn: urn }),
+      ({ urn }: { urn: string }) =>
+        useAgGridColumnPreferences({ currentUrn: urn }),
       { initialProps: { urn: 'urn:1' } },
     );
 
@@ -157,9 +165,10 @@ describe('useAgGridColumnPreferences', () => {
     const userState = [{ colId: 'a', hide: true }];
 
     const api = mockApi({
-      getColumnState: jest.fn()
+      getColumnState: jest
+        .fn()
         .mockReturnValueOnce(initialState) // first call: capture initial
-        .mockReturnValue(userState),       // subsequent calls: user state
+        .mockReturnValue(userState), // subsequent calls: user state
     });
 
     const { result } = renderHook(() =>

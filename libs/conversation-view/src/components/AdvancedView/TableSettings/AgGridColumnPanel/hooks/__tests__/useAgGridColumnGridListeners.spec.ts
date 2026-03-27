@@ -27,10 +27,12 @@ describe('useAgGridColumnGridListeners', () => {
 
     expect(api.addEventListener).toHaveBeenCalledTimes(6);
 
-    const registeredEvents = (
-      api.addEventListener as jest.Mock
-    ).mock.calls.map(([event]) => event);
-    expect(registeredEvents).toEqual(expect.arrayContaining([...EXPECTED_EVENTS]));
+    const registeredEvents = (api.addEventListener as jest.Mock).mock.calls.map(
+      ([event]) => event,
+    );
+    expect(registeredEvents).toEqual(
+      expect.arrayContaining([...EXPECTED_EVENTS]),
+    );
   });
 
   it('registers the provided listener for every event', () => {
@@ -56,9 +58,9 @@ describe('useAgGridColumnGridListeners', () => {
     unmount();
 
     expect(api.removeEventListener).toHaveBeenCalledTimes(6);
-    const removedEvents = (
-      api.removeEventListener as jest.Mock
-    ).mock.calls.map(([event]) => event);
+    const removedEvents = (api.removeEventListener as jest.Mock).mock.calls.map(
+      ([event]) => event,
+    );
     expect(removedEvents).toEqual(expect.arrayContaining([...EXPECTED_EVENTS]));
   });
 

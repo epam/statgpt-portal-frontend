@@ -11,7 +11,9 @@ import {
 function mockApi(overrides: Partial<Record<keyof GridApi, jest.Mock>> = {}) {
   return {
     getColumnState: jest.fn().mockReturnValue([{ colId: 'a', hide: false }]),
-    getColumnGroupState: jest.fn().mockReturnValue([{ groupId: 'g1', open: true }]),
+    getColumnGroupState: jest
+      .fn()
+      .mockReturnValue([{ groupId: 'g1', open: true }]),
     applyColumnState: jest.fn(),
     setColumnGroupState: jest.fn(),
     ...overrides,

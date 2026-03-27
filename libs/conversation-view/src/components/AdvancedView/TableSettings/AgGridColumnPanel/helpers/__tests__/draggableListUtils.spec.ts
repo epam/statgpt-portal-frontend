@@ -41,9 +41,7 @@ describe('flattenIncludedLeafIds', () => {
     });
 
     it('recurses into group nodes and collects their item leaves', () => {
-      const nodes: DraggableListNode[] = [
-        group('g1', [item('a'), item('b')]),
-      ];
+      const nodes: DraggableListNode[] = [group('g1', [item('a'), item('b')])];
       expect(flattenIncludedLeafIds(nodes)).toEqual(['a', 'b']);
     });
 
@@ -100,9 +98,7 @@ describe('flattenIncludedLeafIds', () => {
     });
 
     it('always recurses into group nodes regardless of isLeaf', () => {
-      const nodes: DraggableListNode[] = [
-        group('g1', [item('a'), item('b')]),
-      ];
+      const nodes: DraggableListNode[] = [group('g1', [item('a'), item('b')])];
       const isLeaf = (n: DraggableListItemNode) => n.id === 'a';
       expect(flattenIncludedLeafIds(nodes, isLeaf)).toEqual(['a', 'b']);
     });
@@ -116,8 +112,7 @@ describe('flattenIncludedLeafIds', () => {
         item('y', [item('y1'), item('y2')]),
         item('z'),
       ];
-      const isLeaf = (n: DraggableListItemNode) =>
-        n.id === 'x' || n.id === 'y';
+      const isLeaf = (n: DraggableListItemNode) => n.id === 'x' || n.id === 'y';
       expect(flattenIncludedLeafIds(nodes, isLeaf)).toEqual(['x', 'y', 'z']);
     });
   });
@@ -150,17 +145,13 @@ describe('getItemNodeByPath', () => {
   });
 
   it('returns undefined when the path terminates on a group node', () => {
-    const nodes: DraggableListNode[] = [
-      group('g1', [item('child')]),
-    ];
+    const nodes: DraggableListNode[] = [group('g1', [item('child')])];
     expect(getItemNodeByPath(nodes, ['g1'])).toBeUndefined();
   });
 
   it('navigates through a group node in the middle of the path', () => {
     const child = item('leaf');
-    const nodes: DraggableListNode[] = [
-      item('top', [group('g1', [child])]),
-    ];
+    const nodes: DraggableListNode[] = [item('top', [group('g1', [child])])];
     expect(getItemNodeByPath(nodes, ['top', 'g1', 'leaf'])).toBe(child);
   });
 

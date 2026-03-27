@@ -199,7 +199,10 @@ describe('mapColumnsToPanelItems', () => {
 
   it('produces one item per column def', () => {
     const api = mockApi(
-      [colDef({ colId: 'a', headerName: 'A' }), colDef({ colId: 'b', headerName: 'B' })],
+      [
+        colDef({ colId: 'a', headerName: 'A' }),
+        colDef({ colId: 'b', headerName: 'B' }),
+      ],
       [{ colId: 'a' }, { colId: 'b' }],
     );
     const items = mapColumnsToPanelItems(api, includeAll);
@@ -209,7 +212,10 @@ describe('mapColumnsToPanelItems', () => {
   it('sorts items by the column state order, not the colDef order', () => {
     // defs in order a, b — but state puts b before a
     const api = mockApi(
-      [colDef({ colId: 'a', headerName: 'A' }), colDef({ colId: 'b', headerName: 'B' })],
+      [
+        colDef({ colId: 'a', headerName: 'A' }),
+        colDef({ colId: 'b', headerName: 'B' }),
+      ],
       [{ colId: 'b' }, { colId: 'a' }],
     );
     const items = mapColumnsToPanelItems(api, includeAll);
@@ -266,7 +272,10 @@ describe('mapColumnsToPanelItems', () => {
 
   it('skips column defs with no colId and no field', () => {
     const api = mockApi(
-      [colDef({ headerName: 'NoId' }), colDef({ colId: 'ok', headerName: 'OK' })],
+      [
+        colDef({ headerName: 'NoId' }),
+        colDef({ colId: 'ok', headerName: 'OK' }),
+      ],
       [{ colId: 'ok' }],
     );
     const items = mapColumnsToPanelItems(api, includeAll);

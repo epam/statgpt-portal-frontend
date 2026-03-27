@@ -10,9 +10,9 @@ describe('buildDimensionSubItemId', () => {
   });
 
   it('works with a complex URN containing colons', () => {
-    expect(buildDimensionSubItemId('urn:sdmx:org.sdmx.infomodel', 'OBS_VALUE')).toBe(
-      'urn:sdmx:org.sdmx.infomodel::OBS_VALUE',
-    );
+    expect(
+      buildDimensionSubItemId('urn:sdmx:org.sdmx.infomodel', 'OBS_VALUE'),
+    ).toBe('urn:sdmx:org.sdmx.infomodel::OBS_VALUE');
   });
 });
 
