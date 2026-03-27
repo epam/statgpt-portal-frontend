@@ -1,5 +1,6 @@
 export const quarterPattern = /^[0-9][0-9][0-9][0-9]-Q[1-4]$/;
-export const weeklyPattern = /^[0-9][0-9][0-9][0-9]-W[0-9][0-9]?$/;
+export const weeklyPattern =
+  /^[0-9][0-9][0-9][0-9]-W(0[1-9]|[1-4][0-9]|5[0-3])$/;
 export const semiAnnuallyPattern = /^[0-9][0-9][0-9][0-9]-S[1-2]$/;
 export const yearlyPattern = /^[0-9][0-9][0-9][0-9]$/;
 export const dailyPattern = /^[0-9][0-9][0-9][0-9]-(0[1-9]|1[0-2])-[0-9][0-9]$/;

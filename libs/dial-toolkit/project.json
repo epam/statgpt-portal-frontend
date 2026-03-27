@@ -32,6 +32,20 @@
         ]
       }
     },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/dial-toolkit/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "coverageReporters": ["text"]
+        }
+      }
+    },
     "publish": {
       "command": "node tools/publish-lib.mjs dial-toolkit --version={args.ver} --dry={args.dry} --tag={args.tag} --development={args.development}"
     }
