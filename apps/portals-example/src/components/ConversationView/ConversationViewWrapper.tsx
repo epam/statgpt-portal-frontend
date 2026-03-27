@@ -190,6 +190,7 @@ const ConversationViewWrapper: FC<Props> = ({
     clearAll: t(AdvancedViewI18nKeys.CLEAR_ALL),
     clearAllFilters: t(AdvancedViewI18nKeys.CLEAR_ALL_FILTERS),
     appliedFilters: t(AdvancedViewI18nKeys.APPLIED_FILTERS),
+    otherResults: t(AdvancedViewI18nKeys.OTHER_RESULTS),
     settings: t(AdvancedViewI18nKeys.SETTINGS),
     content: t(AdvancedViewI18nKeys.CONTENT),
     advanceViewTitle: t(AdvancedViewI18nKeys.TITLE),
