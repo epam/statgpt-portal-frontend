@@ -15,7 +15,9 @@ import type { DraggableListNode } from '../../types';
 const item = (
   id: string,
   label = id,
-  extras: Partial<Omit<Extract<DraggableListNode, { type: 'item' }>, 'id' | 'label' | 'type'>> = {},
+  extras: Partial<
+    Omit<Extract<DraggableListNode, { type: 'item' }>, 'id' | 'label' | 'type'>
+  > = {},
 ): DraggableListNode => ({ type: 'item', id, label, ...extras });
 
 const group = (
@@ -148,9 +150,7 @@ describe('getSortableItemSiblings', () => {
   });
 
   it('returns an empty array when the level has no item-type nodes', () => {
-    const groupOnly: DraggableListNode[] = [
-      group('g', [group('inner', [])]),
-    ];
+    const groupOnly: DraggableListNode[] = [group('g', [group('inner', [])])];
     expect(getSortableItemSiblings(groupOnly, ['g'])).toEqual([]);
   });
 });
@@ -233,8 +233,6 @@ describe('updateItemsAtParent', () => {
     const result = updateItemsAtParent(deep, ['g1', 'g2'], (nodes) =>
       nodes.filter((n) => n.id !== 'leaf1'),
     );
-    expect(result).toEqual([
-      group('g1', [group('g2', [item('leaf2')])]),
-    ]);
+    expect(result).toEqual([group('g1', [group('g2', [item('leaf2')])])]);
   });
 });

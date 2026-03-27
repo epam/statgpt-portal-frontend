@@ -8,7 +8,9 @@ import type { DraggableListNode } from '../../types';
 const item = (
   id: string,
   label = id,
-  extras: Partial<Omit<Extract<DraggableListNode, { type: 'item' }>, 'id' | 'label' | 'type'>> = {},
+  extras: Partial<
+    Omit<Extract<DraggableListNode, { type: 'item' }>, 'id' | 'label' | 'type'>
+  > = {},
 ): DraggableListNode => ({ type: 'item', id, label, ...extras });
 
 const group = (
@@ -52,15 +54,21 @@ describe('filterDraggableListNodes — case insensitivity', () => {
   const nodes: DraggableListNode[] = [item('a', 'Hello World')];
 
   it('matches lowercase query against uppercase label', () => {
-    expect(filterDraggableListNodes(nodes, 'hello')).toEqual([item('a', 'Hello World')]);
+    expect(filterDraggableListNodes(nodes, 'hello')).toEqual([
+      item('a', 'Hello World'),
+    ]);
   });
 
   it('matches uppercase query against lowercase label', () => {
-    expect(filterDraggableListNodes(nodes, 'HELLO')).toEqual([item('a', 'Hello World')]);
+    expect(filterDraggableListNodes(nodes, 'HELLO')).toEqual([
+      item('a', 'Hello World'),
+    ]);
   });
 
   it('trims leading and trailing whitespace from the query', () => {
-    expect(filterDraggableListNodes(nodes, '  hello  ')).toEqual([item('a', 'Hello World')]);
+    expect(filterDraggableListNodes(nodes, '  hello  ')).toEqual([
+      item('a', 'Hello World'),
+    ]);
   });
 });
 
@@ -81,7 +89,11 @@ describe('filterDraggableListNodes — flat item list', () => {
 
   it('returns multiple matching items — "a" is in Alpha, Beta, and Gamma', () => {
     const result = filterDraggableListNodes(nodes, 'a');
-    expect(result).toEqual([item('a', 'Alpha'), item('b', 'Beta'), item('c', 'Gamma')]);
+    expect(result).toEqual([
+      item('a', 'Alpha'),
+      item('b', 'Beta'),
+      item('c', 'Gamma'),
+    ]);
   });
 });
 
@@ -109,11 +121,7 @@ describe('filterDraggableListNodes — matching group keeps full subtree by defa
 
 describe('filterDraggableListNodes — includeGroupDescendantsOnMatch=false', () => {
   const nodes: DraggableListNode[] = [
-    group(
-      'g',
-      [item('i1', 'MatchMe'), item('i2', 'NoMatch')],
-      'MyGroup',
-    ),
+    group('g', [item('i1', 'MatchMe'), item('i2', 'NoMatch')], 'MyGroup'),
   ];
 
   it('filters group children rather than keeping all when group matches', () => {
@@ -157,8 +165,20 @@ describe('filterDraggableListNodes — item with children', () => {
         label: 'Parent',
         isExpanded: true,
         items: [
-          { type: 'item', id: 'child1', label: 'Child1', isExpanded: undefined, items: undefined },
-          { type: 'item', id: 'child2', label: 'Child2', isExpanded: undefined, items: undefined },
+          {
+            type: 'item',
+            id: 'child1',
+            label: 'Child1',
+            isExpanded: undefined,
+            items: undefined,
+          },
+          {
+            type: 'item',
+            id: 'child2',
+            label: 'Child2',
+            isExpanded: undefined,
+            items: undefined,
+          },
         ],
       },
     ]);
@@ -225,10 +245,7 @@ describe('filterDraggableListNodes — expandMatchedBranches', () => {
 // ---------------------------------------------------------------------------
 
 describe('filterDraggableListNodes — custom match', () => {
-  const nodes: DraggableListNode[] = [
-    item('a', 'Alpha'),
-    item('b', 'Beta'),
-  ];
+  const nodes: DraggableListNode[] = [item('a', 'Alpha'), item('b', 'Beta')];
 
   it('uses the provided match function instead of the default label match', () => {
     const matchById = (node: DraggableListNode) => node.id === 'b';
@@ -258,10 +275,7 @@ describe('filterDraggableListNodes — deep nested tree', () => {
   const tree: DraggableListNode[] = [
     group('g1', [
       item('i1', 'Alpha'),
-      group('g2', [
-        item('i2', 'Beta'),
-        item('i3', 'DeepMatch'),
-      ]),
+      group('g2', [item('i2', 'Beta'), item('i3', 'DeepMatch')]),
     ]),
     item('i4', 'Gamma'),
   ];
@@ -269,15 +283,15 @@ describe('filterDraggableListNodes — deep nested tree', () => {
   it('propagates a match from a deeply nested item up through all ancestors', () => {
     const result = filterDraggableListNodes(tree, 'deepmatch');
     expect(result).toEqual([
-      group('g1', [
-        group('g2', [item('i3', 'DeepMatch')]),
-      ]),
+      group('g1', [group('g2', [item('i3', 'DeepMatch')])]),
     ]);
   });
 
   it('returns multiple branches when items in different branches match', () => {
     const result = filterDraggableListNodes(tree, 'a'); // alpha, gamma both contain 'a'
-    expect(result.map((n) => n.id)).toEqual(expect.arrayContaining(['g1', 'i4']));
+    expect(result.map((n) => n.id)).toEqual(
+      expect.arrayContaining(['g1', 'i4']),
+    );
   });
 });
 
