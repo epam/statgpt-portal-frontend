@@ -20,7 +20,7 @@ import {
 import { getTimeQueryFilterFromAttachment } from '../query-filters';
 import { DatasetData, StructureDataMaps } from '../../models/structure-data';
 import { buildRequestCacheKey, getCachedRequestResult } from '../request-cache';
-import { normalizeConstraintFilters } from '../get-series-filters';
+import { normalizeConstraintFilters } from '../normalize-constraint-filters';
 
 export const getDataConstraintsMap = async (
   dataQueries: DataQuery[],

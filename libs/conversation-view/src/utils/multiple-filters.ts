@@ -29,10 +29,8 @@ import {
 } from '@epam/statgpt-shared-toolkit';
 import { StructureDataMaps } from '../models/structure-data';
 import { getFilledFilters } from './get-filled-filters';
-import {
-  getSeriesFilterDto,
-  normalizeConstraintFilters,
-} from './get-series-filters';
+import { getSeriesFilterDto } from './get-series-filters';
+import { normalizeConstraintFilters } from './normalize-constraint-filters';
 import { buildRequestCacheKey, getCachedRequestResult } from './request-cache';
 import { getQueryFilters, setDataQueryFilters } from './query-filters';
 

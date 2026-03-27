@@ -24,10 +24,8 @@ import {
   updateFiltersWithSelectedItem,
 } from '../../../utils/filters';
 import { getFilledFilters } from '../../../utils/get-filled-filters';
-import {
-  getSeriesFilterDto,
-  normalizeConstraintFilters,
-} from '../../../utils/get-series-filters';
+import { getSeriesFilterDto } from '../../../utils/get-series-filters';
+import { normalizeConstraintFilters } from '../../../utils/normalize-constraint-filters';
 import {
   getQueryFilters,
   setDataQueryFilters,

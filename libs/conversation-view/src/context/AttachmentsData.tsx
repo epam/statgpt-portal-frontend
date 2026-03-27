@@ -42,7 +42,7 @@ import {
   buildRequestCacheKey,
   getCachedRequestResult,
 } from '../utils/request-cache';
-import { normalizeConstraintFilters } from '../utils/get-series-filters';
+import { normalizeConstraintFilters } from '../utils/normalize-constraint-filters';
 import {
   createInitialGridAttachment,
   createInitialChartAttachment,
