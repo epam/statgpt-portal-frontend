@@ -12,13 +12,17 @@ import {
 import type { ColumnPanelFilter } from './types';
 import {
   DEFAULT_INCLUDE_COLUMN,
-  flattenIncludedLeafIds,
-  getItemNodeByPath,
-  isDimensionSubItemId,
   mapColumnsToPanelItems,
   mergeIncludedOrderIntoFullOrder,
+} from './helpers/columnPanelMapping';
+import {
+  flattenIncludedLeafIds,
+  getItemNodeByPath,
+} from './helpers/draggableListUtils';
+import {
+  isDimensionSubItemId,
   parseDimensionSubItemId,
-} from './helpers';
+} from '../helpers/dimensionSubItemId';
 import { GridApi } from 'ag-grid-community';
 import { useAgGridColumnGridListeners } from './useAgGridColumnGridListeners';
 

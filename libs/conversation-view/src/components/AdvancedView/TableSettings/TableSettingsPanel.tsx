@@ -1,10 +1,8 @@
 import { IconRotate } from '@tabler/icons-react';
 import { useCallback, useMemo } from 'react';
 import { AgGridColumnsPanel } from './AgGridColumnPanel/AgGridColumnsPanel';
-import {
-  buildCrossDatasetEnrichItem,
-  restoreInitialColumnsState,
-} from './AgGridColumnPanel/helpers';
+import { buildCrossDatasetEnrichItem } from './helpers/crossDatasetEnrichment';
+import { restoreInitialColumnsState } from './AgGridColumnPanel/helpers/columnStateSnapshot';
 import { useTableSettingsContext } from './TableSettingsContext';
 import { useDatasetDimensionsMetadataMapOptional } from '../../../context/DatasetDimensionsMetadataMapContext';
 

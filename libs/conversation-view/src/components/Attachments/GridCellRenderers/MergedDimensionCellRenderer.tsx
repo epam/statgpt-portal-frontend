@@ -26,7 +26,7 @@ import {
 } from '../../../constants/cross-dataset-grid';
 import { useTableSettingsContextOptional } from '../../AdvancedView/TableSettings/TableSettingsContext';
 import { getDimensionValue } from '../../../utils/attachments/cross-dataset-grid/dimensions-columns';
-import { applyDimensionKeyCustomization } from '../../AdvancedView/TableSettings/AgGridColumnPanel/helpers';
+import { applyDimensionKeyCustomization } from '../../AdvancedView/TableSettings/helpers/crossDatasetEnrichment';
 
 interface MergedDimensionCellRendererParams extends ICellRendererParams {
   structuresMap: Map<string, StructuralData | undefined>;
