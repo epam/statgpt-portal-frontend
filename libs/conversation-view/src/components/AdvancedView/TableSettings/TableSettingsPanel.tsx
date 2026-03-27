@@ -64,7 +64,13 @@ export const TableSettingsPanel = () => {
       locale,
       dimensionCustomization,
     });
-  }, [dimensionsCtx, structuresMap, locale, dataQueries, dimensionCustomization]);
+  }, [
+    dimensionsCtx,
+    structuresMap,
+    locale,
+    dataQueries,
+    dimensionCustomization,
+  ]);
 
   return gridApi ? (
     <AgGridColumnsPanel
