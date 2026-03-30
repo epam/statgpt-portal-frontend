@@ -59,7 +59,7 @@
     "@nx/eslint-plugin": "22.5.3",
     "@nx/jest": "22.5.3",
     "@nx/js": "22.5.3",
-    "@nx/next": "22.5.3",
+    "@nx/next": "^22.6.3",
     "@nx/react": "22.5.3",
     "@nx/vite": "22.5.3",
     "@nx/workspace": "22.5.3",
