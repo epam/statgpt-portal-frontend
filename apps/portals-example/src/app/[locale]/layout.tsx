@@ -65,7 +65,7 @@ export default async function LocaleLayout({
   }
 
   const clientContactSupportUrl = process.env.CLIENT_CONTACT_SUPPORT_URL;
-  const isCrossDatasetModeOn = !!process.env.CROSS_DATASET_MODE;
+  const isCrossDatasetModeOn = process.env.CROSS_DATASET_MODE === 'true';
   const isMetadataInSidePanel = isCrossDatasetModeOn;
   const isTableSettingsFeatureEnabled = isCrossDatasetModeOn;
 
