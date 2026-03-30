@@ -9,14 +9,20 @@ import {
   type ToggleCheckedEvent,
   type ToggleExpandedEvent,
 } from '@epam/statgpt-ui-components';
-import type { ColumnPanelFilter } from './types';
+import type { ColumnPanelFilter } from '../types';
 import {
   DEFAULT_INCLUDE_COLUMN,
-  flattenIncludedLeafIds,
-  getItemNodeByPath,
   mapColumnsToPanelItems,
   mergeIncludedOrderIntoFullOrder,
-} from './helpers';
+} from '../helpers/columnPanelMapping';
+import {
+  flattenIncludedLeafIds,
+  getItemNodeByPath,
+} from '../helpers/draggableListUtils';
+import {
+  isDimensionSubItemId,
+  parseDimensionSubItemId,
+} from '../../helpers/dimensionSubItemId';
 import { GridApi } from 'ag-grid-community';
 import { useAgGridColumnGridListeners } from './useAgGridColumnGridListeners';
 
@@ -25,11 +31,20 @@ export function useAgGridColumnsPanel({
   searchQuery,
   includeColumn = DEFAULT_INCLUDE_COLUMN,
   enrichItem,
+  onSubItemOrderChange,
+  onSubItemVisibilityChange,
 }: {
   api: GridApi | null;
   searchQuery: string;
   includeColumn?: ColumnPanelFilter;
   enrichItem?: (item: DraggableListItemNode) => DraggableListItemNode;
+  onSubItemOrderChange?: (urn: string, colId: string, order: string[]) => void;
+  onSubItemVisibilityChange?: (
+    urn: string,
+    colId: string,
+    dimensionKey: string,
+    hidden: boolean,
+  ) => void;
 }) {
   const [gridStateVersion, setGridStateVersion] = useState(0);
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
@@ -76,6 +91,13 @@ export function useAgGridColumnsPanel({
         return;
       }
 
+      if (isDimensionSubItemId(e.itemId) && onSubItemVisibilityChange) {
+        const { urn, dimensionKey } = parseDimensionSubItemId(e.itemId);
+        const colId = e.path[0];
+        onSubItemVisibilityChange(urn, colId, dimensionKey, !e.nextChecked);
+        return;
+      }
+
       const node = getItemNodeByPath(items, e.path);
 
       if (!node || !knownColumnIds.has(node.id)) {
@@ -88,12 +110,27 @@ export function useAgGridColumnsPanel({
 
       syncFromGrid();
     },
-    [api, items, knownColumnIds, syncFromGrid],
+    [api, items, knownColumnIds, syncFromGrid, onSubItemVisibilityChange],
   );
 
   const handleItemClick = useCallback(
     (e: ItemClickEvent) => {
       if (!api) {
+        return;
+      }
+
+      if (isDimensionSubItemId(e.itemId) && onSubItemVisibilityChange) {
+        const { urn, dimensionKey } = parseDimensionSubItemId(e.itemId);
+        const colId = e.path[0];
+        const node = getItemNodeByPath(items, e.path);
+        if (node?.type === 'item') {
+          onSubItemVisibilityChange(
+            urn,
+            colId,
+            dimensionKey,
+            node.isChecked ?? true,
+          );
+        }
         return;
       }
 
@@ -115,7 +152,7 @@ export function useAgGridColumnsPanel({
 
       syncFromGrid();
     },
-    [api, items, knownColumnIds, syncFromGrid],
+    [api, items, knownColumnIds, syncFromGrid, onSubItemVisibilityChange],
   );
 
   const handleToggleExpanded = useCallback((e: ToggleExpandedEvent) => {
@@ -156,8 +193,32 @@ export function useAgGridColumnsPanel({
       });
 
       syncFromGrid();
+
+      if (onSubItemOrderChange) {
+        for (const topNode of next) {
+          if (
+            topNode.type !== 'item' ||
+            !knownColumnIds.has(topNode.id) ||
+            !topNode.items
+          ) {
+            continue;
+          }
+          for (const groupNode of topNode.items) {
+            if (groupNode.type !== 'group') continue;
+            const leafItems = groupNode.items.filter(
+              (i): i is DraggableListItemNode => i.type === 'item',
+            );
+            if (leafItems.length <= 1) continue;
+            const urn = groupNode.id;
+            const newOrder = leafItems.map(
+              (i) => parseDimensionSubItemId(i.id).dimensionKey,
+            );
+            onSubItemOrderChange(urn, topNode.id, newOrder);
+          }
+        }
+      }
     },
-    [api, rawItems, knownColumnIds, syncFromGrid],
+    [api, rawItems, knownColumnIds, syncFromGrid, onSubItemOrderChange],
   );
 
   return {

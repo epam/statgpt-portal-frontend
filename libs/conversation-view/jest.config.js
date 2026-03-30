@@ -7,4 +7,5 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/libs/conversation-view',
+  setupFilesAfterEnv: ['./test-setup.ts'],
 };
