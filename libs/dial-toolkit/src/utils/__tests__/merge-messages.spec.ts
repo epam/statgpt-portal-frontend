@@ -13,7 +13,8 @@ jest.mock('@epam/ai-dial-shared', () => ({
 
 // jsdom does not expose structuredClone; polyfill it for the test environment.
 if (typeof globalThis.structuredClone === 'undefined') {
-  globalThis.structuredClone = <T>(val: T): T => JSON.parse(JSON.stringify(val));
+  globalThis.structuredClone = <T>(val: T): T =>
+    JSON.parse(JSON.stringify(val));
 }
 
 // ---------------------------------------------------------------------------
@@ -68,10 +69,7 @@ describe('mergeMessages', () => {
 
   it('applies multiple partial messages in order', () => {
     const source = makeMessage({ content: 'a' });
-    const result = mergeMessages(source, [
-      { content: 'b' },
-      { content: 'c' },
-    ]);
+    const result = mergeMessages(source, [{ content: 'b' }, { content: 'c' }]);
     expect(result.content).toBe('abc');
   });
 });
@@ -229,9 +227,7 @@ describe('mergeMessages — custom_content.stages', () => {
     const result = mergeMessages(source, [
       {
         custom_content: {
-          stages: [
-            { index: 0, name: '', content: ' part2', status: null },
-          ],
+          stages: [{ index: 0, name: '', content: ' part2', status: null }],
         },
       },
     ]);

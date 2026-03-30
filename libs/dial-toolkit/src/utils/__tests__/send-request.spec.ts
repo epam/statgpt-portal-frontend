@@ -135,11 +135,9 @@ describe('sendRequest', () => {
   });
 
   it('returns the fetch response', async () => {
-    const result = await sendRequest(
-      'https://example.com/api',
-      makeHeaders(),
-      { method: 'GET' },
-    );
+    const result = await sendRequest('https://example.com/api', makeHeaders(), {
+      method: 'GET',
+    });
 
     expect(result).toBe(mockResponse);
   });

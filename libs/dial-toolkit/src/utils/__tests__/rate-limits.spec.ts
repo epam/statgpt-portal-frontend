@@ -34,11 +34,17 @@ describe('getRateLimitRestoreDate', () => {
   });
 
   it('returns null when kind is not RATE_LIMIT', () => {
-    expect(getRateLimitRestoreDate(unknownContext('2024-01-01T00:00:00Z'))).toBeNull();
+    expect(
+      getRateLimitRestoreDate(unknownContext('2024-01-01T00:00:00Z')),
+    ).toBeNull();
   });
 
   it('returns null when retryAfterSeconds is undefined', () => {
-    expect(getRateLimitRestoreDate(rateLimitContext('2024-01-01T00:00:00Z', undefined))).toBeNull();
+    expect(
+      getRateLimitRestoreDate(
+        rateLimitContext('2024-01-01T00:00:00Z', undefined),
+      ),
+    ).toBeNull();
   });
 
   it('returns null when retryAfterSeconds is not a number (non-numeric string coerced)', () => {
@@ -51,14 +57,20 @@ describe('getRateLimitRestoreDate', () => {
   });
 
   it('returns null when occurredAt is an invalid date string', () => {
-    expect(getRateLimitRestoreDate(rateLimitContext('not-a-date', 60))).toBeNull();
+    expect(
+      getRateLimitRestoreDate(rateLimitContext('not-a-date', 60)),
+    ).toBeNull();
   });
 
   it('returns a Date offset by retryAfterSeconds from occurredAt', () => {
     const occurredAt = '2024-06-15T12:00:00Z';
     const retryAfterSeconds = 120;
-    const result = getRateLimitRestoreDate(rateLimitContext(occurredAt, retryAfterSeconds));
-    const expected = new Date(new Date(occurredAt).getTime() + retryAfterSeconds * 1000);
+    const result = getRateLimitRestoreDate(
+      rateLimitContext(occurredAt, retryAfterSeconds),
+    );
+    const expected = new Date(
+      new Date(occurredAt).getTime() + retryAfterSeconds * 1000,
+    );
     expect(result).toEqual(expected);
   });
 
@@ -86,15 +98,23 @@ describe('isRateLimitStillActive', () => {
   });
 
   it('returns false when kind is not RATE_LIMIT', () => {
-    expect(isRateLimitStillActive(unknownContext('2024-01-01T00:00:00Z'))).toBe(false);
+    expect(isRateLimitStillActive(unknownContext('2024-01-01T00:00:00Z'))).toBe(
+      false,
+    );
   });
 
   it('returns false when retryAfterSeconds is undefined', () => {
-    expect(isRateLimitStillActive(rateLimitContext('2024-01-01T00:00:00Z', undefined))).toBe(false);
+    expect(
+      isRateLimitStillActive(
+        rateLimitContext('2024-01-01T00:00:00Z', undefined),
+      ),
+    ).toBe(false);
   });
 
   it('returns false when occurredAt is an invalid date', () => {
-    expect(isRateLimitStillActive(rateLimitContext('not-a-date', 60))).toBe(false);
+    expect(isRateLimitStillActive(rateLimitContext('not-a-date', 60))).toBe(
+      false,
+    );
   });
 
   it('returns true when restore date is in the future', () => {
@@ -111,14 +131,18 @@ describe('isRateLimitStillActive', () => {
     const now = 1_700_000_000_000;
     const occurredAt = new Date(now - 60_000).toISOString();
     // restore date = now - 60_000 + 60 * 1000 = now exactly; not strictly greater
-    expect(isRateLimitStillActive(rateLimitContext(occurredAt, 60), now)).toBe(false);
+    expect(isRateLimitStillActive(rateLimitContext(occurredAt, 60), now)).toBe(
+      false,
+    );
   });
 
   it('returns true when restore date is one millisecond in the future', () => {
     const now = 1_700_000_000_000;
     const occurredAt = new Date(now).toISOString();
     // restore date = now + 1 ms
-    expect(isRateLimitStillActive(rateLimitContext(occurredAt, 0.001), now)).toBe(true);
+    expect(
+      isRateLimitStillActive(rateLimitContext(occurredAt, 0.001), now),
+    ).toBe(true);
   });
 
   it('accepts an explicit now parameter', () => {
@@ -126,9 +150,19 @@ describe('isRateLimitStillActive', () => {
     const retryAfterSeconds = 300;
     const restoreMs = new Date(occurredAt).getTime() + retryAfterSeconds * 1000;
     // just before restore
-    expect(isRateLimitStillActive(rateLimitContext(occurredAt, retryAfterSeconds), restoreMs - 1)).toBe(true);
+    expect(
+      isRateLimitStillActive(
+        rateLimitContext(occurredAt, retryAfterSeconds),
+        restoreMs - 1,
+      ),
+    ).toBe(true);
     // just after restore
-    expect(isRateLimitStillActive(rateLimitContext(occurredAt, retryAfterSeconds), restoreMs + 1)).toBe(false);
+    expect(
+      isRateLimitStillActive(
+        rateLimitContext(occurredAt, retryAfterSeconds),
+        restoreMs + 1,
+      ),
+    ).toBe(false);
   });
 });
 
@@ -157,7 +191,9 @@ describe('formatDateTime', () => {
   it('formats time with 2-digit hour and minute', () => {
     const date = new Date('2024-06-15T14:30:00Z');
     const { time } = formatDateTime(date, 'en-GB');
-    expect(time).toBe(date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }));
+    expect(time).toBe(
+      date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+    );
   });
 
   it('defaults to en-GB locale when none is provided', () => {
@@ -170,13 +206,17 @@ describe('formatDateTime', () => {
   it('works for midnight (00:00)', () => {
     const date = new Date('2024-01-01T00:00:00Z');
     const { time } = formatDateTime(date, 'en-GB');
-    expect(time).toBe(date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }));
+    expect(time).toBe(
+      date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+    );
   });
 
   it('works for a different locale', () => {
     const date = new Date('2024-06-15T14:30:00Z');
     const { date: dateStr, time } = formatDateTime(date, 'fr-FR');
     expect(dateStr).toBe(date.toLocaleDateString('fr-FR'));
-    expect(time).toBe(date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
+    expect(time).toBe(
+      date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+    );
   });
 });

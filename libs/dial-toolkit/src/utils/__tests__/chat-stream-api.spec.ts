@@ -95,7 +95,9 @@ describe('handleStreamMessage', () => {
 
   it('prefers delta content over message content', () => {
     const data = response({
-      choices: [{ delta: { content: 'delta' }, message: { content: 'message' } }],
+      choices: [
+        { delta: { content: 'delta' }, message: { content: 'message' } },
+      ],
     });
     const onToken = jest.fn();
     handleStreamMessage(data, undefined, onToken);

@@ -38,7 +38,10 @@ describe('parseConversationName', () => {
 
   it('returns the whole name as conversationName when there is no __ separator', () => {
     const result = parseConversationName(makeEntity('plain-name'));
-    expect(result).toEqual({ modelId: 'plain-name', conversationName: 'plain-name' });
+    expect(result).toEqual({
+      modelId: 'plain-name',
+      conversationName: 'plain-name',
+    });
   });
 
   it('returns the modelId segment as the first part before __', () => {
