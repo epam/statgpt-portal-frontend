@@ -4,6 +4,30 @@ import { IconX } from '@tabler/icons-react';
 import { mergeClasses } from '../../../utils/mergeClasses';
 import { ReactNode } from 'react';
 
+/**
+ * ConversationViewSidePanel renders a fixed-width side panel with a header,
+ * a close button, and a scrollable body area.
+ *
+ * The header displays an optional title on the left and places any
+ * `headerExtension` content to the left of the close button, separated by a
+ * thin vertical divider when the extension is present.
+ *
+ * @example
+ * Basic side panel with a title
+ * ```tsx
+ * <ConversationViewSidePanel title="Details" onClose={() => setOpen(false)}>
+ *   <p>Panel content goes here.</p>
+ * </ConversationViewSidePanel>
+ * ```
+ *
+ * @param title - Optional heading rendered on the left side of the panel header.
+ * @param headerExtension - Optional node placed to the left of the close button in the header.
+ * @param headerClassName - Additional classes applied to the header row container.
+ * @param onClose - Callback invoked when the user clicks the close (X) button.
+ * @param bodyClassName - Additional classes applied to the scrollable body container.
+ * @param panelClassName - Additional classes applied to the outermost panel wrapper.
+ * @param children - Content rendered inside the panel body.
+ */
 export function ConversationViewSidePanel({
   title,
   headerExtension,
