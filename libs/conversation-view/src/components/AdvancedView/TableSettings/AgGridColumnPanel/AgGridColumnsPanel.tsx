@@ -2,7 +2,7 @@
 
 import { DraggableList, InputWithIcon } from '@epam/statgpt-ui-components';
 import type { DraggableListItemNode } from '@epam/statgpt-ui-components';
-import { useAgGridColumnsPanel } from './useAgGridColumnsPanel';
+import { useAgGridColumnsPanel } from './hooks/useAgGridColumnsPanel';
 import { ColumnPanelFilter } from './types';
 import { useCallback, useMemo, useState } from 'react';
 import { IconSearch, IconX } from '@tabler/icons-react';
@@ -12,10 +12,19 @@ export function AgGridColumnsPanel({
   api,
   includeColumn,
   enrichItem,
+  onSubItemOrderChange,
+  onSubItemVisibilityChange,
 }: {
   api: GridApi | null;
   includeColumn?: ColumnPanelFilter;
   enrichItem?: (item: DraggableListItemNode) => DraggableListItemNode;
+  onSubItemOrderChange?: (urn: string, colId: string, order: string[]) => void;
+  onSubItemVisibilityChange?: (
+    urn: string,
+    colId: string,
+    dimensionKey: string,
+    hidden: boolean,
+  ) => void;
 }) {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const changeSearchHandler = useCallback(
@@ -50,6 +59,8 @@ export function AgGridColumnsPanel({
     includeColumn,
     searchQuery,
     enrichItem,
+    onSubItemOrderChange,
+    onSubItemVisibilityChange,
   });
 
   return (

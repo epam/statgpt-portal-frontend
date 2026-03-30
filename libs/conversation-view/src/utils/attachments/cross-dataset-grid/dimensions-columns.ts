@@ -201,7 +201,7 @@ function getCellParams(
   };
 }
 
-function getDimensionValue(
+export function getDimensionValue(
   structures: StructuralData,
   dimensionId: string,
   data: GridData,
