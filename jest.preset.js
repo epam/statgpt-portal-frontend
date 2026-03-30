@@ -2,6 +2,7 @@ const nxPreset = require('@nx/jest/preset').default;
 
 module.exports = {
   ...nxPreset,
+  coverageProvider: 'v8',
   moduleNameMapping: {
     '^@/statgpt/ui-components/(.*)$': '<rootDir>/../../libs/ui-components/$1',
   },

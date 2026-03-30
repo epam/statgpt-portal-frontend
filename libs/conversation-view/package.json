@@ -25,7 +25,8 @@
     "date-fns": "^4.1.0",
     "lodash": "^4.17.23",
     "tailwind-merge": "^3.4.0",
-    "@monaco-editor/react": "^4.7.0"
+    "@monaco-editor/react": "^4.7.0",
+    "@testing-library/jest-dom": "^6.6.3"
   },
   "peerDependencies": {
     "react": "^19.2.1"
