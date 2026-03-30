@@ -8,6 +8,24 @@ import { useDatasetDimensionsMetadataMapOptional } from '../../../context/Datase
 
 export const TABLE_SETTINGS_SIDE_PANEL_ID = 'table-settings-side-panel';
 
+/**
+ * Renders a reset button intended for use as a header extension inside the
+ * table settings side panel.
+ *
+ * The button restores all column visibility and order to the initial snapshot
+ * and clears any dimension customization tracked by `TableSettingsContext`.
+ *
+ * @example
+ * Embedding in a panel header
+ * ```tsx
+ * <SidePanel
+ *   id={TABLE_SETTINGS_SIDE_PANEL_ID}
+ *   headerExtension={<TableSettingsPanelHeaderExtension resetTitle="Restore" />}
+ * />
+ * ```
+ *
+ * @param resetTitle - Label shown next to the rotate icon. Defaults to "Reset".
+ */
 export const TableSettingsPanelHeaderExtension = ({
   resetTitle,
 }: {
@@ -39,6 +57,23 @@ export const TableSettingsPanelHeaderExtension = ({
   return headerExtension;
 };
 
+/**
+ * Renders the column visibility and order panel for the AG Grid table,
+ * enriching merged cross-dataset columns with dimension metadata when available.
+ *
+ * The panel is hidden (returns `null`) until the AG Grid API is ready. When
+ * cross-dataset context, structure maps, and data queries are all present, it
+ * computes an `enrichItem` callback that supplies human-readable dimension
+ * labels and sub-item customization to `AgGridColumnsPanel`.
+ *
+ * @example
+ * Mounting inside a side panel
+ * ```tsx
+ * <SidePanel id={TABLE_SETTINGS_SIDE_PANEL_ID}>
+ *   <TableSettingsPanel />
+ * </SidePanel>
+ * ```
+ */
 export const TableSettingsPanel = () => {
   const {
     gridApi,

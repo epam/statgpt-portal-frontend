@@ -35,6 +35,13 @@ interface CrossDatasetColumnsInfo {
   dimensionCustomization?: DimensionCustomizationMap;
 }
 
+/**
+ * Applies ordering and hidden-key filtering from a customization record to a list of dimension keys.
+ *
+ * @param dimensionKeys - The original ordered list of dimension keys for a column.
+ * @param custom - Optional customization describing explicit ordering and a set of keys to hide.
+ * @returns A reordered and filtered array of dimension keys.
+ */
 export function applyDimensionKeyCustomization(
   dimensionKeys: string[],
   custom: DimensionKeyCustomization | undefined,
@@ -97,6 +104,15 @@ function resolveDimLabel(
   );
 }
 
+/**
+ * Returns a mapping function that enriches an aggregated draggable list item with
+ * per-dataset dimension sub-items and group nodes derived from cross-dataset structural data.
+ *
+ * @param info - Context containing data queries, structural metadata, dimension scheme resolvers,
+ *   locale, and optional dimension customizations used to build child groups.
+ * @returns A function that transforms a `DraggableListItemNode`, replacing aggregated column
+ *   items with nested group/leaf nodes; non-aggregated items are returned unchanged.
+ */
 export function buildCrossDatasetEnrichItem(
   info: CrossDatasetColumnsInfo,
 ): (item: DraggableListItemNode) => DraggableListItemNode {
