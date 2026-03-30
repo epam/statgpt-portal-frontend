@@ -12,6 +12,10 @@ const COLUMN_SYNC_EVENTS = [
   'columnPinned',
 ] as const satisfies ReadonlyArray<string>;
 
+/**
+ * Registers AG Grid column-change event listeners on the provided grid API and cleans them up on unmount,
+ * invoking the given callback whenever column visibility, order, pinning, or structure changes.
+ */
 export function useAgGridColumnGridListeners(
   api: GridApi | null | undefined,
   listener: () => void,

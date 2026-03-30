@@ -6,6 +6,11 @@ import type { AgGridInitialColumnsState } from '../types';
 import { captureInitialColumnsState } from '../helpers/columnStateSnapshot';
 import { useAgGridColumnGridListeners } from './useAgGridColumnGridListeners';
 
+/**
+ * Manages per-URN AG Grid column state, capturing the initial column layout on
+ * grid ready and restoring any user-applied column preferences when the active
+ * URN changes.
+ */
 export function useAgGridColumnPreferences({
   currentUrn,
 }: {
