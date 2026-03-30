@@ -91,7 +91,7 @@ const AttachmentsViewModePanel: FC<Props> = ({
           <Button
             disabled={isTableSettingsOpen}
             buttonClassName="text-button-tertiary !p-0 !h-6"
-            textClassName="ml-1"
+            textClassName="ml-1 h4"
             iconBefore={<ColumnsIcon className="size-4" />}
             title={attachmentsStyles?.columnsTitle || 'Columns'}
             onClick={onTableSettingsOpen}
