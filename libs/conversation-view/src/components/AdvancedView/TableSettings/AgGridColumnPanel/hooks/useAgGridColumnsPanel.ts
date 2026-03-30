@@ -26,6 +26,11 @@ import {
 import { GridApi } from 'ag-grid-community';
 import { useAgGridColumnGridListeners } from './useAgGridColumnGridListeners';
 
+/**
+ * Manages column panel state for an AG Grid instance, deriving a draggable item
+ * tree from the grid's column state and returning handlers for toggling visibility,
+ * reordering columns, and expanding or collapsing grouped entries.
+ */
 export function useAgGridColumnsPanel({
   api,
   searchQuery,

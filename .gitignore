@@ -61,7 +61,8 @@ build
 .idea/
 
 # Claude AI
-.claude/
+.claude/*
+!.claude/commands/
 
 # System Files
 .DS_Store

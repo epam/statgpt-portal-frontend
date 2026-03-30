@@ -39,6 +39,33 @@ const TableSettingsContext = createContext<TableSettingsContextValue | null>(
   null,
 );
 
+/**
+ * TableSettingsProvider supplies AG Grid state and dimension customization
+ * controls to all table-settings consumers via React context.
+ *
+ * Column preferences (order, visibility) are persisted and restored per URN
+ * through `useAgGridColumnPreferences`. Dimension key ordering and hidden-key
+ * sets are held in local state and reset independently.
+ *
+ * @example
+ * Wrap the data-table subtree with the provider
+ * ```tsx
+ * <TableSettingsProvider
+ *   currentUrn={urn}
+ *   structuresMap={structuresMap}
+ *   locale="en"
+ *   dataQueries={queries}
+ * >
+ *   <AdvancedTable />
+ * </TableSettingsProvider>
+ * ```
+ *
+ * @param currentUrn - URN of the active dataset; used to scope persisted column preferences.
+ * @param structuresMap - Map from URN to SDMX structural metadata, forwarded to consumers.
+ * @param locale - Language tag (e.g. `"en-US"`) passed through to child components.
+ * @param dataQueries - List of dataset query descriptors available to consumers.
+ * @param children - Subtree that gains access to the table-settings context.
+ */
 export function TableSettingsProvider({
   currentUrn,
   structuresMap,
@@ -143,6 +170,10 @@ export function TableSettingsProvider({
   );
 }
 
+/**
+ * Returns the nearest `TableSettingsProvider` context value, throwing if the
+ * hook is called outside of a provider.
+ */
 export function useTableSettingsContext() {
   const ctx = useContext(TableSettingsContext);
   if (!ctx) {
@@ -153,5 +184,9 @@ export function useTableSettingsContext() {
   return ctx;
 }
 
+/**
+ * Returns the nearest `TableSettingsProvider` context value, or `null` when
+ * called outside of a provider.
+ */
 export const useTableSettingsContextOptional = () =>
   useContext(TableSettingsContext);
