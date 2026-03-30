@@ -10,10 +10,13 @@ import {
 } from '../multiple-filters';
 import type { Filter, SharedFilter } from '../../models/filters';
 
+const mockGenerateShortUrn = jest.fn(
+  (name: string, version: string, agencyId: string) =>
+    `${agencyId}:${name}(${version})`,
+);
+
 jest.mock('@epam/statgpt-sdmx-toolkit', () => ({
-  generateShortUrn: jest.fn(
-    (name, version, agencyId) => `${agencyId}:${name}(${version})`,
-  ),
+  generateShortUrn: (...args: any[]) => (mockGenerateShortUrn as any)(...args),
   getAnnotationPeriod: jest.fn(() => ({ startPeriod: null, endPeriod: null })),
   findCodelistByDimension: jest.fn(() => null),
   getAvailableCodesFromConstrains: jest.fn(() => []),
@@ -57,9 +60,7 @@ const DATASET_B_URN = 'AGENCY:DF_B(1.0)';
 // ─── Default mock reset ───────────────────────────────────────────────────────
 
 beforeEach(() => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { generateShortUrn } = require('@epam/statgpt-sdmx-toolkit');
-  generateShortUrn.mockImplementation(
+  mockGenerateShortUrn.mockImplementation(
     (name: string, version: string, agencyId: string) =>
       `${agencyId}:${name}(${version})`,
   );
@@ -469,9 +470,6 @@ describe('getDatasetNameFromFilters', () => {
   });
 
   it('returns the generated short URN for a dataset filter with a matching structure', () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { generateShortUrn } = require('@epam/statgpt-sdmx-toolkit');
-
     const datasetFilter: Filter = {
       id: 'INCOME',
       filterType: 'dataset',
@@ -487,7 +485,7 @@ describe('getDatasetNameFromFilters', () => {
 
     // The impl calls generateShortUrn(name, '', agencyID) — version is intentionally empty.
     const result = getDatasetNameFromFilters(datasetFilter, structuresMap);
-    expect(generateShortUrn).toHaveBeenCalledWith('DF_A', '', 'AGENCY');
+    expect(mockGenerateShortUrn).toHaveBeenCalledWith('DF_A', '', 'AGENCY');
     expect(result).toBe('AGENCY:DF_A()');
   });
 });
@@ -496,13 +494,6 @@ describe('getDatasetNameFromFilters', () => {
 
 describe('getConstraintsMap', () => {
   it('builds a map keyed by the short URN generated from each constraint', () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { generateShortUrn } = require('@epam/statgpt-sdmx-toolkit');
-    generateShortUrn.mockImplementation(
-      (name: string, version: string, agencyId: string) =>
-        `${agencyId}:${name}(${version})`,
-    );
-
     const constraintsData = [
       {
         data: {
