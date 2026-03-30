@@ -24,6 +24,7 @@ import { TextsConfig } from '../../components/configs/TextsConfig/TextsConfig';
 import { ClientProvidersWrapper } from '../../components/ClientProvidersWrapper/ClientProvidersWrapper';
 import { getDatasetsMetadata } from '../actions/datasets-metadata';
 import { buildDatasetDimensionsMetadataMap } from '@epam/statgpt-sdmx-toolkit';
+import { parseBoolean } from '@epam/statgpt-shared-toolkit';
 
 export default async function LocaleLayout({
   children,
@@ -65,7 +66,7 @@ export default async function LocaleLayout({
   }
 
   const clientContactSupportUrl = process.env.CLIENT_CONTACT_SUPPORT_URL;
-  const isCrossDatasetModeOn = process.env.CROSS_DATASET_MODE === 'true';
+  const isCrossDatasetModeOn = parseBoolean(process.env.CROSS_DATASET_MODE);
   const isMetadataInSidePanel = isCrossDatasetModeOn;
   const isTableSettingsFeatureEnabled = isCrossDatasetModeOn;
 
