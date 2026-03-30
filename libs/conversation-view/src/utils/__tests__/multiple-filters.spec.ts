@@ -57,6 +57,7 @@ const DATASET_B_URN = 'AGENCY:DF_B(1.0)';
 // ─── Default mock reset ───────────────────────────────────────────────────────
 
 beforeEach(() => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { generateShortUrn } = require('@epam/statgpt-sdmx-toolkit');
   generateShortUrn.mockImplementation(
     (name: string, version: string, agencyId: string) =>
@@ -468,6 +469,7 @@ describe('getDatasetNameFromFilters', () => {
   });
 
   it('returns the generated short URN for a dataset filter with a matching structure', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { generateShortUrn } = require('@epam/statgpt-sdmx-toolkit');
 
     const datasetFilter: Filter = {
@@ -494,6 +496,7 @@ describe('getDatasetNameFromFilters', () => {
 
 describe('getConstraintsMap', () => {
   it('builds a map keyed by the short URN generated from each constraint', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { generateShortUrn } = require('@epam/statgpt-sdmx-toolkit');
     generateShortUrn.mockImplementation(
       (name: string, version: string, agencyId: string) =>
