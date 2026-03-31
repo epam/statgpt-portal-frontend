@@ -98,6 +98,7 @@ import { getOnboardingInfoForAdvancedView } from '../../utils/get-tooltip-data.b
 import { AttachmentsConfig } from '../../models/attachments';
 import { merge } from 'lodash';
 import { useConversationViewMessages } from '../../context/ConversationViewMessagesContext';
+import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
 import {
   resolveHttpStreamingError,
   throwIfMessageError,
@@ -173,6 +174,7 @@ export const ConversationView: FC<Props> = ({
   const [isLoading, setIsLoading] = useState(true);
   const { isStreaming, setIsStreaming } = useChatMessages();
   const { isOpenedAdvancedView } = useAdvancedView();
+  const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
 
   const { isAgentAvailable } = useAgentAvailability();
   const { statusMessages } = useConversationViewMessages();
@@ -411,6 +413,17 @@ export const ConversationView: FC<Props> = ({
         };
       }
 
+      const existingConvCustomFields =
+        (conversation.custom_fields as CustomFields['custom_fields']) ?? {};
+
+      const requestCustomFields: CustomFields['custom_fields'] = {
+        ...existingConvCustomFields,
+        configuration: {
+          ...existingConvCustomFields.configuration,
+          ...(isCrossDatasetModeOn && { merge_python_code: true }),
+        },
+      };
+
       await streamChatResponse?.(
         encodeURI(conversation.id),
         apiMessages,
@@ -441,7 +454,7 @@ export const ConversationView: FC<Props> = ({
           },
         },
         token,
-        conversation?.custom_fields as CustomFields,
+        requestCustomFields,
       ).catch((error) => {
         const { assistantMessage, errorContext } = handleStreamingError(
           error,
@@ -456,7 +469,13 @@ export const ConversationView: FC<Props> = ({
         errorContext: currentErrorContext,
       };
     },
-    [token, updateAssistantMessage, handleStreamingError, statusMessages],
+    [
+      token,
+      updateAssistantMessage,
+      handleStreamingError,
+      statusMessages,
+      isCrossDatasetModeOn,
+    ],
   );
 
   const finalizeConversation = useCallback(

@@ -7,7 +7,7 @@ export interface RequestStreamBody {
   messages: Message[];
   model: ModelInfo;
   content?: string;
-  custom_fields?: CustomFields;
+  custom_fields?: CustomFields['custom_fields'];
 }
 
 export interface MessageStreamResponse {
@@ -40,6 +40,7 @@ export interface CustomFields {
   custom_fields?: {
     configuration?: {
       choice?: string;
+      merge_python_code?: boolean;
     };
   };
 }

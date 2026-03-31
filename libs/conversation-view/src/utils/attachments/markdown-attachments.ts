@@ -5,6 +5,18 @@ import { unwrapMarkdownCode } from './unwrap-markdown-code';
 
 const ALLOWED_CODE_SAMPLE_LANGUAGES = ['python'];
 
+/**
+ * Filters and transforms raw MARKDOWN-typed attachments into synthetic
+ * `CUSTOM_CODE_SAMPLE` attachments containing unwrapped Python code.
+ *
+ * Only attachments whose language resolves to `python` after fence-stripping
+ * are included. When `urn` is provided, attachments are further scoped to
+ * those whose title contains the dataset URN.
+ *
+ * @param rawAttachments - Full list of raw attachments from the message response.
+ * @param urn - Dataset URN used to scope attachments by title; pass `undefined` to include all markdown attachments.
+ * @param codeSamplesTitle - Display title for the generated attachments; defaults to `"Code samples"`.
+ */
 export function buildMarkdownAttachments(
   rawAttachments: Attachment[],
   urn: string | undefined,

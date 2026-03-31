@@ -16,11 +16,16 @@ import {
   getDataSetData,
   getStructureDataMaps,
 } from '../utils/attachments/attachments-data';
-import { CustomGridAttachment } from '../models/attachments';
+import {
+  CustomCodeAttachment,
+  CustomGridAttachment,
+} from '../models/attachments';
 import {
   createInitialChartAttachment,
   createInitialCrossDatasetGridAttachment,
 } from '../constants/attachments';
+import { buildMarkdownAttachments } from '../utils/attachments/markdown-attachments';
+import { Attachment } from '@epam/ai-dial-shared';
 import { useConversationViewTitles } from './ConversationViewTitlesContext';
 import {
   ChartingStyles,
@@ -42,6 +47,7 @@ export function useAttachmentsDataMultipleQueries(
   chartStyles?: ChartingStyles,
   formattingSettings?: FormatNumbersType,
   metadataSettings?: MetadataSettings,
+  rawAttachments?: Attachment[],
 ) {
   const [structureDataMaps, setStructureDataMaps] =
     useState<StructureDataMaps>();
@@ -56,6 +62,9 @@ export function useAttachmentsDataMultipleQueries(
     );
   const [crossDatasetChartAttachment, setCrossDatasetChartAttachment] =
     useState(createInitialChartAttachment(titles?.chart));
+  const [codeAttachments, setCodeAttachments] = useState<
+    CustomCodeAttachment[]
+  >([]);
 
   const {
     getConstraints,
@@ -147,6 +156,18 @@ export function useAttachmentsDataMultipleQueries(
   ]);
 
   useEffect(() => {
+    if (rawAttachments?.length) {
+      setCodeAttachments(
+        buildMarkdownAttachments(
+          rawAttachments,
+          undefined,
+          titles?.codeSamples,
+        ),
+      );
+    }
+  }, [rawAttachments, titles]);
+
+  useEffect(() => {
     const { structuresMap, dataMessagesMap, constraintsMap } =
       structureDataMaps ?? {};
     if (
@@ -233,8 +254,12 @@ export function useAttachmentsDataMultipleQueries(
   }, [structureDataMaps, dataQueries, locale, chartStyles, isLoadingGridData]);
 
   const crossDatasetAttachments = useMemo(
-    () => [crossDatasetGridAttachment, crossDatasetChartAttachment],
-    [crossDatasetGridAttachment, crossDatasetChartAttachment],
+    () => [
+      crossDatasetGridAttachment,
+      crossDatasetChartAttachment,
+      ...codeAttachments,
+    ],
+    [crossDatasetGridAttachment, crossDatasetChartAttachment, codeAttachments],
   );
 
   const onMultipleDataFiltersChange = useCallback(

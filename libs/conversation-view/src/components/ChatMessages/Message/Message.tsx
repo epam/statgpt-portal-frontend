@@ -177,6 +177,7 @@ const Message: FC<Props> = ({
     attachmentsStyles?.chartingStyles,
     formattingSettings,
     metadataSettings,
+    message.custom_content?.attachments,
   );
   const { isOpenedAdvancedView } = useAdvancedView();
 
