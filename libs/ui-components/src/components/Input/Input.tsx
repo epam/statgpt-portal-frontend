@@ -14,6 +14,8 @@ export interface InputProps {
   readonly?: boolean;
   onChange?: (value: string) => void;
   onKeyDown?: (value: KeyboardEvent<HTMLInputElement>) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export const Input: FC<InputProps> = ({
@@ -26,6 +28,8 @@ export const Input: FC<InputProps> = ({
   readonly,
   onChange,
   onKeyDown,
+  onFocus,
+  onBlur,
 }) => {
   const inputClass = classNames(
     'truncate outline-none shadow-none body-1',
@@ -44,6 +48,8 @@ export const Input: FC<InputProps> = ({
       disabled={disabled}
       className={inputClass}
       onKeyDown={onKeyDown}
+      onFocus={onFocus}
+      onBlur={onBlur}
       onChange={(event) => onChange?.(event.currentTarget.value)}
     />
   );
