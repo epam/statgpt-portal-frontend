@@ -1,0 +1,422 @@
+import { render, act } from '@testing-library/react';
+import { createElement } from 'react';
+import MultiDatasetFilters from '../MultiDatasetFilters';
+import type { Filter } from '../../../../models/filters';
+import type { DataQuery } from '@epam/statgpt-shared-toolkit';
+import type { StructureDataMaps } from '../../../../models/structure-data';
+import type { DatasetQueryFilters } from '@epam/statgpt-sdmx-toolkit';
+import { COMMON_COUNTRY_FILTER_ID } from '../../../../utils/multiple-filters';
+
+// ─── Module mocks ─────────────────────────────────────────────────────────────
+
+jest.mock('@epam/statgpt-sdmx-toolkit', () => ({}));
+jest.mock('@epam/ai-dial-shared', () => ({}));
+
+// ─── Captured callbacks ────
+
+const mockCallbacks: {
+  setModalState: ((state: string) => void) | null;
+  onApply: (() => void) | null;
+  selectedFiltersCount: number | null;
+} = { setModalState: null, onApply: null, selectedFiltersCount: null };
+
+// ─── Mock implementations ───────────────────────
+
+const mockGetFiltersPreselectedByDataQueries = jest.fn(() => [] as Filter[]);
+const mockBuildFiltersMap = jest.fn(() => new Map<string, Filter[]>());
+const mockGetFiltersByConstraints = jest.fn(() => [] as Filter[]);
+const mockGetConstraintsRequests = jest.fn(() => [] as Promise<unknown>[]);
+const mockGetConstraintsMap = jest.fn(() => new Map());
+const mockIsStructureDataMapsReady = jest.fn(() => false);
+const mockGetFilledDatasetFiltersMap = jest.fn(
+  () => new Map<string, Filter[]>(),
+);
+const mockGetQueryFiltersMap = jest.fn(() => new Map());
+const mockSetDataQueryFiltersMap = jest.fn(() => new Map());
+
+jest.mock('@epam/statgpt-ui-components', () => {
+  const R = require('react');
+  return {
+    Popup: (props: any) =>
+      R.createElement('div', { 'data-testid': 'popup' }, props.children),
+    PopUpSize: { LG: 'LG' },
+    PopUpState: { Opened: 'opened', Closed: 'closed' },
+    LimitMessages: {},
+  };
+});
+
+jest.mock('../../../../utils/multiple-filters', () => ({
+  COMMON_COUNTRY_FILTER_ID: 'COUNTRY',
+  COMMON_FREQUENCY_FILTER_ID: 'FREQUENCY',
+  COMMON_TIME_PERIOD_FILTER_ID: 'TIME_PERIOD',
+  isStructureDataMapsReady: (...args: any[]) =>
+    (mockIsStructureDataMapsReady as any)(...args),
+  getFilledDatasetFiltersMap: (...args: any[]) =>
+    (mockGetFilledDatasetFiltersMap as any)(...args),
+  getFiltersPreselectedByDataQueries: (...args: any[]) =>
+    (mockGetFiltersPreselectedByDataQueries as any)(...args),
+  buildFiltersMap: (...args: any[]) => (mockBuildFiltersMap as any)(...args),
+  getFiltersByConstraints: (...args: any[]) =>
+    (mockGetFiltersByConstraints as any)(...args),
+  getConstraintsRequests: (...args: any[]) =>
+    (mockGetConstraintsRequests as any)(...args),
+  getConstraintsMap: (...args: any[]) =>
+    (mockGetConstraintsMap as any)(...args),
+  getQueryFiltersMap: (...args: any[]) =>
+    (mockGetQueryFiltersMap as any)(...args),
+  setDataQueryFiltersMap: (...args: any[]) =>
+    (mockSetDataQueryFiltersMap as any)(...args),
+}));
+
+jest.mock('../../../../utils/filters', () => ({
+  getFiltersAfterClear: jest.fn((filters: any[]) =>
+    filters.map((f: any) => ({
+      ...f,
+      dimensionValues: f.dimensionValues?.map((v: any) => ({
+        ...v,
+        isSelectedValue: false,
+      })),
+    })),
+  ),
+  getFiltersAfterDelete: jest.fn((filters: any[], filterToDelete: any) =>
+    filters.filter((f: any) => f.id !== filterToDelete?.id),
+  ),
+  getSelectedFilterValues: jest.fn((filters: any[]) =>
+    filters.filter((f: any) =>
+      f.dimensionValues?.some((v: any) => v.isSelectedValue),
+    ),
+  ),
+  getTotalSelectedValuesLength: jest.fn((filters: any[]) =>
+    filters.reduce(
+      (sum: number, f: any) =>
+        sum +
+        (f.dimensionValues?.filter((v: any) => v.isSelectedValue).length || 0),
+      0,
+    ),
+  ),
+  isSameFilter: jest.fn(
+    (a: any, b: any) => a?.id === b?.id && a?.datasetUrn === b?.datasetUrn,
+  ),
+  updateFiltersWithDisabledOption: jest.fn((filters: any[]) =>
+    filters.map((f: any) => ({ ...f, isDisabled: true })),
+  ),
+  updateFiltersWithDisplayMode: jest.fn(
+    (filters: any[], filter: any, displayMode: any) =>
+      filters.map((f: any) =>
+        f.id === filter?.id ? { ...f, displayMode } : f,
+      ),
+  ),
+  updateFiltersWithSelectedItem: jest.fn(
+    (filters: any[], selectedFilter: any) =>
+      filters.map((f: any) => ({
+        ...f,
+        isSelectedFilter: f.id === selectedFilter?.id,
+      })),
+  ),
+}));
+
+jest.mock('../../Filters/FilterButton/FilterButton', () => {
+  const R = require('react');
+  return {
+    __esModule: true,
+    default: (props: any) => {
+      mockCallbacks.setModalState = props.setModalState;
+      mockCallbacks.selectedFiltersCount = props.selectedFiltersCount;
+      return R.createElement('button', {
+        'data-testid': 'filter-button',
+        onClick: () => props.setModalState('opened'),
+      });
+    },
+  };
+});
+
+jest.mock('../../Filters/FiltersModal/FiltersSettings', () => {
+  const R = require('react');
+  return {
+    __esModule: true,
+    default: () => R.createElement('div', { 'data-testid': 'filter-settings' }),
+  };
+});
+
+jest.mock('../../Filters/FiltersModal/ModalFooter', () => {
+  const R = require('react');
+  return {
+    __esModule: true,
+    default: (props: any) => {
+      mockCallbacks.onApply = props.onApply;
+      return R.createElement('button', {
+        'data-testid': 'apply-button',
+        onClick: props.onApply,
+      });
+    },
+  };
+});
+
+jest.mock('../../../../utils/system-message', () => ({
+  updateMessagesWithSystemMessage: jest.fn(() => []),
+}));
+
+jest.mock('../../../../utils/get-updated-data-queries', () => ({
+  getUpdatedDataQueries: jest.fn(() => []),
+}));
+
+// ─── Test data ────────────────────────────────────────────────────────────────
+
+const DATASET_A_URN = 'AGENCY:DF_A(1.0)';
+const DATASET_B_URN = 'AGENCY:DF_B(1.0)';
+
+const makeSharedCountryFilter = (): Filter => ({
+  id: COMMON_COUNTRY_FILTER_ID,
+  filterType: 'shared',
+  sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
+  dimensionValues: [
+    {
+      id: 'name:france',
+      name: 'France',
+      isSelectedValue: true,
+      sourceValues: [
+        { datasetUrn: DATASET_A_URN, id: 'FR', name: 'France' },
+        { datasetUrn: DATASET_B_URN, id: 'FRA', name: 'France' },
+      ],
+    },
+    {
+      id: 'name:germany',
+      name: 'Germany',
+      isSelectedValue: false,
+      sourceValues: [{ datasetUrn: DATASET_A_URN, id: 'DE', name: 'Germany' }],
+    },
+  ],
+});
+
+const defaultProps = {
+  conversationKey: 'test-conversation',
+  updateConversation: jest.fn(() => Promise.resolve({} as any)),
+  dataQueries: [
+    { urn: DATASET_A_URN } as DataQuery,
+    { urn: DATASET_B_URN } as DataQuery,
+  ],
+  structureDataMaps: {
+    dimensionsMap: new Map(),
+    structuresMap: new Map(),
+    structureDimensionsMap: new Map(),
+    constraintsMap: new Map(),
+  } as StructureDataMaps,
+  actions: { getConstraints: jest.fn(() => Promise.resolve({} as any)) },
+};
+
+// ─── Setup / teardown ────────────────────────────────────────────────────────
+
+beforeEach(() => {
+  mockCallbacks.setModalState = null;
+  mockCallbacks.onApply = null;
+  mockCallbacks.selectedFiltersCount = null;
+  jest.clearAllMocks();
+  mockGetConstraintsRequests.mockReturnValue([]);
+  mockGetConstraintsMap.mockReturnValue(new Map());
+  mockGetFiltersPreselectedByDataQueries.mockReturnValue([]);
+  mockBuildFiltersMap.mockReturnValue(new Map());
+  mockGetFiltersByConstraints.mockReturnValue([]);
+  mockGetFilledDatasetFiltersMap.mockReturnValue(new Map());
+  mockGetQueryFiltersMap.mockReturnValue(new Map());
+  mockSetDataQueryFiltersMap.mockReturnValue(new Map());
+  mockIsStructureDataMapsReady.mockReturnValue(false);
+  (defaultProps.updateConversation as jest.Mock).mockResolvedValue(undefined);
+});
+
+// ─── Tests ────────────────────────────────────────────────────────────────────
+
+describe('MultiDatasetFilters', () => {
+  describe('component initialization', () => {
+    it('does not initialize filters when structure data is not ready', async () => {
+      mockIsStructureDataMapsReady.mockReturnValue(false);
+
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, defaultProps));
+      });
+
+      expect(mockGetFiltersPreselectedByDataQueries).not.toHaveBeenCalled();
+    });
+
+    it('calls getFiltersPreselectedByDataQueries once structure data maps are ready', async () => {
+      mockIsStructureDataMapsReady.mockReturnValue(true);
+      mockGetFiltersPreselectedByDataQueries.mockReturnValue([]);
+      mockGetFiltersByConstraints.mockReturnValue([]);
+
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, defaultProps));
+        await Promise.resolve();
+      });
+
+      expect(mockGetFiltersPreselectedByDataQueries).toHaveBeenCalledWith(
+        expect.any(Map),
+        defaultProps.dataQueries,
+        expect.anything(),
+      );
+    });
+  });
+
+  describe('shared country filter handling', () => {
+    it('initializes shared filters from data queries', async () => {
+      const sharedCountryFilter = makeSharedCountryFilter();
+      mockIsStructureDataMapsReady.mockReturnValue(true);
+      mockGetFiltersPreselectedByDataQueries.mockReturnValue([
+        sharedCountryFilter,
+      ]);
+      mockGetFiltersByConstraints.mockReturnValue([sharedCountryFilter]);
+
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, defaultProps));
+        await Promise.resolve();
+      });
+
+      expect(mockGetFiltersPreselectedByDataQueries).toHaveBeenCalledWith(
+        expect.any(Map),
+        defaultProps.dataQueries,
+        defaultProps.structureDataMaps.constraintsMap,
+      );
+
+      expect(mockBuildFiltersMap).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: COMMON_COUNTRY_FILTER_ID,
+            filterType: 'shared',
+          }),
+        ]),
+      );
+    });
+
+    it('expands shared filters to dataset-specific filters when applying', async () => {
+      const onMultipleDataFiltersChange = jest.fn();
+      const sharedCountryFilter = makeSharedCountryFilter();
+      const expandedFiltersMap = new Map([
+        [
+          DATASET_A_URN,
+          [
+            {
+              id: COMMON_COUNTRY_FILTER_ID,
+              filterType: 'dataset',
+              datasetUrn: DATASET_A_URN,
+              dimensionValues: [],
+            } as Filter,
+          ],
+        ],
+        [
+          DATASET_B_URN,
+          [
+            {
+              id: COMMON_COUNTRY_FILTER_ID,
+              filterType: 'dataset',
+              datasetUrn: DATASET_B_URN,
+              dimensionValues: [],
+            } as Filter,
+          ],
+        ],
+      ]);
+      const queryFiltersMap = new Map<string, DatasetQueryFilters>([
+        [DATASET_A_URN, { filterKey: null, timeFilter: null }],
+        [DATASET_B_URN, { filterKey: null, timeFilter: null }],
+      ]);
+
+      mockIsStructureDataMapsReady.mockReturnValue(true);
+      mockGetFiltersPreselectedByDataQueries.mockReturnValue([
+        sharedCountryFilter,
+      ]);
+      mockGetFiltersByConstraints.mockReturnValue([sharedCountryFilter]);
+      mockBuildFiltersMap.mockReturnValue(expandedFiltersMap);
+      mockGetQueryFiltersMap.mockReturnValue(queryFiltersMap);
+
+      const props = { ...defaultProps, onMultipleDataFiltersChange };
+
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, props));
+        await Promise.resolve();
+      });
+
+      // Open modal so modal filters are set to applied filters
+      await act(async () => {
+        mockCallbacks.setModalState?.('opened');
+      });
+
+      mockBuildFiltersMap.mockClear();
+
+      // Click Apply — this should expand the shared filter and call onMultipleDataFiltersChange
+      await act(async () => {
+        mockCallbacks.onApply?.();
+        await Promise.resolve();
+      });
+
+      expect(mockBuildFiltersMap).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: COMMON_COUNTRY_FILTER_ID,
+            filterType: 'shared',
+          }),
+        ]),
+        expect.anything(),
+      );
+
+      expect(onMultipleDataFiltersChange).toHaveBeenCalledWith(
+        queryFiltersMap,
+        expect.anything(),
+        defaultProps.dataQueries,
+      );
+    });
+
+    it('updates conversation with system message after applying filters', async () => {
+      const sharedCountryFilter = makeSharedCountryFilter();
+      const expandedFiltersMap = new Map([
+        [
+          DATASET_A_URN,
+          [{ id: COMMON_COUNTRY_FILTER_ID, filterType: 'dataset' } as Filter],
+        ],
+      ]);
+
+      mockIsStructureDataMapsReady.mockReturnValue(true);
+      mockGetFiltersPreselectedByDataQueries.mockReturnValue([
+        sharedCountryFilter,
+      ]);
+      mockGetFiltersByConstraints.mockReturnValue([sharedCountryFilter]);
+      mockBuildFiltersMap.mockReturnValue(expandedFiltersMap);
+      mockGetQueryFiltersMap.mockReturnValue(new Map());
+
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, defaultProps));
+        await Promise.resolve();
+      });
+
+      await act(async () => {
+        mockCallbacks.setModalState?.('opened');
+      });
+
+      await act(async () => {
+        mockCallbacks.onApply?.();
+        await Promise.resolve();
+      });
+
+      expect(defaultProps.updateConversation).toHaveBeenCalledWith(
+        'test-conversation',
+        expect.objectContaining({
+          messages: expect.any(Array),
+        }),
+      );
+    });
+  });
+
+  describe('filter button state', () => {
+    it('displays selected filter count correctly', async () => {
+      const filterWithSelection = makeSharedCountryFilter();
+      mockIsStructureDataMapsReady.mockReturnValue(true);
+      mockGetFiltersPreselectedByDataQueries.mockReturnValue([
+        filterWithSelection,
+      ]);
+      mockGetFiltersByConstraints.mockReturnValue([filterWithSelection]);
+
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, defaultProps));
+        await Promise.resolve();
+      });
+
+      expect(mockCallbacks.selectedFiltersCount).toBe(1);
+    });
+  });
+});
