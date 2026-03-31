@@ -11,10 +11,13 @@ export const getTooltipDataByElement = (
   element: string,
   titles?: ConversationViewTitles,
 ): { title: string; description: string } => {
+  const titleValue =
+    titles?.[`${element}Title` as keyof ConversationViewTitles];
+  const descriptionValue =
+    titles?.[`${element}Description` as keyof ConversationViewTitles];
   return {
-    title: titles?.[`${element}Title` as keyof ConversationViewTitles] || '',
-    description:
-      titles?.[`${element}Description` as keyof ConversationViewTitles] || '',
+    title: typeof titleValue === 'string' ? titleValue : '',
+    description: typeof descriptionValue === 'string' ? descriptionValue : '',
   };
 };
 
