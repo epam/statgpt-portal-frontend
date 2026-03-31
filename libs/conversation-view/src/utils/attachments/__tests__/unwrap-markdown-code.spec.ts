@@ -28,12 +28,18 @@ describe('unwrapMarkdownCode', () => {
 
   it('extracts code between opening and closing fences', () => {
     const input = '```\nconst x = 1;\n```';
-    expect(unwrapMarkdownCode(input)).toEqual({ code: 'const x = 1;', language: undefined });
+    expect(unwrapMarkdownCode(input)).toEqual({
+      code: 'const x = 1;',
+      language: undefined,
+    });
   });
 
   it('extracts the language tag from the opening fence line', () => {
     const input = '```typescript\nconst x = 1;\n```';
-    expect(unwrapMarkdownCode(input)).toEqual({ code: 'const x = 1;', language: 'typescript' });
+    expect(unwrapMarkdownCode(input)).toEqual({
+      code: 'const x = 1;',
+      language: 'typescript',
+    });
   });
 
   it('trims whitespace from the language tag', () => {
@@ -92,7 +98,10 @@ describe('unwrapMarkdownCode', () => {
 
   it('normalises \\r\\n to \\n before processing', () => {
     const input = '```typescript\r\nconst x = 1;\r\n```';
-    expect(unwrapMarkdownCode(input)).toEqual({ code: 'const x = 1;', language: 'typescript' });
+    expect(unwrapMarkdownCode(input)).toEqual({
+      code: 'const x = 1;',
+      language: 'typescript',
+    });
   });
 
   it('handles plain text with \\r\\n without treating it as fenced', () => {
@@ -110,7 +119,10 @@ describe('unwrapMarkdownCode', () => {
 
   it('handles a fenced block that is only the opening fence with no lines after', () => {
     const input = '```typescript';
-    expect(unwrapMarkdownCode(input)).toEqual({ code: '', language: 'typescript' });
+    expect(unwrapMarkdownCode(input)).toEqual({
+      code: '',
+      language: 'typescript',
+    });
   });
 
   it('ignores a closing fence that appears with surrounding whitespace on the same line', () => {
