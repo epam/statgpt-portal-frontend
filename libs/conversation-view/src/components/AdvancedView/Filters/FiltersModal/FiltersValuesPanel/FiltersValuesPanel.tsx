@@ -27,6 +27,8 @@ import { ConversationViewTitles } from '../../../../../models/titles';
 import { useConversationViewFeatureToggles } from '../../../../../context/ConversationViewFeatureTogglesContext';
 import { getFilterIdentity, isSameFilter } from '../../../../../utils/filters';
 
+const MIN_CROSS_DATASET_SEARCH_CHARS = 2;
+
 interface Props {
   filtersList?: Filter[];
   selectedFilter?: Filter;
@@ -83,12 +85,14 @@ const FiltersValuesPanel: FC<Props> = ({
 
   const normalizedSearchQuery = searchQuery?.trim().toLowerCase();
   const hasSearchQuery = isCrossDatasetModeOn
-    ? normalizedSearchQuery.length >= 2
+    ? normalizedSearchQuery.length >= MIN_CROSS_DATASET_SEARCH_CHARS
     : !!normalizedSearchQuery;
   const shouldUseGlobalSearch =
     hasSearchQuery && isCrossDatasetModeOn && !isSharedSelectedFilter;
   const showSearchCaption =
-    isCrossDatasetModeOn && isInputFocused && normalizedSearchQuery.length < 2;
+    isCrossDatasetModeOn &&
+    isInputFocused &&
+    normalizedSearchQuery.length < MIN_CROSS_DATASET_SEARCH_CHARS;
 
   const getFilteredValues = useCallback(
     (filter?: Filter) => {
