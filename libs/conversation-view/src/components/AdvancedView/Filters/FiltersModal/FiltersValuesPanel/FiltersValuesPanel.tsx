@@ -254,13 +254,10 @@ const FiltersValuesPanel: FC<Props> = ({
                     />
                     {!currentFilterResults?.length && (
                       <span className="body-2 text-neutrals-700">
-                        {(
-                          titles?.noResultsInSection ??
-                          'No results found in {{sectionName}}'
-                        ).replace(
-                          '{{sectionName}}',
+                        {titles?.noResultsInSection?.(
                           selectedFilter.title ?? '',
-                        )}
+                        ) ??
+                          `No results found in ${selectedFilter.title ?? ''}`}
                       </span>
                     )}
                   </div>

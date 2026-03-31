@@ -192,7 +192,8 @@ const ConversationViewWrapper: FC<Props> = ({
     appliedFilters: t(AdvancedViewI18nKeys.APPLIED_FILTERS),
     otherResults: t(AdvancedViewI18nKeys.OTHER_RESULTS),
     searchMinCharsCaption: t(AdvancedViewI18nKeys.SEARCH_MIN_CHARS_CAPTION),
-    noResultsInSection: t(AdvancedViewI18nKeys.NO_RESULTS_IN_SECTION),
+    noResultsInSection: (sectionName) =>
+      t(AdvancedViewI18nKeys.NO_RESULTS_IN_SECTION, { sectionName }),
     noResultsInOtherDimensions: t(
       AdvancedViewI18nKeys.NO_RESULTS_IN_OTHER_DIMENSIONS,
     ),

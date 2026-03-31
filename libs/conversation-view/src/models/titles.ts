@@ -99,6 +99,6 @@ export interface ConversationViewTitles extends WelcomeViewTitles {
   countryMetadataPanel?: string;
   indicatorMetadataPanel?: string;
   searchMinCharsCaption?: string;
-  noResultsInSection?: string;
+  noResultsInSection?: (sectionName: string) => string;
   noResultsInOtherDimensions?: string;
 }

@@ -49,7 +49,7 @@
     "appliedFilters": "Applied filters",
     "otherResults": "Other results",
     "searchMinCharsCaption": "Enter at least 2 characters to start searching",
-    "noResultsInSection": "No results found in {{sectionName}}",
+    "noResultsInSection": "No results found in {sectionName}",
     "noResultsInOtherDimensions": "No results found in other dimensions",
     "resetSelectedValues": "Reset selected values",
     "displayOrder": "Display order",
