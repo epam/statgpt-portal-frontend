@@ -195,6 +195,7 @@ const AttachmentRenderer: FC<Props> = ({
           className={classNames(
             `space-y-3 max-w-full max-h-full h-full`,
             !isOpenedAdvancedView && !isSystemAttachments ? 'pt-5' : 'pt-0',
+            `flex flex-col pb-1`,
           )}
         >
           {!isOpenedAdvancedView && showLoading ? (
