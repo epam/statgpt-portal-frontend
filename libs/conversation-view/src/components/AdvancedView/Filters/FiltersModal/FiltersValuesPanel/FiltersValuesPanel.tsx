@@ -27,6 +27,8 @@ import { ConversationViewTitles } from '../../../../../models/titles';
 import { useConversationViewFeatureToggles } from '../../../../../context/ConversationViewFeatureTogglesContext';
 import { getFilterIdentity, isSameFilter } from '../../../../../utils/filters';
 
+const MIN_CROSS_DATASET_SEARCH_CHARS = 2;
+
 interface Props {
   filtersList?: Filter[];
   selectedFilter?: Filter;
@@ -74,6 +76,7 @@ const FiltersValuesPanel: FC<Props> = ({
   selectedTimeOption,
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const isHierarchicalView =
     selectedFilter?.displayMode === FilterDisplayMode.HIERARCHY;
@@ -81,9 +84,15 @@ const FiltersValuesPanel: FC<Props> = ({
   const isSharedSelectedFilter = selectedFilter?.filterType === 'shared';
 
   const normalizedSearchQuery = searchQuery?.trim().toLowerCase();
-  const hasSearchQuery = !!normalizedSearchQuery;
+  const hasSearchQuery = isCrossDatasetModeOn
+    ? normalizedSearchQuery.length >= MIN_CROSS_DATASET_SEARCH_CHARS
+    : !!normalizedSearchQuery;
   const shouldUseGlobalSearch =
     hasSearchQuery && isCrossDatasetModeOn && !isSharedSelectedFilter;
+  const showSearchCaption =
+    isCrossDatasetModeOn &&
+    isInputFocused &&
+    normalizedSearchQuery.length < MIN_CROSS_DATASET_SEARCH_CHARS;
 
   const getFilteredValues = useCallback(
     (filter?: Filter) => {
@@ -164,6 +173,7 @@ const FiltersValuesPanel: FC<Props> = ({
 
   useEffect(() => {
     setSearchQuery('');
+    setIsInputFocused(false);
   }, [selectedFilterIdentity]);
 
   const onSearchQueryChange = useCallback(
@@ -204,6 +214,8 @@ const FiltersValuesPanel: FC<Props> = ({
             placeholder={titles?.searchPlaceholder ?? 'Search'}
             value={searchQuery}
             onChange={onSearchQueryChange}
+            onFocus={() => setIsInputFocused(true)}
+            onBlur={() => setIsInputFocused(false)}
             iconBeforeInput={
               <IconSearch
                 width={filterValuesProps?.searchIconSize}
@@ -212,6 +224,16 @@ const FiltersValuesPanel: FC<Props> = ({
               />
             }
           />
+          {isCrossDatasetModeOn && (
+            <span
+              className={classNames('caption text-neutrals-800 mt-1', {
+                invisible: !showSearchCaption,
+              })}
+            >
+              {titles?.searchMinCharsCaption ??
+                'Enter at least 2 characters to start searching'}
+            </span>
+          )}
           <div className="body-2 mt-3 flex min-h-0 flex-1 flex-col overflow-auto">
             {shouldUseGlobalSearch ? (
               <>
@@ -230,16 +252,28 @@ const FiltersValuesPanel: FC<Props> = ({
                       selectHierarchicalNodes={selectHierarchicalNodes}
                       expandHierarchicalValue={expandHierarchicalValue}
                     />
+                    {!currentFilterResults?.length && (
+                      <span className="body-2 text-neutrals-700">
+                        {titles?.noResultsInSection?.(
+                          selectedFilter.title ?? '',
+                        ) ??
+                          `No results found in ${selectedFilter.title ?? ''}`}
+                      </span>
+                    )}
                   </div>
                 )}
-                {otherResultsCount > 0 && (
-                  <div className="pb-3">
-                    <span className="h2 text-neutrals-1000">
-                      {titles?.otherResults ?? 'Other results'}:{' '}
-                      {otherResultsCount}
-                    </span>
-                  </div>
-                )}
+                <div className="pb-3">
+                  <span className="h2 text-neutrals-1000">
+                    {titles?.otherResults ?? 'Other results'}:{' '}
+                    {otherResultsCount}
+                  </span>
+                  {otherResultsCount === 0 && (
+                    <p className="body-2 text-neutrals-700 mt-1">
+                      {titles?.noResultsInOtherDimensions ??
+                        'No results found in other dimensions'}
+                    </p>
+                  )}
+                </div>
                 {otherCrossDatasetSections.map(
                   ({
                     filter,

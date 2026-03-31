@@ -92,6 +92,9 @@ export enum AdvancedViewI18nKeys {
   EXCEL_FORMAT_TITLE = 'advancedView.excelFormatTitle',
   EXCEL_FORMAT_TEXT = 'advancedView.excelFormatText',
   FULL_LIMIT_MESSAGE = 'advancedView.fullLimitMessage',
+  SEARCH_MIN_CHARS_CAPTION = 'advancedView.searchMinCharsCaption',
+  NO_RESULTS_IN_SECTION = 'advancedView.noResultsInSection',
+  NO_RESULTS_IN_OTHER_DIMENSIONS = 'advancedView.noResultsInOtherDimensions',
 }
 
 export enum MessageI18nKeys {

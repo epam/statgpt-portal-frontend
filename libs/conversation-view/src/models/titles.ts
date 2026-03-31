@@ -98,4 +98,7 @@ export interface ConversationViewTitles extends WelcomeViewTitles {
   datasetMetadataPanel?: string;
   countryMetadataPanel?: string;
   indicatorMetadataPanel?: string;
+  searchMinCharsCaption?: string;
+  noResultsInSection?: (sectionName: string) => string;
+  noResultsInOtherDimensions?: string;
 }
