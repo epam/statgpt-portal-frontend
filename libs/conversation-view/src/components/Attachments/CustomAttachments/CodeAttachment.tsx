@@ -24,6 +24,7 @@ export const CodeAttachment = ({
         theme="vs-light"
         options={{
           readOnly: true,
+          contextmenu: false,
           scrollBeyondLastLine: false,
           minimap: { enabled: false },
           wordWrap: 'on',
