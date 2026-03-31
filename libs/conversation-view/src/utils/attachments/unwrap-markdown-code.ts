@@ -1,3 +1,9 @@
+/**
+ * Strips the opening and closing triple-backtick fences from a Markdown code block
+ * and returns the inner code along with the detected language identifier.
+ *
+ * @param input - Raw string that may be a fenced Markdown code block or plain text.
+ */
 export function unwrapMarkdownCode(input: string): {
   code: string;
   language?: string;

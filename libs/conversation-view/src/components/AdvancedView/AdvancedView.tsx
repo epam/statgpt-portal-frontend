@@ -113,6 +113,7 @@ export const AdvancedView: FC<Props> = ({
     attachmentsProps.styles?.chartingStyles,
     formattingSettings,
     metadataSettings,
+    lastMessageAttachments,
   );
   const [isFiltering, setIsFiltering] = useState<boolean>();
   const [filters, setFilters] = useState<DatasetQueryFilters>({

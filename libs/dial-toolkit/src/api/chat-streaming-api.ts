@@ -182,7 +182,7 @@ export const streamChatResponse = async (
     signal?: AbortSignal;
   },
   token?: string | null,
-  custom_fields?: CustomFields,
+  custom_fields?: CustomFields['custom_fields'],
 ): Promise<void> => {
   const { onMessage, onToken, onComplete, onError, model, signal } = options;
   const requestBody: RequestStreamBody = {
