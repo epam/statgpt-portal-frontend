@@ -15,6 +15,7 @@ import { ICellRendererParams } from 'ag-grid-community';
 import MetadataIcon from '../../../assets/icons/metadata.svg';
 import Metadata from '../../AdvancedView/Metadata/Metadata';
 import SidePanelMetadataContent from '../../AdvancedView/Metadata/SidePanel/SidePanelMetadataContent';
+import { getExternalLinkFromContext } from './helpers/get-external-link-from-context';
 import {
   getAttributesFromParams,
   getDatasetInfoData,
@@ -57,7 +58,8 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
   const sidePanel = useConversationViewSidePanelOptional();
   const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
   const [isMetadataClosed, setIsMetadataClosed] = useState(false);
-  const externalLink = params?.context?.externalLink as string | undefined;
+  const rowUrn = params?.data?.dataset?.urn as string | undefined;
+  const externalLink = getExternalLinkFromContext(params?.context, rowUrn);
 
   const resolvedDataSetData = useMemo(() => {
     if (params.structuresMap) {

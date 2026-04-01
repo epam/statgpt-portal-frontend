@@ -4,6 +4,7 @@ import { FC, useCallback, useMemo, useState } from 'react';
 import { ICellRendererParams } from 'ag-grid-community';
 import Metadata from '../../AdvancedView/Metadata/Metadata';
 import SidePanelMetadataContent from '../../AdvancedView/Metadata/SidePanel/SidePanelMetadataContent';
+import { getExternalLinkFromContext } from './helpers/get-external-link-from-context';
 import {
   StructuralData,
   getLastUpdatedTime,
@@ -43,7 +44,8 @@ const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
   const { isOpenedAdvancedView } = useAdvancedView();
   const sidePanel = useConversationViewSidePanelOptional();
   const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
-  const externalLink = params?.context?.externalLink as string | undefined;
+  const rowUrn = params?.data?.dataset?.urn as string | undefined;
+  const externalLink = getExternalLinkFromContext(params?.context, rowUrn);
   const dataSetData = useMemo(() => {
     if (params.structuresMap) {
       const urn = params?.data?.dataset?.urn as string | undefined;

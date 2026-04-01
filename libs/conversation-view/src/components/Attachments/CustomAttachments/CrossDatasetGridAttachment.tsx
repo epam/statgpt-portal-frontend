@@ -29,6 +29,8 @@ interface Props {
   isDataLoading?: boolean;
   isChartColumnVisible?: boolean;
   fixHeight?: boolean;
+  externalLink?: string;
+  externalLinksMap?: Map<string, string>;
   showLimitMessage?: (p: boolean) => void;
   onApiReady?: (api: GridApi) => void;
 }
@@ -38,6 +40,8 @@ const CrossDatasetGridAttachment: FC<Props> = ({
   isDataLoading,
   isChartColumnVisible,
   fixHeight,
+  externalLink,
+  externalLinksMap,
   showLimitMessage,
   onApiReady,
 }) => {
@@ -87,6 +91,7 @@ const CrossDatasetGridAttachment: FC<Props> = ({
         rowData={rowData}
         enableCellTextSelection
         columnDefs={columnDefs}
+        context={{ externalLink, externalLinksMap }}
         domLayout="normal"
         tooltipShowDelay={0}
         tooltipShowMode="whenTruncated"
@@ -100,7 +105,7 @@ const CrossDatasetGridAttachment: FC<Props> = ({
         onGridReady={handleGridReady}
       />
     ),
-    [rowData, columnDefs, handleGridReady],
+    [rowData, columnDefs, handleGridReady, externalLink, externalLinksMap],
   );
 
   if (isLoading || isDataLoading) {

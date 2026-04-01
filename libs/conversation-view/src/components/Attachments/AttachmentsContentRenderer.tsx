@@ -31,6 +31,7 @@ interface Props {
   attachmentsStyles?: AttachmentsStyles;
   isDataLoading?: boolean;
   externalLink?: string;
+  externalLinksMap?: Map<string, string>;
   isOpenedAdvancedView?: boolean;
   onOpenAdvancedView?: () => void;
   showLimitMessage: (p: boolean) => void;
@@ -43,6 +44,7 @@ const AttachmentsContentRenderer: FC<Props> = ({
   attachmentsStyles,
   isDataLoading,
   externalLink,
+  externalLinksMap,
   isOpenedAdvancedView,
   onOpenAdvancedView,
   showLimitMessage,
@@ -85,6 +87,8 @@ const AttachmentsContentRenderer: FC<Props> = ({
           fixHeight={!isOpenedAdvancedView}
           showLimitMessage={showLimitMessage}
           onApiReady={onGridApiReady}
+          externalLink={externalLink}
+          externalLinksMap={externalLinksMap}
         />
       )}
       {isCustomChartAttachment(selectedAttachment) && (
