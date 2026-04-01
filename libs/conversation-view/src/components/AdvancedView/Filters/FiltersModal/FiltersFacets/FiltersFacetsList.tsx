@@ -1,6 +1,10 @@
 'use client';
 
-import { DataConstraints, StructuralData } from '@epam/statgpt-sdmx-toolkit';
+import {
+  DataConstraints,
+  Hierarchy,
+  StructuralData,
+} from '@epam/statgpt-sdmx-toolkit';
 import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
 import classNames from 'classnames';
 import { FC, ReactNode } from 'react';
@@ -8,6 +12,7 @@ import {
   Filter,
   FilterTreeNodeProps,
   FilterValuesProps,
+  HierarchyState,
 } from '../../../../../models/filters';
 import { ConversationViewTitles } from '../../../../../models/titles';
 import FiltersFacetItem from './FiltersFacetItem';
@@ -50,6 +55,8 @@ interface Props {
     value?: FilterTreeNodeProps,
     filter?: Filter,
   ) => void;
+  hierarchyStateMap?: Map<string, HierarchyState>;
+  onSelectHierarchy?: (filter?: Filter, hierarchy?: Hierarchy | null) => void;
 }
 
 const FiltersFacetsList: FC<Props> = ({
@@ -71,6 +78,8 @@ const FiltersFacetsList: FC<Props> = ({
   selectHierarchicalNodes,
   titles,
   expandHierarchicalValue,
+  hierarchyStateMap,
+  onSelectHierarchy,
 }) => {
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   return (
@@ -105,6 +114,8 @@ const FiltersFacetsList: FC<Props> = ({
           )}
           datasetIcon={datasetIcon}
           datasetName={getDatasetNameFromFilters(filter, structuresMap)}
+          hierarchyState={hierarchyStateMap?.get(getFilterIdentity(filter))}
+          onSelectHierarchy={onSelectHierarchy}
         />
       ))}
     </div>

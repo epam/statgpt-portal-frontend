@@ -18,6 +18,7 @@ import {
   FilterTreeNodeProps,
   FilterValue,
   FilterValuesProps,
+  HierarchyState,
 } from '../../../../../models/filters';
 import TimePeriodFacet from './TimePeriodFacet';
 import FilterValues from './FilterValues';
@@ -26,6 +27,10 @@ import classNames from 'classnames';
 import { ConversationViewTitles } from '../../../../../models/titles';
 import { useConversationViewFeatureToggles } from '../../../../../context/ConversationViewFeatureTogglesContext';
 import { getFilterIdentity, isSameFilter } from '../../../../../utils/filters';
+import {
+  applySelectionToTree,
+  filterHierarchyNodes,
+} from '../../../../../utils/hierarchy-view';
 
 const MIN_CROSS_DATASET_SEARCH_CHARS = 2;
 
@@ -57,6 +62,7 @@ interface Props {
   ) => void;
   titles?: ConversationViewTitles;
   selectedTimeOption?: string | number;
+  hierarchyState?: HierarchyState;
 }
 
 const FiltersValuesPanel: FC<Props> = ({
@@ -74,6 +80,7 @@ const FiltersValuesPanel: FC<Props> = ({
   selectHierarchicalNodes,
   expandHierarchicalValue,
   selectedTimeOption,
+  hierarchyState,
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -162,6 +169,27 @@ const FiltersValuesPanel: FC<Props> = ({
     }, []);
   }, [shouldUseGlobalSearch, filtersList, selectedFilter, getFilteredValues]);
 
+  const hierarchyTreeNodes = useMemo(() => {
+    const nodes = hierarchyState?.treeNodes;
+    if (!nodes?.length) return nodes;
+    const selectedIds = new Set(
+      selectedFilter?.dimensionValues
+        ?.filter((v) => v.isSelectedValue)
+        .map((v) => v.id) ?? [],
+    );
+    const withSelection = selectedIds.size
+      ? applySelectionToTree(nodes, selectedIds)
+      : nodes;
+    return hasSearchQuery
+      ? filterHierarchyNodes(withSelection, normalizedSearchQuery)
+      : withSelection;
+  }, [
+    hierarchyState?.treeNodes,
+    selectedFilter?.dimensionValues,
+    hasSearchQuery,
+    normalizedSearchQuery,
+  ]);
+
   const otherResultsCount = useMemo(
     () =>
       otherCrossDatasetSections.reduce(
@@ -248,6 +276,8 @@ const FiltersValuesPanel: FC<Props> = ({
                       isScrollable={false}
                       isDisableValues={isDisableValues}
                       structuresMap={structuresMap}
+                      hierarchyTreeNodes={hierarchyTreeNodes}
+                      isHierarchyLoading={hierarchyState?.isLoading}
                       selectFilterValue={selectFilterValue}
                       selectHierarchicalNodes={selectHierarchicalNodes}
                       expandHierarchicalValue={expandHierarchicalValue}
@@ -315,6 +345,8 @@ const FiltersValuesPanel: FC<Props> = ({
                 isHierarchicalView={isHierarchicalView}
                 isDisableValues={isDisableValues}
                 structuresMap={structuresMap}
+                hierarchyTreeNodes={hierarchyTreeNodes}
+                isHierarchyLoading={hierarchyState?.isLoading}
                 selectFilterValue={selectFilterValue}
                 selectHierarchicalNodes={selectHierarchicalNodes}
                 expandHierarchicalValue={expandHierarchicalValue}

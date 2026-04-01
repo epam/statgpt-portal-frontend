@@ -113,6 +113,9 @@ jest.mock('../../../../utils/filters', () => ({
         isSelectedFilter: f.id === selectedFilter?.id,
       })),
   ),
+  getFilterIdentity: jest.fn((filter: any) =>
+    filter?.datasetUrn ? `${filter.datasetUrn}:${filter.id}` : filter?.id,
+  ),
 }));
 
 jest.mock('../../Filters/FilterButton/FilterButton', () => {
@@ -158,6 +161,16 @@ jest.mock('../../../../utils/system-message', () => ({
 
 jest.mock('../../../../utils/get-updated-data-queries', () => ({
   getUpdatedDataQueries: jest.fn(() => []),
+}));
+
+jest.mock('../../../../context/ConversationViewFeatureTogglesContext', () => ({
+  useConversationViewFeatureToggles: jest.fn(() => ({
+    isCrossDatasetModeOn: false,
+  })),
+}));
+
+jest.mock('../../../../utils/hierarchy-view', () => ({
+  hierarchyNodesToFilterTreeProps: jest.fn(() => []),
 }));
 
 // ─── Test data ────────────────────────────────────────────────────────────────

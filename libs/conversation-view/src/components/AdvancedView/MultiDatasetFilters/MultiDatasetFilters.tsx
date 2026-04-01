@@ -1,12 +1,26 @@
 'use client';
 
-import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
+import {
+  DataConstraints,
+  Dimension,
+  findCodelistByDimension,
+  generateShortUrn,
+  getCodeListsData,
+  getHierarchyAvailableCodes,
+  getHierarchyCodes,
+  getTreeNodesFromHierarchies,
+  Glossary,
+  Hierarchy,
+  StructuralData,
+  StructuralMetaData,
+} from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery, Locale } from '@epam/statgpt-shared-toolkit';
 import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
-import { Filter, FiltersProps } from '../../../models/filters';
+import { Filter, FiltersProps, HierarchyState } from '../../../models/filters';
 import {
   getFiltersAfterClear,
   getFiltersAfterDelete,
+  getFilterIdentity,
   getSelectedFilterValues,
   getTotalSelectedValuesLength,
   isSameFilter,
@@ -40,6 +54,50 @@ import {
   setDataQueryFiltersMap,
 } from '../../../utils/multiple-filters';
 import { StructureDataMaps } from '../../../models/structure-data';
+import { hierarchyNodesToFilterTreeProps } from '../../../utils/hierarchy-view';
+
+const EMPTY_HIERARCHY_STATE: HierarchyState = {
+  availableHierarchies: [],
+  selectedHierarchy: null,
+  mainHierarchy: null,
+  glossaries: [],
+  treeNodes: [],
+  isLoading: false,
+};
+
+function getCodelistUrnForFilter(
+  filter: Filter,
+  dimensionsMap?: Map<string, Dimension[]>,
+  structuresMap?: Map<string, StructuralData | undefined>,
+): string | undefined {
+  const datasetUrn =
+    filter.filterType === 'dataset'
+      ? filter.datasetUrn
+      : filter.sourceDatasetUrns?.[0];
+  const dim = dimensionsMap
+    ?.get(datasetUrn ?? '')
+    ?.find((d) => d.id === filter.id);
+  if (!dim) return undefined;
+
+  if (dim.localRepresentation?.enumeration) {
+    return dim.localRepresentation.enumeration;
+  }
+
+  const structuralData = structuresMap?.get(datasetUrn ?? '');
+  const codelist = findCodelistByDimension(
+    structuralData?.codelists,
+    structuralData?.conceptSchemes,
+    dim,
+  );
+  return codelist
+    ? (codelist.urn ??
+        generateShortUrn(codelist.id, codelist.version, codelist.agencyID))
+    : undefined;
+}
+
+function buildHierarchyUrn(hierarchy: Hierarchy): string {
+  return generateShortUrn(hierarchy.id, hierarchy.version, hierarchy.agencyID);
+}
 
 const MultiDatasetFilters: FC<FiltersProps> = ({
   actions,
@@ -79,6 +137,11 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   const [isDisableFilterValues, setIsDisableFilterValues] = useState<boolean>();
   const [isModalClosed, setIsModalClosed] = useState(false);
 
+  // Hierarchy state map: filterKey to HierarchyState
+  const [hierarchyStateMap, setHierarchyStateMap] = useState<
+    Map<string, HierarchyState>
+  >(new Map());
+
   const isStructureDataReady = useMemo(
     () => isStructureDataMapsReady(dataQueries, structureDataMaps),
     [dataQueries, structureDataMaps],
@@ -100,6 +163,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         : filters,
       setModalFilters,
       setIsConstraintsLoading,
+      filter,
     );
   };
 
@@ -109,11 +173,63 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     }
   }, [modalState]);
 
+  const rebuildHierarchyTree = useCallback(
+    (
+      filter: Filter,
+      currentConstraintsMap: Map<string, DataConstraints[] | undefined>,
+    ) => {
+      const filterKey = getFilterIdentity(filter);
+      if (!filterKey) return;
+
+      const codelistUrn = getCodelistUrnForFilter(
+        filter,
+        structureDataMaps?.dimensionsMap,
+        structureDataMaps?.structuresMap,
+      );
+      const datasetUrn =
+        filter.filterType === 'dataset'
+          ? filter.datasetUrn
+          : filter.sourceDatasetUrns?.[0];
+      const constraints = datasetUrn
+        ? currentConstraintsMap.get(datasetUrn)
+        : undefined;
+
+      setHierarchyStateMap((prev) => {
+        const state = prev.get(filterKey);
+        if (!state?.mainHierarchy) return prev;
+
+        const flatCodes = getHierarchyCodes(
+          state.mainHierarchy,
+          state.glossaries,
+        );
+        const availableCodes = getHierarchyAvailableCodes(
+          flatCodes,
+          filter.id ?? '',
+          constraints,
+        );
+        const codeListMap = getCodeListsData(state.glossaries);
+        const treeNodes = getTreeNodesFromHierarchies(
+          state.mainHierarchy,
+          codeListMap,
+          availableCodes.map((c) => c.id),
+          codelistUrn,
+        );
+        const filterTreeProps = hierarchyNodesToFilterTreeProps(treeNodes);
+
+        const next = new Map(prev);
+        next.set(filterKey, { ...state, treeNodes: filterTreeProps });
+        return next;
+      });
+    },
+    [structureDataMaps?.dimensionsMap, structureDataMaps?.structuresMap],
+  );
+
   const handleFiltersWithConstraints = useCallback(
     (
       filters: Filter[],
       setFilters: (filters: Filter[]) => void,
       setIsConstraintsLoading?: (isLoading: boolean) => void,
+      changedFilter?: Filter,
     ) => {
       const filtersMap = buildFiltersMap(filters);
 
@@ -129,6 +245,9 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               locale as Locale,
             ),
           );
+          if (changedFilter) {
+            rebuildHierarchyTree(changedFilter, currentConstraintsMap);
+          }
         })
         .catch(() => {
           const currentConstraintsMap = new Map();
@@ -146,7 +265,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
           setIsDisableFilterValues(false);
         });
     },
-    [actions, dataQueries, locale, structureDataMaps],
+    [actions, dataQueries, locale, rebuildHierarchyTree, structureDataMaps],
   );
 
   useEffect(() => {
@@ -200,6 +319,210 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       setSelectedFilter(void 0);
     }
   }, [appliedFilters, modalState]);
+
+  // Load available hierarchies for a filter
+  const loadAvailableHierarchies = useCallback(
+    async (filter: Filter) => {
+      if (!actions?.getAvailableHierarchies) return;
+      const codelistUrn = getCodelistUrnForFilter(
+        filter,
+        structureDataMaps?.dimensionsMap,
+        structureDataMaps?.structuresMap,
+      );
+      if (!codelistUrn) return;
+
+      const filterKey = getFilterIdentity(filter);
+      if (!filterKey) return;
+      setHierarchyStateMap((prev) => {
+        const next = new Map(prev);
+        const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
+        next.set(filterKey, { ...existing, isLoading: true });
+        return next;
+      });
+
+      try {
+        const response: StructuralMetaData =
+          await actions.getAvailableHierarchies(codelistUrn);
+        const availableHierarchies = response?.data?.hierarchies ?? [];
+        setHierarchyStateMap((prev) => {
+          const next = new Map(prev);
+          const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
+          next.set(filterKey, {
+            ...existing,
+            availableHierarchies,
+            isLoading: false,
+          });
+          return next;
+        });
+      } catch {
+        setHierarchyStateMap((prev) => {
+          const next = new Map(prev);
+          const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
+          next.set(filterKey, { ...existing, isLoading: false });
+          return next;
+        });
+      }
+    },
+    [
+      actions,
+      structureDataMaps?.dimensionsMap,
+      structureDataMaps?.structuresMap,
+    ],
+  );
+
+  const loadHierarchyTree = useCallback(
+    async (filter: Filter, hierarchy: Hierarchy) => {
+      if (!actions?.getHierarchy) return;
+      const filterKey = getFilterIdentity(filter);
+      if (!filterKey) return;
+      const codelistUrn = getCodelistUrnForFilter(
+        filter,
+        structureDataMaps?.dimensionsMap,
+        structureDataMaps?.structuresMap,
+      );
+
+      setHierarchyStateMap((prev) => {
+        const next = new Map(prev);
+        const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
+        next.set(filterKey, { ...existing, isLoading: true });
+        return next;
+      });
+
+      try {
+        const hierarchyUrn = buildHierarchyUrn(hierarchy);
+        const response: StructuralMetaData =
+          await actions.getHierarchy(hierarchyUrn);
+        const mainHierarchy = response?.data?.hierarchies?.find(
+          (h) => buildHierarchyUrn(h) === hierarchyUrn,
+        );
+
+        if (!mainHierarchy) {
+          setHierarchyStateMap((prev) => {
+            const next = new Map(prev);
+            const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
+            next.set(filterKey, {
+              ...existing,
+              selectedHierarchy: hierarchy,
+              mainHierarchy: null,
+              treeNodes: [],
+              isLoading: false,
+            });
+            return next;
+          });
+          return;
+        }
+
+        const glossaries: Glossary[] = response?.data?.glossaries ?? [];
+        const datasetUrn =
+          filter.filterType === 'dataset'
+            ? filter.datasetUrn
+            : filter.sourceDatasetUrns?.[0];
+        const constraints = datasetUrn
+          ? constraintsMapRef.current?.get(datasetUrn)
+          : undefined;
+
+        const flatCodes = getHierarchyCodes(mainHierarchy, glossaries);
+        const availableCodes = getHierarchyAvailableCodes(
+          flatCodes,
+          filter.id ?? '',
+          constraints,
+        );
+        const codeListMap = getCodeListsData(glossaries);
+        const treeNodes = getTreeNodesFromHierarchies(
+          mainHierarchy,
+          codeListMap,
+          availableCodes.map((c) => c.id),
+          codelistUrn,
+        );
+        const filterTreeProps = hierarchyNodesToFilterTreeProps(treeNodes);
+
+        setHierarchyStateMap((prev) => {
+          const next = new Map(prev);
+          const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
+          next.set(filterKey, {
+            ...existing,
+            selectedHierarchy: hierarchy,
+            mainHierarchy,
+            glossaries,
+            treeNodes: filterTreeProps,
+            isLoading: false,
+          });
+          return next;
+        });
+      } catch {
+        setHierarchyStateMap((prev) => {
+          const next = new Map(prev);
+          const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
+          next.set(filterKey, {
+            ...existing,
+            isLoading: false,
+          });
+          return next;
+        });
+      }
+    },
+    [
+      actions,
+      structureDataMaps?.dimensionsMap,
+      structureDataMaps?.structuresMap,
+    ],
+  );
+
+  const onSelectHierarchy = useCallback(
+    (filter?: Filter, hierarchy?: Hierarchy | null) => {
+      if (!filter) return;
+      const filterKey = getFilterIdentity(filter);
+      if (!filterKey) return;
+
+      if (!hierarchy) {
+        setHierarchyStateMap((prev) => {
+          const next = new Map(prev);
+          const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
+          next.set(filterKey, {
+            ...existing,
+            selectedHierarchy: null,
+            mainHierarchy: null,
+            treeNodes: [],
+          });
+          return next;
+        });
+        return;
+      }
+
+      loadHierarchyTree(filter, hierarchy);
+    },
+    [loadHierarchyTree],
+  );
+
+  // Load available hierarchies when selected filter changes
+  useEffect(() => {
+    if (!selectedFilter || selectedFilter.isTimeDimension) {
+      return;
+    }
+
+    const filterKey = getFilterIdentity(selectedFilter);
+    if (!filterKey) return;
+    const existingState = hierarchyStateMap.get(filterKey);
+
+    // Load once per unique filter — existingState being set (even isLoading:true)
+    // means we've already initiated a request for this filter key
+    if (!existingState) {
+      loadAvailableHierarchies(selectedFilter);
+    }
+  }, [selectedFilter, hierarchyStateMap, loadAvailableHierarchies]);
+
+  // Load hierarchies for all filters when modal opens
+  useEffect(() => {
+    if (modalState !== PopUpState.Opened) return;
+
+    appliedFilters.forEach((filter) => {
+      if (filter.isTimeDimension) return;
+      const filterKey = getFilterIdentity(filter);
+      if (filterKey && !hierarchyStateMap.has(filterKey)) {
+        loadAvailableHierarchies(filter);
+      }
+    });
+  }, [modalState, appliedFilters, hierarchyStateMap, loadAvailableHierarchies]);
 
   const addSystemMessage = useCallback(
     async (filtersMap: Map<string, Filter[]>) => {
@@ -375,6 +698,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     dataQueries,
     addSystemMessage,
   ]);
+
   const onTimePeriodChange = (value: string | number) => {
     setSelectedTimeOption(value);
   };
@@ -422,6 +746,8 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               updateSelectedFilterValues={updateSelectedFilterValues}
               onTimePeriodChange={onTimePeriodChange}
               selectedTimeOption={selectedTimeOption}
+              hierarchyStateMap={hierarchyStateMap}
+              onSelectHierarchy={onSelectHierarchy}
             />
             <ModalFooter
               titles={titles}

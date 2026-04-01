@@ -10,6 +10,7 @@ import {
   FilterTreeNodeProps,
   FilterValue,
 } from '../../../../../models/filters';
+import FilterTreeNode from './FilterTreeNode';
 import FilterTreeView from './FilterTreeView';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import CheckboxRow from './CheckboxRow';
@@ -29,6 +30,8 @@ interface Props {
   isScrollable?: boolean;
   isDisableValues?: boolean;
   structuresMap?: Map<string, StructuralData | undefined>;
+  hierarchyTreeNodes?: FilterTreeNodeProps[];
+  isHierarchyLoading?: boolean;
   selectFilterValue: (id: string, isSelectedValue?: boolean) => void;
   selectHierarchicalNodes: (nodes?: FilterTreeNodeProps[]) => void;
   expandHierarchicalValue?: (value?: FilterTreeNodeProps) => void;
@@ -51,6 +54,8 @@ const FilterValues: FC<Props> = ({
   isScrollable = true,
   isDisableValues,
   structuresMap,
+  hierarchyTreeNodes,
+  isHierarchyLoading,
   selectFilterValue,
   selectHierarchicalNodes,
   expandHierarchicalValue,
@@ -94,7 +99,22 @@ const FilterValues: FC<Props> = ({
             : undefined
         }
       >
-        {isHierarchicalView ? (
+        {hierarchyTreeNodes && hierarchyTreeNodes.length > 0 ? (
+          <>
+            {hierarchyTreeNodes.map((node) => (
+              <FilterTreeNode
+                key={node.id}
+                node={node}
+                checkboxIcon={checkboxIcon}
+                selectFilterValue={selectFilterValue}
+                selectHierarchicalNodes={selectHierarchicalNodes}
+                expandHierarchicalValue={expandHierarchicalValue}
+              />
+            ))}
+          </>
+        ) : isHierarchyLoading ? (
+          <span className="body-2 text-neutrals-700 py-1">Loading...</span>
+        ) : isHierarchicalView ? (
           <FilterTreeView
             filterValues={filterValues}
             checkboxIcon={checkboxIcon}

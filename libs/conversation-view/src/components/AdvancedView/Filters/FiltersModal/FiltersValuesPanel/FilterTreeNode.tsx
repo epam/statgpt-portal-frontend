@@ -62,13 +62,17 @@ const FilterTreeNode: FC<Props> = ({
               onClick={() => expandHierarchicalValue?.(node)}
             />
           ))}
-        <Checkbox
-          id={node?.id}
-          label={node?.name}
-          checked={!!node.isSelectedValue}
-          checkboxIcon={checkboxIcon}
-          onChange={onSelectFilterValue}
-        />
+        {node?.disabled ? (
+          <span className="body-2 text-neutrals-700 py-0.5">{node?.name}</span>
+        ) : (
+          <Checkbox
+            id={node?.id}
+            label={node?.name}
+            checked={!!node.isSelectedValue}
+            checkboxIcon={checkboxIcon}
+            onChange={onSelectFilterValue}
+          />
+        )}
       </div>
       {isHasChildren && node?.isExpanded && (
         <>

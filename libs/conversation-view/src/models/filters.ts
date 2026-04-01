@@ -3,6 +3,8 @@ import {
   DataConstraints,
   DatasetQueryFilters,
   Dimension,
+  Glossary,
+  Hierarchy,
   SeriesFilterDto,
   StructuralData,
   StructuralMetaData,
@@ -63,6 +65,7 @@ export interface FilterValue {
 export interface FilterTreeNodeProps extends FilterValue {
   children?: FilterTreeNodeProps[];
   level?: number;
+  disabled?: boolean;
 }
 
 export interface FilterButtonProps {
@@ -90,6 +93,15 @@ export interface FiltersModalProps {
   resetIcon?: ReactNode;
 }
 
+export interface HierarchyState {
+  availableHierarchies: Hierarchy[];
+  selectedHierarchy: Hierarchy | null;
+  mainHierarchy: Hierarchy | null;
+  glossaries: Glossary[];
+  treeNodes: FilterTreeNodeProps[];
+  isLoading: boolean;
+}
+
 export interface FiltersProps {
   actions?: {
     getConstraints: (
@@ -97,6 +109,10 @@ export interface FiltersProps {
       filters?: SeriesFilterDto[],
     ) => Promise<StructuralMetaData>;
     putOnboardingFile?: PutOnboardingFile;
+    getAvailableHierarchies?: (
+      codelistUrn: string,
+    ) => Promise<StructuralMetaData>;
+    getHierarchy?: (hierarchyUrn: string) => Promise<StructuralMetaData>;
   };
   dimensions?: Dimension[];
   structureDimensions?: StructureItemBase[];

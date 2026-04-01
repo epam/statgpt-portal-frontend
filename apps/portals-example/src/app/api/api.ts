@@ -1,6 +1,7 @@
 import {
   AvailabilityApi,
   DatasetApi,
+  HierarchyApi,
   SdmxApiClient,
 } from '@epam/statgpt-sdmx-toolkit';
 import { DialApiClient, ConversationApi } from '@epam/statgpt-dial-toolkit';
@@ -11,11 +12,13 @@ export const sdmxApiClient = new SdmxApiClient({
   apiUrl: process.env.SDMX_API_URL || '',
   constrainsApiUrl: process.env.CONSTRAINS_SDMX_API_URL || '',
   sdmxProxyUrl: process.env.SDMX_PROXY_URL || '',
+  sdmxPlusUrl: process.env.SDMX_PLUS_URL || '',
   apiKey: process.env.SDMX_AUTH_KEY,
 });
 
 export const datasetApi = new DatasetApi(sdmxApiClient);
 export const availabilityApi = new AvailabilityApi(sdmxApiClient);
+export const hierarchyApi = new HierarchyApi(sdmxApiClient);
 
 const config = {
   host: process.env.DIAL_API_URL || '',
