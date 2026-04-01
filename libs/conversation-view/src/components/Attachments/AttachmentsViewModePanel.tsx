@@ -29,7 +29,7 @@ interface Props {
   attachmentsStyles?: AttachmentsStyles;
   titles?: ConversationViewTitles;
   externalLink?: string;
-  isExternaLinkIncludeFilters?: boolean;
+  isExternalLinkIncludeFilters?: boolean;
   limitMessages?: LimitMessages;
   onSelectedAttachmentChange: (index: number) => void;
   onDownloadClick: () => void;
@@ -45,7 +45,7 @@ const AttachmentsViewModePanel: FC<Props> = ({
   attachmentsStyles,
   titles,
   externalLink,
-  isExternaLinkIncludeFilters,
+  isExternalLinkIncludeFilters,
   limitMessages,
   onSelectedAttachmentChange,
   onDownloadClick,
@@ -78,7 +78,7 @@ const AttachmentsViewModePanel: FC<Props> = ({
       <div className="attachments-buttons flex w-fit flex-wrap items-center justify-end gap-x-3">
         {selectedAttachment &&
           isCustomGridAttachment(selectedAttachment) &&
-          isExternaLinkIncludeFilters && (
+          isExternalLinkIncludeFilters && (
             <a href={externalLink} target="_blank" rel="noreferrer">
               <Button
                 title={limitMessages?.dataExplorer || 'Data explorer'}
