@@ -28,7 +28,7 @@ import {
   CustomChartAttachmentType,
   CustomGridAttachment,
 } from '../../models/attachments';
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import AttachmentDetails from './AttachmentDetails/AttachmentDetails';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
@@ -170,14 +170,25 @@ const AttachmentRenderer: FC<Props> = ({
     setModalState(PopUpState.Closed);
   }, [setModalState]);
 
-  const isExternaLinkIncludeFilters =
+  const isExternalLinkIncludeFilters =
     attachmentsConfig?.isExternaLinkIncludeFilters;
   const externalLink = getExternalLink(
-    isExternaLinkIncludeFilters,
+    isExternalLinkIncludeFilters,
     filters,
     currentDataQuery || dataQueries?.[0],
     dimensions,
   );
+
+  const externalLinksMap = useMemo(() => {
+    if (!dataQueries?.length) return undefined;
+    const map = new Map(
+      dataQueries.map((q) => [
+        q.urn,
+        getExternalLink(isExternalLinkIncludeFilters, undefined, q),
+      ]),
+    );
+    return map;
+  }, [dataQueries, isExternalLinkIncludeFilters]);
 
   if (!attachments || attachments.length === 0) return null;
 
@@ -256,7 +267,7 @@ const AttachmentRenderer: FC<Props> = ({
                     attachmentsStyles={attachmentsStyles}
                     titles={titles}
                     externalLink={externalLink}
-                    isExternaLinkIncludeFilters={isExternaLinkIncludeFilters}
+                    isExternalLinkIncludeFilters={isExternalLinkIncludeFilters}
                     limitMessages={limitMessages}
                     onSelectedAttachmentChange={selectAttachment}
                     onDownloadClick={() => setModalState(PopUpState.Opened)}
@@ -275,6 +286,7 @@ const AttachmentRenderer: FC<Props> = ({
                       showLimitMessage={setShowLimitMessage}
                       onGridApiReady={onGridApiReady}
                       externalLink={externalLink}
+                      externalLinksMap={externalLinksMap}
                     />
                   )}
                 </div>

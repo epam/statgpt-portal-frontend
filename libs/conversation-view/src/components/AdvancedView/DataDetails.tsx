@@ -109,6 +109,7 @@ const DataDetails: FC<Props> = ({
             attachments={attachments}
             attachmentsStyles={attachmentsStyles}
             currentDataQuery={attachmentsDataQuery}
+            dataQueries={dataQueries}
             dimensions={dimensions}
             actions={actions}
             isShowAttachments={true}

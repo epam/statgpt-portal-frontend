@@ -10,6 +10,7 @@ import { useConversationViewFeatureToggles } from '../../../context/Conversation
 import { useConversationViewSidePanelOptional } from '../../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import { useAdvancedView } from '../../../context/AdvancedViewContext';
 import { getDateFormattedValue } from '../../../utils/date-format';
+import { getExternalLinkFromContext } from './helpers/get-external-link-from-context';
 
 interface DatasetDetailCellRendererParams extends ICellRendererParams {
   structuresMap: Map<string, StructuralData | undefined>;
@@ -27,6 +28,7 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
   const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
 
   const urn: string | undefined = params?.data?.dataset?.urn;
+  const externalLink = getExternalLinkFromContext(params?.context, urn);
   const structures = urn != null ? params.structuresMap.get(urn) : undefined;
 
   const datasetInfo = useMemo(() => {
@@ -59,6 +61,7 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
           locale={params.locale}
           metadata={[]}
           datasetInfo={datasetInfo}
+          externalLink={externalLink}
         />
       ),
     });
@@ -66,6 +69,7 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
     sidePanel,
     isOpenedAdvancedView,
     datasetInfo,
+    externalLink,
     params.titles,
     params.locale,
   ]);

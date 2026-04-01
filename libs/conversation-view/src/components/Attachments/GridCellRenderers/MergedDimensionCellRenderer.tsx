@@ -27,6 +27,7 @@ import {
 import { useTableSettingsContextOptional } from '../../AdvancedView/TableSettings/TableSettingsContext';
 import { getDimensionValue } from '../../../utils/attachments/cross-dataset-grid/dimensions-columns';
 import { applyDimensionKeyCustomization } from '../../AdvancedView/TableSettings/helpers/crossDatasetEnrichment';
+import { getExternalLinkFromContext } from './helpers/get-external-link-from-context';
 
 interface MergedDimensionCellRendererParams extends ICellRendererParams {
   structuresMap: Map<string, StructuralData | undefined>;
@@ -67,6 +68,7 @@ const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
   const tableSettings = useTableSettingsContextOptional();
 
   const urn: string | undefined = params?.data?.dataset?.urn;
+  const externalLink = getExternalLinkFromContext(params?.context, urn);
   const structures = urn != null ? params.structuresMap.get(urn) : undefined;
   const scheme =
     urn != null ? params.datasetDimensionsSchemesMap.get(urn) : undefined;
@@ -127,7 +129,11 @@ const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
     );
   }, [structures, params.locale, params.titles]);
 
-  const showTriangle = isMetadataInSidePanel && !!sidePanel && !!params.value;
+  const showTriangle =
+    isMetadataInSidePanel &&
+    !!sidePanel &&
+    !!params.value &&
+    params.colId !== FREQUENCY_COL_ID;
 
   const openMetadata = useCallback(() => {
     if (!sidePanel) return;
@@ -142,6 +148,7 @@ const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
           locale={params.locale}
           metadata={metadata}
           datasetInfo={datasetInfo}
+          externalLink={externalLink}
         />
       ),
     });
@@ -153,6 +160,7 @@ const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
     params.locale,
     metadata,
     datasetInfo,
+    externalLink,
   ]);
 
   return (
