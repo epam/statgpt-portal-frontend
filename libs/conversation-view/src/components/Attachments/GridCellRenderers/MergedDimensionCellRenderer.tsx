@@ -44,6 +44,7 @@ function getDimKeysForColumn(
   if (colId === COUNTRY_COL_ID) return scheme.region ? [scheme.region] : [];
   if (colId === FREQUENCY_COL_ID)
     return scheme.frequency ? [scheme.frequency] : [];
+  if (scheme.other?.includes(colId)) return [colId];
   return [];
 }
 

@@ -1,5 +1,6 @@
 import {
   DatasetDimensionsScheme,
+  getDimensionTitle,
   getDimensions,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
@@ -49,6 +50,11 @@ export function getCrossDatasetDimensionsColumns(
       datasetDimensionsSchemesMap,
       locale,
       titles,
+    ),
+    ...buildOtherDimensionColDefs(
+      structuresMap,
+      datasetDimensionsSchemesMap,
+      locale,
     ),
   ];
 }
@@ -153,6 +159,87 @@ function buildFrequencyColDef(
     locale,
     titles,
   );
+}
+
+function buildOtherDimensionColDefs(
+  structuresMap: Map<string, StructuralData | undefined>,
+  datasetDimensionsSchemesMap: Map<string, DatasetDimensionsScheme | undefined>,
+  locale: string,
+): ColDef[] {
+  const uniqueOtherDimensionIds = new Set<string>();
+
+  datasetDimensionsSchemesMap.forEach((scheme) => {
+    scheme?.other?.forEach((dimensionId) => {
+      uniqueOtherDimensionIds.add(dimensionId);
+    });
+  });
+
+  return Array.from(uniqueOtherDimensionIds).map((dimensionId) =>
+    buildOtherDimensionColDef(
+      dimensionId,
+      structuresMap,
+      datasetDimensionsSchemesMap,
+      locale,
+    ),
+  );
+}
+
+function buildOtherDimensionColDef(
+  dimensionId: string,
+  structuresMap: Map<string, StructuralData | undefined>,
+  datasetDimensionsSchemesMap: Map<string, DatasetDimensionsScheme | undefined>,
+  locale: string,
+): ColDef {
+  const valueGetter = (value: ValueGetterParams) => {
+    const { structures, urn, data } = getCellParams(value, structuresMap);
+    const otherDimensions = datasetDimensionsSchemesMap.get(urn)?.other ?? [];
+
+    if (
+      data == null ||
+      urn == null ||
+      structures == null ||
+      !otherDimensions.includes(dimensionId)
+    ) {
+      return '';
+    }
+
+    return getDimensionValue(structures, dimensionId, data, locale);
+  };
+
+  return dimColDef(
+    getOtherDimensionTitle(dimensionId, structuresMap, locale),
+    dimensionId,
+    valueGetter,
+    structuresMap,
+    datasetDimensionsSchemesMap,
+    locale,
+  );
+}
+
+function getOtherDimensionTitle(
+  dimensionId: string,
+  structuresMap: Map<string, StructuralData | undefined>,
+  locale: string,
+): string {
+  for (const structures of structuresMap.values()) {
+    if (!structures) {
+      continue;
+    }
+
+    const dimensions = getDimensions(structures)?.dimensions || [];
+    const dimension = dimensions.find((dim) => dim.id === dimensionId);
+
+    if (!dimension) {
+      continue;
+    }
+
+    return (
+      getDimensionTitle(structures.conceptSchemes, dimension, locale) ??
+      dimensionId
+    );
+  }
+
+  return dimensionId;
 }
 
 function dimColDef(
