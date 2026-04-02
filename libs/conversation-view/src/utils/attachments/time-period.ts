@@ -23,15 +23,21 @@ export const getPickerOptions = (
     localeSettings.firstDayOfWeek = 1;
   }
 
+  const dayMinDate = new Date(minDate);
+  dayMinDate.setHours(0, 0, 0, 0);
+
+  const dayMaxDate = new Date(maxDate);
+  dayMaxDate.setHours(23, 59, 59, 999);
+
   const baseConfig = {
     minDate:
       calendarResolution === CalendarResolution.MONTH
         ? new Date(minDate.getFullYear(), minDate.getMonth())
-        : minDate,
+        : dayMinDate,
     maxDate:
       calendarResolution === CalendarResolution.MONTH
         ? new Date(maxDate.getFullYear(), maxDate.getMonth())
-        : maxDate,
+        : dayMaxDate,
     locale: localeSettings,
   };
 
