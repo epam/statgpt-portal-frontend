@@ -1,10 +1,13 @@
 'use client';
 
-import { DataConstraints, StructuralData } from '@epam/statgpt-sdmx-toolkit';
+import {
+  DataConstraints,
+  Hierarchy,
+  StructuralData,
+} from '@epam/statgpt-sdmx-toolkit';
 import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
 import { Button, useIsMobile } from '@epam/statgpt-ui-components';
 import { FC, ReactNode, useCallback } from 'react';
-import { Hierarchy } from '@epam/statgpt-sdmx-toolkit';
 import {
   Filter,
   FiltersModalProps,

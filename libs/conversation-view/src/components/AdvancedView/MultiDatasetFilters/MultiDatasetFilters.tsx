@@ -2,16 +2,8 @@
 
 import {
   DataConstraints,
-  Dimension,
-  findCodelistByDimension,
-  generateShortUrn,
-  getCodeListsData,
-  getHierarchyAvailableCodes,
-  getHierarchyCodes,
-  getTreeNodesFromHierarchies,
   Glossary,
   Hierarchy,
-  StructuralData,
   StructuralMetaData,
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery, Locale } from '@epam/statgpt-shared-toolkit';
@@ -44,6 +36,7 @@ import FilterSettings from '../Filters/FiltersModal/FiltersSettings';
 import ModalFooter from '../Filters/FiltersModal/ModalFooter';
 import {
   buildFiltersMap,
+  getCodelistUrnForFilter,
   getConstraintsMap,
   getConstraintsRequests,
   getFilledDatasetFiltersMap,
@@ -54,7 +47,10 @@ import {
   setDataQueryFiltersMap,
 } from '../../../utils/multiple-filters';
 import { StructureDataMaps } from '../../../models/structure-data';
-import { hierarchyNodesToFilterTreeProps } from '../../../utils/hierarchy-view';
+import {
+  buildHierarchyFilterTreeProps,
+  buildHierarchyUrn,
+} from '../../../utils/hierarchy-view';
 
 const EMPTY_HIERARCHY_STATE: HierarchyState = {
   availableHierarchies: [],
@@ -64,40 +60,6 @@ const EMPTY_HIERARCHY_STATE: HierarchyState = {
   treeNodes: [],
   isLoading: false,
 };
-
-function getCodelistUrnForFilter(
-  filter: Filter,
-  dimensionsMap?: Map<string, Dimension[]>,
-  structuresMap?: Map<string, StructuralData | undefined>,
-): string | undefined {
-  const datasetUrn =
-    filter.filterType === 'dataset'
-      ? filter.datasetUrn
-      : filter.sourceDatasetUrns?.[0];
-  const dim = dimensionsMap
-    ?.get(datasetUrn ?? '')
-    ?.find((d) => d.id === filter.id);
-  if (!dim) return undefined;
-
-  if (dim.localRepresentation?.enumeration) {
-    return dim.localRepresentation.enumeration;
-  }
-
-  const structuralData = structuresMap?.get(datasetUrn ?? '');
-  const codelist = findCodelistByDimension(
-    structuralData?.codelists,
-    structuralData?.conceptSchemes,
-    dim,
-  );
-  return codelist
-    ? (codelist.urn ??
-        generateShortUrn(codelist.id, codelist.version, codelist.agencyID))
-    : undefined;
-}
-
-function buildHierarchyUrn(hierarchy: Hierarchy): string {
-  return generateShortUrn(hierarchy.id, hierarchy.version, hierarchy.agencyID);
-}
 
 const MultiDatasetFilters: FC<FiltersProps> = ({
   actions,
@@ -198,23 +160,13 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         const state = prev.get(filterKey);
         if (!state?.mainHierarchy) return prev;
 
-        const flatCodes = getHierarchyCodes(
+        const filterTreeProps = buildHierarchyFilterTreeProps(
           state.mainHierarchy,
           state.glossaries,
-        );
-        const availableCodes = getHierarchyAvailableCodes(
-          flatCodes,
           filter.id ?? '',
           constraints,
-        );
-        const codeListMap = getCodeListsData(state.glossaries);
-        const treeNodes = getTreeNodesFromHierarchies(
-          state.mainHierarchy,
-          codeListMap,
-          availableCodes.map((c) => c.id),
           codelistUrn,
         );
-        const filterTreeProps = hierarchyNodesToFilterTreeProps(treeNodes);
 
         const next = new Map(prev);
         next.set(filterKey, { ...state, treeNodes: filterTreeProps });
@@ -421,20 +373,13 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
           ? constraintsMapRef.current?.get(datasetUrn)
           : undefined;
 
-        const flatCodes = getHierarchyCodes(mainHierarchy, glossaries);
-        const availableCodes = getHierarchyAvailableCodes(
-          flatCodes,
+        const filterTreeProps = buildHierarchyFilterTreeProps(
+          mainHierarchy,
+          glossaries,
           filter.id ?? '',
           constraints,
-        );
-        const codeListMap = getCodeListsData(glossaries);
-        const treeNodes = getTreeNodesFromHierarchies(
-          mainHierarchy,
-          codeListMap,
-          availableCodes.map((c) => c.id),
           codelistUrn,
         );
-        const filterTreeProps = hierarchyNodesToFilterTreeProps(treeNodes);
 
         setHierarchyStateMap((prev) => {
           const next = new Map(prev);

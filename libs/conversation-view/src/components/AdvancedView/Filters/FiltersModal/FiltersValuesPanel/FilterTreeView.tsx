@@ -1,46 +1,38 @@
 'use client';
 
-import { FC, ReactNode, useEffect, useState } from 'react';
-import {
-  FilterTreeNodeProps,
-  FilterValue,
-} from '../../../../../models/filters';
+import { FC, ReactNode } from 'react';
+import { FilterTreeNodeProps } from '../../../../../models/filters';
 import FilterTreeNode from './FilterTreeNode';
-import { getFilterValuesTree } from '../../../../../utils/filters';
 
 interface Props {
-  filterValues?: FilterValue[];
+  treeNodes?: FilterTreeNodeProps[];
   checkboxIcon?: ReactNode;
   selectFilterValue?: (id: string, isSelectedValue?: boolean) => void;
   selectHierarchicalNodes: (nodes?: FilterTreeNodeProps[]) => void;
-  expandHierarchicalValue?: (value?: FilterValue) => void;
+  expandHierarchicalValue?: (value?: FilterTreeNodeProps) => void;
 }
 
 const FilterTreeView: FC<Props> = ({
-  filterValues,
+  treeNodes,
   checkboxIcon,
   selectFilterValue,
   selectHierarchicalNodes,
   expandHierarchicalValue,
 }) => {
-  const [filterTreeNodes, setFilterTreeNodes] = useState<FilterTreeNodeProps[]>(
-    [],
+  return (
+    <>
+      {treeNodes?.map((node) => (
+        <FilterTreeNode
+          key={node?.id}
+          node={node}
+          checkboxIcon={checkboxIcon}
+          selectFilterValue={selectFilterValue}
+          selectHierarchicalNodes={selectHierarchicalNodes}
+          expandHierarchicalValue={expandHierarchicalValue}
+        />
+      ))}
+    </>
   );
-
-  useEffect(() => {
-    setFilterTreeNodes(getFilterValuesTree(filterValues));
-  }, [filterValues]);
-
-  return filterTreeNodes?.map((node) => (
-    <FilterTreeNode
-      key={node?.id}
-      node={node}
-      checkboxIcon={checkboxIcon}
-      selectFilterValue={selectFilterValue}
-      selectHierarchicalNodes={selectHierarchicalNodes}
-      expandHierarchicalValue={expandHierarchicalValue}
-    />
-  ));
 };
 
 export default FilterTreeView;

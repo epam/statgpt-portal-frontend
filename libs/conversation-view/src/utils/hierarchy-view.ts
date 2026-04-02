@@ -1,9 +1,44 @@
 import {
+  DataConstraints,
+  generateShortUrn,
   getChildParsedUrn,
+  getCodeListsData,
+  getHierarchyAvailableCodes,
+  getHierarchyCodes,
+  getTreeNodesFromHierarchies,
+  Glossary,
   HierarchicalCode,
+  Hierarchy,
   TreeNode,
 } from '@epam/statgpt-sdmx-toolkit';
 import { FilterTreeNodeProps } from '../models/filters';
+
+export function buildHierarchyUrn(hierarchy: Hierarchy): string {
+  return generateShortUrn(hierarchy.id, hierarchy.version, hierarchy.agencyID);
+}
+
+export function buildHierarchyFilterTreeProps(
+  mainHierarchy: Hierarchy,
+  glossaries: Glossary[],
+  filterId: string,
+  constraints: DataConstraints[] | undefined,
+  codelistUrn: string | undefined,
+): FilterTreeNodeProps[] {
+  const flatCodes = getHierarchyCodes(mainHierarchy, glossaries);
+  const availableCodes = getHierarchyAvailableCodes(
+    flatCodes,
+    filterId,
+    constraints,
+  );
+  const codeListMap = getCodeListsData(glossaries);
+  const treeNodes = getTreeNodesFromHierarchies(
+    mainHierarchy,
+    codeListMap,
+    availableCodes.map((c) => c.id),
+    codelistUrn,
+  );
+  return hierarchyNodesToFilterTreeProps(treeNodes);
+}
 
 export function hierarchyNodesToFilterTreeProps(
   nodes: TreeNode<HierarchicalCode>[],
