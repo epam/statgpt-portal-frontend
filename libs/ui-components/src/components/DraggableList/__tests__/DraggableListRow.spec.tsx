@@ -383,12 +383,45 @@ describe('DraggableListRow', () => {
       name: 'Dataset',
     }) as HTMLButtonElement;
     expect(rowButton.disabled).toBe(true);
+    expect(rowButton.className).not.toContain('hover:bg-neutrals-100');
+    expect(rowButton.className).not.toContain('hover:text-blue-700');
 
     const expandButton = screen.getByLabelText('Expand') as HTMLButtonElement;
     expect(expandButton.disabled).toBe(true);
 
     const checkbox = screen.getByRole('checkbox') as HTMLInputElement;
     expect(checkbox.disabled).toBe(true);
+  });
+
+  it('disables row body clicks when item is not checkable', () => {
+    const onItemClick = jest.fn();
+
+    render(
+      <DraggableListRow
+        parentPath={['group-1']}
+        item={{
+          ...baseItem,
+          checkable: false,
+        }}
+        showDragHandle={false}
+        showCheckbox
+        onItemClick={onItemClick}
+      />,
+    );
+
+    const rowButton = screen.getByRole('button', {
+      name: 'Dataset',
+    }) as HTMLButtonElement;
+    expect(rowButton.disabled).toBe(false);
+    expect(rowButton.getAttribute('aria-disabled')).toBe('true');
+    expect(rowButton.className).toContain('hover:bg-neutrals-100');
+    expect(rowButton.className).toContain('hover:text-blue-700');
+
+    const checkbox = screen.getByRole('checkbox') as HTMLInputElement;
+    expect(checkbox.disabled).toBe(true);
+
+    fireEvent.click(rowButton);
+    expect(onItemClick).not.toHaveBeenCalled();
   });
 
   it('applies dragging opacity when isDragging is true', () => {
