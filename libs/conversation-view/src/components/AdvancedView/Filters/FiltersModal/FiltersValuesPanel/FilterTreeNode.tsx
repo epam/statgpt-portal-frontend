@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, ReactNode, useEffect, useState } from 'react';
+import { FC, ReactNode } from 'react';
 import { FilterTreeNodeProps } from '../../../../../models/filters';
 import ChevronSolidDownIcon from '../../../../../assets/icons/chevron-solid-down.svg';
 import ChevronSolidRightIcon from '../../../../../assets/icons/chevron-solid-right.svg';
@@ -27,12 +27,8 @@ const FilterTreeNode: FC<Props> = ({
   selectHierarchicalNodes,
   expandHierarchicalValue,
 }) => {
-  const [isHasChildren, setIsHasChildren] = useState<boolean>(false);
+  const isHasChildren = !!node?.children?.length;
   const nodeIconClasses = 'cursor-pointer text-neutrals-1000 w-6 h-6 shrink-0';
-
-  useEffect(() => {
-    setIsHasChildren(!!node?.children?.length);
-  }, [node]);
 
   const onSelectFilterValue = (id: string, isSelectedValue?: boolean) => {
     if (node?.children?.length) {
@@ -62,17 +58,14 @@ const FilterTreeNode: FC<Props> = ({
               onClick={() => expandHierarchicalValue?.(node)}
             />
           ))}
-        {node?.disabled ? (
-          <span className="body-2 text-neutrals-700 py-0.5">{node?.name}</span>
-        ) : (
-          <Checkbox
-            id={node?.id}
-            label={node?.name}
-            checked={!!node.isSelectedValue}
-            checkboxIcon={checkboxIcon}
-            onChange={onSelectFilterValue}
-          />
-        )}
+        <Checkbox
+          id={node?.id}
+          label={node?.name}
+          checked={!!node.isSelectedValue}
+          checkboxIcon={checkboxIcon}
+          disabled={node?.disabled}
+          onChange={onSelectFilterValue}
+        />
       </div>
       {isHasChildren && node?.isExpanded && (
         <>

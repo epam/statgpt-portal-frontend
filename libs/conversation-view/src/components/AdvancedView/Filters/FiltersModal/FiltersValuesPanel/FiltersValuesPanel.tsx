@@ -190,6 +190,10 @@ const FiltersValuesPanel: FC<Props> = ({
     normalizedSearchQuery,
   ]);
 
+  const hasNoCurrentFilterResults = hierarchyTreeNodes
+    ? !hierarchyTreeNodes.length
+    : !currentFilterResults?.length;
+
   const otherResultsCount = useMemo(
     () =>
       otherCrossDatasetSections.reduce(
@@ -282,7 +286,7 @@ const FiltersValuesPanel: FC<Props> = ({
                       selectHierarchicalNodes={selectHierarchicalNodes}
                       expandHierarchicalValue={expandHierarchicalValue}
                     />
-                    {!currentFilterResults?.length && (
+                    {hasNoCurrentFilterResults && (
                       <span className="body-2 text-neutrals-700">
                         {titles?.noResultsInSection?.(
                           selectedFilter.title ?? '',

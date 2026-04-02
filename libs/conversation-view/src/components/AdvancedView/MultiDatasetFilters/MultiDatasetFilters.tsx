@@ -50,6 +50,8 @@ import { StructureDataMaps } from '../../../models/structure-data';
 import {
   buildHierarchyFilterTreeProps,
   buildHierarchyUrn,
+  getLatestHierarchies,
+  toggleTreeNodeExpansion,
 } from '../../../utils/hierarchy-view';
 
 const EMPTY_HIERARCHY_STATE: HierarchyState = {
@@ -295,7 +297,9 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       try {
         const response: StructuralMetaData =
           await actions.getAvailableHierarchies(codelistUrn);
-        const availableHierarchies = response?.data?.hierarchies ?? [];
+        const availableHierarchies = getLatestHierarchies(
+          response?.data?.hierarchies ?? [],
+        );
         setHierarchyStateMap((prev) => {
           const next = new Map(prev);
           const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
@@ -437,6 +441,22 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       loadHierarchyTree(filter, hierarchy);
     },
     [loadHierarchyTree],
+  );
+
+  const onExpandHierarchyNode = useCallback(
+    (filterKey: string, nodeId: string) => {
+      setHierarchyStateMap((prev) => {
+        const state = prev.get(filterKey);
+        if (!state?.treeNodes) return prev;
+        const next = new Map(prev);
+        next.set(filterKey, {
+          ...state,
+          treeNodes: toggleTreeNodeExpansion(state.treeNodes, nodeId),
+        });
+        return next;
+      });
+    },
+    [],
   );
 
   // Load available hierarchies when selected filter changes
@@ -693,6 +713,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               selectedTimeOption={selectedTimeOption}
               hierarchyStateMap={hierarchyStateMap}
               onSelectHierarchy={onSelectHierarchy}
+              onExpandHierarchyNode={onExpandHierarchyNode}
             />
             <ModalFooter
               titles={titles}

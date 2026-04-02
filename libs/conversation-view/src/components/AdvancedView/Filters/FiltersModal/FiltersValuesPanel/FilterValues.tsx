@@ -107,9 +107,7 @@ const FilterValues: FC<Props> = ({
             selectHierarchicalNodes={selectHierarchicalNodes}
             expandHierarchicalValue={expandHierarchicalValue}
           />
-        ) : isHierarchyLoading ? (
-          <span className="body-2 text-neutrals-700 py-1">Loading...</span>
-        ) : !isVirtualized ? (
+        ) : isHierarchyLoading ? null : !isVirtualized ? (
           <div className="flex flex-col gap-y-1">
             {filterValues.map((filterValue) => (
               <CheckboxRow

@@ -13,6 +13,29 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { FilterTreeNodeProps } from '../models/filters';
 
+function compareVersions(a: string, b: string): number {
+  const aParts = (a ?? '').split('.').map(Number);
+  const bParts = (b ?? '').split('.').map(Number);
+  const len = Math.max(aParts.length, bParts.length);
+  for (let i = 0; i < len; i++) {
+    const diff = (aParts[i] ?? 0) - (bParts[i] ?? 0);
+    if (diff !== 0) return diff;
+  }
+  return 0;
+}
+
+export function getLatestHierarchies(hierarchies: Hierarchy[]): Hierarchy[] {
+  const latestMap = new Map<string, Hierarchy>();
+  for (const h of hierarchies) {
+    const key = `${h.agencyID}:${h.id}`;
+    const existing = latestMap.get(key);
+    if (!existing || compareVersions(h.version, existing.version) > 0) {
+      latestMap.set(key, h);
+    }
+  }
+  return Array.from(latestMap.values());
+}
+
 export function buildHierarchyUrn(hierarchy: Hierarchy): string {
   return generateShortUrn(hierarchy.id, hierarchy.version, hierarchy.agencyID);
 }
@@ -67,6 +90,24 @@ export function applySelectionToTree(
       ? applySelectionToTree(node.children, selectedIds)
       : undefined,
   }));
+}
+
+export function toggleTreeNodeExpansion(
+  nodes: FilterTreeNodeProps[],
+  nodeId: string,
+): FilterTreeNodeProps[] {
+  return nodes.map((node) => {
+    if (node.id === nodeId) {
+      return { ...node, isExpanded: !node.isExpanded };
+    }
+    if (node.children?.length) {
+      return {
+        ...node,
+        children: toggleTreeNodeExpansion(node.children, nodeId),
+      };
+    }
+    return node;
+  });
 }
 
 export function filterHierarchyNodes(

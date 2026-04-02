@@ -49,6 +49,7 @@ interface Props {
   selectedTimeOption?: string | number;
   hierarchyStateMap?: Map<string, HierarchyState>;
   onSelectHierarchy?: (filter?: Filter, hierarchy?: Hierarchy | null) => void;
+  onExpandHierarchyNode?: (filterKey: string, nodeId: string) => void;
 }
 
 const FilterSettings: FC<Props> = ({
@@ -73,9 +74,10 @@ const FilterSettings: FC<Props> = ({
   selectedTimeOption,
   hierarchyStateMap,
   onSelectHierarchy,
+  onExpandHierarchyNode,
 }) => {
   const hierarchyState = hierarchyStateMap?.get(
-    getFilterIdentity(selectedFilter),
+    getFilterIdentity(selectedFilter) as string,
   );
   const isMobile = useIsMobile();
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
@@ -174,7 +176,17 @@ const FilterSettings: FC<Props> = ({
     const shouldUpdateSelectedFilter =
       !targetFilter || isSameFilter(targetFilter, selectedFilter);
 
-    if (!filterToUpdate) {
+    if (!filterToUpdate || !node?.id) {
+      return;
+    }
+
+    const filterKey = getFilterIdentity(filterToUpdate);
+    const targetHierarchyState = filterKey
+      ? hierarchyStateMap?.get(filterKey)
+      : undefined;
+
+    if (targetHierarchyState?.treeNodes?.length) {
+      onExpandHierarchyNode?.(filterKey as string, node.id);
       return;
     }
 
