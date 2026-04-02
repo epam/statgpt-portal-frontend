@@ -52,7 +52,7 @@ export function useAgGridColumnsPanel({
   ) => void;
 }) {
   const [gridStateVersion, setGridStateVersion] = useState(0);
-  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const syncFromGrid = useCallback(() => {
     setGridStateVersion((value) => value + 1);
@@ -76,10 +76,10 @@ export function useAgGridColumnsPanel({
 
     return base.map((node) =>
       node.type === 'item' && node.items?.length
-        ? { ...node, isExpanded: !collapsedIds.has(node.id) }
+        ? { ...node, isExpanded: expandedIds.has(node.id) }
         : node,
     );
-  }, [rawItems, enrichItem, collapsedIds]);
+  }, [rawItems, enrichItem, expandedIds]);
 
   const knownColumnIds = useMemo(
     () => new Set(rawItems.map((i) => i.id)),
@@ -163,12 +163,12 @@ export function useAgGridColumnsPanel({
   const handleToggleExpanded = useCallback((e: ToggleExpandedEvent) => {
     const nodeId = e.path[e.path.length - 1];
 
-    setCollapsedIds((prev) => {
+    setExpandedIds((prev) => {
       const next = new Set(prev);
       if (e.nextExpanded) {
-        next.delete(nodeId);
-      } else {
         next.add(nodeId);
+      } else {
+        next.delete(nodeId);
       }
       return next;
     });

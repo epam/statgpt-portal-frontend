@@ -60,6 +60,7 @@ export function DraggableListRow({
   };
 
   const disabled = !!item.isDisabled;
+  const isRowToggleDisabled = disabled || !checkable;
   const path = [...parentPath, item.id];
 
   return (
@@ -101,13 +102,16 @@ export function DraggableListRow({
       <button
         type="button"
         disabled={disabled}
-        onClick={(e) =>
+        aria-disabled={isRowToggleDisabled}
+        onClick={(e) => {
+          if (isRowToggleDisabled) return;
+
           onItemClick?.({
             itemId: item.id,
             path,
             nativeEvent: e,
-          })
-        }
+          });
+        }}
         className={classNames([
           'flex min-w-0 flex-1 items-center gap-2 p-1 text-left rounded',
           disabled ? '' : 'hover:bg-neutrals-100',

@@ -23,6 +23,25 @@ import {
   INDICATOR_COL_ID,
 } from '../../../../constants/cross-dataset-grid';
 
+/**
+ * Column IDs that can be enriched with per-dataset group nodes.
+ * Pass a subset as `enrichedColIds` to limit which columns get the grouped sub-items treatment.
+ */
+export const ALL_AGGREGATED_COL_IDS: ReadonlySet<string> = new Set([
+  INDICATOR_COL_ID,
+  COUNTRY_COL_ID,
+  FREQUENCY_COL_ID,
+]);
+
+/**
+ * Default set of columns that receive the grouped sub-items treatment.
+ * Only the indicator column is enriched by default; country and frequency
+ * columns show a flat value without internal dimension breakdown.
+ */
+export const DEFAULT_ENRICHED_COL_IDS: ReadonlySet<string> = new Set([
+  INDICATOR_COL_ID,
+]);
+
 interface CrossDatasetColumnsInfo {
   dataQueries: Array<{ urn: string }>;
   structuresMap: Map<string, StructuralData | undefined>;
@@ -33,6 +52,7 @@ interface CrossDatasetColumnsInfo {
   ) => DimensionConfig | undefined;
   locale: string;
   dimensionCustomization?: DimensionCustomizationMap;
+  enrichedColIds?: ReadonlySet<string>;
 }
 
 /**
@@ -58,12 +78,6 @@ export function applyDimensionKeyCustomization(
   }
   return result;
 }
-
-const AGGREGATED_COL_IDS = new Set([
-  INDICATOR_COL_ID,
-  COUNTRY_COL_ID,
-  FREQUENCY_COL_ID,
-]);
 
 function getDimKeysForColId(
   colId: string,
@@ -116,8 +130,10 @@ function resolveDimLabel(
 export function buildCrossDatasetEnrichItem(
   info: CrossDatasetColumnsInfo,
 ): (item: DraggableListItemNode) => DraggableListItemNode {
+  const enrichedColIds = info.enrichedColIds ?? DEFAULT_ENRICHED_COL_IDS;
+
   return (item: DraggableListItemNode) => {
-    if (!AGGREGATED_COL_IDS.has(item.id)) {
+    if (!enrichedColIds.has(item.id)) {
       return item;
     }
 

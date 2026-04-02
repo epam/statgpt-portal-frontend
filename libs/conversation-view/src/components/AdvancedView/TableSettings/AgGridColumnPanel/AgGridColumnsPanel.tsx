@@ -93,7 +93,7 @@ export function AgGridColumnsPanel({
   });
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2 px-5 py-7">
+    <div className="flex h-full min-h-0 flex-col gap-2 px-5 py-7">
       <InputWithIcon
         inputId="columns-search-input"
         containerClasses={'items-center filters-search-input gap-1 !p-2'}
