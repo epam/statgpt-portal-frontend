@@ -190,19 +190,36 @@ const ConversationListWrapper = () => {
     popupCancel: t(LogOutI18nKeys.POPUP_CANCEL),
   };
 
-  const shareTitles = {
-    share: t(ChatI18nKeys.SHARE),
-    shareLink: t(ChatI18nKeys.SHARE_LINK_TITLE),
-    close: t(AppI18nKeys.CLOSE),
-    shareCopyLink: t(ChatI18nKeys.SHARE_COPY_LINK),
-    shareCopiedLink: t(ChatI18nKeys.SHARE_COPIED_LINK),
-    shareDescription: t(ChatI18nKeys.SHARE_LINK_DESCRIPTION),
-    shareRemoveAccessToUsers: t(ChatI18nKeys.SHARE_REMOVE_ACCESS_TO_USERS),
-    chatExpiration: t(ChatI18nKeys.CHAT_EXPIRATION),
-    chatExpirationDays: t(ChatI18nKeys.CHAT_EXPIRATION_DAYS),
-    chatName: t(ChatI18nKeys.CHAT_NAME),
-    chatWarning: t(ChatI18nKeys.CHAT_WARNING),
-  };
+  const shareApiProps = useMemo(
+    () => SHARE_CONVERSATION_PROPS(authHandler),
+    [authHandler],
+  );
+
+  const shareTitles = useMemo(
+    () => ({
+      share: t(ChatI18nKeys.SHARE),
+      shareLink: t(ChatI18nKeys.SHARE_LINK_TITLE),
+      close: t(AppI18nKeys.CLOSE),
+      shareCopyLink: t(ChatI18nKeys.SHARE_COPY_LINK),
+      shareCopiedLink: t(ChatI18nKeys.SHARE_COPIED_LINK),
+      shareDescription: t(ChatI18nKeys.SHARE_LINK_DESCRIPTION),
+      shareRemoveAccessToUsers: t(ChatI18nKeys.SHARE_REMOVE_ACCESS_TO_USERS),
+      chatExpiration: t(ChatI18nKeys.CHAT_EXPIRATION),
+      chatExpirationDays: t(ChatI18nKeys.CHAT_EXPIRATION_DAYS),
+      chatName: t(ChatI18nKeys.CHAT_NAME),
+      chatWarning: t(ChatI18nKeys.CHAT_WARNING),
+    }),
+    [t],
+  );
+
+  const shareConversationProps = useMemo(
+    () => ({
+      ...shareApiProps,
+      ...shareTitles,
+      id,
+    }),
+    [id, shareApiProps, shareTitles],
+  );
 
   return (
     <aside
@@ -278,11 +295,7 @@ const ConversationListWrapper = () => {
             handleSelectedConversationRemove={handleSelectedConversationRemove}
             actions={actions}
             locale={locale}
-            shareConversationProps={{
-              ...SHARE_CONVERSATION_PROPS(authHandler),
-              ...shareTitles,
-              id,
-            }}
+            shareConversationProps={shareConversationProps}
             isStreaming={isStreaming}
             conversations={conversations}
             sharedConversations={sharedConversations}
