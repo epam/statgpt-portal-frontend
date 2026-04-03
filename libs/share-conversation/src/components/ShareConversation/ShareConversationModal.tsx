@@ -1,6 +1,6 @@
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ConversationInfo } from '@epam/ai-dial-shared';
 import {
@@ -61,8 +61,26 @@ const ShareConversationModal: FC<Props> = ({
   const [isCopiedLink, setIsCopiedLink] = useState(false);
   const [isDisabledRemoveButton, setIsDisabledRemoveButton] =
     useState<boolean>();
+  const initializedConversationKeyRef = useRef<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const conversationKey = useMemo(() => {
+    if (conversation?.id) {
+      return decodeURI(conversation.id);
+    }
+
+    if (id?.[0] && id?.[1] && locale) {
+      return decodeURI(`${id[0]}/${locale}/${id[1]}`);
+    }
+
+    return null;
+  }, [conversation?.id, id, locale]);
 
   const conversationLink = useMemo(() => {
+    if (!generatedLink) {
+      return '';
+    }
+
     const url = baseUrl || window.location.origin;
 
     if (
@@ -71,57 +89,93 @@ const ShareConversationModal: FC<Props> = ({
       clientSharedPage &&
       clientSharedProp
     ) {
-      const id = generatedLink?.split(`/${SHARE_CONVERSATION_ROUTE}/`)?.[1];
-      return `${url}/${clientSharedPage}?${clientSharedProp}=${id}`;
+      const generatedConversationId = generatedLink.split(
+        `/${SHARE_CONVERSATION_ROUTE}/`,
+      )?.[1];
+      return `${url}/${clientSharedPage}?${clientSharedProp}=${generatedConversationId}`;
     }
 
     return `${url}/${locale}${generatedLink}`;
   }, [baseUrl, generatedLink, locale, clientSharedPage, clientSharedProp]);
 
+  const loadSharedConversation = useCallback(
+    async (targetKey: string) => {
+      const sharedConversationsData = await getSharedConversations?.(
+        getSharedConversationsRequest(ShareTarget.OTHERS),
+      );
+
+      if (!sharedConversationsData) {
+        return undefined;
+      }
+
+      return getSharedConversation(
+        { id: targetKey } as ConversationInfo,
+        sharedConversationsData.resources,
+      );
+    },
+    [getSharedConversations],
+  );
+
   useEffect(() => {
+    if (!conversationKey) {
+      return;
+    }
+
+    if (initializedConversationKeyRef.current === conversationKey) {
+      return;
+    }
+
+    initializedConversationKeyRef.current = conversationKey;
+    setIsLinkLoaded(false);
+
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     const generateShareConversationLink = async () => {
       try {
-        const conversationKey = conversation
-          ? decodeURI(conversation?.id)
-          : decodeURI(`${id?.[0]}/${locale}/${id?.[1]}`);
-        const uri = `${decodeURI(conversationKey)}`;
-        const conversationDetails = await getConversation?.(uri);
+        const conversationDetails = await getConversation?.(conversationKey);
         const data = getConversationData(
           conversationKey,
           getConversationResources(conversationDetails),
         );
         const generatedLinkResponse = await generateConversationLink?.(data);
-        const sharedConversationsData = await getSharedConversations?.(
-          getSharedConversationsRequest(ShareTarget.OTHERS),
-        );
+        const currentSharedConversation =
+          await loadSharedConversation(conversationKey);
 
-        if (generatedLinkResponse && sharedConversationsData) {
-          setIsLinkLoaded(true);
-          setGeneratedLink(getConversationLink(generatedLinkResponse));
-          setSharedConversation(
-            getSharedConversation(
-              conversation,
-              sharedConversationsData?.resources,
-            ),
-          );
+        if (controller.signal.aborted || !generatedLinkResponse) {
+          return;
         }
+
+        setGeneratedLink(getConversationLink(generatedLinkResponse));
+        setSharedConversation(currentSharedConversation);
+        setIsLinkLoaded(true);
       } catch (err) {
+        if (controller.signal.aborted) {
+          return;
+        }
+
         setIsLinkLoaded(false);
         console.error('Error sharing conversation', err as object);
       }
     };
 
     generateShareConversationLink();
+
+    return () => {
+      controller.abort();
+      initializedConversationKeyRef.current = null;
+    };
   }, [
-    conversation,
+    conversationKey,
     generateConversationLink,
     getConversation,
-    getSharedConversations,
-    id,
-    locale,
+    loadSharedConversation,
   ]);
 
   const onClose = useCallback((): void => {
+    abortControllerRef.current?.abort();
+    initializedConversationKeyRef.current = null;
     onCloseModal();
     setGeneratedLink(null);
     setIsLinkLoaded(false);
@@ -138,11 +192,25 @@ const ShareConversationModal: FC<Props> = ({
       setIsDisabledRemoveButton(true);
 
       if (sharedConversation) {
-        await revokeSharedConversations?.({ resources: [sharedConversation] });
+        await revokeSharedConversations?.({
+          resources: [sharedConversation],
+        });
+      }
+
+      if (conversationKey) {
+        const currentSharedConversation =
+          await loadSharedConversation(conversationKey);
+
+        if (!abortControllerRef.current?.signal.aborted) {
+          setSharedConversation(currentSharedConversation);
+        }
       }
     } catch (error) {
-      setIsDisabledRemoveButton(false);
       console.error('Error revoking shared conversation', error);
+    } finally {
+      if (!abortControllerRef.current?.signal.aborted) {
+        setIsDisabledRemoveButton(false);
+      }
     }
   };
 
