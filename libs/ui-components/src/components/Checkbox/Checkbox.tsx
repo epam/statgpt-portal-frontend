@@ -55,7 +55,7 @@ export const Checkbox: FC<Props> = ({
       htmlFor={id}
       onClick={handleClick}
       className={mergeClasses(
-        'flex min-w-0 items-center py-1',
+        'flex min-w-0 items-center py-1 shrink-0',
         disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
         className,
       )}
