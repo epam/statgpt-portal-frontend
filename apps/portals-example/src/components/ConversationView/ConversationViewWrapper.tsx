@@ -139,21 +139,29 @@ const ConversationViewWrapper: FC<Props> = ({
     [openUrl],
   );
 
-  const shareConversationProps = {
-    ...SHARE_CONVERSATION_PROPS(authHandler),
-    id,
-    share: t(ChatI18nKeys.SHARE),
-    shareLink: t(ChatI18nKeys.SHARE_LINK_TITLE),
-    close: t(AppI18nKeys.CLOSE),
-    shareCopyLink: t(ChatI18nKeys.SHARE_COPY_LINK),
-    shareCopiedLink: t(ChatI18nKeys.SHARE_COPIED_LINK),
-    shareDescription: t(ChatI18nKeys.SHARE_LINK_DESCRIPTION),
-    shareRemoveAccessToUsers: t(ChatI18nKeys.SHARE_REMOVE_ACCESS_TO_USERS),
-    chatExpiration: t(ChatI18nKeys.CHAT_EXPIRATION),
-    chatExpirationDays: t(ChatI18nKeys.CHAT_EXPIRATION_DAYS),
-    chatName: t(ChatI18nKeys.CHAT_NAME),
-    chatWarning: t(ChatI18nKeys.CHAT_WARNING),
-  };
+  const shareConversationApiProps = useMemo(
+    () => SHARE_CONVERSATION_PROPS(authHandler),
+    [authHandler],
+  );
+
+  const shareConversationProps = useMemo(
+    () => ({
+      ...shareConversationApiProps,
+      id,
+      share: t(ChatI18nKeys.SHARE),
+      shareLink: t(ChatI18nKeys.SHARE_LINK_TITLE),
+      close: t(AppI18nKeys.CLOSE),
+      shareCopyLink: t(ChatI18nKeys.SHARE_COPY_LINK),
+      shareCopiedLink: t(ChatI18nKeys.SHARE_COPIED_LINK),
+      shareDescription: t(ChatI18nKeys.SHARE_LINK_DESCRIPTION),
+      shareRemoveAccessToUsers: t(ChatI18nKeys.SHARE_REMOVE_ACCESS_TO_USERS),
+      chatExpiration: t(ChatI18nKeys.CHAT_EXPIRATION),
+      chatExpirationDays: t(ChatI18nKeys.CHAT_EXPIRATION_DAYS),
+      chatName: t(ChatI18nKeys.CHAT_NAME),
+      chatWarning: t(ChatI18nKeys.CHAT_WARNING),
+    }),
+    [id, shareConversationApiProps, t],
+  );
   const conversationViewTitles: ConversationViewTitles = {
     newChat: t(NavI18nKeys.NEW_CHAT),
     welcomeTitle: t(WelcomeI18nKeys.TITLE),
