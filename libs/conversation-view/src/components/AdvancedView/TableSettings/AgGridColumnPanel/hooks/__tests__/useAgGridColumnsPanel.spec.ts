@@ -238,10 +238,15 @@ describe('useAgGridColumnsPanel — handleToggleExpanded', () => {
       }),
     );
 
-    // Initially not collapsed → isExpanded should be true
+    // Initially collapsed by default → isExpanded should be false
     const nameBefore = result.current.items.find((i) => i.id === 'name');
-    expect((nameBefore as DraggableListItemNode).isExpanded).toBe(true);
+    expect((nameBefore as DraggableListItemNode).isExpanded).toBe(false);
 
+    act(() => {
+      result.current.handleToggleExpanded(
+        toggleExpanded('name', ['name'], true),
+      );
+    });
     act(() => {
       result.current.handleToggleExpanded(
         toggleExpanded('name', ['name'], false),
@@ -262,11 +267,6 @@ describe('useAgGridColumnsPanel — handleToggleExpanded', () => {
       }),
     );
 
-    act(() => {
-      result.current.handleToggleExpanded(
-        toggleExpanded('name', ['name'], false),
-      );
-    });
     act(() => {
       result.current.handleToggleExpanded(
         toggleExpanded('name', ['name'], true),

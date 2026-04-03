@@ -10,6 +10,7 @@ import type {
 } from '@epam/statgpt-sdmx-toolkit';
 import type { DraggableListItemNode } from '@epam/statgpt-ui-components';
 import {
+  ALL_AGGREGATED_COL_IDS,
   applyDimensionKeyCustomization,
   buildCrossDatasetEnrichItem,
 } from '../crossDatasetEnrichment';
@@ -64,6 +65,7 @@ function makeInfo(overrides: {
     string,
     Map<string, { order: string[]; hidden: Set<string> }>
   >;
+  enrichedColIds?: ReadonlySet<string>;
 }) {
   return {
     dataQueries: [],
@@ -250,6 +252,7 @@ describe('buildCrossDatasetEnrichItem', () => {
         dataQueries: [{ urn }],
         getDimensionsScheme: () => makeScheme({ region: 'COUNTRY' }),
         getDimensionConfig: () => aliasConfig('Country'),
+        enrichedColIds: ALL_AGGREGATED_COL_IDS,
       }),
     );
     const result = enrich(makeItem(COUNTRY_COL_ID));
@@ -329,6 +332,7 @@ describe('buildCrossDatasetEnrichItem', () => {
         dataQueries: [{ urn }],
         getDimensionsScheme: () => makeScheme({ frequency: 'FREQ' }),
         getDimensionConfig: () => aliasConfig('Annual'),
+        enrichedColIds: ALL_AGGREGATED_COL_IDS,
       }),
     );
     const result = enrich(makeItem(FREQUENCY_COL_ID));
