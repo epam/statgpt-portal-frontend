@@ -61,9 +61,20 @@ const getResolvedVersionByWildcards = (
 
 export const getWildCardPrefix = (wildcard: string): string => {
   const trimmed = wildcard.trim();
-  const idx = trimmed.search(/\d+\+/);
+  const plusIdx = trimmed.indexOf('+');
 
-  return idx > 0 ? trimmed.slice(0, idx) : '';
+  if (plusIdx <= 0) return '';
+
+  let digitStart = plusIdx;
+  while (
+    digitStart > 0 &&
+    trimmed[digitStart - 1] >= '0' &&
+    trimmed[digitStart - 1] <= '9'
+  ) {
+    digitStart--;
+  }
+
+  return digitStart > 0 ? trimmed.slice(0, digitStart) : '';
 };
 
 export const isWildCardVersionCorrect = (
