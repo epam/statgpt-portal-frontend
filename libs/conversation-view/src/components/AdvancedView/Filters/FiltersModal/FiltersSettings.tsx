@@ -12,6 +12,7 @@ import {
   Filter,
   FiltersModalProps,
   FilterTreeNodeProps,
+  FilterValue,
   HierarchyState,
 } from '../../../../models/filters';
 import FiltersFacetsList from './FiltersFacets/FiltersFacetsList';
@@ -148,16 +149,33 @@ const FilterSettings: FC<Props> = ({
       return;
     }
 
+    // For single-node calls (nodes with all-disabled children that are not yet
+    // in dimensionValues), add the node as a new entry so it can be selected.
+    const existingIds = new Set(
+      filterToUpdate?.dimensionValues?.map((v) => v.id),
+    );
+    const newEntries: FilterValue[] =
+      nodes?.length === 1 && nodes[0] && !existingIds.has(nodes[0].id)
+        ? [
+            {
+              id: nodes[0].id,
+              name: nodes[0].name,
+              isSelectedValue: nodes[0].isSelectedValue,
+            },
+          ]
+        : [];
+
     const updatedFilter = {
       ...filterToUpdate,
-      dimensionValues: filterToUpdate?.dimensionValues?.map(
-        (dimensionValue) => {
+      dimensionValues: [
+        ...(filterToUpdate?.dimensionValues?.map((dimensionValue) => {
           const nodeValue = nodes?.find(
             (node) => node?.id === dimensionValue?.id,
           );
           return nodeValue || dimensionValue;
-        },
-      ),
+        }) ?? []),
+        ...newEntries,
+      ],
     };
     if (shouldUpdateSelectedFilter) {
       setSelectedFilter(updatedFilter);

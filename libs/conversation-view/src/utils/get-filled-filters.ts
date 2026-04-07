@@ -5,7 +5,7 @@ import {
   getAvailableCodesFromConstrains,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
-import { Filter } from '../models/filters';
+import { Filter, FilterValue } from '../models/filters';
 import { Locale } from '@epam/statgpt-shared-toolkit';
 
 export const getFilledFilters = (
@@ -47,10 +47,20 @@ export const getFilledFilters = (
           isSelectedValue: isSelectedValue,
         };
       });
+
+      // Preserve any selected values that are not covered by constraints
+      // (e.g. hierarchy-only codes valid in the hierarchy but absent from
+      // the constraint response). Without this they would be silently dropped
+      // every time constraints are refreshed.
+      const rebuiltIds = new Set(mappedSelectionValues.map((v) => v.id));
+      const extraSelectedValues: FilterValue[] = (
+        filter.dimensionValues ?? []
+      ).filter((v) => !!v.isSelectedValue && !rebuiltIds.has(v.id));
+
       return {
         ...filter,
         isDisabled: false,
-        dimensionValues: mappedSelectionValues,
+        dimensionValues: [...mappedSelectionValues, ...extraSelectedValues],
       };
     }) || []
   );

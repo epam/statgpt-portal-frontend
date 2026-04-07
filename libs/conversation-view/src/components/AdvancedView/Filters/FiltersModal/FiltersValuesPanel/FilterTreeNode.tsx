@@ -32,7 +32,15 @@ const FilterTreeNode: FC<Props> = ({
 
   const onSelectFilterValue = (id: string, isSelectedValue?: boolean) => {
     if (node?.children?.length) {
-      selectHierarchicalNodes?.(getFilterNodesBySelection(node));
+      const hasEnabledChildren = node.children.some((child) => !child.disabled);
+      if (hasEnabledChildren) {
+        selectHierarchicalNodes?.(getFilterNodesBySelection(node));
+      } else {
+        // Node has children but all are disabled — treat as a selectable leaf
+        // and pass via selectHierarchicalNodes so the handler can add it to
+        // dimensionValues if it isn't already present (e.g. hierarchy-only codes).
+        selectHierarchicalNodes?.([{ ...node, isSelectedValue }]);
+      }
     } else {
       selectFilterValue?.(id, isSelectedValue);
     }
