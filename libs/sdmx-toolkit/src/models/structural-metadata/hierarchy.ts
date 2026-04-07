@@ -14,7 +14,7 @@ export interface Hierarchy {
   hierarchicalCodes?: HierarchicalCode[];
 }
 
-export interface GlossaryElementBase {
+export interface CodelistItemBase {
   id: string;
   name?: string;
   description?: string;
@@ -22,12 +22,12 @@ export interface GlossaryElementBase {
   code?: string;
 }
 
-export interface Glossary {
+export interface CodelistData {
   id: string;
   agencyID: string;
   version: string;
   name?: string;
-  terms?: GlossaryElementBase[];
+  codes?: CodelistItemBase[];
 }
 
 export interface TreeNode<T> {

@@ -1,74 +1,105 @@
 import {
-  GlossaryElementBase,
-  Glossary,
+  CodelistItemBase,
+  CodelistData,
   Hierarchy,
   HierarchicalCode,
   TreeNode,
 } from '../models/structural-metadata/hierarchy';
 import { DataConstraints } from '../models/structural-metadata/constraints';
+import { StructuralData } from '../models/structural-metadata/structural-metadata';
 import { generateShortUrn, getChildParsedUrn } from './urn';
+
+export function resolveCodelistsFromResponse(
+  data?: StructuralData,
+): CodelistData[] {
+  if (data?.codelists?.length) {
+    return data.codelists.map((cl) => ({
+      id: cl.id,
+      agencyID: cl.agencyID ?? '',
+      version: cl.version ?? '',
+      name: cl.name,
+      codes: cl.codes?.map((code) => ({
+        id: code.id,
+        name: code.name,
+        description: code.description,
+      })),
+    }));
+  }
+
+  // Fallback: SDMX-Plus API returns glossaries with `terms` instead of `codes`
+  return (data?.glossaries ?? []).map((gl) => ({
+    id: gl.id,
+    agencyID: gl.agencyID ?? '',
+    version: gl.version ?? '',
+    name: gl.name,
+    codes: gl.terms?.map((term) => ({
+      id: term.id,
+      name: term.name,
+      description: term.description,
+    })),
+  }));
+}
 
 export function urnMatchesIgnoreVersion(urnA: string, urnB: string): boolean {
   const normalize = (u: string) => u.replace(/\([^)]+\)/, '(*)');
   return normalize(urnA) === normalize(urnB);
 }
 
-export function getGlossaryShortUrn(glossary: Glossary): string {
-  return generateShortUrn(glossary.id, glossary.version, glossary.agencyID);
+function getCodelistShortUrn(codelist: CodelistData): string {
+  return generateShortUrn(codelist.id, codelist.version, codelist.agencyID);
 }
 
 function collectCodes(
-  result: GlossaryElementBase[],
+  result: CodelistItemBase[],
   hierarchicalCodes?: HierarchicalCode[],
-  glossaries?: Glossary[],
+  codelists?: CodelistData[],
 ): void {
   hierarchicalCodes?.forEach((hCode) => {
     const { childId, agency, id, version } = getChildParsedUrn(hCode.code);
     const parentShortUrn = generateShortUrn(id, version, agency);
 
-    const glossary = glossaries?.find((g) =>
-      urnMatchesIgnoreVersion(parentShortUrn, getGlossaryShortUrn(g)),
+    const codelist = codelists?.find((c) =>
+      urnMatchesIgnoreVersion(parentShortUrn, getCodelistShortUrn(c)),
     );
 
-    const term = glossary?.terms?.find((t) => t.id === childId);
+    const item = codelist?.codes?.find((c) => c.id === childId);
 
-    if (term != null) {
+    if (item != null) {
       const normalizedUrn = hCode.code.replace(
         parentShortUrn,
-        getGlossaryShortUrn(glossary!),
+        getCodelistShortUrn(codelist!),
       );
-      result.push({ ...term, code: normalizedUrn });
+      result.push({ ...item, code: normalizedUrn });
     }
 
-    collectCodes(result, hCode.hierarchicalCodes, glossaries);
+    collectCodes(result, hCode.hierarchicalCodes, codelists);
   });
 }
 
 export function getHierarchyCodes(
   hierarchy?: Hierarchy,
-  glossaries?: Glossary[],
-): GlossaryElementBase[] {
-  const codes: GlossaryElementBase[] = [];
-  collectCodes(codes, hierarchy?.hierarchicalCodes, glossaries);
+  codelists?: CodelistData[],
+): CodelistItemBase[] {
+  const codes: CodelistItemBase[] = [];
+  collectCodes(codes, hierarchy?.hierarchicalCodes, codelists);
   return codes;
 }
 
 export function getCodeListsData(
-  glossaries: Glossary[],
-): Record<string, GlossaryElementBase[]> {
-  const map: Record<string, GlossaryElementBase[]> = {};
-  glossaries?.forEach((glossary) => {
-    map[getGlossaryShortUrn(glossary)] =
-      glossary.terms as GlossaryElementBase[];
+  codelists: CodelistData[],
+): Record<string, CodelistItemBase[]> {
+  const map: Record<string, CodelistItemBase[]> = {};
+  codelists?.forEach((codelist) => {
+    map[getCodelistShortUrn(codelist)] = codelist.codes as CodelistItemBase[];
   });
   return map;
 }
 
 export function getHierarchyAvailableCodes(
-  codes: GlossaryElementBase[],
+  codes: CodelistItemBase[],
   dimensionId: string,
   contentConstraints?: DataConstraints[],
-): GlossaryElementBase[] {
+): CodelistItemBase[] {
   if (!contentConstraints || contentConstraints.length === 0 || !dimensionId) {
     return codes;
   }
@@ -88,7 +119,7 @@ export function getHierarchyAvailableCodes(
 }
 
 function buildNodes(
-  codeListMap?: Record<string, GlossaryElementBase[]>,
+  codeListMap?: Record<string, CodelistItemBase[]>,
   availableCodes?: string[],
   dimensionCodeListUrn?: string,
   codes?: HierarchicalCode[],
@@ -101,14 +132,14 @@ function buildNodes(
         const codelistShortUrn = generateShortUrn(id, version, agency);
 
         // Resolve the actual codelist key ignoring version mismatches between
-        // the hierarchy reference and the glossary that was returned.
+        // the hierarchy reference and the codelist that was returned.
         const resolvedUrn =
           Object.keys(codeListMap ?? {}).find((key) =>
             urnMatchesIgnoreVersion(key, codelistShortUrn),
           ) ?? codelistShortUrn;
-        const terms = codeListMap?.[resolvedUrn];
-        const term = terms?.find((t) => t.id === childId);
-        const displayName = term?.name || term?.description || childId;
+        const items = codeListMap?.[resolvedUrn];
+        const item = items?.find((c) => c.id === childId);
+        const displayName = item?.name || item?.description || childId;
 
         const isFromDimensionCodelist = dimensionCodeListUrn
           ? urnMatchesIgnoreVersion(codelistShortUrn, dimensionCodeListUrn)
@@ -160,7 +191,7 @@ function buildNodes(
 
 export function getTreeNodesFromHierarchies(
   hierarchy?: Hierarchy,
-  codeListMap?: Record<string, GlossaryElementBase[]>,
+  codeListMap?: Record<string, CodelistItemBase[]>,
   availableCodes?: string[],
   dimensionCodeListUrn?: string,
 ): TreeNode<HierarchicalCode>[] {

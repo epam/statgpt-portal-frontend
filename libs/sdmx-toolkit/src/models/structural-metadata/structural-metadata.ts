@@ -3,7 +3,7 @@ import { ConceptScheme } from './concept-scheme';
 import { DataConstraints } from './constraints';
 import { DataStructure, MetadataStructure } from './data-structure';
 import { Dataflow } from './dataflow';
-import { Glossary, Hierarchy } from './hierarchy';
+import { CodelistItemBase, Hierarchy } from './hierarchy';
 
 export interface StructuralMetaData {
   data: StructuralData;
@@ -17,5 +17,12 @@ export interface StructuralData {
   dataStructures?: DataStructure[];
   metadataStructures?: MetadataStructure[];
   hierarchies?: Hierarchy[];
-  glossaries?: Glossary[];
+  /** SDMX-Plus API response format — used as a fallback when `codelists` is absent. */
+  glossaries?: Array<{
+    id: string;
+    agencyID?: string;
+    version?: string;
+    name?: string;
+    terms?: CodelistItemBase[];
+  }>;
 }

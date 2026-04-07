@@ -1,4 +1,5 @@
 import {
+  CodelistData,
   DataConstraints,
   generateShortUrn,
   getChildParsedUrn,
@@ -6,7 +7,6 @@ import {
   getHierarchyAvailableCodes,
   getHierarchyCodes,
   getTreeNodesFromHierarchies,
-  Glossary,
   HierarchicalCode,
   Hierarchy,
   TreeNode,
@@ -42,18 +42,18 @@ export function buildHierarchyUrn(hierarchy: Hierarchy): string {
 
 export function buildHierarchyFilterTreeProps(
   mainHierarchy: Hierarchy,
-  glossaries: Glossary[],
+  codelists: CodelistData[],
   filterId: string,
   constraints: DataConstraints[] | undefined,
   codelistUrn: string | undefined,
 ): FilterTreeNodeProps[] {
-  const flatCodes = getHierarchyCodes(mainHierarchy, glossaries);
+  const flatCodes = getHierarchyCodes(mainHierarchy, codelists);
   const availableCodes = getHierarchyAvailableCodes(
     flatCodes,
     filterId,
     constraints,
   );
-  const codeListMap = getCodeListsData(glossaries);
+  const codeListMap = getCodeListsData(codelists);
   const treeNodes = getTreeNodesFromHierarchies(
     mainHierarchy,
     codeListMap,

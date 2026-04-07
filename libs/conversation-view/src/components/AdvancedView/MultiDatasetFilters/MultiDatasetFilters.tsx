@@ -1,10 +1,11 @@
 'use client';
 
 import {
+  CodelistData,
   DataConstraints,
-  Glossary,
   Hierarchy,
   StructuralMetaData,
+  resolveCodelistsFromResponse,
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery, Locale } from '@epam/statgpt-shared-toolkit';
 import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
@@ -58,7 +59,7 @@ const EMPTY_HIERARCHY_STATE: HierarchyState = {
   availableHierarchies: [],
   selectedHierarchy: null,
   mainHierarchy: null,
-  glossaries: [],
+  codelists: [],
   treeNodes: [],
   isLoading: false,
 };
@@ -164,7 +165,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
 
         const filterTreeProps = buildHierarchyFilterTreeProps(
           state.mainHierarchy,
-          state.glossaries,
+          state.codelists,
           filter.id ?? '',
           constraints,
           codelistUrn,
@@ -368,7 +369,9 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
           return;
         }
 
-        const glossaries: Glossary[] = response?.data?.glossaries ?? [];
+        const codelists: CodelistData[] = resolveCodelistsFromResponse(
+          response?.data,
+        );
         const datasetUrn =
           filter.filterType === 'dataset'
             ? filter.datasetUrn
@@ -379,7 +382,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
 
         const filterTreeProps = buildHierarchyFilterTreeProps(
           mainHierarchy,
-          glossaries,
+          codelists,
           filter.id ?? '',
           constraints,
           codelistUrn,
@@ -392,7 +395,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
             ...existing,
             selectedHierarchy: hierarchy,
             mainHierarchy,
-            glossaries,
+            codelists,
             treeNodes: filterTreeProps,
             isLoading: false,
           });

@@ -6,7 +6,7 @@ export async function getAvailableHierarchiesApi(
   urn: string,
 ): Promise<ApiResponse<StructuralMetaData>> {
   return apiRequest<StructuralMetaData>(
-    `/api/glossary/${urn}`,
+    `/api/codelist/${urn}`,
     'Failed to fetch hierarchies',
   );
 }

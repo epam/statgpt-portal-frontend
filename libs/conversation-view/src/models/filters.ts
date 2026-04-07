@@ -3,7 +3,7 @@ import {
   DataConstraints,
   DatasetQueryFilters,
   Dimension,
-  Glossary,
+  CodelistData,
   Hierarchy,
   SeriesFilterDto,
   StructuralData,
@@ -97,7 +97,7 @@ export interface HierarchyState {
   availableHierarchies: Hierarchy[];
   selectedHierarchy: Hierarchy | null;
   mainHierarchy: Hierarchy | null;
-  glossaries: Glossary[];
+  codelists: CodelistData[];
   treeNodes: FilterTreeNodeProps[];
   isLoading: boolean;
 }
