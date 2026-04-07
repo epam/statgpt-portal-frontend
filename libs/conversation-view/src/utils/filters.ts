@@ -304,19 +304,22 @@ const setSelectedChildrenNodes = (
     return [];
   }
 
-  return childrenNodes.map((child) => ({
-    ...child,
-    isSelectedValue,
-  }));
+  return childrenNodes
+    .filter((child) => !child.disabled)
+    .map((child) => ({
+      ...child,
+      isSelectedValue,
+    }));
 };
 
 export const getFilterNodesBySelection = (
   node: FilterTreeNodeProps,
 ): FilterTreeNodeProps[] => {
-  const allChildrenSelected = node.children?.every(
+  const enabledChildren = node.children?.filter((child) => !child.disabled);
+  const allChildrenSelected = enabledChildren?.every(
     (child) => child.isSelectedValue,
   );
-  const allChildrenUnselected = node.children?.every(
+  const allChildrenUnselected = enabledChildren?.every(
     (child) => !child.isSelectedValue,
   );
 

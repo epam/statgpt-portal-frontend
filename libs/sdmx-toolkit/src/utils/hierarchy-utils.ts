@@ -178,9 +178,11 @@ function buildNodes(
           name: displayName,
           children,
           isExpanded: true,
-          // Structural grouping nodes are non-selectable labels; leaf nodes
-          // (including cross-codelist ones) are selectable checkboxes.
-          disabled: isStructuralNode,
+          // A non-dimension node is non-selectable only when it has no enabled
+          // (dimension) descendants; if it wraps selectable children it acts
+          // as a group checkbox and must itself be enabled.
+          disabled:
+            !isFromDimensionCodelist && children.every((c) => c.disabled),
           parent: parentUrn,
           metadata: { ...code, hierarchicalCodes: undefined },
         } as TreeNode<HierarchicalCode>;
