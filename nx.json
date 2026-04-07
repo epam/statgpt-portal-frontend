@@ -105,5 +105,6 @@
     }
   },
   "defaultProject": "portals-example",
-  "useLegacyCache": true
+  "useLegacyCache": true,
+  "analytics": true
 }
