@@ -59,11 +59,22 @@ const getResolvedVersionByWildcards = (
   return resolved;
 };
 
-export const getWildCardRegexp = (wildcard: string): RegExp => {
-  const regStr = wildcard.trim().replace(/\d+\+/, '*');
-  const [start] = regStr.split('*');
+export const getWildCardPrefix = (wildcard: string): string => {
+  const trimmed = wildcard.trim();
+  const plusIdx = trimmed.indexOf('+');
 
-  return new RegExp(`^${start}`);
+  if (plusIdx <= 0) return '';
+
+  let digitStart = plusIdx;
+  while (
+    digitStart > 0 &&
+    trimmed[digitStart - 1] >= '0' &&
+    trimmed[digitStart - 1] <= '9'
+  ) {
+    digitStart--;
+  }
+
+  return digitStart > 0 ? trimmed.slice(0, digitStart) : '';
 };
 
 export const isWildCardVersionCorrect = (
@@ -71,7 +82,7 @@ export const isWildCardVersionCorrect = (
   version: string,
 ): boolean => {
   const ver = wildcard.trim().replace(/\+/, '');
-  const reg = getWildCardRegexp(wildcard);
+  const prefix = getWildCardPrefix(wildcard);
 
-  return reg.test(version) && compare(version, ver, '>=');
+  return version.startsWith(prefix) && compare(version, ver, '>=');
 };

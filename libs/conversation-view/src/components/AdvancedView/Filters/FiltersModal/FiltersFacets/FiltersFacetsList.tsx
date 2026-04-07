@@ -113,7 +113,11 @@ const FiltersFacetsList: FC<Props> = ({
             initialConstraintsMap,
           )}
           datasetIcon={datasetIcon}
-          datasetName={getDatasetNameFromFilters(filter, structuresMap)}
+          datasetName={
+            (structuresMap?.size ?? 0) > 1
+              ? getDatasetNameFromFilters(filter, structuresMap)
+              : undefined
+          }
           hierarchyState={hierarchyStateMap?.get(getFilterIdentity(filter))}
           onSelectHierarchy={onSelectHierarchy}
         />
