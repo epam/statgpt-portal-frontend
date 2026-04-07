@@ -41,7 +41,13 @@ export function resolveCodelistsFromResponse(
 }
 
 export function urnMatchesIgnoreVersion(urnA: string, urnB: string): boolean {
-  const normalize = (u: string) => u.replace(/\([^)]+\)/, '(*)');
+  const normalize = (u: string): string => {
+    const start = u.indexOf('(');
+    if (start === -1) return u;
+    const end = u.indexOf(')', start);
+    if (end === -1) return u;
+    return u.slice(0, start + 1) + '*' + u.slice(end);
+  };
   return normalize(urnA) === normalize(urnB);
 }
 
