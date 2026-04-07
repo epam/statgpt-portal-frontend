@@ -118,7 +118,9 @@ const FiltersFacetsList: FC<Props> = ({
               ? getDatasetNameFromFilters(filter, structuresMap)
               : undefined
           }
-          hierarchyState={hierarchyStateMap?.get(getFilterIdentity(filter))}
+          hierarchyState={hierarchyStateMap?.get(
+            getFilterIdentity(filter) ?? '',
+          )}
           onSelectHierarchy={onSelectHierarchy}
         />
       ))}
