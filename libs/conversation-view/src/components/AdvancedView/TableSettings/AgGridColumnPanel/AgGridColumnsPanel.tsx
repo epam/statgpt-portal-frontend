@@ -7,6 +7,7 @@ import { ColumnPanelFilter } from './types';
 import { useCallback, useMemo, useState } from 'react';
 import { IconSearch, IconX } from '@tabler/icons-react';
 import { GridApi } from 'ag-grid-community';
+import type { ReactNode } from 'react';
 
 /**
  * AgGridColumnsPanel renders a searchable, drag-and-drop column visibility
@@ -41,12 +42,14 @@ export function AgGridColumnsPanel({
   api,
   includeColumn,
   enrichItem,
+  renderLabel,
   onSubItemOrderChange,
   onSubItemVisibilityChange,
 }: {
   api: GridApi | null;
   includeColumn?: ColumnPanelFilter;
   enrichItem?: (item: DraggableListItemNode) => DraggableListItemNode;
+  renderLabel?: (item: DraggableListItemNode) => ReactNode;
   onSubItemOrderChange?: (urn: string, colId: string, order: string[]) => void;
   onSubItemVisibilityChange?: (
     urn: string,
@@ -93,7 +96,7 @@ export function AgGridColumnsPanel({
   });
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2 px-5 py-7">
+    <div className="flex h-full min-h-0 flex-col gap-2 px-5 py-7">
       <InputWithIcon
         inputId="columns-search-input"
         containerClasses={'items-center filters-search-input gap-1 !p-2'}
@@ -111,6 +114,7 @@ export function AgGridColumnsPanel({
           onToggleChecked={handleToggleChecked}
           onToggleExpanded={handleToggleExpanded}
           onItemClick={handleItemClick}
+          renderLabel={renderLabel}
         />
       </div>
     </div>

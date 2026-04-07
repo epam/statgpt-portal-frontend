@@ -133,7 +133,7 @@ const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
     isMetadataInSidePanel &&
     !!sidePanel &&
     !!params.value &&
-    params.colId !== FREQUENCY_COL_ID;
+    ![FREQUENCY_COL_ID, COUNTRY_COL_ID].includes(params.colId);
 
   const openMetadata = useCallback(() => {
     if (!sidePanel) return;

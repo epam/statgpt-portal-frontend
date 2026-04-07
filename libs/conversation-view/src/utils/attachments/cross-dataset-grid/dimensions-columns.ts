@@ -206,14 +206,17 @@ function buildOtherDimensionColDef(
     return getDimensionValue(structures, dimensionId, data, locale);
   };
 
-  return dimColDef(
-    getOtherDimensionTitle(dimensionId, structuresMap, locale),
-    dimensionId,
-    valueGetter,
-    structuresMap,
-    datasetDimensionsSchemesMap,
-    locale,
-  );
+  return {
+    ...dimColDef(
+      getOtherDimensionTitle(dimensionId, structuresMap, locale),
+      dimensionId,
+      valueGetter,
+      structuresMap,
+      datasetDimensionsSchemesMap,
+      locale,
+    ),
+    hide: true,
+  };
 }
 
 function getOtherDimensionTitle(

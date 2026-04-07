@@ -5,6 +5,7 @@ import { buildCrossDatasetEnrichItem } from './helpers/crossDatasetEnrichment';
 import { restoreInitialColumnsState } from './AgGridColumnPanel/helpers/columnStateSnapshot';
 import { useTableSettingsContext } from './TableSettingsContext';
 import { useDatasetDimensionsMetadataMapOptional } from '../../../context/DatasetDimensionsMetadataMapContext';
+import { useOtherColumnRenderLabel } from './hooks/useOtherColumnRenderLabel';
 
 export const TABLE_SETTINGS_SIDE_PANEL_ID = 'table-settings-side-panel';
 
@@ -85,6 +86,7 @@ export const TableSettingsPanel = () => {
     setDimensionKeyHidden,
   } = useTableSettingsContext();
   const dimensionsCtx = useDatasetDimensionsMetadataMapOptional();
+  const renderLabel = useOtherColumnRenderLabel();
 
   const enrichItem = useMemo(() => {
     if (!dimensionsCtx || !structuresMap || !locale || !dataQueries?.length) {
@@ -111,6 +113,7 @@ export const TableSettingsPanel = () => {
     <AgGridColumnsPanel
       api={gridApi}
       enrichItem={enrichItem}
+      renderLabel={renderLabel}
       onSubItemOrderChange={setDimensionKeyOrder}
       onSubItemVisibilityChange={setDimensionKeyHidden}
     />

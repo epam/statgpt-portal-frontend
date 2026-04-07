@@ -14,7 +14,7 @@
   }
 
   &-item {
-    @apply bg-transparent border-0 p-0 text-left text-neutrals-800 font-semibold text-[14px] leading-[16px] truncate min-w-0 max-w-[220px];
+    @apply bg-transparent border-0 p-0 text-left text-neutrals-800 font-semibold text-[14px] leading-[16px] truncate min-w-0;
   }
 
   &-separator {
