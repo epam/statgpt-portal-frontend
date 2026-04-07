@@ -9,7 +9,8 @@ export const getClearedConversationName = (
     conversationName
       ?.toLowerCase()
       .replace(/[^\p{L}\p{N}]+/gu, '-')
-      .replace(/^-+|-+$/g, '')
+      .replace(/^-+/, '')
+      .replace(/-+$/, '')
       .replace(/-/g, ' ') || ''
   );
 };
