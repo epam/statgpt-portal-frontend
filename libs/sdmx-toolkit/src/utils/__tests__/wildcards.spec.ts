@@ -2,7 +2,7 @@ import type { CommonArtefactProperty } from '../../models/structural-metadata/co
 import {
   getArtifactByUrnWithWildCard,
   getResolvedVersionBySingleWildcard,
-  getWildCardRegexp,
+  getWildCardPrefix,
   isWildCardVersionCorrect,
 } from '../wildcards';
 
@@ -17,29 +17,24 @@ const artifact = (
 ): CommonArtefactProperty => ({ agencyID, id, version, name: id });
 
 // ---------------------------------------------------------------------------
-// getWildCardRegexp
+// getWildCardPrefix
 // ---------------------------------------------------------------------------
 
-describe('getWildCardRegexp', () => {
-  it('creates a regex matching the prefix before the wildcard segment (dot is unescaped)', () => {
-    const reg = getWildCardRegexp('1.2+');
-    expect(reg).toEqual(/^1./);
+describe('getWildCardPrefix', () => {
+  it('extracts the prefix before the wildcard segment', () => {
+    expect(getWildCardPrefix('1.2+')).toBe('1.');
   });
 
-  it('matches versions that share the prefix', () => {
-    const reg = getWildCardRegexp('1.2+');
-    expect(reg.test('1.5')).toBe(true);
-    expect(reg.test('1.2')).toBe(true);
-  });
-
-  it('does not match versions with a different prefix', () => {
-    const reg = getWildCardRegexp('1.2+');
-    expect(reg.test('2.0')).toBe(false);
+  it('returns an empty string when the wildcard starts with digits', () => {
+    expect(getWildCardPrefix('2+')).toBe('');
   });
 
   it('handles a wildcard with leading/trailing whitespace', () => {
-    const reg = getWildCardRegexp('  1.2+  ');
-    expect(reg.test('1.3')).toBe(true);
+    expect(getWildCardPrefix('  1.2+  ')).toBe('1.');
+  });
+
+  it('extracts a multi-segment prefix', () => {
+    expect(getWildCardPrefix('1.2.3+')).toBe('1.2.');
   });
 });
 
