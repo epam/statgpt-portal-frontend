@@ -35,9 +35,10 @@ export const getFilledFilters = (
 
   return (
     filters?.map((filter) => {
-      const dimensionValues =
-        filledDimensions?.find((dim) => dim.id === filter.id)
-          ?.dimensionValues || [];
+      const matchedDimension = filledDimensions?.find(
+        (dim) => dim.id === filter.id,
+      );
+      const dimensionValues = matchedDimension?.dimensionValues || [];
       const mappedSelectionValues = dimensionValues.map((value) => {
         const isSelectedValue = filter.dimensionValues?.find(
           (dimension) => dimension?.id === value?.id,
@@ -52,10 +53,14 @@ export const getFilledFilters = (
       // (e.g. hierarchy-only codes valid in the hierarchy but absent from
       // the constraint response). Without this they would be silently dropped
       // every time constraints are refreshed.
+      // Only applies when a matching dimension exists — if no dimension matches
+      // the filter id, dimensionValues should be empty.
       const rebuiltIds = new Set(mappedSelectionValues.map((v) => v.id));
-      const extraSelectedValues: FilterValue[] = (
-        filter.dimensionValues ?? []
-      ).filter((v) => !!v.isSelectedValue && !rebuiltIds.has(v.id));
+      const extraSelectedValues: FilterValue[] = matchedDimension
+        ? (filter.dimensionValues ?? []).filter(
+            (v) => !!v.isSelectedValue && !rebuiltIds.has(v.id),
+          )
+        : [];
 
       return {
         ...filter,
