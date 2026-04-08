@@ -1,4 +1,4 @@
-import { FC, ReactNode, useCallback, useState } from 'react';
+import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import {
   DatasetQueryFilters,
   Dimension,
@@ -8,9 +8,10 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery, Locale } from '@epam/statgpt-shared-toolkit';
 import {
-  AlertDetails,
   Button,
   CollapsibleBlock,
+  InlineAlert,
+  InlineAlertType,
   Popup,
   PopUpSize,
   LimitMessages,
@@ -26,8 +27,13 @@ import {
   DOWNLOAD_DATA_FORMATS,
 } from '../../constants/download-options';
 import DownloadOptionBlock from '../DownloadOptionBlock/DownloadOptionBlock';
+import DownloadDatasetsBlock from '../DownloadDatasetsBlock/DownloadDatasetsBlock';
 import { getDownloadFilters } from '../../utils/get-filter';
 import { DownloadTitles } from '../../models/titles';
+import { DownloadDatasetItem } from '../../models/download-dataset-item';
+
+// Browsers block simultaneous download triggers as popups; stagger each file.
+const DOWNLOAD_STAGGER_MS = 300;
 
 interface Props {
   actions: DownloadActions;
@@ -41,9 +47,9 @@ interface Props {
   filters?: DatasetQueryFilters;
   urn?: string;
   titles?: DownloadTitles;
+  collapsible?: boolean;
+  downloadDatasets?: DownloadDatasetItem[];
   onCloseModal: () => void;
-  setIsShowDownloadAlert?: (isShowDownloadAlert?: boolean) => void;
-  setDownloadAlertDetails?: (downloadAlertDetails?: AlertDetails) => void;
   limitMessages?: LimitMessages;
   showLimitMessage?: boolean;
   externalLink?: string;
@@ -62,6 +68,8 @@ const DownloadSettings: FC<Props> = ({
   filters,
   urn,
   titles,
+  collapsible = true,
+  downloadDatasets,
   limitMessages,
   showLimitMessage,
   externalLink,
@@ -76,43 +84,116 @@ const DownloadSettings: FC<Props> = ({
 
   const [isMetadata, setIsMetadata] = useState<boolean>(true);
 
+  const [selectedDatasetUrns, setSelectedDatasetUrns] = useState<Set<string>>(
+    () => new Set(downloadDatasets?.map((d) => d.urn) ?? []),
+  );
+
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    setSelectedDatasetUrns(new Set(downloadDatasets?.map((d) => d.urn) ?? []));
+  }, [downloadDatasets]);
+
+  const onToggleDataset = useCallback((urn: string) => {
+    setSelectedDatasetUrns((prev) => {
+      const next = new Set(prev);
+      if (next.has(urn)) {
+        next.delete(urn);
+      } else {
+        next.add(urn);
+      }
+      return next;
+    });
+  }, []);
+
   const onDownloadClick = useCallback(() => {
-    const downloadFilters = getDownloadFilters(
-      type,
-      dataQuery,
-      dimensions,
-      filters,
-    );
-    const urnValue = dataQuery?.urn || urn || '';
     const attribute = selectedAttribute.value as FileColumnsAttribute;
     const dataFormat = selectedDataFormat.value as SdmxDataFormat;
-    const fileName = `${datasetName}.${dataFormat}`;
 
-    actions.downloadDataSet(
-      urnValue,
-      dataFormat,
-      locale,
-      attribute,
-      downloadFilters,
-      fileName,
-      isMetadata,
-    );
+    if (downloadDatasets && downloadDatasets.length > 0) {
+      const selected = downloadDatasets.filter((d) =>
+        selectedDatasetUrns.has(d.urn),
+      );
+      selected.forEach((dataset, i) => {
+        setTimeout(() => {
+          const downloadFilters = getDownloadFilters(
+            type,
+            dataset.dataQuery,
+            dimensions,
+            filters,
+          );
+          actions.downloadDataSet(
+            dataset.urn,
+            dataFormat,
+            locale,
+            attribute,
+            downloadFilters,
+            `${dataset.name}.${dataFormat}`,
+            isMetadata,
+          );
+        }, i * DOWNLOAD_STAGGER_MS);
+      });
+    } else {
+      const downloadFilters = getDownloadFilters(
+        type,
+        dataQuery,
+        dimensions,
+        filters,
+      );
+      actions.downloadDataSet(
+        dataQuery?.urn || urn || '',
+        dataFormat,
+        locale,
+        attribute,
+        downloadFilters,
+        `${datasetName}.${dataFormat}`,
+        isMetadata,
+      );
+    }
 
     onCloseModal();
   }, [
+    downloadDatasets,
+    selectedDatasetUrns,
+    selectedAttribute.value,
+    selectedDataFormat.value,
     type,
     dataQuery,
     dimensions,
     filters,
     urn,
-    selectedAttribute.value,
-    selectedDataFormat.value,
     actions,
     locale,
     isMetadata,
     onCloseModal,
     datasetName,
   ]);
+
+  const metadataContent = (
+    <div
+      className={`download-metadata flex cursor-pointer gap-4 ${isMetadata ? 'download-metadata-active' : ''}`}
+    >
+      {isMetadata ? (
+        <ToggleActiveIcon
+          width={44}
+          height={24}
+          className="text-primary"
+          onClick={() => setIsMetadata(!isMetadata)}
+        />
+      ) : (
+        <ToggleInactiveIcon
+          width={44}
+          height={24}
+          className="text-neutrals-500"
+          onClick={() => setIsMetadata(!isMetadata)}
+        />
+      )}
+      <div>{titles?.includeMetadata || 'Include Metadata'}</div>
+    </div>
+  );
 
   return (
     <Popup
@@ -126,30 +207,33 @@ const DownloadSettings: FC<Props> = ({
       onClose={onCloseModal}
       closeButtonTitle={titles?.close || 'Close'}
     >
-      <div className="download-info flex flex-col gap-1 px-6">
-        <div className="download-info-text flex gap-1">
-          <p className="body-3 text-neutrals-800">
-            {titles?.dataset || 'Dataset'}:
-          </p>
-          <span className="h4 flex min-w-0 flex-1 flex-row gap-x-1">
-            {isDisplayDatasetIcon && datasetIcon}
-            <p className="min-w-0 flex-1 truncate">{datasetName}</p>
-          </span>
+      {!downloadDatasets && (
+        <div className="download-info flex flex-col gap-1 px-6">
+          <div className="download-info-text flex gap-1">
+            <p className="body-3 text-neutrals-800">
+              {titles?.dataset || 'Dataset'}:
+            </p>
+            <span className="h4 flex min-w-0 flex-1 flex-row gap-x-1">
+              {isDisplayDatasetIcon && datasetIcon}
+              <p className="min-w-0 flex-1 truncate">{datasetName}</p>
+            </span>
+          </div>
+          {showLimitMessage && (
+            <RequestLimitMessage
+              limitMessages={limitMessages}
+              isDownload
+              query={externalLink}
+            />
+          )}
         </div>
-        {showLimitMessage && (
-          <RequestLimitMessage
-            limitMessages={limitMessages}
-            isDownload
-            query={externalLink}
-          />
-        )}
-      </div>
+      )}
       <div className="download-settings flex flex-col overflow-auto p-6">
         <DownloadOptionBlock
           title={titles?.dataFormat || 'Data Format'}
           selectedValue={selectedDataFormat}
           setSelectedValue={setSelectedDataFormat}
           items={DOWNLOAD_DATA_FORMATS}
+          collapsible={collapsible}
           infoMessage={
             <DownloadFormatMessage
               limitMessages={limitMessages}
@@ -158,48 +242,64 @@ const DownloadSettings: FC<Props> = ({
           }
         />
 
-        <DownloadOptionBlock
-          title={titles?.attributes || 'Attributes'}
-          selectedValue={selectedAttribute}
-          setSelectedValue={setSelectedAttribute}
-          items={downloadAttributes}
-        />
+        {selectedDataFormat.value === SdmxDataFormat.CSV && (
+          <DownloadOptionBlock
+            title={titles?.attributes || 'Attributes'}
+            selectedValue={selectedAttribute}
+            setSelectedValue={setSelectedAttribute}
+            items={downloadAttributes}
+            collapsible={collapsible}
+          />
+        )}
 
-        <CollapsibleBlock
-          title={titles?.metadata || 'Metadata'}
-          value={
-            isMetadata
-              ? titles?.all || 'Included'
-              : titles?.none || 'Not included'
-          }
-        >
-          <div
-            className={`download-metadata flex cursor-pointer gap-4 ${isMetadata ? 'download-metadata-active' : ''}`}
+        {downloadDatasets && (
+          <>
+            <DownloadDatasetsBlock
+              title={titles?.datasetsToDownload || 'Datasets to download'}
+              items={downloadDatasets}
+              selectedUrns={selectedDatasetUrns}
+              onToggle={onToggleDataset}
+              collapsible={collapsible}
+              rowsLabel={titles?.rows || 'rows'}
+            />
+            <InlineAlert type={InlineAlertType.Note}>
+              <span className="font-bold">
+                {titles?.filesWillBeDownloaded?.(selectedDatasetUrns.size) ??
+                  `${selectedDatasetUrns.size} files will be downloaded`}
+              </span>{' '}
+              {titles?.oneFilePerDataset ?? '- one file per selected dataset.'}
+            </InlineAlert>
+          </>
+        )}
+
+        {collapsible ? (
+          <CollapsibleBlock
+            title={titles?.metadata || 'Metadata'}
+            value={
+              isMetadata
+                ? titles?.all || 'Included'
+                : titles?.none || 'Not included'
+            }
           >
-            {isMetadata ? (
-              <ToggleActiveIcon
-                width={44}
-                height={24}
-                className="text-primary"
-                onClick={() => {
-                  setIsMetadata(!isMetadata);
-                }}
-              />
-            ) : (
-              <ToggleInactiveIcon
-                width={44}
-                height={24}
-                className="text-neutrals-500"
-                onClick={() => {
-                  setIsMetadata(!isMetadata);
-                }}
-              />
-            )}
-            <div>{titles?.includeMetadata || 'Include Metadata'}</div>
+            {metadataContent}
+          </CollapsibleBlock>
+        ) : (
+          <div className="flex flex-col">
+            <div className="flex items-center py-4">
+              <span>{titles?.metadata || 'Metadata'}</span>
+            </div>
+            <div className="pb-4">{metadataContent}</div>
           </div>
-        </CollapsibleBlock>
+        )}
       </div>
-      <div className="download-button mt-auto flex p-6">
+      <div className="download-button mt-auto flex items-center gap-x-3 p-6">
+        {titles?.cancel && (
+          <Button
+            buttonClassName="text-button-tertiary"
+            title={titles.cancel}
+            onClick={onCloseModal}
+          />
+        )}
         <Button
           buttonClassName="text-button-primary"
           title={titles?.download || 'Download'}

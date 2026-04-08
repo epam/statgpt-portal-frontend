@@ -24,5 +24,10 @@ export const openDownloadWindow = (
   }).toString();
 
   const link = `${DOWNLOAD_PATH}?${queryParams}`;
-  window.open(link, '_blank');
+  const a = document.createElement('a');
+  a.href = link;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 };

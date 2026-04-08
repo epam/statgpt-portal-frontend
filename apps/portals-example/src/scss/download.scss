@@ -3,7 +3,7 @@
     @apply rounded-[10px] pt-2 w-[35%];
 
     .modal-heading {
-      @apply pt-5 border-b-[1px] border-neutrals-500 mb-5;
+      @apply pt-5 border-b-[1px] border-neutrals-500 mb-0;
     }
   }
 
@@ -12,38 +12,35 @@
   }
 
   &-settings {
-    @apply pt-5;
+    @apply pt-0;
 
-    .collapsible-block {
-      @apply border-t-[1px] border-neutrals-500;
+    > div:not(.collapsible-block):not([data-type]) {
+      @apply mt-5;
 
-      &-title {
-        @apply py-5;
-        span {
+      > div:first-child {
+        @apply pt-0;
+
+        > span {
           @apply h2 text-neutrals-1000;
         }
       }
 
-      &-open {
-        .collapsible-block-title {
-          @apply pb-3;
-        }
-
-        .collapsible-block-content {
-          label {
-            @apply h-auto;
-          }
-        }
-      }
-
-      &-content {
-        @apply gap-2 pl-5;
-
-        label {
-          @apply p-0 h-[24px];
-        }
+      > div:last-child {
+        @apply pb-0;
       }
     }
+
+    .checkbox-button-text {
+      @apply body-1;
+    }
+
+    > div[data-type='note'] {
+      @apply mt-2;
+    }
+  }
+
+  &-row-count {
+    @apply body-3 shrink-0 bg-neutrals-300 text-neutrals-900 rounded-[20px] px-2 py-1;
   }
 
   &-type {

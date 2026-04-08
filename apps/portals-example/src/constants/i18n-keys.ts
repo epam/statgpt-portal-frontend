@@ -198,6 +198,11 @@ export enum DownloadI18nKeys {
   ID_NAME = 'download.idName',
   ID_NAME_DESCRIPTION = 'download.idNameDescription',
   PARTIAL_DATASET = 'download.partialDataset',
+  FILES_WILL_BE_DOWNLOADED = 'download.filesWillBeDownloaded',
+  ONE_FILE_PER_DATASET = 'download.oneFilePerDataset',
+  CANCEL = 'download.cancel',
+  DATASETS_TO_DOWNLOAD = 'download.datasetsToDownload',
+  ROWS = 'download.rows',
 }
 
 // Aggregate all keys for convenience
