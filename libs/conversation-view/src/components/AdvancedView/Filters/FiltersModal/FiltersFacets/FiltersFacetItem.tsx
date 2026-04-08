@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import ChevronSolidDownIcon from '../../../../../assets/icons/chevron-solid-down.svg';
 import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
@@ -34,8 +34,6 @@ interface Props {
   timeRangeOptions?: TimeRangeOptions[];
   titles?: ConversationViewTitles;
   initialConstraints?: DataConstraints[];
-  datasetIcon?: ReactNode;
-  datasetName?: string;
   onTimePeriodChange: (
     timeRange: TimeRange | null,
     selectedOption: string | number,
@@ -64,8 +62,6 @@ const FiltersFacetItem: FC<Props> = ({
   locale,
   titles,
   initialConstraints,
-  datasetIcon,
-  datasetName,
   hideFacetCounterByDefault,
   filterValuesProps,
   isDisableValues,
@@ -116,12 +112,6 @@ const FiltersFacetItem: FC<Props> = ({
 
   return (
     <div className="flex flex-col">
-      {datasetName && (
-        <h4 className="filters-facet-dataset-name">
-          <span className="filters-facet-dataset-icon">{datasetIcon}</span>
-          {datasetName}
-        </h4>
-      )}
       <div
         className={classNames(
           'flex justify-between items-center p-2 hover:bg-hues-100 py-2 sm:py-4 sm:hover:bg-white',
