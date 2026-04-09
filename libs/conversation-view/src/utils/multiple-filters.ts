@@ -43,6 +43,12 @@ export const COMMON_COUNTRY_FILTER_ID = 'COUNTRY';
 export const COMMON_FREQUENCY_FILTER_ID = 'FREQUENCY';
 export const COMMON_TIME_PERIOD_FILTER_ID = 'TIME_PERIOD';
 
+export const SHARED_FILTER_IDS = new Set([
+  COMMON_COUNTRY_FILTER_ID,
+  COMMON_FREQUENCY_FILTER_ID,
+  COMMON_TIME_PERIOD_FILTER_ID,
+]);
+
 const buildSharedFilterNameMatcher =
   (): SharedFilterConfig['getMergedValueKey'] => (value, datasetUrn) => {
     const normalizedName = value?.name?.trim()?.toLocaleLowerCase();
