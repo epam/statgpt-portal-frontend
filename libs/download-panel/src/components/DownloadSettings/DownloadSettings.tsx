@@ -1,4 +1,5 @@
-import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, ReactNode, useCallback, useEffect, useState } from 'react';
+import classNames from 'classnames';
 import {
   DatasetQueryFilters,
   Dimension,
@@ -8,6 +9,7 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery, Locale } from '@epam/statgpt-shared-toolkit';
 import {
+  AlertDetails,
   Button,
   CollapsibleBlock,
   InlineAlert,
@@ -32,8 +34,8 @@ import { getDownloadFilters } from '../../utils/get-filter';
 import { DownloadTitles } from '../../models/titles';
 import { DownloadDatasetItem } from '../../models/download-dataset-item';
 
-// Browsers block simultaneous download triggers as popups; stagger each file.
-const DOWNLOAD_STAGGER_MS = 300;
+// Browsers block simultaneous download triggers as popups.
+const DOWNLOAD_FILE_INTERVAL_MS = 300;
 
 interface Props {
   actions: DownloadActions;
@@ -50,6 +52,8 @@ interface Props {
   collapsible?: boolean;
   downloadDatasets?: DownloadDatasetItem[];
   onCloseModal: () => void;
+  setIsShowDownloadAlert?: (isShowDownloadAlert?: boolean) => void;
+  setDownloadAlertDetails?: (downloadAlertDetails?: AlertDetails) => void;
   limitMessages?: LimitMessages;
   showLimitMessage?: boolean;
   externalLink?: string;
@@ -88,12 +92,7 @@ const DownloadSettings: FC<Props> = ({
     () => new Set(downloadDatasets?.map((d) => d.urn) ?? []),
   );
 
-  const isInitialMount = useRef(true);
   useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
     setSelectedDatasetUrns(new Set(downloadDatasets?.map((d) => d.urn) ?? []));
   }, [downloadDatasets]);
 
@@ -109,8 +108,32 @@ const DownloadSettings: FC<Props> = ({
     });
   }, []);
 
+  const downloadDataset = useCallback(
+    (dq: DataQuery | undefined, urnParam: string, filename: string) => {
+      const downloadFilters = getDownloadFilters(type, dq, dimensions, filters);
+      actions.downloadDataSet(
+        urnParam,
+        selectedDataFormat.value as SdmxDataFormat,
+        locale,
+        selectedAttribute.value as FileColumnsAttribute,
+        downloadFilters,
+        filename,
+        isMetadata,
+      );
+    },
+    [
+      type,
+      dimensions,
+      filters,
+      actions,
+      locale,
+      isMetadata,
+      selectedDataFormat.value,
+      selectedAttribute.value,
+    ],
+  );
+
   const onDownloadClick = useCallback(() => {
-    const attribute = selectedAttribute.value as FileColumnsAttribute;
     const dataFormat = selectedDataFormat.value as SdmxDataFormat;
 
     if (downloadDatasets && downloadDatasets.length > 0) {
@@ -119,38 +142,18 @@ const DownloadSettings: FC<Props> = ({
       );
       selected.forEach((dataset, i) => {
         setTimeout(() => {
-          const downloadFilters = getDownloadFilters(
-            type,
+          downloadDataset(
             dataset.dataQuery,
-            dimensions,
-            filters,
-          );
-          actions.downloadDataSet(
             dataset.urn,
-            dataFormat,
-            locale,
-            attribute,
-            downloadFilters,
             `${dataset.name}.${dataFormat}`,
-            isMetadata,
           );
-        }, i * DOWNLOAD_STAGGER_MS);
+        }, i * DOWNLOAD_FILE_INTERVAL_MS);
       });
     } else {
-      const downloadFilters = getDownloadFilters(
-        type,
+      downloadDataset(
         dataQuery,
-        dimensions,
-        filters,
-      );
-      actions.downloadDataSet(
         dataQuery?.urn || urn || '',
-        dataFormat,
-        locale,
-        attribute,
-        downloadFilters,
         `${datasetName}.${dataFormat}`,
-        isMetadata,
       );
     }
 
@@ -158,23 +161,19 @@ const DownloadSettings: FC<Props> = ({
   }, [
     downloadDatasets,
     selectedDatasetUrns,
-    selectedAttribute.value,
     selectedDataFormat.value,
-    type,
     dataQuery,
-    dimensions,
-    filters,
     urn,
-    actions,
-    locale,
-    isMetadata,
-    onCloseModal,
     datasetName,
+    downloadDataset,
+    onCloseModal,
   ]);
 
   const metadataContent = (
     <div
-      className={`download-metadata flex cursor-pointer gap-4 ${isMetadata ? 'download-metadata-active' : ''}`}
+      className={classNames('download-metadata flex cursor-pointer gap-4', {
+        'download-metadata-active': isMetadata,
+      })}
     >
       {isMetadata ? (
         <ToggleActiveIcon

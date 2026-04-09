@@ -10,6 +10,8 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import {
+  Alert,
+  AlertDetails,
   Loader,
   PopUpState,
   LimitMessages,
@@ -45,11 +47,6 @@ import AttachmentsViewModePanel from './AttachmentsViewModePanel';
 import AttachmentsContentRenderer from './AttachmentsContentRenderer';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
-
-interface CrossDatasetGridRow {
-  dataset?: { urn?: string };
-  datasetTitle?: string;
-}
 
 interface Props {
   attachments: (
@@ -120,6 +117,9 @@ const AttachmentRenderer: FC<Props> = ({
   const { isOpenedAdvancedView, setIsOpenedAdvancedView } = useAdvancedView();
   const [modalState, setModalState] = useState(PopUpState.Closed);
   const [showLoading, setShowLoading] = useState<boolean>(false);
+  const [isShowDownloadAlert, setIsShowDownloadAlert] = useState<boolean>();
+  const [downloadAlertDetails, setDownloadAlertDetails] =
+    useState<AlertDetails>();
   const [showLimitMessage, setShowLimitMessage] = useState(false);
   const downloadActions = {
     downloadDataSet: actions.downloadDataSet,
@@ -202,7 +202,10 @@ const AttachmentRenderer: FC<Props> = ({
     const urnToName = new Map<string, string>();
 
     for (const row of rows) {
-      const { dataset, datasetTitle: name } = row as CrossDatasetGridRow;
+      const { dataset, datasetTitle: name } = row as {
+        dataset?: { urn?: string };
+        datasetTitle?: string;
+      };
       const urn = dataset?.urn;
       if (!urn) continue;
       urnToCount.set(urn, (urnToCount.get(urn) ?? 0) + 1);
@@ -335,11 +338,22 @@ const AttachmentRenderer: FC<Props> = ({
                 datasetIcon={attachmentsStyles?.datasetIcon}
                 isDisplayDatasetIcon={attachmentsStyles?.isDisplayDatasetIcon}
                 titles={attachmentsStyles?.downloadTitles}
+                setIsShowDownloadAlert={setIsShowDownloadAlert}
+                setDownloadAlertDetails={setDownloadAlertDetails}
                 collapsible={attachmentsStyles?.downloadCollapsible}
                 downloadDatasets={downloadDatasets}
                 limitMessages={limitMessages}
                 showLimitMessage={showLimitMessage}
                 externalLink={externalLink}
+              />
+            )}
+            {isShowDownloadAlert && (
+              <Alert
+                alertDetails={downloadAlertDetails}
+                successIcon={attachmentsStyles?.successDownloadIcon}
+                errorIcon={attachmentsStyles?.errorDownloadIcon}
+                onClose={() => setIsShowDownloadAlert(false)}
+                closeButtonTitle={attachmentsStyles?.closeTitle || 'Close'}
               />
             )}
           </>
