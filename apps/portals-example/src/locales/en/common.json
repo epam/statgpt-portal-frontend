@@ -162,7 +162,12 @@
     "name": "ID and Name",
     "nameDescription": "File will include ID and Name in separate columns.",
     "idName": "Combined ID and Name",
-    "idNameDescription": "File will include one column with ID and Name combined (ID:Name)."
+    "idNameDescription": "File will include one column with ID and Name combined (ID:Name).",
+    "filesWillBeDownloaded": "{count} files will be downloaded",
+    "oneFilePerDataset": "- one file per selected dataset.",
+    "cancel": "Cancel",
+    "datasetsToDownload": "Datasets to download",
+    "rows": "rows"
   },
   "user": {
     "signOut": "Log out",

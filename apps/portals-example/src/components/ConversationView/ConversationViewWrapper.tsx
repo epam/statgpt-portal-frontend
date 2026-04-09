@@ -274,7 +274,11 @@ const ConversationViewWrapper: FC<Props> = ({
 
   const attachmentsStyles: AttachmentsStyles = {
     showTabIcon: true,
+    downloadCollapsible: false,
     downloadIcon: <DownloadIcon className="size-5" />,
+    downloadButtonTextClassName: 'h4',
+    hideDownloadTextInConversationView: true,
+    hideDownloadIconInAdvancedView: true,
     downloadChevronIcon: <ChevronSolidDownIcon className="size-6" />,
     successDownloadIcon: (
       <SuccessIcon className="size-6 text-semantic-success" />
@@ -311,6 +315,12 @@ const ConversationViewWrapper: FC<Props> = ({
       nameOptions: t(DownloadI18nKeys.NAME),
       nameOptionsDescription: t(DownloadI18nKeys.NAME_DESCRIPTION),
       close: t(AppI18nKeys.CLOSE),
+      cancel: t(DownloadI18nKeys.CANCEL),
+      filesWillBeDownloaded: (count: number) =>
+        t(DownloadI18nKeys.FILES_WILL_BE_DOWNLOADED, { count }),
+      oneFilePerDataset: t(DownloadI18nKeys.ONE_FILE_PER_DATASET),
+      datasetsToDownload: t(DownloadI18nKeys.DATASETS_TO_DOWNLOAD),
+      rows: t(DownloadI18nKeys.ROWS),
     },
   };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { Attachment } from '@epam/ai-dial-shared';
+import classNames from 'classnames';
 import { FC } from 'react';
 import { Button, LimitMessages, CopyButton } from '@epam/statgpt-ui-components';
 import {
@@ -17,6 +18,7 @@ import { AttachmentsStyles } from '../../models/attachments-styles';
 import { ConversationViewTitles } from '../../models/titles';
 import ColumnsIcon from '../../assets/icons/columns.svg';
 import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
+import { useAdvancedView } from '../../context/AdvancedViewContext';
 
 interface Props {
   attachments: (
@@ -54,6 +56,7 @@ const AttachmentsViewModePanel: FC<Props> = ({
   onTableSettingsOpen,
 }) => {
   const { isTableSettingsFeatureEnabled } = useConversationViewFeatureToggles();
+  const { isOpenedAdvancedView } = useAdvancedView();
 
   const shouldShowColumnsButton =
     isTableSettingsFeatureEnabled &&
@@ -65,8 +68,24 @@ const AttachmentsViewModePanel: FC<Props> = ({
         isCrossDatasetGrid(selectedAttachment))
     );
 
+  const shouldShowDownloadButton =
+    !!selectedAttachment &&
+    (isCustomGridAttachment(selectedAttachment) ||
+      isCrossDatasetGrid(selectedAttachment));
+
+  const downloadIcon =
+    isOpenedAdvancedView && attachmentsStyles?.hideDownloadIconInAdvancedView
+      ? undefined
+      : attachmentsStyles?.downloadIcon;
+
+  const downloadTitle =
+    !isOpenedAdvancedView &&
+    attachmentsStyles?.hideDownloadTextInConversationView
+      ? ''
+      : (attachmentsStyles?.downloadTitle ?? '');
+
   return (
-    <div className="itms-center flex w-full min-w-0 justify-between">
+    <div className="items-center flex w-full min-w-0 justify-between">
       <AttachmentTabs
         dataGridTitle={attachmentsStyles?.dataGridTitle}
         attachments={attachments}
@@ -87,6 +106,18 @@ const AttachmentsViewModePanel: FC<Props> = ({
               />
             </a>
           )}
+        {shouldShowDownloadButton && (
+          <Button
+            title={downloadTitle}
+            buttonClassName="text-button-tertiary small-icon-button !p-0 !h-6"
+            textClassName={classNames(
+              'ml-1',
+              attachmentsStyles?.downloadButtonTextClassName,
+            )}
+            onClick={onDownloadClick}
+            iconBefore={downloadIcon}
+          />
+        )}
         {shouldShowColumnsButton && (
           <Button
             disabled={isTableSettingsOpen}
@@ -95,15 +126,6 @@ const AttachmentsViewModePanel: FC<Props> = ({
             iconBefore={<ColumnsIcon className="size-4" />}
             title={attachmentsStyles?.columnsTitle || 'Columns'}
             onClick={onTableSettingsOpen}
-          />
-        )}
-        {selectedAttachment && isCustomGridAttachment(selectedAttachment) && (
-          <Button
-            title={attachmentsStyles?.downloadTitle || 'Download'}
-            buttonClassName="text-button-tertiary small-icon-button !p-0 !h-6"
-            textClassName="ml-1"
-            onClick={onDownloadClick}
-            iconBefore={attachmentsStyles?.downloadIcon}
           />
         )}
         {selectedAttachment &&

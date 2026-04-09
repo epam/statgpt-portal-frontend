@@ -4,12 +4,14 @@ export enum InlineAlertType {
   Info = 'info',
   Error = 'error',
   Warning = 'warning',
+  Note = 'note',
 }
 
 export interface InlineAlertIconsConfig {
   [InlineAlertType.Info]?: ReactNode;
   [InlineAlertType.Error]?: ReactNode;
   [InlineAlertType.Warning]?: ReactNode;
+  [InlineAlertType.Note]?: ReactNode;
 }
 
 export interface InlineAlertConfig {

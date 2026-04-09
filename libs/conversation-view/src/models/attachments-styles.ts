@@ -14,6 +14,9 @@ export interface AttachmentsStyles {
   openLinkTitle?: string;
   dataGridTitle?: string;
   downloadTitle?: string;
+  downloadButtonTextClassName?: string;
+  hideDownloadTextInConversationView?: boolean;
+  hideDownloadIconInAdvancedView?: boolean;
   columnsTitle?: string;
   columnsResetTitle?: string;
   closeTitle?: string;
@@ -23,6 +26,7 @@ export interface AttachmentsStyles {
   isDisplayDatasetIcon?: boolean;
   isDownloadDescriptionVisible?: boolean;
   downloadTitles?: DownloadTitles;
+  downloadCollapsible?: boolean;
   codeAttachmentContainerClassName?: string;
   copyTitle?: string;
   copiedTitle?: string;
