@@ -261,13 +261,16 @@ const DownloadSettings: FC<Props> = ({
               collapsible={collapsible}
               rowsLabel={titles?.rows || 'rows'}
             />
-            <InlineAlert type={InlineAlertType.Note}>
-              <span className="font-bold">
-                {titles?.filesWillBeDownloaded?.(selectedDatasetUrns.size) ??
-                  `${selectedDatasetUrns.size} files will be downloaded`}
-              </span>{' '}
-              {titles?.oneFilePerDataset ?? '- one file per selected dataset.'}
-            </InlineAlert>
+            {selectedDatasetUrns.size > 1 && (
+              <InlineAlert type={InlineAlertType.Note}>
+                <span className="font-bold">
+                  {titles?.filesWillBeDownloaded?.(selectedDatasetUrns.size) ??
+                    `${selectedDatasetUrns.size} files will be downloaded`}
+                </span>{' '}
+                {titles?.oneFilePerDataset ??
+                  '- one file per selected dataset.'}
+              </InlineAlert>
+            )}
           </>
         )}
 
