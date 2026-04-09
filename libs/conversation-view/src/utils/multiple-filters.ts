@@ -172,7 +172,10 @@ const mergeSharedFilters = (filters: Filter[]): Filter[] => {
   return [...sharedFilters, ...otherFilters];
 };
 
-const expandSharedFilter = (filter: Filter): Filter[] => {
+const expandSharedFilter = (
+  filter: Filter,
+  propagateSharedFiltersToAllDatasets = false,
+): Filter[] => {
   if (!isSharedFilter(filter)) {
     return [filter];
   }
@@ -214,6 +217,47 @@ const expandSharedFilter = (filter: Filter): Filter[] => {
       });
     });
   });
+
+  // Apply shared filters to ALL source datasets, not only those with matching source values.
+  const selectedValues = filter.dimensionValues?.filter(
+    (value) => value.isSelectedValue,
+  );
+
+  if (propagateSharedFiltersToAllDatasets && selectedValues?.length) {
+    // Collect real native SDMX codes from all selected merged values' source values.
+    const nativeFallbackValues = Array.from(
+      new Map(
+        selectedValues.flatMap(
+          (value) =>
+            value.sourceValues?.map((sv) => [
+              sv.id,
+              {
+                id: sv.id,
+                name: sv.name || '',
+                isSelectedValue: true as const,
+              },
+            ]) ?? [],
+        ),
+      ).values(),
+    );
+
+    if (nativeFallbackValues.length) {
+      (filter.sourceDatasetUrns || []).forEach((datasetUrn) => {
+        const existingFilter = datasetFiltersMap.get(datasetUrn);
+        const hasSelectedValue = existingFilter?.dimensionValues?.some(
+          (v) => v.isSelectedValue,
+        );
+        if (!existingFilter || !hasSelectedValue) {
+          datasetFiltersMap.set(datasetUrn, {
+            ...filter,
+            datasetUrn,
+            filterType: 'dataset',
+            dimensionValues: nativeFallbackValues,
+          });
+        }
+      });
+    }
+  }
 
   return Array.from(datasetFiltersMap.values());
 };
@@ -402,9 +446,10 @@ export const getFiltersPreselectedByDataQueries = (
 export const buildFiltersMap = (
   filters: Filter[],
   constraintsMap?: Map<string, DataConstraints[] | undefined>,
+  applySharedFallback = false,
 ): Map<string, Filter[]> => {
   return filters
-    ?.flatMap((filter) => expandSharedFilter(filter))
+    ?.flatMap((filter) => expandSharedFilter(filter, applySharedFallback))
     ?.reduce((filterMap, filter) => {
       const urn = filter?.datasetUrn || '';
       const filterWithLimitedTimeRange = limitTimeRangeByConstraints(
