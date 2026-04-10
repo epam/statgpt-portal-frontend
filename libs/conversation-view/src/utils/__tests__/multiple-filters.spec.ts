@@ -555,3 +555,179 @@ describe('merging frequency filters', () => {
     expect(annual?.sourceValues).toHaveLength(2);
   });
 });
+
+// ─── expandSharedFilter — datasets with no matching source values ─────────────
+
+describe('shared filter fallback for datasets with no matching source values', () => {
+  const sharedFreqFilter: Filter = {
+    id: COMMON_FREQUENCY_FILTER_ID,
+    filterType: 'shared',
+    sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
+    dimensionValues: [
+      {
+        id: 'name:quarterly',
+        name: 'Quarterly',
+        isSelectedValue: true,
+        sourceValues: [
+          { datasetUrn: DATASET_A_URN, id: 'Q', name: 'Quarterly' },
+        ],
+      },
+      {
+        id: 'name:annual',
+        name: 'Annual',
+        isSelectedValue: false,
+        sourceValues: [
+          { datasetUrn: DATASET_A_URN, id: 'A', name: 'Annual' },
+          { datasetUrn: DATASET_B_URN, id: 'ANNUAL', name: 'Annual' },
+        ],
+      },
+    ],
+  };
+
+  it('does not apply fallback by default', () => {
+    const filtersMap = buildFiltersMap([sharedFreqFilter]);
+    const dsBFilter = filtersMap
+      .get(DATASET_B_URN)
+      ?.find((f) => f.id === COMMON_FREQUENCY_FILTER_ID);
+
+    expect(dsBFilter?.dimensionValues?.map((v) => v.id)).not.toContain(
+      'name:quarterly',
+    );
+    expect(dsBFilter?.dimensionValues?.every((v) => !v.isSelectedValue)).toBe(
+      true,
+    );
+  });
+
+  it('applies selected fallback codes to datasets with no matching source values', () => {
+    const filtersMap = buildFiltersMap([sharedFreqFilter], undefined, true);
+    const dsBFilter = filtersMap
+      .get(DATASET_B_URN)
+      ?.find((f) => f.id === COMMON_FREQUENCY_FILTER_ID);
+    const ids = dsBFilter?.dimensionValues?.map((v) => v.id);
+
+    expect(ids).toContain('Q');
+    expect(ids).not.toContain('name:quarterly');
+    expect(ids).not.toContain('ANNUAL');
+    expect(
+      dsBFilter?.dimensionValues?.find((v) => v.id === 'Q')?.isSelectedValue,
+    ).toBe(true);
+  });
+
+  it('preserves native source codes for datasets that already have matching values', () => {
+    const filtersMap = buildFiltersMap([sharedFreqFilter], undefined, true);
+    const dsAFilter = filtersMap
+      .get(DATASET_A_URN)
+      ?.find((f) => f.id === COMMON_FREQUENCY_FILTER_ID);
+    const ids = dsAFilter?.dimensionValues?.map((v) => v.id);
+
+    expect(ids).toContain('Q');
+    expect(ids).toContain('A');
+    expect(ids).not.toContain('name:quarterly');
+  });
+
+  it('does not apply fallback when nothing is selected', () => {
+    const nothingSelectedFilter: Filter = {
+      ...sharedFreqFilter,
+      dimensionValues: sharedFreqFilter.dimensionValues?.map((v) => ({
+        ...v,
+        isSelectedValue: false,
+      })),
+    };
+    const filtersMap = buildFiltersMap(
+      [nothingSelectedFilter],
+      undefined,
+      true,
+    );
+    const dsBFilter = filtersMap
+      .get(DATASET_B_URN)
+      ?.find((f) => f.id === COMMON_FREQUENCY_FILTER_ID);
+
+    expect(dsBFilter?.dimensionValues?.every((v) => !v.isSelectedValue)).toBe(
+      true,
+    );
+    expect(dsBFilter?.dimensionValues?.map((v) => v.id)).not.toContain(
+      'name:quarterly',
+    );
+  });
+
+  it('multiple selected values are all propagated to the fallback dataset', () => {
+    const multiSelectedFilter: Filter = {
+      id: COMMON_FREQUENCY_FILTER_ID,
+      filterType: 'shared',
+      sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
+      dimensionValues: [
+        {
+          id: 'name:quarterly',
+          name: 'Quarterly',
+          isSelectedValue: true,
+          sourceValues: [
+            { datasetUrn: DATASET_A_URN, id: 'Q', name: 'Quarterly' },
+          ],
+        },
+        {
+          id: 'name:monthly',
+          name: 'Monthly',
+          isSelectedValue: true,
+          sourceValues: [
+            { datasetUrn: DATASET_A_URN, id: 'M', name: 'Monthly' },
+          ],
+        },
+        {
+          id: 'name:annual',
+          name: 'Annual',
+          isSelectedValue: false,
+          sourceValues: [
+            { datasetUrn: DATASET_A_URN, id: 'A', name: 'Annual' },
+            { datasetUrn: DATASET_B_URN, id: 'ANNUAL', name: 'Annual' },
+          ],
+        },
+      ],
+    };
+
+    const filtersMap = buildFiltersMap([multiSelectedFilter], undefined, true);
+    const dsBFilter = filtersMap
+      .get(DATASET_B_URN)
+      ?.find((f) => f.id === COMMON_FREQUENCY_FILTER_ID);
+
+    expect(dsBFilter?.dimensionValues).toHaveLength(2);
+    expect(dsBFilter?.dimensionValues?.every((v) => v.isSelectedValue)).toBe(
+      true,
+    );
+
+    expect(dsBFilter?.dimensionValues?.map((v) => v.id)).toEqual(
+      expect.arrayContaining(['Q', 'M']),
+    );
+  });
+
+  it('does not apply fallback when Dataset B already has a natively selected value', () => {
+    const bothSelectedFilter: Filter = {
+      id: COMMON_FREQUENCY_FILTER_ID,
+      filterType: 'shared',
+      sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
+      dimensionValues: [
+        {
+          id: 'name:annual',
+          name: 'Annual',
+          isSelectedValue: true,
+          sourceValues: [
+            { datasetUrn: DATASET_A_URN, id: 'A', name: 'Annual' },
+            { datasetUrn: DATASET_B_URN, id: 'ANNUAL', name: 'Annual' },
+          ],
+        },
+      ],
+    };
+
+    const filtersMap = buildFiltersMap([bothSelectedFilter], undefined, true);
+    const dsBFilter = filtersMap
+      .get(DATASET_B_URN)
+      ?.find((f) => f.id === COMMON_FREQUENCY_FILTER_ID);
+
+    expect(
+      dsBFilter?.dimensionValues?.find((v) => v.id === 'ANNUAL')
+        ?.isSelectedValue,
+    ).toBe(true);
+    expect(dsBFilter?.dimensionValues?.map((v) => v.id)).not.toContain(
+      'name:annual',
+    );
+  });
+});
