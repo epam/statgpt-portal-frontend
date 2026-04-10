@@ -108,17 +108,19 @@ export const User: FC<Props> = ({
           </button>
         )}
 
-        <button
-          className={classNames(
-            'p-2 items-center flex gap-1 text-primary fill-primary body-1',
-            styles?.dropdownButtonStyles,
-          )}
-          title={titles?.contactSupport}
-          onClick={onContactSupportClick}
-        >
-          {styles?.contactSupportIcon}
-          {titles?.contactSupport || 'Contact support'}
-        </button>
+        {styles?.contactSupportIcon && (
+          <button
+            className={classNames(
+              'p-2 items-center flex gap-1 text-primary fill-primary body-1',
+              styles?.dropdownButtonStyles,
+            )}
+            title={titles?.contactSupport}
+            onClick={onContactSupportClick}
+          >
+            {styles?.contactSupportIcon}
+            {titles?.contactSupport || 'Contact support'}
+          </button>
+        )}
 
         <div
           className={classNames(
