@@ -1,4 +1,5 @@
 import {
+  CodelistItemBase,
   CodelistData,
   DataConstraints,
   generateShortUrn,
@@ -6,10 +7,10 @@ import {
   getCodeListsData,
   getHierarchyAvailableCodes,
   getHierarchyCodes,
-  getTreeNodesFromHierarchies,
   HierarchicalCode,
   Hierarchy,
   TreeNode,
+  urnMatchesIgnoreVersion,
 } from '@epam/statgpt-sdmx-toolkit';
 import { FilterTreeNodeProps } from '../models/filters';
 
@@ -27,9 +28,12 @@ function compareVersions(a: string, b: string): number {
 export function getLatestHierarchies(hierarchies: Hierarchy[]): Hierarchy[] {
   const latestMap = new Map<string, Hierarchy>();
   for (const h of hierarchies) {
-    const key = `${h.agencyID}:${h.id}`;
+    const key = `${h.agencyID ?? ''}:${h.id}`;
     const existing = latestMap.get(key);
-    if (!existing || compareVersions(h.version, existing.version) > 0) {
+    if (
+      !existing ||
+      compareVersions(h.version ?? '', existing.version ?? '') > 0
+    ) {
       latestMap.set(key, h);
     }
   }
@@ -37,7 +41,11 @@ export function getLatestHierarchies(hierarchies: Hierarchy[]): Hierarchy[] {
 }
 
 export function buildHierarchyUrn(hierarchy: Hierarchy): string {
-  return generateShortUrn(hierarchy.id, hierarchy.version, hierarchy.agencyID);
+  return generateShortUrn(
+    hierarchy.id,
+    hierarchy.version ?? '',
+    hierarchy.agencyID ?? '',
+  );
 }
 
 export function buildHierarchyFilterTreeProps(
@@ -61,6 +69,85 @@ export function buildHierarchyFilterTreeProps(
     codelistUrn,
   );
   return hierarchyNodesToFilterTreeProps(treeNodes);
+}
+
+function buildNodes(
+  codeListMap?: Record<string, CodelistItemBase[]>,
+  availableCodes?: string[],
+  dimensionCodeListUrn?: string,
+  codes?: HierarchicalCode[],
+  parentUrn?: string,
+): TreeNode<HierarchicalCode>[] {
+  return (
+    codes
+      ?.map((code) => {
+        const { childId, agency, id, version } = getChildParsedUrn(code.code);
+        const codelistShortUrn = generateShortUrn(id, version, agency);
+
+        const resolvedUrn =
+          Object.keys(codeListMap ?? {}).find((key) =>
+            urnMatchesIgnoreVersion(key, codelistShortUrn),
+          ) ?? codelistShortUrn;
+        const items = codeListMap?.[resolvedUrn];
+        const item = items?.find((c) => c.id === childId);
+        const displayName = item?.name || item?.description || childId;
+
+        const isFromDimensionCodelist = dimensionCodeListUrn
+          ? urnMatchesIgnoreVersion(codelistShortUrn, dimensionCodeListUrn)
+          : true;
+
+        const isStructuralNode =
+          !isFromDimensionCodelist && (code.hierarchicalCodes?.length ?? 0) > 0;
+
+        const children = buildNodes(
+          codeListMap,
+          availableCodes,
+          dimensionCodeListUrn,
+          code.hierarchicalCodes,
+          code.code,
+        );
+
+        const isLeaf = children.length === 0;
+        if (isStructuralNode && isLeaf) return null;
+
+        if (
+          isFromDimensionCodelist &&
+          isLeaf &&
+          availableCodes &&
+          !availableCodes.includes(childId ?? '')
+        )
+          return null;
+
+        return {
+          id: code.code,
+          name: displayName,
+          children,
+          isExpanded: true,
+          disabled:
+            !isFromDimensionCodelist && children.every((c) => c.disabled),
+          parent: parentUrn,
+          metadata: { ...code, hierarchicalCodes: undefined },
+        } as TreeNode<HierarchicalCode>;
+      })
+      .filter((node): node is TreeNode<HierarchicalCode> => node !== null) ?? []
+  );
+}
+
+function getTreeNodesFromHierarchies(
+  hierarchy?: Hierarchy,
+  codeListMap?: Record<string, CodelistItemBase[]>,
+  availableCodes?: string[],
+  dimensionCodeListUrn?: string,
+): TreeNode<HierarchicalCode>[] {
+  if (!availableCodes || availableCodes.length === 0) return [];
+
+  return buildNodes(
+    codeListMap,
+    availableCodes,
+    dimensionCodeListUrn,
+    hierarchy?.hierarchicalCodes,
+    undefined,
+  );
 }
 
 export function hierarchyNodesToFilterTreeProps(

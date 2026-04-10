@@ -9,9 +9,7 @@ export class HierarchyApi {
     codelistUrn: string,
   ): Promise<StructuralMetaData> {
     const { agency, id, version } = splitUrn(codelistUrn);
-    const baseUrl =
-      this.client.config.codelistUrl ??
-      `${this.client.config.sdmxProxyUrl}/sdmx/3.0/structure/codelist`;
+    const baseUrl = `${this.client.config.sdmxProxyUrl}/sdmx/3.0/structure/codelist`;
     return this.client.request<StructuralMetaData>(
       `${agency}/${id}/${version}?references=hierarchy&detail=allcompletestubs`,
       { method: 'GET' },
@@ -21,9 +19,7 @@ export class HierarchyApi {
 
   async getHierarchy(hierarchyUrn: string): Promise<StructuralMetaData> {
     const { agency, id, version } = splitUrn(hierarchyUrn);
-    const baseUrl =
-      this.client.config.hierarchyUrl ??
-      `${this.client.config.sdmxProxyUrl}/sdmx/3.0/structure/hierarchy`;
+    const baseUrl = `${this.client.config.sdmxProxyUrl}/sdmx/3.0/structure/hierarchy`;
     return this.client.request<StructuralMetaData>(
       `${agency}/${id}/${version}?references=descendants&detail=full`,
       { method: 'GET' },

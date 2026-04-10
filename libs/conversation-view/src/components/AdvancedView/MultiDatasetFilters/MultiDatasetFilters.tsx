@@ -1,15 +1,9 @@
 'use client';
 
-import {
-  CodelistData,
-  DataConstraints,
-  Hierarchy,
-  StructuralMetaData,
-  resolveCodelistsFromResponse,
-} from '@epam/statgpt-sdmx-toolkit';
+import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery, Locale } from '@epam/statgpt-shared-toolkit';
 import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
-import { Filter, FiltersProps, HierarchyState } from '../../../models/filters';
+import { Filter, FiltersProps } from '../../../models/filters';
 import {
   getFiltersAfterClear,
   getFiltersAfterDelete,
@@ -48,21 +42,7 @@ import {
   setDataQueryFiltersMap,
 } from '../../../utils/multiple-filters';
 import { StructureDataMaps } from '../../../models/structure-data';
-import {
-  buildHierarchyFilterTreeProps,
-  buildHierarchyUrn,
-  getLatestHierarchies,
-  toggleTreeNodeExpansion,
-} from '../../../utils/hierarchy-view';
-
-const EMPTY_HIERARCHY_STATE: HierarchyState = {
-  availableHierarchies: [],
-  selectedHierarchy: null,
-  mainHierarchy: null,
-  codelists: [],
-  treeNodes: [],
-  isLoading: false,
-};
+import { useHierarchyState } from '../../../utils/use-hierarchy-state';
 
 const MultiDatasetFilters: FC<FiltersProps> = ({
   actions,
@@ -102,15 +82,41 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   const [isDisableFilterValues, setIsDisableFilterValues] = useState<boolean>();
   const [isModalClosed, setIsModalClosed] = useState(false);
 
-  // Hierarchy state map: filterKey to HierarchyState
-  const [hierarchyStateMap, setHierarchyStateMap] = useState<
-    Map<string, HierarchyState>
-  >(new Map());
-
   const isStructureDataReady = useMemo(
     () => isStructureDataMapsReady(dataQueries, structureDataMaps),
     [dataQueries, structureDataMaps],
   );
+
+  const resolveCodelistUrnForFilter = useCallback(
+    (filter: Filter) =>
+      getCodelistUrnForFilter(
+        filter,
+        structureDataMaps?.dimensionsMap,
+        structureDataMaps?.structuresMap,
+      ),
+    [structureDataMaps?.dimensionsMap, structureDataMaps?.structuresMap],
+  );
+
+  const getConstraintsForFilter = useCallback((filter: Filter) => {
+    const datasetUrn =
+      filter.filterType === 'dataset'
+        ? filter.datasetUrn
+        : filter.sourceDatasetUrns?.[0];
+    return datasetUrn ? constraintsMapRef.current?.get(datasetUrn) : undefined;
+  }, []);
+
+  const {
+    hierarchyStateMap,
+    rebuildHierarchyTree,
+    loadAvailableHierarchies,
+    onSelectHierarchy,
+    onExpandHierarchyNode,
+  } = useHierarchyState({
+    getCodelistUrnForFilter: resolveCodelistUrnForFilter,
+    getConstraintsForFilter,
+    getAvailableHierarchies: actions?.getAvailableHierarchies,
+    getHierarchy: actions?.getHierarchy,
+  });
 
   const updateSelectedFilterValues = (filter?: Filter) => {
     const filters = filter
@@ -138,47 +144,6 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     }
   }, [modalState]);
 
-  const rebuildHierarchyTree = useCallback(
-    (
-      filter: Filter,
-      currentConstraintsMap: Map<string, DataConstraints[] | undefined>,
-    ) => {
-      const filterKey = getFilterIdentity(filter);
-      if (!filterKey) return;
-
-      const codelistUrn = getCodelistUrnForFilter(
-        filter,
-        structureDataMaps?.dimensionsMap,
-        structureDataMaps?.structuresMap,
-      );
-      const datasetUrn =
-        filter.filterType === 'dataset'
-          ? filter.datasetUrn
-          : filter.sourceDatasetUrns?.[0];
-      const constraints = datasetUrn
-        ? currentConstraintsMap.get(datasetUrn)
-        : undefined;
-
-      setHierarchyStateMap((prev) => {
-        const state = prev.get(filterKey);
-        if (!state?.mainHierarchy) return prev;
-
-        const filterTreeProps = buildHierarchyFilterTreeProps(
-          state.mainHierarchy,
-          state.codelists,
-          filter.id ?? '',
-          constraints,
-          codelistUrn,
-        );
-
-        const next = new Map(prev);
-        next.set(filterKey, { ...state, treeNodes: filterTreeProps });
-        return next;
-      });
-    },
-    [structureDataMaps?.dimensionsMap, structureDataMaps?.structuresMap],
-  );
-
   const handleFiltersWithConstraints = useCallback(
     (
       filters: Filter[],
@@ -201,7 +166,10 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
             ),
           );
           if (changedFilter) {
-            rebuildHierarchyTree(changedFilter, currentConstraintsMap);
+            rebuildHierarchyTree(
+              changedFilter,
+              getConstraintsForFilter(changedFilter),
+            );
           }
         })
         .catch(() => {
@@ -220,7 +188,14 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
           setIsDisableFilterValues(false);
         });
     },
-    [actions, dataQueries, locale, rebuildHierarchyTree, structureDataMaps],
+    [
+      actions,
+      dataQueries,
+      getConstraintsForFilter,
+      locale,
+      rebuildHierarchyTree,
+      structureDataMaps,
+    ],
   );
 
   useEffect(() => {
@@ -274,193 +249,6 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       setSelectedFilter(void 0);
     }
   }, [appliedFilters, modalState]);
-
-  // Load available hierarchies for a filter
-  const loadAvailableHierarchies = useCallback(
-    async (filter: Filter) => {
-      if (!actions?.getAvailableHierarchies) return;
-      const codelistUrn = getCodelistUrnForFilter(
-        filter,
-        structureDataMaps?.dimensionsMap,
-        structureDataMaps?.structuresMap,
-      );
-      if (!codelistUrn) return;
-
-      const filterKey = getFilterIdentity(filter);
-      if (!filterKey) return;
-      setHierarchyStateMap((prev) => {
-        const next = new Map(prev);
-        const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
-        next.set(filterKey, { ...existing, isLoading: true });
-        return next;
-      });
-
-      try {
-        const response: StructuralMetaData =
-          await actions.getAvailableHierarchies(codelistUrn);
-        const availableHierarchies = getLatestHierarchies(
-          response?.data?.hierarchies ?? [],
-        );
-        setHierarchyStateMap((prev) => {
-          const next = new Map(prev);
-          const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
-          next.set(filterKey, {
-            ...existing,
-            availableHierarchies,
-            isLoading: false,
-          });
-          return next;
-        });
-      } catch {
-        setHierarchyStateMap((prev) => {
-          const next = new Map(prev);
-          const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
-          next.set(filterKey, { ...existing, isLoading: false });
-          return next;
-        });
-      }
-    },
-    [
-      actions,
-      structureDataMaps?.dimensionsMap,
-      structureDataMaps?.structuresMap,
-    ],
-  );
-
-  const loadHierarchyTree = useCallback(
-    async (filter: Filter, hierarchy: Hierarchy) => {
-      if (!actions?.getHierarchy) return;
-      const filterKey = getFilterIdentity(filter);
-      if (!filterKey) return;
-      const codelistUrn = getCodelistUrnForFilter(
-        filter,
-        structureDataMaps?.dimensionsMap,
-        structureDataMaps?.structuresMap,
-      );
-
-      setHierarchyStateMap((prev) => {
-        const next = new Map(prev);
-        const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
-        next.set(filterKey, { ...existing, isLoading: true });
-        return next;
-      });
-
-      try {
-        const hierarchyUrn = buildHierarchyUrn(hierarchy);
-        const response: StructuralMetaData =
-          await actions.getHierarchy(hierarchyUrn);
-        const mainHierarchy = response?.data?.hierarchies?.find(
-          (h) => buildHierarchyUrn(h) === hierarchyUrn,
-        );
-
-        if (!mainHierarchy) {
-          setHierarchyStateMap((prev) => {
-            const next = new Map(prev);
-            const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
-            next.set(filterKey, {
-              ...existing,
-              selectedHierarchy: hierarchy,
-              mainHierarchy: null,
-              treeNodes: [],
-              isLoading: false,
-            });
-            return next;
-          });
-          return;
-        }
-
-        const codelists: CodelistData[] = resolveCodelistsFromResponse(
-          response?.data,
-        );
-        const datasetUrn =
-          filter.filterType === 'dataset'
-            ? filter.datasetUrn
-            : filter.sourceDatasetUrns?.[0];
-        const constraints = datasetUrn
-          ? constraintsMapRef.current?.get(datasetUrn)
-          : undefined;
-
-        const filterTreeProps = buildHierarchyFilterTreeProps(
-          mainHierarchy,
-          codelists,
-          filter.id ?? '',
-          constraints,
-          codelistUrn,
-        );
-
-        setHierarchyStateMap((prev) => {
-          const next = new Map(prev);
-          const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
-          next.set(filterKey, {
-            ...existing,
-            selectedHierarchy: hierarchy,
-            mainHierarchy,
-            codelists,
-            treeNodes: filterTreeProps,
-            isLoading: false,
-          });
-          return next;
-        });
-      } catch {
-        setHierarchyStateMap((prev) => {
-          const next = new Map(prev);
-          const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
-          next.set(filterKey, {
-            ...existing,
-            isLoading: false,
-          });
-          return next;
-        });
-      }
-    },
-    [
-      actions,
-      structureDataMaps?.dimensionsMap,
-      structureDataMaps?.structuresMap,
-    ],
-  );
-
-  const onSelectHierarchy = useCallback(
-    (filter?: Filter, hierarchy?: Hierarchy | null) => {
-      if (!filter) return;
-      const filterKey = getFilterIdentity(filter);
-      if (!filterKey) return;
-
-      if (!hierarchy) {
-        setHierarchyStateMap((prev) => {
-          const next = new Map(prev);
-          const existing = prev.get(filterKey) ?? EMPTY_HIERARCHY_STATE;
-          next.set(filterKey, {
-            ...existing,
-            selectedHierarchy: null,
-            mainHierarchy: null,
-            treeNodes: [],
-          });
-          return next;
-        });
-        return;
-      }
-
-      loadHierarchyTree(filter, hierarchy);
-    },
-    [loadHierarchyTree],
-  );
-
-  const onExpandHierarchyNode = useCallback(
-    (filterKey: string, nodeId: string) => {
-      setHierarchyStateMap((prev) => {
-        const state = prev.get(filterKey);
-        if (!state?.treeNodes) return prev;
-        const next = new Map(prev);
-        next.set(filterKey, {
-          ...state,
-          treeNodes: toggleTreeNodeExpansion(state.treeNodes, nodeId),
-        });
-        return next;
-      });
-    },
-    [],
-  );
 
   // Load available hierarchies when selected filter changes
   useEffect(() => {

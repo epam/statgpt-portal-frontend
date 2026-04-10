@@ -1,32 +1,23 @@
-export interface HierarchicalCode {
+import { CommonArtefactProperty } from './common-artefact-properties';
+import { ElementBase } from './structural-metadata-base';
+
+export interface HierarchicalCode extends ElementBase {
   code: string;
   hierarchicalCodes?: HierarchicalCode[];
   level?: number;
   parent?: string;
 }
 
-export interface Hierarchy {
-  id: string;
-  agencyID: string;
-  version: string;
-  name?: string;
-  description?: string;
+export interface Hierarchy extends CommonArtefactProperty {
   hierarchicalCodes?: HierarchicalCode[];
 }
 
-export interface CodelistItemBase {
-  id: string;
-  name?: string;
-  description?: string;
+export interface CodelistItemBase extends ElementBase {
   parent?: string;
   code?: string;
 }
 
-export interface CodelistData {
-  id: string;
-  agencyID: string;
-  version: string;
-  name?: string;
+export interface CodelistData extends CommonArtefactProperty {
   codes?: CodelistItemBase[];
 }
 
