@@ -46,6 +46,7 @@ export enum ChatI18nKeys {
 export enum LogOutI18nKeys {
   SIGN_OUT = 'user.signOut',
   SETTINGS = 'user.settings',
+  CONTACT_SUPPORT = 'user.contactSupport',
   POPUP_TITLE = 'user.popupTitle',
   POPUP_TEXT = 'user.popupText',
   POPUP_APPLY = 'user.popupApply',
