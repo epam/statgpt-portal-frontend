@@ -23,6 +23,7 @@ import Export from '../../../public/images/chat/export.svg';
 import Expand from '../../../public/images/menu/expand.svg';
 import Rename from '../../../public/images/chat/rename.svg';
 import SignOut from '../../../public/images/sign-out.svg';
+import ContactSupport from '../../../public/images/contact-support.svg';
 
 import { SHARE_CONVERSATION_PROPS } from '../../constants/share-conversation';
 import { getFileBlobApi } from '../../app/api/files/client';
@@ -59,7 +60,13 @@ import { ConversationInfo } from '@epam/ai-dial-shared';
 import { renameConversationAndSyncContent as renameConversationAndSyncContentFlow } from '../../utils/conversation/rename-conversation-and-sync-content';
 import { deleteConversationAndAttachments } from '../../utils/conversation/delete-conversation-and-attachments';
 
-const ConversationListWrapper = () => {
+interface ConversationListWrapperProps {
+  clientContactSupportUrl?: string;
+}
+
+const ConversationListWrapper = ({
+  clientContactSupportUrl,
+}: ConversationListWrapperProps) => {
   const t = useI18n();
   const router = useRouter();
   const { id }: { id: string[] } = useParams();
@@ -186,6 +193,7 @@ const ConversationListWrapper = () => {
   const signOutTitles: SignOutTitles = {
     signOut: t(LogOutI18nKeys.SIGN_OUT),
     settings: t(LogOutI18nKeys.SETTINGS),
+    contactSupport: t(LogOutI18nKeys.CONTACT_SUPPORT),
     popupTitle: t(LogOutI18nKeys.POPUP_TITLE),
     popupText: t(LogOutI18nKeys.POPUP_TEXT),
     popupApply: t(LogOutI18nKeys.POPUP_APPLY),
@@ -322,6 +330,7 @@ const ConversationListWrapper = () => {
             <User
               userInfo={session?.user as UserInfo}
               signOutAction={signOutAction}
+              contactSupportUrl={clientContactSupportUrl}
               locale={locale}
               styles={{
                 initialStyles: classNames(
@@ -329,8 +338,10 @@ const ConversationListWrapper = () => {
                   isCollapsed && '!size-10',
                 ),
                 signOutIcon: <SignOut />,
+                contactSupportIcon: <ContactSupport />,
                 userNameStyles: classNames(isCollapsed && 'hidden'),
-                dropdownButtonStyles: 'hover:bg-hues-100 w-max',
+                dropdownButtonStyles: 'hover:bg-hues-100 w-full',
+                showSeparator: true,
               }}
               titles={signOutTitles}
             />
