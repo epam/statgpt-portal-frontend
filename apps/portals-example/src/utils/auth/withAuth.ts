@@ -11,7 +11,7 @@ export function withAuth<TContext>(
     req: NextRequest,
     authParams: AuthParams,
     context: TContext,
-  ) => Promise<NextResponse>,
+  ) => Promise<NextResponse | Response>,
 ) {
   return async (req: NextRequest, context: TContext) => {
     const token = await getToken({ req });
