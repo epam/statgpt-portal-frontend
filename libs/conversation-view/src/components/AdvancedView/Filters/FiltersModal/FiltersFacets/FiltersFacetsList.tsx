@@ -82,48 +82,69 @@ const FiltersFacetsList: FC<Props> = ({
   onSelectHierarchy,
 }) => {
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
+  const datasetCount = new Set(
+    filtersList
+      .filter((filter) => filter.filterType === 'dataset')
+      .map((filter) => filter.datasetUrn || ''),
+  ).size;
+
   return (
     <div
       className={classNames(
         'overflow-y-auto advanced-view-filters-list min-w-[320px] pr-3 h-full sm:w-full',
       )}
     >
-      {filtersList?.map((filter) => (
-        <FiltersFacetItem
-          filtersList={filtersList}
-          titles={titles}
-          locale={locale}
-          filter={filter}
-          key={getFilterIdentity(filter)}
-          onSelectFilter={onSelectFilter}
-          onSelectDisplayMode={onSelectDisplayMode}
-          onDeleteFilter={onDeleteFilter}
-          hideFacetCounterByDefault={hideFacetCounterByDefault}
-          isDisableValues={isDisableValues}
-          timeRangeOptions={timeRangeOptions}
-          selectFilterValue={selectFilterValue}
-          selectHierarchicalNodes={selectHierarchicalNodes}
-          expandHierarchicalValue={expandHierarchicalValue}
-          onTimePeriodChange={onTimePeriodChange}
-          filterValuesProps={filterValuesProps}
-          initialConstraints={getInitialConstraints(
-            isCrossDatasetModeOn,
-            filter,
-            initialConstraints,
-            initialConstraintsMap,
-          )}
-          datasetIcon={datasetIcon}
-          datasetName={
-            (structuresMap?.size ?? 0) > 1
-              ? getDatasetNameFromFilters(filter, structuresMap)
-              : undefined
-          }
-          hierarchyState={hierarchyStateMap?.get(
-            getFilterIdentity(filter) ?? '',
-          )}
-          onSelectHierarchy={onSelectHierarchy}
-        />
-      ))}
+      {filtersList.map((filter, index) => {
+        const previousFilter = filtersList[index - 1];
+        const shouldRenderDatasetTitle =
+          filter.filterType === 'dataset' &&
+          datasetCount > 1 &&
+          filter.datasetUrn !== previousFilter?.datasetUrn;
+        const datasetName = shouldRenderDatasetTitle
+          ? getDatasetNameFromFilters(filter, structuresMap)
+          : undefined;
+
+        return (
+          <div key={getFilterIdentity(filter)}>
+            {datasetName && (
+              <h4 className="filters-facet-dataset-name">
+                <span className="filters-facet-dataset-icon">
+                  {datasetIcon}
+                </span>
+                {datasetName}
+              </h4>
+            )}
+
+            <FiltersFacetItem
+              filtersList={filtersList}
+              titles={titles}
+              locale={locale}
+              filter={filter}
+              onSelectFilter={onSelectFilter}
+              onSelectDisplayMode={onSelectDisplayMode}
+              onDeleteFilter={onDeleteFilter}
+              hideFacetCounterByDefault={hideFacetCounterByDefault}
+              isDisableValues={isDisableValues}
+              timeRangeOptions={timeRangeOptions}
+              selectFilterValue={selectFilterValue}
+              selectHierarchicalNodes={selectHierarchicalNodes}
+              expandHierarchicalValue={expandHierarchicalValue}
+              onTimePeriodChange={onTimePeriodChange}
+              filterValuesProps={filterValuesProps}
+              initialConstraints={getInitialConstraints(
+                isCrossDatasetModeOn,
+                filter,
+                initialConstraints,
+                initialConstraintsMap,
+              )}
+              hierarchyState={hierarchyStateMap?.get(
+                getFilterIdentity(filter) ?? '',
+              )}
+              onSelectHierarchy={onSelectHierarchy}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 };

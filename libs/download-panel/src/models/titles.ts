@@ -17,4 +17,9 @@ export interface DownloadTitles {
   idAndNameOptions: string;
   idAndNameOptionsDescription: string;
   close?: string;
+  cancel?: string;
+  datasetsToDownload?: string;
+  rows?: string;
+  filesWillBeDownloaded?: (count: number) => string;
+  oneFilePerDataset?: string;
 }

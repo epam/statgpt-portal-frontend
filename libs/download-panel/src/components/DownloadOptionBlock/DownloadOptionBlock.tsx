@@ -9,6 +9,7 @@ interface Props {
   items: DownloadSettingItem[];
   setSelectedValue: (value: DownloadSettingItem) => void;
   infoMessage?: ReactNode;
+  collapsible?: boolean;
 }
 
 const DownloadOptionBlock: FC<Props> = ({
@@ -17,9 +18,10 @@ const DownloadOptionBlock: FC<Props> = ({
   selectedValue,
   setSelectedValue,
   infoMessage,
+  collapsible = true,
 }) => {
-  return (
-    <CollapsibleBlock title={title} value={selectedValue.title}>
+  const content = (
+    <>
       <div className="flex flex-col gap-y-1">
         {items.map((type) => (
           <div className="flex flex-col" key={type.value}>
@@ -38,6 +40,23 @@ const DownloadOptionBlock: FC<Props> = ({
         ))}
       </div>
       {infoMessage}
+    </>
+  );
+
+  if (!collapsible) {
+    return (
+      <div className="flex flex-col">
+        <div className="flex items-center py-4">
+          <span>{title}</span>
+        </div>
+        <div className="pb-4">{content}</div>
+      </div>
+    );
+  }
+
+  return (
+    <CollapsibleBlock title={title} value={selectedValue.title}>
+      {content}
     </CollapsibleBlock>
   );
 };

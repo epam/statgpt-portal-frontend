@@ -20,6 +20,7 @@ const DEFAULT_TYPES: Record<InlineAlertType, string> = {
     'border-semantic-error bg-semantic-error-light text-neutrals-1000',
   [InlineAlertType.Warning]:
     'border-semantic-warning bg-semantic-warning-light text-neutrals-1000',
+  [InlineAlertType.Note]: 'border-hues-900 bg-neutrals-200 text-neutrals-1000',
 };
 
 const DEFAULT_ICON_CLASS = 'shrink-0';

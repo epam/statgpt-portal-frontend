@@ -27,6 +27,7 @@ import {
   AttachmentsConfig,
   CustomChartAttachmentType,
   CustomGridAttachment,
+  CrossDatasetGridAttachmentType,
 } from '../../models/attachments';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
@@ -38,6 +39,7 @@ import { AttachmentsActions } from '../../models/actions';
 import { AllCommunityModule, GridApi, ModuleRegistry } from 'ag-grid-community';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import DownloadSettings from '@statgpt/download-panel/src/components/DownloadSettings/DownloadSettings';
+import { DownloadDatasetItem } from '@statgpt/download-panel/src/models/download-dataset-item';
 import { ConversationViewTitles } from '../../models/titles';
 import DatasetTabs from './Tabs/DatasetTabs/DatasetTabs';
 import { getExternalLink } from '../../utils/attachments-details';
@@ -118,7 +120,6 @@ const AttachmentRenderer: FC<Props> = ({
   const [isShowDownloadAlert, setIsShowDownloadAlert] = useState<boolean>();
   const [downloadAlertDetails, setDownloadAlertDetails] =
     useState<AlertDetails>();
-
   const [showLimitMessage, setShowLimitMessage] = useState(false);
   const downloadActions = {
     downloadDataSet: actions.downloadDataSet,
@@ -189,6 +190,35 @@ const AttachmentRenderer: FC<Props> = ({
     );
     return map;
   }, [dataQueries, isExternalLinkIncludeFilters]);
+
+  const downloadDatasets = useMemo<DownloadDatasetItem[] | undefined>(() => {
+    if (!selectedAttachment || !isCrossDatasetGrid(selectedAttachment))
+      return undefined;
+    const crossAttachment =
+      selectedAttachment as CrossDatasetGridAttachmentType;
+    const rows = crossAttachment.gridContent?.data ?? [];
+
+    const urnToCount = new Map<string, number>();
+    const urnToName = new Map<string, string>();
+
+    for (const row of rows) {
+      const { dataset, datasetTitle: name } = row as {
+        dataset?: { urn?: string };
+        datasetTitle?: string;
+      };
+      const urn = dataset?.urn;
+      if (!urn) continue;
+      urnToCount.set(urn, (urnToCount.get(urn) ?? 0) + 1);
+      if (!urnToName.has(urn) && name) urnToName.set(urn, name);
+    }
+
+    return Array.from(urnToCount.entries()).map(([urn, rowCount]) => ({
+      urn,
+      name: urnToName.get(urn) ?? urn,
+      rowCount,
+      dataQuery: dataQueries?.find((q) => q.urn === urn),
+    }));
+  }, [selectedAttachment, dataQueries]);
 
   if (!attachments || attachments.length === 0) return null;
 
@@ -310,6 +340,8 @@ const AttachmentRenderer: FC<Props> = ({
                 titles={attachmentsStyles?.downloadTitles}
                 setIsShowDownloadAlert={setIsShowDownloadAlert}
                 setDownloadAlertDetails={setDownloadAlertDetails}
+                collapsible={attachmentsStyles?.downloadCollapsible}
+                downloadDatasets={downloadDatasets}
                 limitMessages={limitMessages}
                 showLimitMessage={showLimitMessage}
                 externalLink={externalLink}
