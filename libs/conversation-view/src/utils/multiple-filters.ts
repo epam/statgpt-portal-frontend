@@ -172,31 +172,42 @@ const mergeSharedFilters = (filters: Filter[]): Filter[] => {
   return [...sharedFilters, ...otherFilters];
 };
 
-const expandSharedFilter = (filter: Filter): Filter[] => {
-  if (!isSharedFilter(filter)) {
-    return [filter];
-  }
+const toDatasetFilter = (
+  filter: SharedFilter,
+  datasetUrn: string,
+  dimensionValues?: FilterValue[],
+): Filter => ({
+  ...filter,
+  datasetUrn,
+  filterType: 'dataset',
+  ...(dimensionValues ? { dimensionValues } : {}),
+});
 
-  if (filter.isTimeDimension) {
-    return (filter.sourceDatasetUrns || []).map((datasetUrn) => ({
-      ...filter,
-      datasetUrn,
-      filterType: 'dataset',
-    }));
-  }
+const expandSharedTimeFilter = (filter: SharedFilter): Filter[] =>
+  (filter.sourceDatasetUrns || []).map((datasetUrn) =>
+    toDatasetFilter(filter, datasetUrn),
+  );
 
+const mapSharedValueToDatasetValue = (
+  value: FilterValue,
+  sourceValue: FilterValueSource,
+): FilterValue => ({
+  id: sourceValue.id,
+  name: sourceValue.name,
+  parent: sourceValue.parent,
+  isSelectedValue: value.isSelectedValue,
+});
+
+const mapSharedDimensionValuesByDataset = (
+  filter: SharedFilter,
+): Map<string, Filter> => {
   const datasetFiltersMap = new Map<string, Filter>();
 
   filter.dimensionValues?.forEach((value) => {
     value.sourceValues?.forEach((sourceValue) => {
       const datasetUrn = sourceValue.datasetUrn || '';
       const existingFilter = datasetFiltersMap.get(datasetUrn);
-      const mappedValue: FilterValue = {
-        id: sourceValue.id,
-        name: sourceValue.name,
-        parent: sourceValue.parent,
-        isSelectedValue: value.isSelectedValue,
-      };
+      const mappedValue = mapSharedValueToDatasetValue(value, sourceValue);
 
       if (existingFilter) {
         existingFilter.dimensionValues = [
@@ -206,14 +217,84 @@ const expandSharedFilter = (filter: Filter): Filter[] => {
         return;
       }
 
-      datasetFiltersMap.set(datasetUrn, {
-        ...filter,
+      datasetFiltersMap.set(
         datasetUrn,
-        filterType: 'dataset',
-        dimensionValues: [mappedValue],
-      });
+        toDatasetFilter(filter, datasetUrn, [mappedValue]),
+      );
     });
   });
+
+  return datasetFiltersMap;
+};
+
+const getNativeSharedFallbackValues = (
+  selectedValues: FilterValue[],
+): FilterValue[] =>
+  Array.from(
+    new Map(
+      selectedValues.flatMap(
+        (value) =>
+          value.sourceValues?.map((sourceValue) => [
+            sourceValue.id,
+            {
+              id: sourceValue.id,
+              name: sourceValue.name || '',
+              isSelectedValue: true as const,
+            },
+          ]) ?? [],
+      ),
+    ).values(),
+  );
+
+const applySharedFallbackToDatasets = (
+  filter: SharedFilter,
+  datasetFiltersMap: Map<string, Filter>,
+): void => {
+  const selectedValues =
+    filter.dimensionValues?.filter((value) => value.isSelectedValue) || [];
+
+  if (!selectedValues.length) {
+    return;
+  }
+
+  const nativeFallbackValues = getNativeSharedFallbackValues(selectedValues);
+
+  if (!nativeFallbackValues.length) {
+    return;
+  }
+
+  (filter.sourceDatasetUrns || []).forEach((datasetUrn) => {
+    const existingFilter = datasetFiltersMap.get(datasetUrn);
+    const hasSelectedValue = existingFilter?.dimensionValues?.some(
+      (value) => value.isSelectedValue,
+    );
+
+    if (!existingFilter || !hasSelectedValue) {
+      datasetFiltersMap.set(
+        datasetUrn,
+        toDatasetFilter(filter, datasetUrn, nativeFallbackValues),
+      );
+    }
+  });
+};
+
+const expandSharedFilter = (
+  filter: Filter,
+  propagateSharedFiltersToAllDatasets = false,
+): Filter[] => {
+  if (!isSharedFilter(filter)) {
+    return [filter];
+  }
+
+  if (filter.isTimeDimension) {
+    return expandSharedTimeFilter(filter);
+  }
+
+  const datasetFiltersMap = mapSharedDimensionValuesByDataset(filter);
+
+  if (propagateSharedFiltersToAllDatasets) {
+    applySharedFallbackToDatasets(filter, datasetFiltersMap);
+  }
 
   return Array.from(datasetFiltersMap.values());
 };
@@ -432,9 +513,10 @@ export const getFiltersPreselectedByDataQueries = (
 export const buildFiltersMap = (
   filters: Filter[],
   constraintsMap?: Map<string, DataConstraints[] | undefined>,
+  applySharedFallback = false,
 ): Map<string, Filter[]> => {
   return filters
-    ?.flatMap((filter) => expandSharedFilter(filter))
+    ?.flatMap((filter) => expandSharedFilter(filter, applySharedFallback))
     ?.reduce((filterMap, filter) => {
       const urn = filter?.datasetUrn || '';
       const filterWithLimitedTimeRange = limitTimeRangeByConstraints(

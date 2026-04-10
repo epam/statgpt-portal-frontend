@@ -295,10 +295,12 @@ describe('MultiDatasetFilters', () => {
             filterType: 'shared',
           }),
         ]),
+        defaultProps.structureDataMaps.constraintsMap,
+        true,
       );
     });
 
-    it('expands shared filters to dataset-specific filters when applying', async () => {
+    it('applies shared filter fallback when applying cross-dataset filters', async () => {
       const onMultipleDataFiltersChange = jest.fn();
       const sharedCountryFilter = makeSharedCountryFilter();
       const expandedFiltersMap = new Map([
@@ -365,7 +367,8 @@ describe('MultiDatasetFilters', () => {
             filterType: 'shared',
           }),
         ]),
-        expect.anything(),
+        defaultProps.structureDataMaps.constraintsMap,
+        true,
       );
 
       expect(onMultipleDataFiltersChange).toHaveBeenCalledWith(

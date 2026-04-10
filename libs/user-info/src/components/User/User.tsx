@@ -11,6 +11,7 @@ interface UserStyles {
   userNameStyles?: string;
   signOutIcon?: ReactNode;
   settingsIcon?: ReactNode;
+  contactSupportIcon?: ReactNode;
   showShortName?: boolean;
   showSeparator?: boolean;
   disableModalDividers?: boolean;
@@ -21,6 +22,7 @@ interface UserStyles {
 interface Props {
   userInfo: UserInfo | null;
   signOutAction?: () => void;
+  contactSupportUrl?: string;
   styles?: UserStyles;
   locale: string;
   titles: SignOutTitles;
@@ -29,6 +31,7 @@ interface Props {
 export const User: FC<Props> = ({
   userInfo,
   signOutAction,
+  contactSupportUrl,
   styles,
   locale,
   titles,
@@ -59,6 +62,10 @@ export const User: FC<Props> = ({
   const onModalClose = useCallback(() => {
     setIsModalOpen(false);
   }, []);
+
+  const onContactSupportClick = useCallback(() => {
+    window.open(contactSupportUrl || '#', '_blank', 'noopener,noreferrer');
+  }, [contactSupportUrl]);
 
   const initialsBlock = useMemo(() => {
     return (
@@ -101,6 +108,20 @@ export const User: FC<Props> = ({
           </button>
         )}
 
+        {styles?.contactSupportIcon && (
+          <button
+            className={classNames(
+              'p-2 items-center flex gap-1 text-primary fill-primary body-1',
+              styles?.dropdownButtonStyles,
+            )}
+            title={titles?.contactSupport}
+            onClick={onContactSupportClick}
+          >
+            {styles?.contactSupportIcon}
+            {titles?.contactSupport || 'Contact support'}
+          </button>
+        )}
+
         <div
           className={classNames(
             'h-0 border-t border-neutrals-600 my-2',
@@ -134,6 +155,7 @@ export const User: FC<Props> = ({
     styles,
     titles,
     openModal,
+    onContactSupportClick,
     isModalOpen,
     onModalClose,
     locale,
