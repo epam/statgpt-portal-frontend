@@ -15,6 +15,7 @@ export class AvailabilityApi {
   async getConstraints(
     urn: string,
     filters?: SeriesFilterDto[],
+    token?: string,
   ): Promise<StructuralMetaData> {
     const { agency, id, version } = splitUrn(urn);
 
@@ -30,6 +31,7 @@ export class AvailabilityApi {
         url,
         { body },
         this.client.config.sdmxProxyUrl,
+        token,
       );
       return mapAvailabilityV3ToPlus(resp);
     }
@@ -38,6 +40,7 @@ export class AvailabilityApi {
       url,
       { body },
       this.client.config.constrainsApiUrl || this.client.config.apiUrl,
+      token,
     );
   }
 }
