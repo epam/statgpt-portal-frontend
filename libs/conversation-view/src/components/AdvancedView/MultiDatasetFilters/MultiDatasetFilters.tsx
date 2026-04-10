@@ -115,7 +115,11 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       setFilters: (filters: Filter[]) => void,
       setIsConstraintsLoading?: (isLoading: boolean) => void,
     ) => {
-      const filtersMap = buildFiltersMap(filters);
+      const filtersMap = buildFiltersMap(
+        filters,
+        constraintsMapRef.current,
+        true,
+      );
 
       Promise.all(getConstraintsRequests(dataQueries, filtersMap, actions))
         .then((constraintsData) => {
@@ -296,7 +300,11 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     (filtersToUpdate: Filter[], dataQueries?: DataQuery[]) => {
       setIsDisableFilterValues(true);
       setModalFilters(updateFiltersWithDisabledOption(filtersToUpdate));
-      const filtersMap = buildFiltersMap(filtersToUpdate);
+      const filtersMap = buildFiltersMap(
+        filtersToUpdate,
+        constraintsMapRef.current,
+        true,
+      );
 
       Promise.all(getConstraintsRequests(dataQueries, filtersMap, actions))
         .then((constraintsData) => {
@@ -343,6 +351,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     const appliedFiltersMap = buildFiltersMap(
       modalFilters,
       constraintsMapRef.current,
+      true,
     );
     const appliedFilters = getFiltersByConstraints(
       appliedFiltersMap,
@@ -364,7 +373,9 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     setIsModalClosed(true);
 
     startTransition(() => {
-      addSystemMessage(appliedFiltersMap);
+      addSystemMessage(
+        buildFiltersMap(modalFilters, constraintsMapRef.current, true),
+      );
     });
   }, [
     getFiltersChangeParamsMap,
