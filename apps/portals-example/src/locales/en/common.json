@@ -172,6 +172,7 @@
   "user": {
     "signOut": "Log out",
     "settings": "Settings",
+    "contactSupport": "Contact support",
     "popupTitle": "Log out?",
     "popupText": "Are you sure you want to log out of your account?",
     "popupApply": "Log out",
