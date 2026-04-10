@@ -9,6 +9,14 @@ export interface StructuralMetaData {
   data: StructuralData;
 }
 
+export interface Glossary {
+  id: string;
+  agencyID?: string;
+  version?: string;
+  name?: string;
+  terms?: CodelistItemBase[];
+}
+
 export interface StructuralData {
   codelists?: Codelist[];
   conceptSchemes?: ConceptScheme[];
@@ -18,11 +26,5 @@ export interface StructuralData {
   metadataStructures?: MetadataStructure[];
   hierarchies?: Hierarchy[];
   /** SDMX-Plus API response format — used as a fallback when `codelists` is absent. */
-  glossaries?: Array<{
-    id: string;
-    agencyID?: string;
-    version?: string;
-    name?: string;
-    terms?: CodelistItemBase[];
-  }>;
+  glossaries?: Glossary[];
 }

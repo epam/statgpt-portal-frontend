@@ -15,7 +15,10 @@ import {
 import ClearIcon from '../../../../../assets/icons/clear.svg';
 import SettingsListIcon from '../../../../../assets/icons/settings-list.svg';
 import { getDateString } from '../../../../../utils/attachments/time-period';
-import { getSelectedDimensionValues } from '../../../../../utils/filters';
+import {
+  getHierarchyOptions,
+  getSelectedDimensionValues,
+} from '../../../../../utils/filters';
 import { FilterDisplayMode } from '../../../../../constants/filter-display-mode';
 import FiltersValuesPanel from '../FiltersValuesPanel/FiltersValuesPanel';
 import { ConversationViewTitles } from '../../../../../models/titles';
@@ -97,21 +100,12 @@ const FiltersFacetItem: FC<Props> = ({
     : true;
 
   const hierarchyOptions = useMemo(
-    () => [
-      { key: '', title: titles?.flatList ?? 'Flat list' },
-      ...(filter?.isHierarchical
-        ? [
-            {
-              key: FilterDisplayMode.HIERARCHY,
-              title: titles?.hierarchy ?? 'Hierarchy by parent',
-            },
-          ]
-        : []),
-      ...(hierarchyState?.availableHierarchies ?? []).map((h) => ({
-        key: h.id,
-        title: `${h.name ?? h.id} (${h.version})`,
-      })),
-    ],
+    () =>
+      getHierarchyOptions({
+        isHierarchical: filter?.isHierarchical,
+        availableHierarchies: hierarchyState?.availableHierarchies,
+        titles,
+      }),
     [filter?.isHierarchical, hierarchyState?.availableHierarchies, titles],
   );
 
@@ -130,6 +124,20 @@ const FiltersFacetItem: FC<Props> = ({
       setIsSelected((prev) => !prev);
     }
     onSelectFilter(filter);
+  };
+
+  const onOptionSelect = (key: string) => {
+    if (key === '') {
+      onSelectHierarchy?.(filter, null);
+      onSelectDisplayMode?.(filter, FilterDisplayMode.FLAT_LIST);
+    } else if (key === FilterDisplayMode.HIERARCHY) {
+      onSelectHierarchy?.(filter, null);
+      onSelectDisplayMode?.(filter, FilterDisplayMode.HIERARCHY);
+    } else {
+      const selected =
+        hierarchyState?.availableHierarchies?.find((h) => h.id === key) ?? null;
+      onSelectHierarchy?.(filter, selected);
+    }
   };
 
   return (
@@ -201,21 +209,7 @@ const FiltersFacetItem: FC<Props> = ({
                     ? FilterDisplayMode.HIERARCHY
                     : '')
                 }
-                onOptionSelect={(key) => {
-                  if (key === '') {
-                    onSelectHierarchy?.(filter, null);
-                    onSelectDisplayMode?.(filter, FilterDisplayMode.FLAT_LIST);
-                  } else if (key === FilterDisplayMode.HIERARCHY) {
-                    onSelectHierarchy?.(filter, null);
-                    onSelectDisplayMode?.(filter, FilterDisplayMode.HIERARCHY);
-                  } else {
-                    const selected =
-                      hierarchyState?.availableHierarchies?.find(
-                        (h) => h.id === key,
-                      ) ?? null;
-                    onSelectHierarchy?.(filter, selected);
-                  }
-                }}
+                onOptionSelect={onOptionSelect}
               />
               {selectedValuesLength > 0 && (
                 <IconButton

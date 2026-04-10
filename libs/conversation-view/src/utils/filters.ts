@@ -2,6 +2,7 @@ import {
   DataConstraints,
   Dimension,
   DimensionType,
+  Hierarchy,
   findCodelistByDimension,
   getAnnotationPeriod,
   getAvailableCodes,
@@ -359,5 +360,31 @@ export const getFilterDisplaySettings = (titles?: ConversationViewTitles) => {
       key: FilterDisplayMode.FLAT_LIST,
       title: titles?.flatList || 'Flat list',
     },
+  ];
+};
+
+export const getHierarchyOptions = ({
+  isHierarchical,
+  availableHierarchies,
+  titles,
+}: {
+  isHierarchical?: boolean;
+  availableHierarchies?: Hierarchy[];
+  titles?: ConversationViewTitles;
+}) => {
+  return [
+    { key: '', title: titles?.flatList ?? 'Flat list' },
+    ...(isHierarchical
+      ? [
+          {
+            key: FilterDisplayMode.HIERARCHY,
+            title: titles?.hierarchy ?? 'Hierarchy by parent',
+          },
+        ]
+      : []),
+    ...(availableHierarchies ?? []).map((h) => ({
+      key: h.id,
+      title: `${h.name ?? h.id} (${h.version})`,
+    })),
   ];
 };
