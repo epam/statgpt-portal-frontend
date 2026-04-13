@@ -2,11 +2,12 @@ import { apiLogger } from './../../../../core/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { datasetApi } from '../../api';
 import { withAuth } from '../../../../utils/auth/withAuth';
+import { AuthParams } from '../../../../models/auth';
 
 export const GET = withAuth(
   async (
     req: NextRequest,
-    _auth,
+    { token }: AuthParams,
     context: { params: Promise<{ urn: string }> },
   ) => {
     try {
@@ -21,7 +22,11 @@ export const GET = withAuth(
       const rawReferences = searchParams.get('references');
       const references = rawReferences ? JSON.parse(rawReferences) : undefined;
 
-      const data = await datasetApi.getDataSet(urn, references);
+      const data = await datasetApi.getDataSet(
+        urn,
+        references,
+        token?.access_token as string,
+      );
 
       return NextResponse.json(data);
     } catch (error) {
@@ -37,7 +42,7 @@ export const GET = withAuth(
 export const POST = withAuth(
   async (
     req: NextRequest,
-    _auth,
+    { token }: AuthParams,
     context: { params: Promise<{ urn: string }> },
   ) => {
     try {
@@ -50,7 +55,11 @@ export const POST = withAuth(
 
       const body = await req.json();
       const { filters } = body;
-      const data = await datasetApi.getDatasetData(urn, filters);
+      const data = await datasetApi.getDatasetData(
+        urn,
+        filters,
+        token?.access_token as string,
+      );
 
       return NextResponse.json(data);
     } catch (error) {

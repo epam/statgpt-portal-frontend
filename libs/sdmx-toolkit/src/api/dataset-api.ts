@@ -24,16 +24,20 @@ export class DatasetApi {
   async getDataSet(
     urn: string,
     references?: SdmxReferences,
+    token?: string,
   ): Promise<StructuralMetaData | null> {
     const { agency, id, version } = splitUrn(urn);
     return await this.client.getRequest<StructuralMetaData>(
       DATASET_URL(agency, id, version, references),
+      undefined,
+      token,
     );
   }
 
   async getDatasetData(
     urn: string,
     filters: DatasetQueryFilters,
+    token?: string,
   ): Promise<DataMessage | null> {
     const queryParams = new URLSearchParams({
       includeHistory: 'false',
@@ -43,7 +47,11 @@ export class DatasetApi {
     }).toString();
 
     const urlWithParams = generateDatasetDataRequest(urn, queryParams, filters);
-    return await this.client.getRequest<DataMessage>(urlWithParams);
+    return await this.client.getRequest<DataMessage>(
+      urlWithParams,
+      undefined,
+      token,
+    );
   }
 
   async downloadDataSet(
@@ -54,6 +62,7 @@ export class DatasetApi {
     filters: DatasetQueryFilters,
     filename: string,
     isMetadata = false,
+    token?: string,
   ) {
     const queryParams = new URLSearchParams({
       format: dataFormat,
@@ -74,6 +83,7 @@ export class DatasetApi {
         },
       },
       filename,
+      token,
     );
   }
 }

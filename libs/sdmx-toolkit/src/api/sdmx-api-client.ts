@@ -21,35 +21,42 @@ export class SdmxApiClient {
     });
   }
 
-  async getRequest<T>(endpoint: string, options?: RequestOptions): Promise<T> {
-    return this.request(endpoint, { ...options, method: 'GET' });
+  async getRequest<T>(
+    endpoint: string,
+    options?: RequestOptions,
+    token?: string,
+  ): Promise<T> {
+    return this.request(
+      endpoint,
+      { ...options, method: 'GET' },
+      undefined,
+      token,
+    );
   }
 
   async postRequest<T>(
     endpoint: string,
     options?: RequestOptions,
     apiUrl?: string,
+    token?: string,
   ): Promise<T> {
-    return this.request(endpoint, { ...options, method: 'POST' }, apiUrl);
+    return this.request(
+      endpoint,
+      { ...options, method: 'POST' },
+      apiUrl,
+      token,
+    );
   }
 
   async streamRequest(
     endpoint: string,
     options: RequestOptions,
     filename: string,
+    token?: string,
   ): Promise<Response> {
     const url = `${this.config.apiUrl}/${endpoint}`;
 
-    const headers = {
-      ...getHeaders(void 0, {
-        jwt: this.config.jwt,
-      }),
-      ...options.headers,
-    };
-
-    if (this.config.apiKey != null) {
-      headers[OCP_APIM_SUBSCRIPTION_KEY_HEADER] = this.config.apiKey;
-    }
+    const headers = this.buildHeaders(token, options.headers);
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -96,20 +103,12 @@ export class SdmxApiClient {
     endpoint: string,
     options: RequestOptions,
     apiUrl?: string,
+    token?: string,
   ): Promise<T> {
     const startTime = Date.now();
 
     const url = `${apiUrl || this.config.apiUrl}/${endpoint}`;
-    const headers = {
-      ...getHeaders(void 0, {
-        jwt: this.config.jwt,
-      }),
-      ...options.headers,
-    };
-
-    if (this.config.apiKey != null) {
-      headers['Ocp-Apim-Subscription-Key'] = this.config.apiKey;
-    }
+    const headers = this.buildHeaders(token, options.headers);
 
     this.addInfoRequestLog('API Request', url, options, headers);
 
@@ -159,6 +158,29 @@ export class SdmxApiClient {
       });
       throw error;
     }
+  }
+
+  private buildHeaders(
+    token?: string,
+    optionsHeaders?: Record<string, string>,
+  ): Record<string, string> {
+    if (this.config.useDialAuth) {
+      return {
+        ...getHeaders(this.config.dialApiKey, { jwt: token }),
+        ...optionsHeaders,
+      };
+    }
+
+    const headers: Record<string, string> = {
+      ...getHeaders(void 0, { jwt: this.config.jwt }),
+      ...optionsHeaders,
+    };
+
+    if (this.config.apiKey != null) {
+      headers[OCP_APIM_SUBSCRIPTION_KEY_HEADER] = this.config.apiKey;
+    }
+
+    return headers;
   }
 
   private addInfoRequestLog(
