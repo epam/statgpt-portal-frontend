@@ -409,7 +409,10 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       );
       const filtersAfterDelete = getFiltersAfterDelete(modalFilters, filter);
 
-      handleFiltersDelete(filtersAfterDelete, dataQuery ? [dataQuery] : []);
+      handleFiltersDelete(
+        filtersAfterDelete,
+        !filter?.datasetUrn ? dataQueries : dataQuery ? [dataQuery] : [],
+      );
     },
     [handleFiltersDelete, modalFilters, dataQueries],
   );
