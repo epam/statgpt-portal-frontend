@@ -3,18 +3,11 @@ import { ConceptScheme } from './concept-scheme';
 import { DataConstraints } from './constraints';
 import { DataStructure, MetadataStructure } from './data-structure';
 import { Dataflow } from './dataflow';
-import { CodelistItemBase, Hierarchy } from './hierarchy';
+import { Hierarchy } from './hierarchy';
+import { Glossary } from './glossary';
 
 export interface StructuralMetaData {
   data: StructuralData;
-}
-
-export interface Glossary {
-  id: string;
-  agencyID?: string;
-  version?: string;
-  name?: string;
-  terms?: CodelistItemBase[];
 }
 
 export interface StructuralData {
