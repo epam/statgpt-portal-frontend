@@ -11,6 +11,7 @@ import {
   FilterValue,
 } from '../../../../../models/filters';
 import FilterTreeView from './FilterTreeView';
+import { getFilterValuesTree } from '../../../../../utils/filters';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import CheckboxRow from './CheckboxRow';
 import { useIsMobile } from '@epam/statgpt-ui-components';
@@ -29,6 +30,8 @@ interface Props {
   isScrollable?: boolean;
   isDisableValues?: boolean;
   structuresMap?: Map<string, StructuralData | undefined>;
+  hierarchyTreeNodes?: FilterTreeNodeProps[];
+  isHierarchyLoading?: boolean;
   selectFilterValue: (id: string, isSelectedValue?: boolean) => void;
   selectHierarchicalNodes: (nodes?: FilterTreeNodeProps[]) => void;
   expandHierarchicalValue?: (value?: FilterTreeNodeProps) => void;
@@ -51,6 +54,8 @@ const FilterValues: FC<Props> = ({
   isScrollable = true,
   isDisableValues,
   structuresMap,
+  hierarchyTreeNodes,
+  isHierarchyLoading,
   selectFilterValue,
   selectHierarchicalNodes,
   expandHierarchicalValue,
@@ -94,15 +99,15 @@ const FilterValues: FC<Props> = ({
             : undefined
         }
       >
-        {isHierarchicalView ? (
+        {hierarchyTreeNodes?.length || isHierarchicalView ? (
           <FilterTreeView
-            filterValues={filterValues}
+            treeNodes={hierarchyTreeNodes ?? getFilterValuesTree(filterValues)}
             checkboxIcon={checkboxIcon}
             selectFilterValue={selectFilterValue}
             selectHierarchicalNodes={selectHierarchicalNodes}
             expandHierarchicalValue={expandHierarchicalValue}
           />
-        ) : !isVirtualized ? (
+        ) : isHierarchyLoading ? null : !isVirtualized ? (
           <div className="flex flex-col gap-y-1">
             {filterValues.map((filterValue) => (
               <CheckboxRow

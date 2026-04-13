@@ -61,6 +61,8 @@ const DataDetails: FC<Props> = ({
 }) => {
   const constraintAction = {
     getConstraints: actions.getConstraints,
+    getAvailableHierarchies: filtersProps.actions?.getAvailableHierarchies,
+    getHierarchy: filtersProps.actions?.getHierarchy,
   };
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
 

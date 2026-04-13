@@ -3,6 +3,7 @@
 import {
   DataConstraints,
   findCodelistByDimension,
+  generateShortUrn,
   getAvailableCodesFromConstrains,
   getTimeSeriesCount,
   TIME_PERIOD,
@@ -13,6 +14,7 @@ import FilterSettings from './FiltersModal/FiltersSettings';
 import { Filter, FiltersProps } from '../../../models/filters';
 import {
   getDatasetFilters,
+  getFilterIdentity,
   getFiltersAfterClear,
   getFiltersAfterDelete,
   getFiltersPreselectedByDataQuery,
@@ -42,6 +44,7 @@ import ModalFooter from './FiltersModal/ModalFooter';
 import FilterButton from './FilterButton/FilterButton';
 import { updateMessagesWithSystemMessage } from '../../../utils/system-message';
 import { getUpdatedDataQueries } from '../../../utils/get-updated-data-queries';
+import { useHierarchyState } from '../../../utils/use-hierarchy-state';
 import {
   buildRequestCacheKey,
   getCachedRequestResult,
@@ -88,6 +91,42 @@ const Filters: FC<FiltersProps> = ({
   const isPreselectedFromDataQuery = useRef(false);
   const [isModalClosed, setIsModalClosed] = useState(false);
 
+  const getCodelistUrnForFilter = useCallback(
+    (filter: Filter): string | undefined => {
+      const dimension = dimensions?.find((d) => d.id === filter.id);
+      if (!dimension) return undefined;
+
+      if (dimension.localRepresentation?.enumeration) {
+        return dimension.localRepresentation.enumeration;
+      }
+
+      const codelist = findCodelistByDimension(
+        structures?.codelists,
+        structures?.conceptSchemes,
+        dimension,
+      );
+
+      return codelist
+        ? (codelist.urn ??
+            generateShortUrn(codelist.id, codelist.version, codelist.agencyID))
+        : undefined;
+    },
+    [dimensions, structures?.codelists, structures?.conceptSchemes],
+  );
+
+  const {
+    hierarchyStateMap,
+    rebuildHierarchyTree,
+    loadAvailableHierarchies,
+    onSelectHierarchy,
+    onExpandHierarchyNode,
+  } = useHierarchyState({
+    getCodelistUrnForFilter,
+    getConstraintsForFilter: () => constraintsRef.current,
+    getAvailableHierarchies: actions?.getAvailableHierarchies,
+    getHierarchy: actions?.getHierarchy,
+  });
+
   const updateSelectedFilterValues = (filter?: Filter) => {
     const filters = filter
       ? modalFilters.map((oldFilter) =>
@@ -104,6 +143,7 @@ const Filters: FC<FiltersProps> = ({
         : filters,
       setModalFilters,
       setIsConstraintsLoading,
+      filter,
     );
   };
 
@@ -118,6 +158,7 @@ const Filters: FC<FiltersProps> = ({
       filters: Filter[],
       setFilters: (filters: Filter[]) => void,
       setIsConstraintsLoading?: (isLoading: boolean) => void,
+      changedFilter?: Filter,
     ) => {
       const attachmentUrn = attachmentsDataQuery?.urn ?? '';
       const constraintFilters = normalizeConstraintFilters(
@@ -147,6 +188,9 @@ const Filters: FC<FiltersProps> = ({
               locale as Locale,
             ),
           );
+          if (changedFilter) {
+            rebuildHierarchyTree(changedFilter, newConstraints);
+          }
         })
         .catch(() => {
           constraintsRef.current = [];
@@ -165,7 +209,14 @@ const Filters: FC<FiltersProps> = ({
           setIsDisableFilterValues(false);
         });
     },
-    [actions, attachmentsDataQuery?.urn, dimensions, locale, structures],
+    [
+      actions,
+      attachmentsDataQuery?.urn,
+      dimensions,
+      locale,
+      rebuildHierarchyTree,
+      structures,
+    ],
   );
 
   useEffect(() => {
@@ -248,6 +299,32 @@ const Filters: FC<FiltersProps> = ({
       setSelectedFilter(void 0);
     }
   }, [appliedFilters, modalState]);
+
+  useEffect(() => {
+    if (!selectedFilter || selectedFilter.isTimeDimension) {
+      return;
+    }
+
+    const filterKey = getFilterIdentity(selectedFilter);
+    if (!filterKey) return;
+    const existingState = hierarchyStateMap.get(filterKey);
+
+    if (!existingState) {
+      loadAvailableHierarchies(selectedFilter);
+    }
+  }, [selectedFilter, hierarchyStateMap, loadAvailableHierarchies]);
+
+  useEffect(() => {
+    if (modalState !== PopUpState.Opened) return;
+
+    appliedFilters.forEach((filter) => {
+      if (filter.isTimeDimension) return;
+      const filterKey = getFilterIdentity(filter);
+      if (filterKey && !hierarchyStateMap.has(filterKey)) {
+        loadAvailableHierarchies(filter);
+      }
+    });
+  }, [modalState, appliedFilters, hierarchyStateMap, loadAvailableHierarchies]);
 
   const addSystemMessage = useCallback(
     async (filters: Filter[]) => {
@@ -462,6 +539,9 @@ const Filters: FC<FiltersProps> = ({
               updateSelectedFilterValues={updateSelectedFilterValues}
               onTimePeriodChange={onTimePeriodChange}
               selectedTimeOption={selectedTimeOption}
+              hierarchyStateMap={hierarchyStateMap}
+              onSelectHierarchy={onSelectHierarchy}
+              onExpandHierarchyNode={onExpandHierarchyNode}
             />
             <ModalFooter
               titles={titles}

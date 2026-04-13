@@ -3,21 +3,23 @@
 import { FC, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import ChevronSolidDownIcon from '../../../../../assets/icons/chevron-solid-down.svg';
-import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
+import { DataConstraints, Hierarchy } from '@epam/statgpt-sdmx-toolkit';
 import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
 import { Dropdown, IconButton, useIsMobile } from '@epam/statgpt-ui-components';
 import {
   Filter,
   FilterTreeNodeProps,
   FilterValuesProps,
+  HierarchyState,
 } from '../../../../../models/filters';
 import ClearIcon from '../../../../../assets/icons/clear.svg';
 import SettingsListIcon from '../../../../../assets/icons/settings-list.svg';
 import { getDateString } from '../../../../../utils/attachments/time-period';
 import {
-  getFilterDisplaySettings,
+  getHierarchyOptions,
   getSelectedDimensionValues,
 } from '../../../../../utils/filters';
+import { FilterDisplayMode } from '../../../../../constants/filter-display-mode';
 import FiltersValuesPanel from '../FiltersValuesPanel/FiltersValuesPanel';
 import { ConversationViewTitles } from '../../../../../models/titles';
 
@@ -51,6 +53,8 @@ interface Props {
     value?: FilterTreeNodeProps,
     filter?: Filter,
   ) => void;
+  hierarchyState?: HierarchyState;
+  onSelectHierarchy?: (filter?: Filter, hierarchy?: Hierarchy | null) => void;
 }
 
 const FiltersFacetItem: FC<Props> = ({
@@ -70,6 +74,8 @@ const FiltersFacetItem: FC<Props> = ({
   selectFilterValue,
   selectHierarchicalNodes,
   expandHierarchicalValue,
+  hierarchyState,
+  onSelectHierarchy,
 }) => {
   const isMobile = useIsMobile();
 
@@ -89,13 +95,23 @@ const FiltersFacetItem: FC<Props> = ({
     );
   }, [filter?.dimensionValues]);
 
-  const onSelectFilterDisplayMode = (filterDisplayMode: string) => {
-    onSelectDisplayMode?.(filter, filterDisplayMode);
-  };
-
   const showSelectedValuesCounter = hideFacetCounterByDefault
     ? selectedValuesLength > 0
     : true;
+
+  const hierarchyOptions = useMemo(
+    () =>
+      getHierarchyOptions({
+        isHierarchical: filter?.isHierarchical,
+        availableHierarchies: hierarchyState?.availableHierarchies,
+        titles,
+      }),
+    [filter?.isHierarchical, hierarchyState?.availableHierarchies, titles],
+  );
+
+  const isHierarchyDropdownDisabled =
+    hierarchyState?.isLoading ||
+    (!filter?.isHierarchical && !hierarchyState?.availableHierarchies?.length);
 
   useEffect(() => {
     if (!filter.isSelectedFilter) {
@@ -108,6 +124,20 @@ const FiltersFacetItem: FC<Props> = ({
       setIsSelected((prev) => !prev);
     }
     onSelectFilter(filter);
+  };
+
+  const onOptionSelect = (key: string) => {
+    if (key === '') {
+      onSelectHierarchy?.(filter, null);
+      onSelectDisplayMode?.(filter, FilterDisplayMode.FLAT_LIST);
+    } else if (key === FilterDisplayMode.HIERARCHY) {
+      onSelectHierarchy?.(filter, null);
+      onSelectDisplayMode?.(filter, FilterDisplayMode.HIERARCHY);
+    } else {
+      const selected =
+        hierarchyState?.availableHierarchies?.find((h) => h.id === key) ?? null;
+      onSelectHierarchy?.(filter, selected);
+    }
   };
 
   return (
@@ -168,13 +198,18 @@ const FiltersFacetItem: FC<Props> = ({
                     )}
                     icon={<SettingsListIcon width={16} height={16} />}
                     title={titles?.displayOrder || 'Display Order'}
-                    disabled={!filter?.isHierarchical}
+                    disabled={isHierarchyDropdownDisabled}
                   />
                 }
-                options={getFilterDisplaySettings(titles)}
-                selectedOption={filter?.displayMode}
-                disabled={!filter?.isHierarchical}
-                onOptionSelect={onSelectFilterDisplayMode}
+                disabled={isHierarchyDropdownDisabled}
+                options={hierarchyOptions}
+                selectedOption={
+                  hierarchyState?.selectedHierarchy?.id ??
+                  (filter?.displayMode === FilterDisplayMode.HIERARCHY
+                    ? FilterDisplayMode.HIERARCHY
+                    : '')
+                }
+                onOptionSelect={onOptionSelect}
               />
               {selectedValuesLength > 0 && (
                 <IconButton
@@ -208,6 +243,7 @@ const FiltersFacetItem: FC<Props> = ({
           onTimePeriodChange={onTimePeriodChange}
           filterValuesProps={filterValuesProps}
           initialConstraints={initialConstraints}
+          hierarchyState={hierarchyState}
         />
       )}
     </div>

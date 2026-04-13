@@ -13,5 +13,6 @@ export * from './structural-metadata/constraints';
 export * from './structural-metadata/data-structure';
 export * from './structural-metadata/dataflow';
 export * from './structural-metadata/representation';
+export * from './structural-metadata/hierarchy';
 export * from './datasets-metadata';
 export * from './dataset-dimensions-scheme';

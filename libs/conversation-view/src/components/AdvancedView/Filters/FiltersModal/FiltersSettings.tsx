@@ -1,6 +1,10 @@
 'use client';
 
-import { DataConstraints, StructuralData } from '@epam/statgpt-sdmx-toolkit';
+import {
+  DataConstraints,
+  Hierarchy,
+  StructuralData,
+} from '@epam/statgpt-sdmx-toolkit';
 import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
 import { Button, useIsMobile } from '@epam/statgpt-ui-components';
 import { FC, ReactNode, useCallback } from 'react';
@@ -8,12 +12,15 @@ import {
   Filter,
   FiltersModalProps,
   FilterTreeNodeProps,
+  FilterValue,
+  HierarchyState,
 } from '../../../../models/filters';
 import FiltersFacetsList from './FiltersFacets/FiltersFacetsList';
 import FiltersValuesPanel from './FiltersValuesPanel/FiltersValuesPanel';
 import classNames from 'classnames';
 import { ConversationViewTitles } from '../../../../models/titles';
 import {
+  getFilterIdentity,
   getSelectedFilterValues,
   getTotalSelectedValuesLength,
   isSameFilter,
@@ -41,6 +48,9 @@ interface Props {
   updateSelectedFilterValues?: (filter: Filter) => void;
   onTimePeriodChange?: (value: string | number) => void;
   selectedTimeOption?: string | number;
+  hierarchyStateMap?: Map<string, HierarchyState>;
+  onSelectHierarchy?: (filter?: Filter, hierarchy?: Hierarchy | null) => void;
+  onExpandHierarchyNode?: (filterKey: string, nodeId: string) => void;
 }
 
 const FilterSettings: FC<Props> = ({
@@ -63,7 +73,13 @@ const FilterSettings: FC<Props> = ({
   updateSelectedFilterValues,
   onTimePeriodChange,
   selectedTimeOption,
+  hierarchyStateMap,
+  onSelectHierarchy,
+  onExpandHierarchyNode,
 }) => {
+  const hierarchyState = hierarchyStateMap?.get(
+    getFilterIdentity(selectedFilter) as string,
+  );
   const isMobile = useIsMobile();
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const allAppliedFilters = getTotalSelectedValuesLength(
@@ -133,16 +149,33 @@ const FilterSettings: FC<Props> = ({
       return;
     }
 
+    // For single-node calls (nodes with all-disabled children that are not yet
+    // in dimensionValues), add the node as a new entry so it can be selected.
+    const existingIds = new Set(
+      filterToUpdate?.dimensionValues?.map((v) => v.id),
+    );
+    const newEntries: FilterValue[] =
+      nodes?.length === 1 && nodes[0] && !existingIds.has(nodes[0].id)
+        ? [
+            {
+              id: nodes[0].id,
+              name: nodes[0].name,
+              isSelectedValue: nodes[0].isSelectedValue,
+            },
+          ]
+        : [];
+
     const updatedFilter = {
       ...filterToUpdate,
-      dimensionValues: filterToUpdate?.dimensionValues?.map(
-        (dimensionValue) => {
+      dimensionValues: [
+        ...(filterToUpdate?.dimensionValues?.map((dimensionValue) => {
           const nodeValue = nodes?.find(
             (node) => node?.id === dimensionValue?.id,
           );
           return nodeValue || dimensionValue;
-        },
-      ),
+        }) ?? []),
+        ...newEntries,
+      ],
     };
     if (shouldUpdateSelectedFilter) {
       setSelectedFilter(updatedFilter);
@@ -161,7 +194,17 @@ const FilterSettings: FC<Props> = ({
     const shouldUpdateSelectedFilter =
       !targetFilter || isSameFilter(targetFilter, selectedFilter);
 
-    if (!filterToUpdate) {
+    if (!filterToUpdate || !node?.id) {
+      return;
+    }
+
+    const filterKey = getFilterIdentity(filterToUpdate);
+    const targetHierarchyState = filterKey
+      ? hierarchyStateMap?.get(filterKey)
+      : undefined;
+
+    if (targetHierarchyState?.treeNodes?.length) {
+      onExpandHierarchyNode?.(filterKey as string, node.id);
       return;
     }
 
@@ -249,6 +292,8 @@ const FilterSettings: FC<Props> = ({
           expandHierarchicalValue={onExpandHierarchicalValue}
           onTimePeriodChange={onSelectTimePeriodValue}
           filterValuesProps={modalProps?.filterValuesProps}
+          hierarchyStateMap={hierarchyStateMap}
+          onSelectHierarchy={onSelectHierarchy}
         />
         {modalProps?.isShowTimeSeriesCount && timeSeriesCount ? (
           <h4 className="my-4 text-neutrals-800">
@@ -277,6 +322,7 @@ const FilterSettings: FC<Props> = ({
             initialConstraintsMap,
           )}
           selectedTimeOption={selectedTimeOption}
+          hierarchyState={hierarchyState}
         />
       )}
     </div>

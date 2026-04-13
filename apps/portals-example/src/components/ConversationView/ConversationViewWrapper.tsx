@@ -56,6 +56,8 @@ import {
 } from '../../app/api/conversations/client';
 import { getBucketApi } from '../../app/api/bucket/client';
 import { getDataSetApi, getDataSetDataApi } from '../../app/api/dataset/client';
+import { getAvailableHierarchiesApi } from '../../app/api/codelist/client';
+import { getHierarchyApi } from '../../app/api/hierarchy/client';
 import { rateResponseApi } from '../../app/api/rate/client';
 import AdvancedModeIcon from '../../../public/images/advanced-mode.svg';
 import WarningIcon from '../../../public/images/statuses/warning.svg';
@@ -455,6 +457,11 @@ const ConversationViewWrapper: FC<Props> = ({
           }}
           actions={attachmentsActions}
           filtersProps={{
+            actions: {
+              getConstraints: authHandler(getConstraintsApi),
+              getAvailableHierarchies: authHandler(getAvailableHierarchiesApi),
+              getHierarchy: authHandler(getHierarchyApi),
+            },
             buttonProps: {
               title: t(AdvancedViewI18nKeys.FILTERS),
               isShowBadge: true,

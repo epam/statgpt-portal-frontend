@@ -7,6 +7,7 @@ import { Filter, FiltersProps } from '../../../models/filters';
 import {
   getFiltersAfterClear,
   getFiltersAfterDelete,
+  getFilterIdentity,
   getSelectedFilterValues,
   getTotalSelectedValuesLength,
   isSameFilter,
@@ -30,6 +31,7 @@ import FilterSettings from '../Filters/FiltersModal/FiltersSettings';
 import ModalFooter from '../Filters/FiltersModal/ModalFooter';
 import {
   buildFiltersMap,
+  getCodelistUrnForFilter,
   getConstraintsMap,
   getConstraintsRequests,
   getFilledDatasetFiltersMap,
@@ -40,6 +42,7 @@ import {
   setDataQueryFiltersMap,
 } from '../../../utils/multiple-filters';
 import { StructureDataMaps } from '../../../models/structure-data';
+import { useHierarchyState } from '../../../utils/use-hierarchy-state';
 
 const MultiDatasetFilters: FC<FiltersProps> = ({
   actions,
@@ -84,6 +87,37 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     [dataQueries, structureDataMaps],
   );
 
+  const resolveCodelistUrnForFilter = useCallback(
+    (filter: Filter) =>
+      getCodelistUrnForFilter(
+        filter,
+        structureDataMaps?.dimensionsMap,
+        structureDataMaps?.structuresMap,
+      ),
+    [structureDataMaps?.dimensionsMap, structureDataMaps?.structuresMap],
+  );
+
+  const getConstraintsForFilter = useCallback((filter: Filter) => {
+    const datasetUrn =
+      filter.filterType === 'dataset'
+        ? filter.datasetUrn
+        : filter.sourceDatasetUrns?.[0];
+    return datasetUrn ? constraintsMapRef.current?.get(datasetUrn) : undefined;
+  }, []);
+
+  const {
+    hierarchyStateMap,
+    rebuildHierarchyTree,
+    loadAvailableHierarchies,
+    onSelectHierarchy,
+    onExpandHierarchyNode,
+  } = useHierarchyState({
+    getCodelistUrnForFilter: resolveCodelistUrnForFilter,
+    getConstraintsForFilter,
+    getAvailableHierarchies: actions?.getAvailableHierarchies,
+    getHierarchy: actions?.getHierarchy,
+  });
+
   const updateSelectedFilterValues = (filter?: Filter) => {
     const filters = filter
       ? modalFilters.map((oldFilter) =>
@@ -100,6 +134,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         : filters,
       setModalFilters,
       setIsConstraintsLoading,
+      filter,
     );
   };
 
@@ -114,6 +149,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       filters: Filter[],
       setFilters: (filters: Filter[]) => void,
       setIsConstraintsLoading?: (isLoading: boolean) => void,
+      changedFilter?: Filter,
     ) => {
       const filtersMap = buildFiltersMap(
         filters,
@@ -133,6 +169,12 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               locale as Locale,
             ),
           );
+          if (changedFilter) {
+            rebuildHierarchyTree(
+              changedFilter,
+              getConstraintsForFilter(changedFilter),
+            );
+          }
         })
         .catch(() => {
           const currentConstraintsMap = new Map();
@@ -150,7 +192,14 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
           setIsDisableFilterValues(false);
         });
     },
-    [actions, dataQueries, locale, structureDataMaps],
+    [
+      actions,
+      dataQueries,
+      getConstraintsForFilter,
+      locale,
+      rebuildHierarchyTree,
+      structureDataMaps,
+    ],
   );
 
   useEffect(() => {
@@ -204,6 +253,36 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       setSelectedFilter(void 0);
     }
   }, [appliedFilters, modalState]);
+
+  // Load available hierarchies when selected filter changes
+  useEffect(() => {
+    if (!selectedFilter || selectedFilter.isTimeDimension) {
+      return;
+    }
+
+    const filterKey = getFilterIdentity(selectedFilter);
+    if (!filterKey) return;
+    const existingState = hierarchyStateMap.get(filterKey);
+
+    // Load once per unique filter — existingState being set (even isLoading:true)
+    // means we've already initiated a request for this filter key
+    if (!existingState) {
+      loadAvailableHierarchies(selectedFilter);
+    }
+  }, [selectedFilter, hierarchyStateMap, loadAvailableHierarchies]);
+
+  // Load hierarchies for all filters when modal opens
+  useEffect(() => {
+    if (modalState !== PopUpState.Opened) return;
+
+    appliedFilters.forEach((filter) => {
+      if (filter.isTimeDimension) return;
+      const filterKey = getFilterIdentity(filter);
+      if (filterKey && !hierarchyStateMap.has(filterKey)) {
+        loadAvailableHierarchies(filter);
+      }
+    });
+  }, [modalState, appliedFilters, hierarchyStateMap, loadAvailableHierarchies]);
 
   const addSystemMessage = useCallback(
     async (filtersMap: Map<string, Filter[]>) => {
@@ -389,6 +468,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     dataQueries,
     addSystemMessage,
   ]);
+
   const onTimePeriodChange = (value: string | number) => {
     setSelectedTimeOption(value);
   };
@@ -436,6 +516,9 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               updateSelectedFilterValues={updateSelectedFilterValues}
               onTimePeriodChange={onTimePeriodChange}
               selectedTimeOption={selectedTimeOption}
+              hierarchyStateMap={hierarchyStateMap}
+              onSelectHierarchy={onSelectHierarchy}
+              onExpandHierarchyNode={onExpandHierarchyNode}
             />
             <ModalFooter
               titles={titles}

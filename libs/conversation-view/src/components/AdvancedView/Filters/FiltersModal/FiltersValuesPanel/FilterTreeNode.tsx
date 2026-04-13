@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, ReactNode, useEffect, useState } from 'react';
+import { FC, ReactNode } from 'react';
 import { FilterTreeNodeProps } from '../../../../../models/filters';
 import ChevronSolidDownIcon from '../../../../../assets/icons/chevron-solid-down.svg';
 import ChevronSolidRightIcon from '../../../../../assets/icons/chevron-solid-right.svg';
@@ -27,16 +27,20 @@ const FilterTreeNode: FC<Props> = ({
   selectHierarchicalNodes,
   expandHierarchicalValue,
 }) => {
-  const [isHasChildren, setIsHasChildren] = useState<boolean>(false);
+  const isHasChildren = !!node?.children?.length;
   const nodeIconClasses = 'cursor-pointer text-neutrals-1000 w-6 h-6 shrink-0';
-
-  useEffect(() => {
-    setIsHasChildren(!!node?.children?.length);
-  }, [node]);
 
   const onSelectFilterValue = (id: string, isSelectedValue?: boolean) => {
     if (node?.children?.length) {
-      selectHierarchicalNodes?.(getFilterNodesBySelection(node));
+      const hasEnabledChildren = node.children.some((child) => !child.disabled);
+      if (hasEnabledChildren) {
+        selectHierarchicalNodes?.(getFilterNodesBySelection(node));
+      } else {
+        // Node has children but all are disabled — treat as a selectable leaf
+        // and pass via selectHierarchicalNodes so the handler can add it to
+        // dimensionValues if it isn't already present (e.g. hierarchy-only codes).
+        selectHierarchicalNodes?.([{ ...node, isSelectedValue }]);
+      }
     } else {
       selectFilterValue?.(id, isSelectedValue);
     }
@@ -67,6 +71,7 @@ const FilterTreeNode: FC<Props> = ({
           label={node?.name}
           checked={!!node.isSelectedValue}
           checkboxIcon={checkboxIcon}
+          disabled={node?.disabled}
           onChange={onSelectFilterValue}
         />
       </div>

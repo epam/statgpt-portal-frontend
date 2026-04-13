@@ -2,6 +2,7 @@ import {
   DataConstraints,
   Dimension,
   DimensionType,
+  Hierarchy,
   findCodelistByDimension,
   getAnnotationPeriod,
   getAvailableCodes,
@@ -304,19 +305,22 @@ const setSelectedChildrenNodes = (
     return [];
   }
 
-  return childrenNodes.map((child) => ({
-    ...child,
-    isSelectedValue,
-  }));
+  return childrenNodes
+    .filter((child) => !child.disabled)
+    .map((child) => ({
+      ...child,
+      isSelectedValue,
+    }));
 };
 
 export const getFilterNodesBySelection = (
   node: FilterTreeNodeProps,
 ): FilterTreeNodeProps[] => {
-  const allChildrenSelected = node.children?.every(
+  const enabledChildren = node.children?.filter((child) => !child.disabled);
+  const allChildrenSelected = enabledChildren?.every(
     (child) => child.isSelectedValue,
   );
-  const allChildrenUnselected = node.children?.every(
+  const allChildrenUnselected = enabledChildren?.every(
     (child) => !child.isSelectedValue,
   );
 
@@ -356,5 +360,31 @@ export const getFilterDisplaySettings = (titles?: ConversationViewTitles) => {
       key: FilterDisplayMode.FLAT_LIST,
       title: titles?.flatList || 'Flat list',
     },
+  ];
+};
+
+export const getHierarchyOptions = ({
+  isHierarchical,
+  availableHierarchies,
+  titles,
+}: {
+  isHierarchical?: boolean;
+  availableHierarchies?: Hierarchy[];
+  titles?: ConversationViewTitles;
+}) => {
+  return [
+    { key: '', title: titles?.flatList ?? 'Flat list' },
+    ...(isHierarchical
+      ? [
+          {
+            key: FilterDisplayMode.HIERARCHY,
+            title: titles?.hierarchy ?? 'Hierarchy by parent',
+          },
+        ]
+      : []),
+    ...(availableHierarchies ?? []).map((h) => ({
+      key: h.id,
+      title: `${h.name ?? h.id} (${h.version})`,
+    })),
   ];
 };

@@ -434,6 +434,36 @@ const getFiltersWithValuesMap = (
   );
 };
 
+export function getCodelistUrnForFilter(
+  filter: Filter,
+  dimensionsMap?: Map<string, Dimension[]>,
+  structuresMap?: Map<string, StructuralData | undefined>,
+): string | undefined {
+  const datasetUrn =
+    filter.filterType === 'dataset'
+      ? filter.datasetUrn
+      : filter.sourceDatasetUrns?.[0];
+  const dim = dimensionsMap
+    ?.get(datasetUrn ?? '')
+    ?.find((d) => d.id === filter.id);
+  if (!dim) return undefined;
+
+  if (dim.localRepresentation?.enumeration) {
+    return dim.localRepresentation.enumeration;
+  }
+
+  const structuralData = structuresMap?.get(datasetUrn ?? '');
+  const codelist = findCodelistByDimension(
+    structuralData?.codelists,
+    structuralData?.conceptSchemes,
+    dim,
+  );
+  return codelist
+    ? (codelist.urn ??
+        generateShortUrn(codelist.id, codelist.version, codelist.agencyID))
+    : undefined;
+}
+
 export const getFilledDatasetFiltersMap = (
   structureDataMaps?: StructureDataMaps,
   locale?: string,

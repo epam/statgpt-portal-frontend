@@ -2,6 +2,7 @@ import {
   clearFilterValues,
   getDatasetFilters,
   getFilterDisplaySettings,
+  getHierarchyOptions,
   getFilterIdentity,
   getFilterNodesBySelection,
   getFilterTreeNodePadding,
@@ -601,6 +602,45 @@ describe('getFilterDisplaySettings', () => {
     } as any);
     expect(settings[0].title).toBe('Baumstruktur');
     expect(settings[1].title).toBe('Flachliste');
+  });
+});
+
+describe('getHierarchyOptions', () => {
+  it('returns flat list option by default', () => {
+    const options = getHierarchyOptions({});
+    expect(options).toEqual([{ key: '', title: 'Flat list' }]);
+  });
+
+  it('adds hierarchy mode option when filter supports hierarchy', () => {
+    const options = getHierarchyOptions({ isHierarchical: true });
+    expect(options).toEqual([
+      { key: '', title: 'Flat list' },
+      {
+        key: FilterDisplayMode.HIERARCHY,
+        title: 'Hierarchy by parent',
+      },
+    ]);
+  });
+
+  it('adds available hierarchy entries and applies localized titles', () => {
+    const options = getHierarchyOptions({
+      isHierarchical: true,
+      titles: {
+        flatList: 'Flachliste',
+        hierarchy: 'Baumstruktur',
+      } as any,
+      availableHierarchies: [
+        { id: 'H1', name: 'Geo', version: '1.0' } as any,
+        { id: 'H2', version: '2.0' } as any,
+      ],
+    });
+
+    expect(options).toEqual([
+      { key: '', title: 'Flachliste' },
+      { key: FilterDisplayMode.HIERARCHY, title: 'Baumstruktur' },
+      { key: 'H1', title: 'Geo (1.0)' },
+      { key: 'H2', title: 'H2 (2.0)' },
+    ]);
   });
 });
 
