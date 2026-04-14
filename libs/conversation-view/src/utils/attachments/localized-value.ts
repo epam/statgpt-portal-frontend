@@ -16,8 +16,11 @@ export function getDimRelatedStructures(
   codeLists: Codelist[],
 ): { concept: Concept | undefined; codeList: Codelist | undefined } {
   const concept = getConcept(dimension.conceptIdentity, conceptSchemes);
+  const localEnumeration = dimension?.localRepresentation?.enumeration;
+  const coreEnumeration = concept?.coreRepresentation?.enumeration;
+  const enumeration = localEnumeration || coreEnumeration;
   const codeList = getArtifactByUrnWithWildCard(
-    concept?.coreRepresentation?.enumeration,
+    enumeration,
     codeLists,
   ) as Codelist;
   return {
