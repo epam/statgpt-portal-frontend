@@ -113,8 +113,17 @@ const DownloadSettings: FC<Props> = ({
     (downloadDatasets.length === 0 || selectedDatasetUrns.size === 0);
 
   const downloadDataset = useCallback(
-    async (dq: DataQuery | undefined, urnParam: string, filename: string) => {
-      const downloadFilters = getDownloadFilters(type, dq, dimensions, filters);
+    async (
+      dataQuery: DataQuery | undefined,
+      urnParam: string,
+      filename: string,
+    ) => {
+      const downloadFilters = getDownloadFilters(
+        type,
+        dataQuery,
+        dimensions,
+        filters,
+      );
       await actions.downloadDataSet(
         urnParam,
         selectedDataFormat.value as SdmxDataFormat,
