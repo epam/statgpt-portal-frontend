@@ -16,6 +16,7 @@ interface UserStyles {
   showSeparator?: boolean;
   disableModalDividers?: boolean;
   dropdownButtonStyles?: string;
+  dropdownButtonTypographyStyles?: string;
   dropdownContainerClassName?: string;
 }
 
@@ -94,16 +95,12 @@ export const User: FC<Props> = ({
 
   const content = useMemo(() => {
     return (
-      <div
-        className={classNames(
-          'py-1 w-max max-w-[calc(100vw-32px)]',
-          styles?.dropDownStyles,
-        )}
-      >
+      <div className={classNames('py-1', styles?.dropDownStyles)}>
         {styles?.settingsIcon && (
           <button
             className={classNames(
-              'flex w-full items-center gap-1 p-2 text-left text-neutrals-1000 fill-neutrals-1000 body-2',
+              'p-2 items-center flex gap-1 text-primary fill-primary',
+              styles?.dropdownButtonTypographyStyles || 'body-1',
               styles?.dropdownButtonStyles,
             )}
             title={titles?.settings}
@@ -118,7 +115,8 @@ export const User: FC<Props> = ({
         {styles?.contactSupportIcon && (
           <button
             className={classNames(
-              'flex w-full items-center gap-1 p-2 text-left text-neutrals-1000 fill-neutrals-1000 body-2',
+              'p-2 items-center flex gap-1 text-primary fill-primary',
+              styles?.dropdownButtonTypographyStyles || 'body-1',
               styles?.dropdownButtonStyles,
             )}
             title={titles?.contactSupport}
@@ -140,7 +138,8 @@ export const User: FC<Props> = ({
 
         <button
           className={classNames(
-            'flex w-full items-center gap-1 p-2 text-left text-neutrals-1000 fill-neutrals-1000 body-2',
+            'p-2 items-center flex gap-1 text-primary fill-primary',
+            styles?.dropdownButtonTypographyStyles || 'body-1',
             styles?.dropdownButtonStyles,
           )}
           title={titles?.signOut}
