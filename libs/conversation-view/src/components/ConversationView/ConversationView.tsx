@@ -456,12 +456,14 @@ export const ConversationView: FC<Props> = ({
         token,
         requestCustomFields,
       ).catch((error) => {
-        const { assistantMessage, errorContext } = handleStreamingError(
-          error,
-          currentAssistantMessage,
-        );
-        currentAssistantMessage = assistantMessage;
-        currentErrorContext = errorContext;
+        if (!isStoppedStreaming(error)) {
+          const { assistantMessage, errorContext } = handleStreamingError(
+            error,
+            currentAssistantMessage,
+          );
+          currentAssistantMessage = assistantMessage;
+          currentErrorContext = errorContext;
+        }
       });
 
       return {
