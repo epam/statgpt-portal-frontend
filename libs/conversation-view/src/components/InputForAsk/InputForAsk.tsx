@@ -83,8 +83,6 @@ const InputForAsk: FC<Props> = ({
       );
     }
 
-    if (!inputData) return null;
-
     if (inProcess) {
       return (
         <IconButton
@@ -94,6 +92,8 @@ const InputForAsk: FC<Props> = ({
         />
       );
     }
+
+    if (!inputData) return null;
 
     return (
       <IconButton
