@@ -32,6 +32,52 @@ export function getItemNodeByPath(
 }
 
 /**
+ * Ensures the last visible leaf item inside every named group of an enriched
+ * draggable list item cannot be unchecked, preventing a column group from
+ * becoming completely empty.
+ *
+ * A leaf is considered visible when `isChecked` is not explicitly `false`.
+ * When exactly one visible leaf remains in a group, that leaf is returned
+ * with `checkable: false`. Groups with zero or two or more visible leaves
+ * are left unchanged.
+ *
+ * @param item - A top-level draggable list item node, potentially containing
+ *   named group sub-nodes with leaf items.
+ * @returns A new item node with the last-visible-leaf protection applied, or
+ *   the original node if no protection is needed.
+ */
+export function protectLastVisibleLeafInGroups(
+  item: DraggableListItemNode,
+): DraggableListItemNode {
+  if (!item.items?.length) return item;
+
+  const newGroupItems = item.items.map((node) => {
+    if (node.type !== 'group') return node;
+
+    const leafItems = node.items.filter(
+      (i): i is DraggableListItemNode => i.type === 'item',
+    );
+    const visibleLeaves = leafItems.filter((i) => i.isChecked !== false);
+
+    if (visibleLeaves.length !== 1) return node;
+
+    const [soleVisibleLeaf] = visibleLeaves;
+    return {
+      ...node,
+      items: node.items.map((leaf) =>
+        leaf === soleVisibleLeaf ? { ...leaf, checkable: false } : leaf,
+      ),
+    };
+  });
+
+  if (newGroupItems.every((newNode, i) => newNode === item.items![i])) {
+    return item;
+  }
+
+  return { ...item, items: newGroupItems };
+}
+
+/**
  * Recursively collects IDs of all leaf item nodes from a draggable list tree.
  *
  * @param nodes - The array of nodes to flatten.

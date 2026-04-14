@@ -5,6 +5,7 @@ import type {
 import {
   flattenIncludedLeafIds,
   getItemNodeByPath,
+  protectLastVisibleLeafInGroups,
 } from '../draggableListUtils';
 
 // ---------------------------------------------------------------------------
@@ -16,6 +17,14 @@ function item(
   children?: DraggableListNode[],
 ): DraggableListItemNode {
   return { type: 'item', id, label: id, items: children };
+}
+
+function checkedItem(
+  id: string,
+  isChecked: boolean,
+  extra?: Partial<DraggableListItemNode>,
+): DraggableListItemNode {
+  return { type: 'item', id, label: id, isChecked, ...extra };
 }
 
 function group(id: string, children: DraggableListNode[]): DraggableListNode {
@@ -158,5 +167,195 @@ describe('getItemNodeByPath', () => {
   it('returns undefined for an empty path', () => {
     const nodes: DraggableListNode[] = [item('a')];
     expect(getItemNodeByPath(nodes, [])).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// protectLastVisibleLeafInGroups
+// ---------------------------------------------------------------------------
+
+describe('protectLastVisibleLeafInGroups', () => {
+  describe('no-op cases', () => {
+    it('returns the same reference when the item has no sub-items', () => {
+      const node = item('col');
+      expect(protectLastVisibleLeafInGroups(node)).toBe(node);
+    });
+
+    it('returns the same reference when items array is empty', () => {
+      const node: DraggableListItemNode = {
+        type: 'item',
+        id: 'col',
+        label: 'col',
+        items: [],
+      };
+      expect(protectLastVisibleLeafInGroups(node)).toBe(node);
+    });
+
+    it('returns unchanged when sub-items contain only item nodes (no groups)', () => {
+      const node = item('col', [
+        checkedItem('a', true),
+        checkedItem('b', false),
+      ]);
+      const result = protectLastVisibleLeafInGroups(node);
+      expect(result).toBe(node);
+    });
+
+    it('returns unchanged when a group has two or more visible leaves', () => {
+      const node = item('col', [
+        group('g1', [checkedItem('a', true), checkedItem('b', true)]),
+      ]);
+      const result = protectLastVisibleLeafInGroups(node);
+      expect(result.items![0]).toBe(node.items![0]);
+    });
+
+    it('returns unchanged when a group has zero visible leaves', () => {
+      const node = item('col', [
+        group('g1', [checkedItem('a', false), checkedItem('b', false)]),
+      ]);
+      const result = protectLastVisibleLeafInGroups(node);
+      expect(result.items![0]).toBe(node.items![0]);
+    });
+  });
+
+  describe('protection applied', () => {
+    it('sets checkable: false on the sole visible leaf in a group', () => {
+      const node = item('col', [
+        group('g1', [
+          checkedItem('a', false),
+          checkedItem('b', true),
+          checkedItem('c', false),
+        ]),
+      ]);
+      const result = protectLastVisibleLeafInGroups(node);
+      const leaves = (result.items![0] as ReturnType<typeof group>)
+        .items as DraggableListItemNode[];
+      expect(leaves.find((l) => l.id === 'b')?.checkable).toBe(false);
+    });
+
+    it('does not set checkable: false on hidden leaves', () => {
+      const node = item('col', [
+        group('g1', [
+          checkedItem('a', false),
+          checkedItem('b', true),
+          checkedItem('c', false),
+        ]),
+      ]);
+      const result = protectLastVisibleLeafInGroups(node);
+      const leaves = (result.items![0] as ReturnType<typeof group>)
+        .items as DraggableListItemNode[];
+      expect(leaves.find((l) => l.id === 'a')?.checkable).toBeUndefined();
+      expect(leaves.find((l) => l.id === 'c')?.checkable).toBeUndefined();
+    });
+
+    it('treats a leaf with isChecked: undefined as visible', () => {
+      const node = item('col', [
+        group('g1', [
+          checkedItem('a', false),
+          item('b'), // isChecked: undefined — treated as visible
+        ]),
+      ]);
+      const result = protectLastVisibleLeafInGroups(node);
+      const leaves = (result.items![0] as ReturnType<typeof group>)
+        .items as DraggableListItemNode[];
+      expect(leaves.find((l) => l.id === 'b')?.checkable).toBe(false);
+    });
+
+    it('does not change draggable on the last visible leaf', () => {
+      const node = item('col', [
+        group('g1', [
+          checkedItem('a', false),
+          checkedItem('b', true, { draggable: true }),
+        ]),
+      ]);
+      const result = protectLastVisibleLeafInGroups(node);
+      const leaves = (result.items![0] as ReturnType<typeof group>)
+        .items as DraggableListItemNode[];
+      expect(leaves.find((l) => l.id === 'b')?.draggable).toBe(true);
+    });
+
+    it('preserves all other fields on the protected leaf', () => {
+      const node = item('col', [
+        group('g1', [
+          checkedItem('a', false),
+          checkedItem('b', true, { draggable: true, label: 'Leaf B' }),
+        ]),
+      ]);
+      const result = protectLastVisibleLeafInGroups(node);
+      const leaves = (result.items![0] as ReturnType<typeof group>)
+        .items as DraggableListItemNode[];
+      const protectedLeaf = leaves.find((l) => l.id === 'b');
+      expect(protectedLeaf).toMatchObject({
+        id: 'b',
+        label: 'Leaf B',
+        isChecked: true,
+        draggable: true,
+        checkable: false,
+      });
+    });
+
+    it('applies protection to a single-item group (1 total, 1 visible)', () => {
+      const node = item('col', [group('g1', [checkedItem('a', true)])]);
+      const result = protectLastVisibleLeafInGroups(node);
+      const leaves = (result.items![0] as ReturnType<typeof group>)
+        .items as DraggableListItemNode[];
+      expect(leaves[0].checkable).toBe(false);
+    });
+  });
+
+  describe('multiple groups', () => {
+    it('protects only the group that has exactly one visible leaf', () => {
+      const node = item('col', [
+        group('g1', [checkedItem('a', true), checkedItem('b', true)]),
+        group('g2', [checkedItem('c', false), checkedItem('d', true)]),
+      ]);
+      const result = protectLastVisibleLeafInGroups(node);
+      const g1Leaves = (result.items![0] as ReturnType<typeof group>)
+        .items as DraggableListItemNode[];
+      const g2Leaves = (result.items![1] as ReturnType<typeof group>)
+        .items as DraggableListItemNode[];
+
+      // g1 has 2 visible → unchanged
+      expect(result.items![0]).toBe(node.items![0]);
+      // g2 has 1 visible → protected
+      expect(g2Leaves.find((l) => l.id === 'd')?.checkable).toBe(false);
+    });
+
+    it('protects the last visible leaf in each group independently', () => {
+      const node = item('col', [
+        group('g1', [checkedItem('a', false), checkedItem('b', true)]),
+        group('g2', [checkedItem('c', true), checkedItem('d', false)]),
+      ]);
+      const result = protectLastVisibleLeafInGroups(node);
+      const g1Leaves = (result.items![0] as ReturnType<typeof group>)
+        .items as DraggableListItemNode[];
+      const g2Leaves = (result.items![1] as ReturnType<typeof group>)
+        .items as DraggableListItemNode[];
+
+      expect(g1Leaves.find((l) => l.id === 'b')?.checkable).toBe(false);
+      expect(g2Leaves.find((l) => l.id === 'c')?.checkable).toBe(false);
+    });
+  });
+
+  describe('immutability', () => {
+    it('returns a new item object when protection is applied', () => {
+      const node = item('col', [
+        group('g1', [checkedItem('a', false), checkedItem('b', true)]),
+      ]);
+      expect(protectLastVisibleLeafInGroups(node)).not.toBe(node);
+    });
+
+    it('does not mutate the original node when protection is applied', () => {
+      const leaf = checkedItem('b', true);
+      const node = item('col', [group('g1', [checkedItem('a', false), leaf])]);
+      protectLastVisibleLeafInGroups(node);
+      expect(leaf.checkable).toBeUndefined();
+    });
+
+    it('returns the same group reference when no protection is needed', () => {
+      const g = group('g1', [checkedItem('a', true), checkedItem('b', true)]);
+      const node = item('col', [g]);
+      const result = protectLastVisibleLeafInGroups(node);
+      expect(result.items![0]).toBe(g);
+    });
   });
 });

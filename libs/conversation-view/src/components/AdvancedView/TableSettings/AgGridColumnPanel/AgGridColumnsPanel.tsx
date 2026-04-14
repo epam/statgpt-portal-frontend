@@ -4,6 +4,7 @@ import { DraggableList, InputWithIcon } from '@epam/statgpt-ui-components';
 import type { DraggableListItemNode } from '@epam/statgpt-ui-components';
 import { useAgGridColumnsPanel } from './hooks/useAgGridColumnsPanel';
 import { ColumnPanelFilter } from './types';
+import { protectLastVisibleLeafInGroups } from './helpers/draggableListUtils';
 import { useCallback, useMemo, useState } from 'react';
 import { IconSearch, IconX } from '@tabler/icons-react';
 import { GridApi } from 'ag-grid-community';
@@ -80,6 +81,14 @@ export function AgGridColumnsPanel({
     [clearSearchHandler],
   );
 
+  const wrappedEnrichItem = useCallback(
+    (item: DraggableListItemNode) => {
+      const enriched = enrichItem ? enrichItem(item) : item;
+      return protectLastVisibleLeafInGroups(enriched);
+    },
+    [enrichItem],
+  );
+
   const {
     visibleItems,
     handleItemsChange,
@@ -90,7 +99,7 @@ export function AgGridColumnsPanel({
     api,
     includeColumn,
     searchQuery,
-    enrichItem,
+    enrichItem: wrappedEnrichItem,
     onSubItemOrderChange,
     onSubItemVisibilityChange,
   });
