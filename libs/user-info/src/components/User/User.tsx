@@ -94,31 +94,40 @@ export const User: FC<Props> = ({
 
   const content = useMemo(() => {
     return (
-      <div className={classNames('py-1', styles?.dropDownStyles)}>
+      <div
+        className={classNames(
+          'py-1 w-max max-w-[calc(100vw-32px)]',
+          styles?.dropDownStyles,
+        )}
+      >
         {styles?.settingsIcon && (
           <button
             className={classNames(
-              'p-2 items-center flex gap-1 text-primary fill-primary body-1',
+              'flex w-full items-center gap-1 p-2 text-left text-neutrals-1000 fill-neutrals-1000 body-2',
               styles?.dropdownButtonStyles,
             )}
             title={titles?.settings}
           >
-            {styles?.settingsIcon}
-            {titles?.settings || 'Settings'}
+            <span className="shrink-0">{styles?.settingsIcon}</span>
+            <span className="min-w-0 break-words">
+              {titles?.settings || 'Settings'}
+            </span>
           </button>
         )}
 
         {styles?.contactSupportIcon && (
           <button
             className={classNames(
-              'p-2 items-center flex gap-1 text-primary fill-primary body-1',
+              'flex w-full items-center gap-1 p-2 text-left text-neutrals-1000 fill-neutrals-1000 body-2',
               styles?.dropdownButtonStyles,
             )}
             title={titles?.contactSupport}
             onClick={onContactSupportClick}
           >
-            {styles?.contactSupportIcon}
-            {titles?.contactSupport || 'Contact support'}
+            <span className="shrink-0">{styles?.contactSupportIcon}</span>
+            <span className="min-w-0 break-words">
+              {titles?.contactSupport || 'Contact support'}
+            </span>
           </button>
         )}
 
@@ -131,14 +140,16 @@ export const User: FC<Props> = ({
 
         <button
           className={classNames(
-            'p-2 items-center flex gap-1 text-primary fill-primary body-1',
+            'flex w-full items-center gap-1 p-2 text-left text-neutrals-1000 fill-neutrals-1000 body-2',
             styles?.dropdownButtonStyles,
           )}
           title={titles?.signOut}
           onClick={openModal}
         >
-          {styles?.signOutIcon}
-          {titles?.signOut || 'Sign out'}
+          <span className="shrink-0">{styles?.signOutIcon}</span>
+          <span className="min-w-0 break-words">
+            {titles?.signOut || 'Sign out'}
+          </span>
           {isModalOpen && (
             <SignOutModal
               onCloseModal={onModalClose}
