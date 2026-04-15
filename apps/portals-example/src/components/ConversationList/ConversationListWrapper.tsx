@@ -351,7 +351,10 @@ const ConversationListWrapper = ({
                 signOutIcon: <SignOut />,
                 contactSupportIcon: <ContactSupport />,
                 userNameStyles: classNames(isCollapsed && 'hidden'),
-                dropdownButtonStyles: 'hover:bg-hues-100 w-full',
+                dropDownStyles: 'w-max max-w-[calc(100vw-32px)]',
+                dropdownButtonTypographyStyles: 'body-2',
+                dropdownButtonStyles:
+                  'w-full text-left hover:bg-hues-100 !text-neutrals-1000 !fill-neutrals-1000',
                 showSeparator: true,
               }}
               titles={signOutTitles}
