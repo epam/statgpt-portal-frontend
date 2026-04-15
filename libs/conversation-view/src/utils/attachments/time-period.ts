@@ -174,3 +174,28 @@ export const localizeTimePeriod = (
 
   return period;
 };
+
+// workaround for specific case for datasets without time perion constraints
+export const getMergedInitialConstraints = (
+  initialTimeRange: TimeRange,
+  selectedTimeRange: TimeRange | null,
+): TimeRange => {
+  const mergedTimeRange = { ...initialTimeRange };
+  if (
+    (!initialTimeRange.startPeriod && selectedTimeRange?.startPeriod) ||
+    (selectedTimeRange?.startPeriod &&
+      initialTimeRange?.startPeriod &&
+      selectedTimeRange.startPeriod < initialTimeRange?.startPeriod)
+  )
+    mergedTimeRange.startPeriod = selectedTimeRange?.startPeriod || null;
+
+  if (
+    (!initialTimeRange.endPeriod && selectedTimeRange?.endPeriod) ||
+    (selectedTimeRange?.endPeriod &&
+      initialTimeRange?.endPeriod &&
+      selectedTimeRange.endPeriod > initialTimeRange?.endPeriod)
+  )
+    mergedTimeRange.endPeriod = selectedTimeRange?.endPeriod || null;
+
+  return mergedTimeRange;
+};

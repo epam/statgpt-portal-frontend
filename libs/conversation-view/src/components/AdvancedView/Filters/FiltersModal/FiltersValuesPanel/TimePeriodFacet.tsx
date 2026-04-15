@@ -14,6 +14,7 @@ import { Calendar, Radio } from '@epam/statgpt-ui-components';
 import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import {
   correctTimeZone,
+  getMergedInitialConstraints,
   getPickerOptions,
   getRangedTimePeriod,
 } from '../../../../../utils/attachments/time-period';
@@ -51,8 +52,10 @@ const TimePeriodFacet: FC<Props> = ({
   titles,
   defaultTimeOption,
 }) => {
-  const initialTimeRange = getAnnotationPeriod(
-    initialConstraints?.[0]?.annotations,
+  // workaround for specific case for datasets without time perion constraints
+  const initialTimeRange = getMergedInitialConstraints(
+    getAnnotationPeriod(initialConstraints?.[0]?.annotations),
+    timeRange,
   );
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange | null>(
     timeRange,
