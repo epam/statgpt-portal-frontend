@@ -186,16 +186,18 @@ export const getMergedInitialConstraints = (
     (selectedTimeRange?.startPeriod &&
       initialTimeRange?.startPeriod &&
       selectedTimeRange.startPeriod < initialTimeRange?.startPeriod)
-  )
+  ) {
     mergedTimeRange.startPeriod = selectedTimeRange?.startPeriod || null;
+  }
 
   if (
     (!initialTimeRange.endPeriod && selectedTimeRange?.endPeriod) ||
     (selectedTimeRange?.endPeriod &&
       initialTimeRange?.endPeriod &&
       selectedTimeRange.endPeriod > initialTimeRange?.endPeriod)
-  )
+  ) {
     mergedTimeRange.endPeriod = selectedTimeRange?.endPeriod || null;
+  }
 
   return mergedTimeRange;
 };
