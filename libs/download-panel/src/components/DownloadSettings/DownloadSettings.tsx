@@ -108,10 +108,23 @@ const DownloadSettings: FC<Props> = ({
     });
   }, []);
 
+  const isDownloadDisabled =
+    downloadDatasets !== undefined &&
+    (downloadDatasets.length === 0 || selectedDatasetUrns.size === 0);
+
   const downloadDataset = useCallback(
-    (dq: DataQuery | undefined, urnParam: string, filename: string) => {
-      const downloadFilters = getDownloadFilters(type, dq, dimensions, filters);
-      actions.downloadDataSet(
+    async (
+      dataQuery: DataQuery | undefined,
+      urnParam: string,
+      filename: string,
+    ) => {
+      const downloadFilters = getDownloadFilters(
+        type,
+        dataQuery,
+        dimensions,
+        filters,
+      );
+      await actions.downloadDataSet(
         urnParam,
         selectedDataFormat.value as SdmxDataFormat,
         locale,
@@ -135,27 +148,37 @@ const DownloadSettings: FC<Props> = ({
 
   const onDownloadClick = useCallback(() => {
     const dataFormat = selectedDataFormat.value as SdmxDataFormat;
+    const runDownloads = async () => {
+      if (downloadDatasets && downloadDatasets.length > 0) {
+        const selected = downloadDatasets.filter((d) =>
+          selectedDatasetUrns.has(d.urn),
+        );
 
-    if (downloadDatasets && downloadDatasets.length > 0) {
-      const selected = downloadDatasets.filter((d) =>
-        selectedDatasetUrns.has(d.urn),
-      );
-      selected.forEach((dataset, i) => {
-        setTimeout(() => {
-          downloadDataset(
+        for (const [index, dataset] of selected.entries()) {
+          await downloadDataset(
             dataset.dataQuery,
             dataset.urn,
             `${dataset.name}.${dataFormat}`,
           );
-        }, i * DOWNLOAD_FILE_INTERVAL_MS);
-      });
-    } else {
-      downloadDataset(
-        dataQuery,
-        dataQuery?.urn || urn || '',
-        `${datasetName}.${dataFormat}`,
-      );
-    }
+
+          if (index < selected.length - 1) {
+            await new Promise((resolve) =>
+              window.setTimeout(resolve, DOWNLOAD_FILE_INTERVAL_MS),
+            );
+          }
+        }
+      } else {
+        await downloadDataset(
+          dataQuery,
+          dataQuery?.urn || urn || '',
+          `${datasetName}.${dataFormat}`,
+        );
+      }
+    };
+
+    void runDownloads().catch((error) => {
+      console.error('Failed to download dataset', error);
+    });
 
     onCloseModal();
   }, [
@@ -305,6 +328,7 @@ const DownloadSettings: FC<Props> = ({
         <Button
           buttonClassName="text-button-primary"
           title={titles?.download || 'Download'}
+          disabled={isDownloadDisabled}
           onClick={onDownloadClick}
         />
       </div>
