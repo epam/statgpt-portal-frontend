@@ -58,3 +58,11 @@ export function isCustomCodeSampleAttachment(attachment: Attachment): boolean {
 export function isCrossDatasetGrid(attachment: Attachment): boolean {
   return attachment.type === AttachmentType.CROSS_DATASET_GRID;
 }
+
+export function isAnyGridAttachment(attachment: Attachment): boolean {
+  return (
+    isGridAttachment(attachment) ||
+    isCustomGridAttachment(attachment) ||
+    isCrossDatasetGrid(attachment)
+  );
+}

@@ -18,9 +18,9 @@ import {
   RequestLimitMessage,
 } from '@epam/statgpt-ui-components';
 import {
+  isAnyGridAttachment,
   isCrossDatasetGrid,
   isCustomGridAttachment,
-  isGridAttachment,
 } from '../../utils/attachments/attachment-parser';
 import {
   AttachmentInfo,
@@ -274,7 +274,7 @@ const AttachmentRenderer: FC<Props> = ({
                   limitMessages={limitMessages}
                   showAdvancedViewButton={
                     !!selectedAttachment &&
-                    isGridAttachment(selectedAttachment) &&
+                    isAnyGridAttachment(selectedAttachment) &&
                     showAdvancedView
                   }
                   onAdvancedViewClick={onOpenAdvancedView}
