@@ -4,7 +4,6 @@ import {
   Dimension,
   findCodelistByDimension,
   getAnnotationPeriod,
-  getKeyFromUrn,
   generateShortUrn,
   getAvailableCodesFromConstrains,
   SeriesFilterDto,

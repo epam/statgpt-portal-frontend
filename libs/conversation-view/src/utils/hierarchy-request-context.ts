@@ -3,6 +3,7 @@ import {
   Dimension,
   findCodelistByDimension,
   generateShortUrn,
+  getKeyFromUrn,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
 import { Filter } from '../models/filters';
@@ -105,8 +106,11 @@ export const getCodelistUrnForDatasetFilter = (
     return undefined;
   }
 
-  if (dimension.localRepresentation?.enumeration) {
-    return dimension.localRepresentation.enumeration;
+  const localEnumerationUrn = getKeyFromUrn(
+    dimension.localRepresentation?.enumeration,
+  );
+  if (localEnumerationUrn) {
+    return localEnumerationUrn;
   }
 
   const structuralData = structuresMap?.get(datasetUrn);
@@ -117,7 +121,7 @@ export const getCodelistUrnForDatasetFilter = (
   );
 
   return codelist
-    ? (codelist.urn ??
+    ? (getKeyFromUrn(codelist.urn) ??
         generateShortUrn(codelist.id, codelist.version, codelist.agencyID))
     : undefined;
 };
