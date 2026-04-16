@@ -2,7 +2,6 @@ import {
   COMMON_COUNTRY_FILTER_ID,
   COMMON_FREQUENCY_FILTER_ID,
   buildFiltersMap,
-  getCodelistUrnForFilter,
   getConstraintsMap,
   getDatasetNameFromFilters,
   getFiltersForQueryContext,
@@ -10,17 +9,6 @@ import {
   isStructureDataMapsReady,
 } from '../multiple-filters';
 import type { Filter, SharedFilter } from '../../models/filters';
-
-const mockFindCodelistByDimension = jest.fn(() => null);
-const mockGetKeyFromUrn = jest.fn((urn?: string | null) => {
-  if (urn == null) {
-    return undefined;
-  }
-
-  const separatedValue = urn.split('=');
-
-  return separatedValue.length === 1 ? urn : separatedValue[1];
-});
 
 const mockGenerateShortUrn = jest.fn(
   (name: string, version: string, agencyId: string) =>
@@ -30,9 +18,6 @@ const mockGenerateShortUrn = jest.fn(
 jest.mock('@epam/statgpt-sdmx-toolkit', () => ({
   generateShortUrn: (...args: any[]) => (mockGenerateShortUrn as any)(...args),
   getAnnotationPeriod: jest.fn(() => ({ startPeriod: null, endPeriod: null })),
-  findCodelistByDimension: (...args: any[]) =>
-    (mockFindCodelistByDimension as any)(...args),
-  getKeyFromUrn: (...args: any[]) => (mockGetKeyFromUrn as any)(...args),
   getAvailableCodesFromConstrains: jest.fn(() => []),
   TIME_PERIOD: 'TIME_PERIOD',
   TIME_PERIOD_START_ANNOTATION_KEY: 'TIME_PERIOD_START',
@@ -78,18 +63,6 @@ beforeEach(() => {
     (name: string, version: string, agencyId: string) =>
       `${agencyId}:${name}(${version})`,
   );
-  mockFindCodelistByDimension.mockReset();
-  mockFindCodelistByDimension.mockReturnValue(null);
-  mockGetKeyFromUrn.mockReset();
-  mockGetKeyFromUrn.mockImplementation((urn?: string | null) => {
-    if (urn == null) {
-      return undefined;
-    }
-
-    const separatedValue = urn.split('=');
-
-    return separatedValue.length === 1 ? urn : separatedValue[1];
-  });
 });
 
 const makeDatasetCountryFilter = (
@@ -760,92 +733,5 @@ describe('shared filter fallback for datasets with no matching source values', (
     expect(dsBFilter?.dimensionValues?.map((v) => v.id)).not.toContain(
       'name:annual',
     );
-  });
-});
-
-describe('getCodelistUrnForFilter', () => {
-  const datasetUrn = 'SDMX:DATASET(1.0)';
-  const filter: Filter = {
-    id: 'FREQ',
-    filterType: 'dataset',
-    datasetUrn,
-    dimensionValues: [],
-  };
-
-  it('returns short URN when localRepresentation.enumeration is a full SDMX URN', () => {
-    const dimensionsMap = new Map([
-      [
-        datasetUrn,
-        [
-          {
-            id: 'FREQ',
-            conceptIdentity: 'SDMX:CONCEPTS(1.0).FREQ',
-            localRepresentation: {
-              enumeration:
-                'urn:sdmx:org.sdmx.infomodel.codelist.Codelist=SDMX:CL_FREQ(2.0)',
-            },
-          },
-        ],
-      ],
-    ]) as any;
-
-    const result = getCodelistUrnForFilter(filter, dimensionsMap);
-
-    expect(result).toBe('SDMX:CL_FREQ(2.0)');
-    expect(mockFindCodelistByDimension).not.toHaveBeenCalled();
-  });
-
-  it('returns short URN when codelist.urn is a full SDMX URN', () => {
-    const dimensionsMap = new Map([
-      [
-        datasetUrn,
-        [{ id: 'FREQ', conceptIdentity: 'SDMX:CONCEPTS(1.0).FREQ' }],
-      ],
-    ]) as any;
-    const structuresMap = new Map([
-      [datasetUrn, { codelists: [], conceptSchemes: [] }],
-    ]) as any;
-
-    mockFindCodelistByDimension.mockReturnValue({
-      id: 'CL_FREQ',
-      version: '2.0',
-      agencyID: 'SDMX',
-      urn: 'urn:sdmx:org.sdmx.infomodel.codelist.Codelist=SDMX:CL_FREQ(2.0)',
-    });
-
-    const result = getCodelistUrnForFilter(
-      filter,
-      dimensionsMap,
-      structuresMap,
-    );
-
-    expect(result).toBe('SDMX:CL_FREQ(2.0)');
-  });
-
-  it('falls back to generated short URN when codelist.urn is missing', () => {
-    const dimensionsMap = new Map([
-      [
-        datasetUrn,
-        [{ id: 'FREQ', conceptIdentity: 'SDMX:CONCEPTS(1.0).FREQ' }],
-      ],
-    ]) as any;
-    const structuresMap = new Map([
-      [datasetUrn, { codelists: [], conceptSchemes: [] }],
-    ]) as any;
-
-    mockFindCodelistByDimension.mockReturnValue({
-      id: 'CL_FREQ',
-      version: '2.0',
-      agencyID: 'SDMX',
-    });
-
-    const result = getCodelistUrnForFilter(
-      filter,
-      dimensionsMap,
-      structuresMap,
-    );
-
-    expect(mockGenerateShortUrn).toHaveBeenCalledWith('CL_FREQ', '2.0', 'SDMX');
-    expect(result).toBe('SDMX:CL_FREQ(2.0)');
   });
 });

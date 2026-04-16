@@ -31,7 +31,6 @@ import FilterSettings from '../Filters/FiltersModal/FiltersSettings';
 import ModalFooter from '../Filters/FiltersModal/ModalFooter';
 import {
   buildFiltersMap,
-  getCodelistUrnForFilter,
   getConstraintsMap,
   getConstraintsRequests,
   getFilledDatasetFiltersMap,
@@ -41,6 +40,7 @@ import {
   getQueryFiltersMap,
   setDataQueryFiltersMap,
 } from '../../../utils/multiple-filters';
+import { getHierarchyRequestContextForFilter } from '../../../utils/hierarchy-request-context';
 import { StructureDataMaps } from '../../../models/structure-data';
 import { useHierarchyState } from '../../../utils/use-hierarchy-state';
 
@@ -87,14 +87,19 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     [dataQueries, structureDataMaps],
   );
 
-  const resolveCodelistUrnForFilter = useCallback(
+  const getHierarchyRequestContext = useCallback(
     (filter: Filter) =>
-      getCodelistUrnForFilter(
+      getHierarchyRequestContextForFilter(
         filter,
         structureDataMaps?.dimensionsMap,
         structureDataMaps?.structuresMap,
       ),
     [structureDataMaps?.dimensionsMap, structureDataMaps?.structuresMap],
+  );
+
+  const getCodelistUrnForFilter = useCallback(
+    (filter: Filter) => getHierarchyRequestContext(filter).codelistUrn,
+    [getHierarchyRequestContext],
   );
 
   const getConstraintsForFilter = useCallback((filter: Filter) => {
@@ -105,6 +110,11 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     return datasetUrn ? constraintsMapRef.current?.get(datasetUrn) : undefined;
   }, []);
 
+  const getSourceArtefactUrn = useCallback(
+    (filter: Filter) => getHierarchyRequestContext(filter).sourceArtefactUrn,
+    [getHierarchyRequestContext],
+  );
+
   const {
     hierarchyStateMap,
     rebuildHierarchyTree,
@@ -112,8 +122,9 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     onSelectHierarchy,
     onExpandHierarchyNode,
   } = useHierarchyState({
-    getCodelistUrnForFilter: resolveCodelistUrnForFilter,
+    getCodelistUrnForFilter,
     getConstraintsForFilter,
+    getSourceArtefactUrn,
     getAvailableHierarchies: actions?.getAvailableHierarchies,
     getHierarchy: actions?.getHierarchy,
   });
