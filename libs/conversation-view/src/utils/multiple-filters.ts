@@ -4,6 +4,7 @@ import {
   Dimension,
   findCodelistByDimension,
   getAnnotationPeriod,
+  getKeyFromUrn,
   generateShortUrn,
   getAvailableCodesFromConstrains,
   SeriesFilterDto,
@@ -453,18 +454,23 @@ export function getCodelistUrnForFilter(
     ?.find((d) => d.id === filter.id);
   if (!dim) return undefined;
 
-  if (dim.localRepresentation?.enumeration) {
-    return dim.localRepresentation.enumeration;
+  const localEnumerationUrn = getKeyFromUrn(
+    dim.localRepresentation?.enumeration,
+  );
+  if (localEnumerationUrn) {
+    return localEnumerationUrn;
   }
 
   const structuralData = structuresMap?.get(datasetUrn ?? '');
+
   const codelist = findCodelistByDimension(
     structuralData?.codelists,
     structuralData?.conceptSchemes,
     dim,
   );
+
   return codelist
-    ? (codelist.urn ??
+    ? (getKeyFromUrn(codelist.urn) ??
         generateShortUrn(codelist.id, codelist.version, codelist.agencyID))
     : undefined;
 }

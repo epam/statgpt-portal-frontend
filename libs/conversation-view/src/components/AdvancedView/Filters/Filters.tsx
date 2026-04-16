@@ -5,6 +5,7 @@ import {
   findCodelistByDimension,
   generateShortUrn,
   getAvailableCodesFromConstrains,
+  getKeyFromUrn,
   getTimeSeriesCount,
   TIME_PERIOD,
 } from '@epam/statgpt-sdmx-toolkit';
@@ -96,8 +97,11 @@ const Filters: FC<FiltersProps> = ({
       const dimension = dimensions?.find((d) => d.id === filter.id);
       if (!dimension) return undefined;
 
-      if (dimension.localRepresentation?.enumeration) {
-        return dimension.localRepresentation.enumeration;
+      const localEnumerationUrn = getKeyFromUrn(
+        dimension.localRepresentation?.enumeration,
+      );
+      if (localEnumerationUrn) {
+        return localEnumerationUrn;
       }
 
       const codelist = findCodelistByDimension(
@@ -107,7 +111,7 @@ const Filters: FC<FiltersProps> = ({
       );
 
       return codelist
-        ? (codelist.urn ??
+        ? (getKeyFromUrn(codelist.urn) ??
             generateShortUrn(codelist.id, codelist.version, codelist.agencyID))
         : undefined;
     },

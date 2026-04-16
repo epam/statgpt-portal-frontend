@@ -17,7 +17,7 @@ export const sdmxApiClient = new SdmxApiClient({
   constrainsApiUrl: process.env.CONSTRAINS_SDMX_API_URL || '',
   sdmxProxyUrl: process.env.SDMX_PROXY_URL || '',
   apiKey: process.env.SDMX_AUTH_KEY,
-  useDialAuth: isDialProxyMode,
+  isDialProxyMode: isDialProxyMode,
   ...(isDialProxyMode && { dialApiKey: process.env.DIAL_API_KEY }),
 });
 
