@@ -4,7 +4,6 @@ export interface SdmxApiConfig {
   sdmxProxyUrl?: string;
   jwt?: string;
   apiKey?: string;
-  useDialAuth?: boolean;
   isDialProxyMode?: boolean;
   dialApiKey?: string;
 }
