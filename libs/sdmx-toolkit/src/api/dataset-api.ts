@@ -65,7 +65,6 @@ export class DatasetApi {
     token?: string,
   ) {
     const queryParams = new URLSearchParams({
-      format: dataFormat,
       compress: 'false',
       attributes: isMetadata ? 'all' : 'none',
       limit: '1000',

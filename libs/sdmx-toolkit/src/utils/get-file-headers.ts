@@ -11,12 +11,9 @@ export const getRequestAcceptHeader = (
         attribute,
       );
     case SdmxDataFormat.XML:
-      return getFileAcceptHeader(
-        'application/vnd.sdmx.data+xml;version=3.0.0',
-        attribute,
-      );
+      return 'application/vnd.sdmx.data+xml;version=3.0.0';
     case SdmxDataFormat.JSON:
-      return getFileAcceptHeader(`application/${format}`, attribute);
+      return 'application/vnd.sdmx.data+json;version=2.1';
     default:
       return getFileAcceptHeader(
         'application/vnd.sdmx.data+csv;version=2.0.0',
