@@ -164,7 +164,7 @@ export class SdmxApiClient {
     token?: string,
     optionsHeaders?: Record<string, string>,
   ): Record<string, string> {
-    if (this.config.useDialAuth) {
+    if (this.config.isDialProxyMode) {
       return {
         ...getHeaders(this.config.dialApiKey, { jwt: token }),
         ...optionsHeaders,
