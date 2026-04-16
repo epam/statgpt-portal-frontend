@@ -3,6 +3,7 @@ import { ApiResponse, HTTP_ERROR_CODES } from '@epam/statgpt-shared-toolkit';
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: unknown;
+  headers?: Record<string, string>;
 }
 
 interface CustomRequestOptions {
@@ -62,8 +63,13 @@ function buildFetchOptions(options?: RequestOptions): RequestInit {
   }
 
   if (options?.body !== undefined) {
-    fetchOptions.headers = { 'Content-Type': 'application/json' };
+    fetchOptions.headers = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
     fetchOptions.body = JSON.stringify(options.body);
+  } else if (options?.headers) {
+    fetchOptions.headers = options.headers;
   }
 
   return fetchOptions;

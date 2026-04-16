@@ -27,6 +27,7 @@ import {
 } from '../../../utils/filters';
 import { getFilledFilters } from '../../../utils/get-filled-filters';
 import { getSeriesFilterDto } from '../../../utils/get-series-filters';
+import { getSourceArtefactUrnForDatasetFilter } from '../../../utils/hierarchy-request-context';
 import { normalizeConstraintFilters } from '../../../utils/normalize-constraint-filters';
 import {
   getQueryFilters,
@@ -123,6 +124,8 @@ const Filters: FC<FiltersProps> = ({
   } = useHierarchyState({
     getCodelistUrnForFilter,
     getConstraintsForFilter: () => constraintsRef.current,
+    getSourceArtefactUrn: (filter) =>
+      getSourceArtefactUrnForDatasetFilter(filter.id, structures),
     getAvailableHierarchies: actions?.getAvailableHierarchies,
     getHierarchy: actions?.getHierarchy,
   });

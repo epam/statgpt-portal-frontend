@@ -74,7 +74,10 @@ describe('useHierarchyState', () => {
       await result.current.loadAvailableHierarchies(makeFilter());
     });
 
-    expect(getAvailableHierarchies).toHaveBeenCalledWith('SDMX:CL_GEO(1.0)');
+    expect(getAvailableHierarchies).toHaveBeenCalledWith(
+      'SDMX:CL_GEO(1.0)',
+      undefined,
+    );
     expect(mockGetLatestHierarchies).toHaveBeenCalledWith([
       { id: 'H1' },
       { id: 'H2' },
@@ -191,7 +194,10 @@ describe('useHierarchyState', () => {
       ),
     );
 
-    expect(getHierarchy).toHaveBeenCalledWith('SDMX:H1(1.0)');
+    expect(getHierarchy).toHaveBeenCalledWith(
+      'SDMX:H1(1.0)',
+      'SDMX:CL_GEO(1.0)',
+    );
     expect(mockResolveCodelistsFromResponse).toHaveBeenCalledWith({
       hierarchies: [
         apiHierarchy,
