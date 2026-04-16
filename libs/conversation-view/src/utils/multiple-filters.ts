@@ -39,6 +39,11 @@ type SharedFilterConfig = {
   getMergedValueKey: (value: FilterValue, datasetUrn?: string) => string;
 };
 
+type ExtendedStructuralMetadata = {
+  urn: string;
+  data?: StructuralMetaData;
+};
+
 export const COMMON_COUNTRY_FILTER_ID = 'COUNTRY';
 export const COMMON_FREQUENCY_FILTER_ID = 'FREQUENCY';
 export const COMMON_TIME_PERIOD_FILTER_ID = 'TIME_PERIOD';
@@ -574,7 +579,7 @@ export const getConstraintsRequests = (
       filters?: SeriesFilterDto[],
     ) => Promise<StructuralMetaData>;
   },
-): Promise<StructuralMetaData>[] => {
+): Promise<ExtendedStructuralMetadata>[] => {
   return (
     dataQueries?.map((dataQuery) => {
       const attachmentUrn = dataQuery?.urn ?? '';
@@ -588,26 +593,22 @@ export const getConstraintsRequests = (
             actions.getConstraints,
             buildRequestCacheKey(attachmentUrn, constraintFilters),
             () => actions.getConstraints(attachmentUrn, constraintFilters),
-          )
-        : Promise.resolve({} as StructuralMetaData);
+          ).then((data) => ({ urn: attachmentUrn, data }))
+        : Promise.resolve({
+            urn: attachmentUrn,
+            data: {} as StructuralMetaData,
+          });
     }) || []
   );
 };
 
 export const getConstraintsMap = (
-  constraintsData: StructuralMetaData[],
+  constraintsData: ExtendedStructuralMetadata[],
 ): Map<string, DataConstraints[] | undefined> => {
   return new Map(
-    constraintsData?.map((constraintData) => {
-      const constraint = constraintData?.data?.dataConstraints;
-      return [
-        generateShortUrn(
-          constraint?.[0]?.id,
-          constraint?.[0]?.version,
-          constraint?.[0]?.agencyID,
-        ),
-        constraint,
-      ];
+    constraintsData?.map(({ urn, data }) => {
+      const constraint = data?.data?.dataConstraints;
+      return [urn, constraint];
     }),
   );
 };

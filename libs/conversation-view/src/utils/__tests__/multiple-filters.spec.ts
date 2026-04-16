@@ -495,8 +495,13 @@ describe('getConstraintsMap', () => {
   it('builds a map keyed by the short URN generated from each constraint', () => {
     const constraintsData = [
       {
+        urn: 'AGENCY:DF_A(1.0)',
         data: {
-          dataConstraints: [{ id: 'DF_A', version: '1.0', agencyID: 'AGENCY' }],
+          data: {
+            dataConstraints: [
+              { id: 'DF_A', version: '1.0', agencyID: 'AGENCY' },
+            ],
+          },
         },
       },
     ] as any[];
