@@ -55,6 +55,34 @@ jest.mock('../query-filters', () => ({
 
 const DATASET_A_URN = 'AGENCY:DF_A(1.0)';
 const DATASET_B_URN = 'AGENCY:DF_B(1.0)';
+const DATASET_DIMENSIONS_METADATA_MAP = {
+  [DATASET_A_URN]: {
+    FREQ: {
+      subtype: 'FREQUENCY',
+      dimensionType: 'NON_INDICATOR',
+    },
+    REF_AREA: {
+      subtype: 'REGION',
+      dimensionType: 'NON_INDICATOR',
+    },
+    TIME_PERIOD: {
+      dimensionType: 'TIME_PERIOD',
+    },
+  },
+  [DATASET_B_URN]: {
+    FREQUENCY: {
+      subtype: 'FREQUENCY',
+      dimensionType: 'NON_INDICATOR',
+    },
+    COUNTRY: {
+      subtype: 'REGION',
+      dimensionType: 'NON_INDICATOR',
+    },
+    TIME_PERIOD: {
+      dimensionType: 'TIME_PERIOD',
+    },
+  },
+} as any;
 
 // ─── Default mock reset ───────────────────────────────────────────────────────
 
@@ -68,8 +96,9 @@ beforeEach(() => {
 const makeDatasetCountryFilter = (
   datasetUrn: string,
   values: Array<{ id: string; name?: string; isSelectedValue?: boolean }>,
+  filterId = COMMON_COUNTRY_FILTER_ID,
 ): Filter => ({
-  id: COMMON_COUNTRY_FILTER_ID,
+  id: filterId,
   filterType: 'dataset',
   datasetUrn,
   dimensionValues: values.map((v) => ({
@@ -209,6 +238,45 @@ describe('merging country filters from multiple datasets', () => {
     expect(merged).toHaveLength(2);
     const indicator = merged.find((f) => f.id === 'INDICATOR');
     expect(indicator?.filterType).toBe('dataset');
+  });
+});
+
+describe('merging shared filters by subtype', () => {
+  it('merges region filters even when dataset ids differ', () => {
+    const merged = getFiltersPreselectedByDataQueries(
+      new Map([
+        [
+          DATASET_A_URN,
+          [
+            makeDatasetCountryFilter(
+              DATASET_A_URN,
+              [{ id: 'FR', name: 'France', isSelectedValue: true }],
+              'REF_AREA',
+            ),
+          ],
+        ],
+        [
+          DATASET_B_URN,
+          [
+            makeDatasetCountryFilter(
+              DATASET_B_URN,
+              [{ id: 'FRA', name: 'France', isSelectedValue: false }],
+              'COUNTRY',
+            ),
+          ],
+        ],
+      ]),
+      [{ urn: DATASET_A_URN }, { urn: DATASET_B_URN }] as any[],
+      undefined,
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
+
+    const sharedCountry = merged.find((f) => f.id === COMMON_COUNTRY_FILTER_ID);
+    expect(sharedCountry?.filterType).toBe('shared');
+    expect((sharedCountry as SharedFilter).sourceFilterIdsByDataset).toEqual({
+      [DATASET_A_URN]: 'REF_AREA',
+      [DATASET_B_URN]: 'COUNTRY',
+    });
   });
 });
 
@@ -518,9 +586,9 @@ describe('getConstraintsMap', () => {
 // ─── FREQUENCY filter follows the same name-based merge strategy ─────────────
 
 describe('merging frequency filters', () => {
-  it('merges aliased frequency filters from multiple datasets by name', () => {
+  it('merges frequency filters from subtype metadata when dataset ids differ', () => {
     const freqFilterA: Filter = {
-      id: COMMON_FREQUENCY_FILTER_ID,
+      id: 'FREQ',
       filterType: 'dataset',
       datasetUrn: DATASET_A_URN,
       dimensionValues: [
@@ -529,7 +597,7 @@ describe('merging frequency filters', () => {
       ],
     };
     const freqFilterB: Filter = {
-      id: 'FREQ',
+      id: COMMON_FREQUENCY_FILTER_ID,
       filterType: 'dataset',
       datasetUrn: DATASET_B_URN,
       dimensionValues: [
@@ -544,6 +612,8 @@ describe('merging frequency filters', () => {
         [DATASET_B_URN, [freqFilterB]],
       ]),
       [{ urn: DATASET_A_URN }, { urn: DATASET_B_URN }] as any[],
+      undefined,
+      DATASET_DIMENSIONS_METADATA_MAP,
     );
 
     const sharedFreq = merged.find((f) => f.id === COMMON_FREQUENCY_FILTER_ID)!;
@@ -558,22 +628,18 @@ describe('merging frequency filters', () => {
     expect(annual?.isSelectedValue).toBe(true);
     expect(annual?.sourceValues).toHaveLength(2);
     expect((sharedFreq as SharedFilter).sourceFilterIdsByDataset).toEqual({
-      [DATASET_A_URN]: COMMON_FREQUENCY_FILTER_ID,
-      [DATASET_B_URN]: 'FREQ',
+      [DATASET_A_URN]: 'FREQ',
+      [DATASET_B_URN]: COMMON_FREQUENCY_FILTER_ID,
     });
   });
 });
 
-describe('expanding shared filters with aliased dataset ids', () => {
-  it('restores the native filter id for each dataset', () => {
+describe('expanding shared filters with subtype metadata', () => {
+  it('restores the native filter id for each dataset from metadata', () => {
     const sharedFreqFilter: Filter = {
       id: COMMON_FREQUENCY_FILTER_ID,
       filterType: 'shared',
       sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
-      sourceFilterIdsByDataset: {
-        [DATASET_A_URN]: COMMON_FREQUENCY_FILTER_ID,
-        [DATASET_B_URN]: 'FREQ',
-      },
       dimensionValues: [
         {
           id: 'name:annual',
@@ -587,12 +653,17 @@ describe('expanding shared filters with aliased dataset ids', () => {
       ],
     };
 
-    const filtersMap = buildFiltersMap([sharedFreqFilter]);
+    const filtersMap = buildFiltersMap(
+      [sharedFreqFilter],
+      undefined,
+      false,
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
 
-    expect(filtersMap.get(DATASET_A_URN)?.[0]?.id).toBe(
+    expect(filtersMap.get(DATASET_A_URN)?.[0]?.id).toBe('FREQ');
+    expect(filtersMap.get(DATASET_B_URN)?.[0]?.id).toBe(
       COMMON_FREQUENCY_FILTER_ID,
     );
-    expect(filtersMap.get(DATASET_B_URN)?.[0]?.id).toBe('FREQ');
   });
 });
 

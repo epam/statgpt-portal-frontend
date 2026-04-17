@@ -264,6 +264,7 @@ describe('MultiDatasetFilters', () => {
         expect.any(Map),
         defaultProps.dataQueries,
         expect.anything(),
+        expect.any(Object),
       );
     });
   });
@@ -286,6 +287,7 @@ describe('MultiDatasetFilters', () => {
         expect.any(Map),
         defaultProps.dataQueries,
         defaultProps.structureDataMaps.constraintsMap,
+        expect.any(Object),
       );
 
       expect(mockBuildFiltersMap).toHaveBeenCalledWith(
@@ -297,6 +299,7 @@ describe('MultiDatasetFilters', () => {
         ]),
         defaultProps.structureDataMaps.constraintsMap,
         true,
+        expect.any(Object),
       );
     });
 
@@ -369,6 +372,7 @@ describe('MultiDatasetFilters', () => {
         ]),
         defaultProps.structureDataMaps.constraintsMap,
         true,
+        expect.any(Object),
       );
 
       expect(onMultipleDataFiltersChange).toHaveBeenCalledWith(
