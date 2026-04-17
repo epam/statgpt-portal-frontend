@@ -37,9 +37,10 @@ export function getItemNodeByPath(
  * becoming completely empty.
  *
  * A leaf is considered visible when `isChecked` is not explicitly `false`.
- * When exactly one visible leaf remains in a group, that leaf is returned
- * with `checkable: false`. Groups with zero or two or more visible leaves
- * are left unchanged.
+ * When exactly one visible leaf remains in a group, the visible leaf is
+ * returned with `checkable: false`, and all item leaves in that group are
+ * returned with `draggable: false`. Groups with zero or two or more visible
+ * leaves are left unchanged.
  *
  * @param item - A top-level draggable list item node, potentially containing
  *   named group sub-nodes with leaf items.
@@ -65,7 +66,11 @@ export function protectLastVisibleLeafInGroups(
     return {
       ...node,
       items: node.items.map((leaf) =>
-        leaf === soleVisibleLeaf ? { ...leaf, checkable: false } : leaf,
+        leaf.type !== 'item'
+          ? leaf
+          : leaf === soleVisibleLeaf
+            ? { ...leaf, checkable: false, draggable: false }
+            : { ...leaf, draggable: false },
       ),
     };
   });
