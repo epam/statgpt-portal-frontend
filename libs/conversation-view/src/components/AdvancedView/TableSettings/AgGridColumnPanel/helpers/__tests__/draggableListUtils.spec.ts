@@ -208,6 +208,20 @@ describe('protectLastVisibleLeafInGroups', () => {
       expect(result.items![0]).toBe(node.items![0]);
     });
 
+    it('does not force draggable: false when a group has two or more visible leaves', () => {
+      const node = item('col', [
+        group('g1', [
+          checkedItem('a', true, { draggable: true }),
+          checkedItem('b', true, { draggable: true }),
+        ]),
+      ]);
+      const result = protectLastVisibleLeafInGroups(node);
+      const leaves = (result.items![0] as ReturnType<typeof group>)
+        .items as DraggableListItemNode[];
+      expect(leaves.find((l) => l.id === 'a')?.draggable).toBe(true);
+      expect(leaves.find((l) => l.id === 'b')?.draggable).toBe(true);
+    });
+
     it('returns unchanged when a group has zero visible leaves', () => {
       const node = item('col', [
         group('g1', [checkedItem('a', false), checkedItem('b', false)]),
@@ -260,17 +274,20 @@ describe('protectLastVisibleLeafInGroups', () => {
       expect(leaves.find((l) => l.id === 'b')?.checkable).toBe(false);
     });
 
-    it('does not change draggable on the last visible leaf', () => {
+    it('sets draggable: false on all leaves in a group when only one leaf is visible', () => {
       const node = item('col', [
         group('g1', [
-          checkedItem('a', false),
+          checkedItem('a', false, { draggable: true }),
           checkedItem('b', true, { draggable: true }),
+          checkedItem('c', false, { draggable: true }),
         ]),
       ]);
       const result = protectLastVisibleLeafInGroups(node);
       const leaves = (result.items![0] as ReturnType<typeof group>)
         .items as DraggableListItemNode[];
-      expect(leaves.find((l) => l.id === 'b')?.draggable).toBe(true);
+      expect(leaves.find((l) => l.id === 'a')?.draggable).toBe(false);
+      expect(leaves.find((l) => l.id === 'b')?.draggable).toBe(false);
+      expect(leaves.find((l) => l.id === 'c')?.draggable).toBe(false);
     });
 
     it('preserves all other fields on the protected leaf', () => {
@@ -288,7 +305,7 @@ describe('protectLastVisibleLeafInGroups', () => {
         id: 'b',
         label: 'Leaf B',
         isChecked: true,
-        draggable: true,
+        draggable: false,
         checkable: false,
       });
     });
@@ -305,8 +322,14 @@ describe('protectLastVisibleLeafInGroups', () => {
   describe('multiple groups', () => {
     it('protects only the group that has exactly one visible leaf', () => {
       const node = item('col', [
-        group('g1', [checkedItem('a', true), checkedItem('b', true)]),
-        group('g2', [checkedItem('c', false), checkedItem('d', true)]),
+        group('g1', [
+          checkedItem('a', true, { draggable: true }),
+          checkedItem('b', true, { draggable: true }),
+        ]),
+        group('g2', [
+          checkedItem('c', false, { draggable: true }),
+          checkedItem('d', true, { draggable: true }),
+        ]),
       ]);
       const result = protectLastVisibleLeafInGroups(node);
       const g1Leaves = (result.items![0] as ReturnType<typeof group>)
@@ -318,6 +341,10 @@ describe('protectLastVisibleLeafInGroups', () => {
       expect(result.items![0]).toBe(node.items![0]);
       // g2 has 1 visible → protected
       expect(g2Leaves.find((l) => l.id === 'd')?.checkable).toBe(false);
+      expect(g1Leaves.find((l) => l.id === 'a')?.draggable).toBe(true);
+      expect(g1Leaves.find((l) => l.id === 'b')?.draggable).toBe(true);
+      expect(g2Leaves.find((l) => l.id === 'c')?.draggable).toBe(false);
+      expect(g2Leaves.find((l) => l.id === 'd')?.draggable).toBe(false);
     });
 
     it('protects the last visible leaf in each group independently', () => {
@@ -333,6 +360,8 @@ describe('protectLastVisibleLeafInGroups', () => {
 
       expect(g1Leaves.find((l) => l.id === 'b')?.checkable).toBe(false);
       expect(g2Leaves.find((l) => l.id === 'c')?.checkable).toBe(false);
+      expect(g1Leaves.find((l) => l.id === 'b')?.draggable).toBe(false);
+      expect(g2Leaves.find((l) => l.id === 'c')?.draggable).toBe(false);
     });
   });
 
