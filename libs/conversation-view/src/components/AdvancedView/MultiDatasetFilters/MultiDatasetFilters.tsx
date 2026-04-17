@@ -395,18 +395,29 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         constraintsMapRef.current,
         true,
       );
+      const currentConstraintsMap =
+        constraintsMapRef.current ||
+        structureDataMaps?.constraintsMap ||
+        new Map<string, DataConstraints[] | undefined>();
 
       Promise.all(getConstraintsRequests(dataQueries, filtersMap, actions))
         .then((constraintsData) => {
+          const updatedConstraintsMap = getConstraintsMap(constraintsData);
+          const mergedConstraintsMap = new Map(currentConstraintsMap);
+
+          updatedConstraintsMap.forEach((constraints, datasetUrn) => {
+            mergedConstraintsMap.set(datasetUrn, constraints);
+          });
+
           updateViewAfterDelete(filtersMap, {
             ...structureDataMaps,
-            constraintsMap: getConstraintsMap(constraintsData),
+            constraintsMap: mergedConstraintsMap,
           });
         })
         .catch(() => {
           updateViewAfterDelete(filtersMap, {
             ...structureDataMaps,
-            constraintsMap: new Map(),
+            constraintsMap: currentConstraintsMap,
           });
         });
     },
