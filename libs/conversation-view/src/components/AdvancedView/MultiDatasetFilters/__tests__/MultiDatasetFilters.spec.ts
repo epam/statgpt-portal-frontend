@@ -17,8 +17,14 @@ jest.mock('@epam/ai-dial-shared', () => ({}));
 const mockCallbacks: {
   setModalState: ((state: string) => void) | null;
   onApply: (() => void) | null;
+  onDeleteFilter: ((filter?: Filter) => void) | null;
   selectedFiltersCount: number | null;
-} = { setModalState: null, onApply: null, selectedFiltersCount: null };
+} = {
+  setModalState: null,
+  onApply: null,
+  onDeleteFilter: null,
+  selectedFiltersCount: null,
+};
 
 // ─── Mock implementations ───────────────────────
 
@@ -137,7 +143,10 @@ jest.mock('../../Filters/FiltersModal/FiltersSettings', () => {
   const R = require('react');
   return {
     __esModule: true,
-    default: () => R.createElement('div', { 'data-testid': 'filter-settings' }),
+    default: (props: any) => {
+      mockCallbacks.onDeleteFilter = props.onDeleteFilter;
+      return R.createElement('div', { 'data-testid': 'filter-settings' });
+    },
   };
 });
 
@@ -222,6 +231,7 @@ const defaultProps = {
 beforeEach(() => {
   mockCallbacks.setModalState = null;
   mockCallbacks.onApply = null;
+  mockCallbacks.onDeleteFilter = null;
   mockCallbacks.selectedFiltersCount = null;
   jest.clearAllMocks();
   mockGetConstraintsRequests.mockReturnValue([]);
@@ -437,6 +447,98 @@ describe('MultiDatasetFilters', () => {
       });
 
       expect(mockCallbacks.selectedFiltersCount).toBe(1);
+    });
+  });
+
+  describe('single filter reset', () => {
+    it('preserves constraints for untouched datasets when clearing one dataset filter', async () => {
+      const datasetFilterA: Filter = {
+        id: 'COUNTRY',
+        title: 'Country',
+        filterType: 'dataset',
+        datasetUrn: DATASET_A_URN,
+        dimensionValues: [{ id: 'FR', name: 'France', isSelectedValue: true }],
+      };
+      const datasetFilterB: Filter = {
+        id: 'FREQUENCY',
+        title: 'Frequency',
+        filterType: 'dataset',
+        datasetUrn: DATASET_B_URN,
+        dimensionValues: [{ id: 'M', name: 'Monthly', isSelectedValue: true }],
+      };
+      const initialConstraintsA = [{ id: 'initial-a' }] as any[];
+      const initialConstraintsB = [{ id: 'initial-b' }] as any[];
+      const updatedConstraintsA = [{ id: 'updated-a' }] as any[];
+
+      const initialConstraintsMap = new Map<string, any>([
+        [DATASET_A_URN, initialConstraintsA],
+        [DATASET_B_URN, initialConstraintsB],
+      ]);
+      const updatedConstraintsMap = new Map<string, any>([
+        [DATASET_A_URN, updatedConstraintsA],
+      ]);
+      const filtersMap = new Map<string, Filter[]>([
+        [DATASET_A_URN, [datasetFilterA]],
+        [DATASET_B_URN, [datasetFilterB]],
+      ]);
+
+      mockIsStructureDataMapsReady.mockReturnValue(true);
+      mockGetFiltersPreselectedByDataQueries.mockReturnValue([
+        datasetFilterA,
+        datasetFilterB,
+      ]);
+      mockBuildFiltersMap.mockReturnValue(filtersMap);
+      mockGetFiltersByConstraints.mockReturnValue([
+        datasetFilterA,
+        datasetFilterB,
+      ]);
+      mockGetConstraintsRequests.mockReturnValue([]);
+      mockGetConstraintsMap
+        .mockReturnValueOnce(initialConstraintsMap)
+        .mockReturnValueOnce(updatedConstraintsMap);
+
+      const props = {
+        ...defaultProps,
+        structureDataMaps: {
+          ...defaultProps.structureDataMaps,
+          constraintsMap: initialConstraintsMap,
+        } as StructureDataMaps,
+      };
+
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, props));
+        await Promise.resolve();
+      });
+
+      await act(async () => {
+        mockCallbacks.setModalState?.('opened');
+        await Promise.resolve();
+      });
+
+      await act(async () => {
+        mockCallbacks.onDeleteFilter?.(datasetFilterA);
+        await Promise.resolve();
+      });
+
+      expect(mockGetConstraintsRequests).toHaveBeenNthCalledWith(
+        2,
+        [props.dataQueries[0]],
+        filtersMap,
+        props.actions,
+      );
+
+      const latestCall =
+        mockGetFiltersByConstraints.mock.calls[
+          mockGetFiltersByConstraints.mock.calls.length - 1
+        ];
+      const latestStructureDataMaps = latestCall[1] as StructureDataMaps;
+
+      expect(latestStructureDataMaps.constraintsMap?.get(DATASET_A_URN)).toBe(
+        updatedConstraintsA,
+      );
+      expect(latestStructureDataMaps.constraintsMap?.get(DATASET_B_URN)).toBe(
+        initialConstraintsB,
+      );
     });
   });
 });
