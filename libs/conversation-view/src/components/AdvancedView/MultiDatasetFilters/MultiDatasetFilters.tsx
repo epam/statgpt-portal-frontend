@@ -43,6 +43,7 @@ import {
 import { getHierarchyRequestContextForFilter } from '../../../utils/hierarchy-request-context';
 import { StructureDataMaps } from '../../../models/structure-data';
 import { useHierarchyState } from '../../../utils/use-hierarchy-state';
+import { useDatasetDimensionsMetadataMapOptional } from '../../../context/DatasetDimensionsMetadataMapContext';
 
 const MultiDatasetFilters: FC<FiltersProps> = ({
   actions,
@@ -63,6 +64,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   limitMessages,
   filterIconClassName,
 }) => {
+  const datasetDimensionsMetadata = useDatasetDimensionsMetadataMapOptional();
   const [modalState, setModalState] = useState(PopUpState.Closed);
   const [modalFilters, setModalFilters] = useState<Filter[]>([]);
   const [appliedFilters, setAppliedFilters] = useState<Filter[]>([]);
@@ -166,6 +168,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         filters,
         constraintsMapRef.current,
         true,
+        datasetDimensionsMetadata.map,
       );
 
       Promise.all(getConstraintsRequests(dataQueries, filtersMap, actions))
@@ -178,6 +181,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               filtersMap,
               { ...structureDataMaps, constraintsMap: currentConstraintsMap },
               locale as Locale,
+              datasetDimensionsMetadata.map,
             ),
           );
           if (changedFilter) {
@@ -196,6 +200,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               filtersMap,
               { ...structureDataMaps, constraintsMap: currentConstraintsMap },
               locale as Locale,
+              datasetDimensionsMetadata.map,
             ),
           );
         })
@@ -206,6 +211,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     [
       actions,
       dataQueries,
+      datasetDimensionsMetadata.map,
       getConstraintsForFilter,
       locale,
       rebuildHierarchyTree,
@@ -227,6 +233,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       filledDatasetFiltersMap,
       dataQueries,
       structureDataMaps?.constraintsMap,
+      datasetDimensionsMetadata.map,
     );
     setIsConstraintsLoading?.(true);
     handleFiltersWithConstraints(
@@ -236,6 +243,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     );
   }, [
     dataQueries,
+    datasetDimensionsMetadata.map,
     handleFiltersWithConstraints,
     isStructureDataReady,
     locale,
@@ -371,6 +379,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         filtersToUpdateMap,
         structureDataMaps,
         locale as Locale,
+        datasetDimensionsMetadata.map,
       );
       constraintsMapRef.current = structureDataMaps?.constraintsMap;
 
@@ -383,7 +392,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       setModalFilters(filledFilters);
       setIsDisableFilterValues(false);
     },
-    [locale],
+    [datasetDimensionsMetadata.map, locale],
   );
 
   const handleFiltersDelete = useCallback(
@@ -394,6 +403,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         filtersToUpdate,
         constraintsMapRef.current,
         true,
+        datasetDimensionsMetadata.map,
       );
       const currentConstraintsMap =
         constraintsMapRef.current ||
@@ -421,7 +431,12 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
           });
         });
     },
-    [actions, structureDataMaps, updateViewAfterDelete],
+    [
+      actions,
+      datasetDimensionsMetadata.map,
+      structureDataMaps,
+      updateViewAfterDelete,
+    ],
   );
 
   const onDeleteFilter = useCallback(
@@ -456,6 +471,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       modalFilters,
       constraintsMapRef.current,
       true,
+      datasetDimensionsMetadata.map,
     );
     const appliedFilters = getFiltersByConstraints(
       appliedFiltersMap,
@@ -464,6 +480,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         constraintsMap: constraintsMapRef.current,
       },
       locale as Locale,
+      datasetDimensionsMetadata.map,
     );
     const filtersParamsMap = getFiltersChangeParamsMap(appliedFiltersMap);
     onMultipleDataFiltersChange?.(
@@ -478,7 +495,12 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
 
     startTransition(() => {
       addSystemMessage(
-        buildFiltersMap(modalFilters, constraintsMapRef.current, true),
+        buildFiltersMap(
+          modalFilters,
+          constraintsMapRef.current,
+          true,
+          datasetDimensionsMetadata.map,
+        ),
       );
     });
   }, [
@@ -486,6 +508,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     modalFilters,
     structureDataMaps,
     locale,
+    datasetDimensionsMetadata.map,
     onMultipleDataFiltersChange,
     dataQueries,
     addSystemMessage,

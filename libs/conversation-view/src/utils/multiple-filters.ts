@@ -1,6 +1,7 @@
 import {
   DataConstraints,
   DatasetQueryFilters,
+  DatasetDimensionsMetadataMap,
   Dimension,
   findCodelistByDimension,
   getAnnotationPeriod,
@@ -36,6 +37,7 @@ import { getQueryFilters, setDataQueryFilters } from './query-filters';
 
 type SharedFilterConfig = {
   id: string;
+  subtype?: string;
   getMergedValueKey: (value: FilterValue, datasetUrn?: string) => string;
 };
 
@@ -54,6 +56,9 @@ export const SHARED_FILTER_IDS = new Set([
   COMMON_TIME_PERIOD_FILTER_ID,
 ]);
 
+const normalizeFilterId = (filterId?: string) =>
+  filterId?.trim()?.toLocaleUpperCase();
+
 const buildSharedFilterNameMatcher =
   (): SharedFilterConfig['getMergedValueKey'] => (value, datasetUrn) => {
     const normalizedName = value?.name?.trim()?.toLocaleLowerCase();
@@ -68,13 +73,68 @@ const buildMergedValueNameKey = (name: string) => `name:${name}`;
 const buildMergedValueDatasetKey = (datasetUrn: string, valueId: string) =>
   `dataset:${datasetUrn}:id:${valueId}`;
 
+const getDatasetDimensionsMetadata = (
+  datasetUrn?: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+) => (datasetUrn ? datasetDimensionsMetadataMap?.[datasetUrn] : undefined);
+
+const getDatasetDimensionMetadata = (
+  filter?: Filter,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+) => {
+  if (filter?.filterType !== 'dataset' || !filter.id) {
+    return undefined;
+  }
+
+  return getDatasetDimensionsMetadata(
+    filter.datasetUrn,
+    datasetDimensionsMetadataMap,
+  )?.[filter.id];
+};
+
+const findDatasetDimensionKey = (
+  datasetUrn: string,
+  matcher: (dimensionMetadata: {
+    subtype?: string | null;
+    dimensionType?: string | null;
+  }) => boolean,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+): string | undefined =>
+  Object.entries(
+    getDatasetDimensionsMetadata(datasetUrn, datasetDimensionsMetadataMap) ||
+      {},
+  ).find(([, dimensionMetadata]) => matcher(dimensionMetadata))?.[0];
+
+const getDatasetDimensionKeyBySubtype = (
+  datasetUrn: string,
+  subtype: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+) =>
+  findDatasetDimensionKey(
+    datasetUrn,
+    (dimensionMetadata) => dimensionMetadata.subtype === subtype,
+    datasetDimensionsMetadataMap,
+  );
+
+const getTimeDimensionKey = (
+  datasetUrn: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+) =>
+  findDatasetDimensionKey(
+    datasetUrn,
+    (dimensionMetadata) => dimensionMetadata.dimensionType === 'TIME_PERIOD',
+    datasetDimensionsMetadataMap,
+  );
+
 const SHARED_FILTERS_CONFIG: SharedFilterConfig[] = [
   {
     id: COMMON_COUNTRY_FILTER_ID,
+    subtype: 'REGION',
     getMergedValueKey: buildSharedFilterNameMatcher(),
   },
   {
     id: COMMON_FREQUENCY_FILTER_ID,
+    subtype: 'FREQUENCY',
     getMergedValueKey: buildSharedFilterNameMatcher(),
   },
   {
@@ -83,12 +143,58 @@ const SHARED_FILTERS_CONFIG: SharedFilterConfig[] = [
   },
 ];
 
-const SHARED_FILTERS_CONFIG_MAP = new Map(
+const SHARED_FILTERS_CONFIG_MAP = new Map<string, SharedFilterConfig>(
   SHARED_FILTERS_CONFIG.map((config) => [config.id, config]),
 );
 
 const getSharedFilterConfig = (filterId?: string) =>
-  filterId ? SHARED_FILTERS_CONFIG_MAP.get(filterId) : void 0;
+  filterId
+    ? SHARED_FILTERS_CONFIG_MAP.get(normalizeFilterId(filterId) || '')
+    : void 0;
+
+const isMatchingSharedFilterConfig = (
+  filter: Filter,
+  config: SharedFilterConfig,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+) => {
+  if (filter.filterType === 'shared') {
+    return config.id === normalizeFilterId(filter.id);
+  }
+
+  if (config.id === COMMON_TIME_PERIOD_FILTER_ID) {
+    return (
+      filter.isTimeDimension ||
+      getDatasetDimensionMetadata(filter, datasetDimensionsMetadataMap)
+        ?.dimensionType === 'TIME_PERIOD' ||
+      config.id === normalizeFilterId(filter.id)
+    );
+  }
+
+  const dimensionMetadata = getDatasetDimensionMetadata(
+    filter,
+    datasetDimensionsMetadataMap,
+  );
+
+  if (config.subtype && dimensionMetadata?.subtype === config.subtype) {
+    return true;
+  }
+
+  return config.id === normalizeFilterId(filter.id);
+};
+
+const getSharedFilterConfigForFilter = (
+  filter?: Filter,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+) =>
+  filter
+    ? SHARED_FILTERS_CONFIG.find((config) =>
+        isMatchingSharedFilterConfig(
+          filter,
+          config,
+          datasetDimensionsMetadataMap,
+        ),
+      )
+    : undefined;
 
 const isSharedFilterId = (filterId?: string) =>
   !!getSharedFilterConfig(filterId);
@@ -136,14 +242,22 @@ const mergeSharedFilterValues = (
   return Array.from(valueMap.values());
 };
 
-const mergeSharedFilters = (filters: Filter[]): Filter[] => {
+const mergeSharedFilters = (
+  filters: Filter[],
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+): Filter[] => {
   const groupedFilters = new Map<string, Filter[]>();
   const otherFilters: Filter[] = [];
 
   filters.forEach((filter) => {
-    if (isSharedFilterId(filter?.id) && filter?.datasetUrn) {
-      const group = groupedFilters.get(filter.id as string) || [];
-      groupedFilters.set(filter.id as string, [...group, filter]);
+    const config = getSharedFilterConfigForFilter(
+      filter,
+      datasetDimensionsMetadataMap,
+    );
+
+    if (config && filter?.datasetUrn) {
+      const group = groupedFilters.get(config.id) || [];
+      groupedFilters.set(config.id, [...group, filter]);
       return;
     }
 
@@ -159,11 +273,23 @@ const mergeSharedFilters = (filters: Filter[]): Filter[] => {
 
     const sharedFilter: Filter = {
       ...grouped[0],
+      id: config.id,
       datasetUrn: void 0,
       filterType: 'shared',
-      sourceDatasetUrns: grouped
-        .map((filter) => filter.datasetUrn)
-        .filter((datasetUrn): datasetUrn is string => !!datasetUrn),
+      sourceDatasetUrns: Array.from(
+        new Set(
+          grouped
+            .map((filter) => filter.datasetUrn)
+            .filter((datasetUrn): datasetUrn is string => !!datasetUrn),
+        ),
+      ),
+      sourceFilterIdsByDataset: Object.fromEntries(
+        grouped.flatMap((filter) =>
+          filter.datasetUrn && filter.id
+            ? [[filter.datasetUrn, filter.id]]
+            : [],
+        ),
+      ),
       dimensionValues: mergeSharedFilterValues(grouped, config),
     };
 
@@ -177,20 +303,60 @@ const mergeSharedFilters = (filters: Filter[]): Filter[] => {
   return [...sharedFilters, ...otherFilters];
 };
 
+const getNativeFilterIdForSharedFilter = (
+  filter: SharedFilter,
+  datasetUrn: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+): string | undefined => {
+  const sourceFilterId = filter.sourceFilterIdsByDataset?.[datasetUrn];
+
+  if (sourceFilterId) {
+    return sourceFilterId;
+  }
+
+  if (filter.id === COMMON_TIME_PERIOD_FILTER_ID) {
+    return getTimeDimensionKey(datasetUrn, datasetDimensionsMetadataMap);
+  }
+
+  const config = getSharedFilterConfig(filter.id);
+  return config?.subtype
+    ? getDatasetDimensionKeyBySubtype(
+        datasetUrn,
+        config.subtype,
+        datasetDimensionsMetadataMap,
+      )
+    : undefined;
+};
+
 const toDatasetFilter = (
   filter: SharedFilter,
   datasetUrn: string,
   dimensionValues?: FilterValue[],
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Filter => ({
   ...filter,
+  id:
+    getNativeFilterIdForSharedFilter(
+      filter,
+      datasetUrn,
+      datasetDimensionsMetadataMap,
+    ) || filter.id,
   datasetUrn,
   filterType: 'dataset',
   ...(dimensionValues ? { dimensionValues } : {}),
 });
 
-const expandSharedTimeFilter = (filter: SharedFilter): Filter[] =>
+const expandSharedTimeFilter = (
+  filter: SharedFilter,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+): Filter[] =>
   (filter.sourceDatasetUrns || []).map((datasetUrn) =>
-    toDatasetFilter(filter, datasetUrn),
+    toDatasetFilter(
+      filter,
+      datasetUrn,
+      undefined,
+      datasetDimensionsMetadataMap,
+    ),
   );
 
 const mapSharedValueToDatasetValue = (
@@ -205,6 +371,7 @@ const mapSharedValueToDatasetValue = (
 
 const mapSharedDimensionValuesByDataset = (
   filter: SharedFilter,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Map<string, Filter> => {
   const datasetFiltersMap = new Map<string, Filter>();
 
@@ -224,7 +391,12 @@ const mapSharedDimensionValuesByDataset = (
 
       datasetFiltersMap.set(
         datasetUrn,
-        toDatasetFilter(filter, datasetUrn, [mappedValue]),
+        toDatasetFilter(
+          filter,
+          datasetUrn,
+          [mappedValue],
+          datasetDimensionsMetadataMap,
+        ),
       );
     });
   });
@@ -254,6 +426,7 @@ const getNativeSharedFallbackValues = (
 const applySharedFallbackToDatasets = (
   filter: SharedFilter,
   datasetFiltersMap: Map<string, Filter>,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): void => {
   const selectedValues =
     filter.dimensionValues?.filter((value) => value.isSelectedValue) || [];
@@ -277,7 +450,12 @@ const applySharedFallbackToDatasets = (
     if (!existingFilter || !hasSelectedValue) {
       datasetFiltersMap.set(
         datasetUrn,
-        toDatasetFilter(filter, datasetUrn, nativeFallbackValues),
+        toDatasetFilter(
+          filter,
+          datasetUrn,
+          nativeFallbackValues,
+          datasetDimensionsMetadataMap,
+        ),
       );
     }
   });
@@ -286,19 +464,27 @@ const applySharedFallbackToDatasets = (
 const expandSharedFilter = (
   filter: Filter,
   propagateSharedFiltersToAllDatasets = false,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Filter[] => {
   if (!isSharedFilter(filter)) {
     return [filter];
   }
 
   if (filter.isTimeDimension) {
-    return expandSharedTimeFilter(filter);
+    return expandSharedTimeFilter(filter, datasetDimensionsMetadataMap);
   }
 
-  const datasetFiltersMap = mapSharedDimensionValuesByDataset(filter);
+  const datasetFiltersMap = mapSharedDimensionValuesByDataset(
+    filter,
+    datasetDimensionsMetadataMap,
+  );
 
   if (propagateSharedFiltersToAllDatasets) {
-    applySharedFallbackToDatasets(filter, datasetFiltersMap);
+    applySharedFallbackToDatasets(
+      filter,
+      datasetFiltersMap,
+      datasetDimensionsMetadataMap,
+    );
   }
 
   return Array.from(datasetFiltersMap.values());
@@ -474,6 +660,7 @@ export const getFiltersPreselectedByDataQueries = (
   filtersMap: Map<string, Filter[]>,
   dataQueries?: DataQuery[],
   constraintsMap?: Map<string, DataConstraints[] | undefined>,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Filter[] => {
   return mergeSharedFilters(
     dataQueries?.flatMap((dataQuery) => {
@@ -482,6 +669,7 @@ export const getFiltersPreselectedByDataQueries = (
       const constraints = constraintsMap?.get(urn) || [];
       return getFiltersPreselectedByDataQuery(filters, dataQuery, constraints);
     }) || [],
+    datasetDimensionsMetadataMap,
   );
 };
 
@@ -489,9 +677,16 @@ export const buildFiltersMap = (
   filters: Filter[],
   constraintsMap?: Map<string, DataConstraints[] | undefined>,
   applySharedFallback = false,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Map<string, Filter[]> => {
   return filters
-    ?.flatMap((filter) => expandSharedFilter(filter, applySharedFallback))
+    ?.flatMap((filter) =>
+      expandSharedFilter(
+        filter,
+        applySharedFallback,
+        datasetDimensionsMetadataMap,
+      ),
+    )
     ?.reduce((filterMap, filter) => {
       const urn = filter?.datasetUrn || '';
       const filterWithLimitedTimeRange = limitTimeRangeByConstraints(
@@ -511,6 +706,7 @@ export const getFiltersByConstraints = (
   filtersMap: Map<string, Filter[]>,
   structureDataMaps?: StructureDataMaps,
   locale = Locale.EN,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Filter[] => {
   const updatedFilters: Filter[] = [];
   Array.from(filtersMap?.entries())?.forEach(([datasetUrn, filters]) => {
@@ -523,18 +719,26 @@ export const getFiltersByConstraints = (
     );
   });
 
-  return mergeSharedFilters(updatedFilters);
+  return mergeSharedFilters(updatedFilters, datasetDimensionsMetadataMap);
 };
 
 export const getFiltersForQueryContext = (
   filters: Filter[],
   datasetUrn?: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Filter[] => {
   if (!datasetUrn) {
     return filters.filter((filter) => filter.filterType !== 'shared');
   }
 
-  return buildFiltersMap(filters).get(datasetUrn) || [];
+  return (
+    buildFiltersMap(
+      filters,
+      undefined,
+      false,
+      datasetDimensionsMetadataMap,
+    ).get(datasetUrn) || []
+  );
 };
 
 export const getDatasetNameFromFilters = (
