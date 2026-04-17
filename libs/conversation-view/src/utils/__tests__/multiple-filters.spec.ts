@@ -518,7 +518,7 @@ describe('getConstraintsMap', () => {
 // ─── FREQUENCY filter follows the same name-based merge strategy ─────────────
 
 describe('merging frequency filters', () => {
-  it('merges FREQUENCY filters from multiple datasets by name', () => {
+  it('merges aliased frequency filters from multiple datasets by name', () => {
     const freqFilterA: Filter = {
       id: COMMON_FREQUENCY_FILTER_ID,
       filterType: 'dataset',
@@ -529,7 +529,7 @@ describe('merging frequency filters', () => {
       ],
     };
     const freqFilterB: Filter = {
-      id: COMMON_FREQUENCY_FILTER_ID,
+      id: 'FREQ',
       filterType: 'dataset',
       datasetUrn: DATASET_B_URN,
       dimensionValues: [
@@ -557,6 +557,42 @@ describe('merging frequency filters', () => {
     );
     expect(annual?.isSelectedValue).toBe(true);
     expect(annual?.sourceValues).toHaveLength(2);
+    expect((sharedFreq as SharedFilter).sourceFilterIdsByDataset).toEqual({
+      [DATASET_A_URN]: COMMON_FREQUENCY_FILTER_ID,
+      [DATASET_B_URN]: 'FREQ',
+    });
+  });
+});
+
+describe('expanding shared filters with aliased dataset ids', () => {
+  it('restores the native filter id for each dataset', () => {
+    const sharedFreqFilter: Filter = {
+      id: COMMON_FREQUENCY_FILTER_ID,
+      filterType: 'shared',
+      sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
+      sourceFilterIdsByDataset: {
+        [DATASET_A_URN]: COMMON_FREQUENCY_FILTER_ID,
+        [DATASET_B_URN]: 'FREQ',
+      },
+      dimensionValues: [
+        {
+          id: 'name:annual',
+          name: 'Annual',
+          isSelectedValue: true,
+          sourceValues: [
+            { datasetUrn: DATASET_A_URN, id: 'A', name: 'Annual' },
+            { datasetUrn: DATASET_B_URN, id: 'ANNUAL', name: 'Annual' },
+          ],
+        },
+      ],
+    };
+
+    const filtersMap = buildFiltersMap([sharedFreqFilter]);
+
+    expect(filtersMap.get(DATASET_A_URN)?.[0]?.id).toBe(
+      COMMON_FREQUENCY_FILTER_ID,
+    );
+    expect(filtersMap.get(DATASET_B_URN)?.[0]?.id).toBe('FREQ');
   });
 });
 

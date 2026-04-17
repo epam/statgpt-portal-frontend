@@ -36,6 +36,7 @@ import { getQueryFilters, setDataQueryFilters } from './query-filters';
 
 type SharedFilterConfig = {
   id: string;
+  aliases: string[];
   getMergedValueKey: (value: FilterValue, datasetUrn?: string) => string;
 };
 
@@ -54,6 +55,9 @@ export const SHARED_FILTER_IDS = new Set([
   COMMON_TIME_PERIOD_FILTER_ID,
 ]);
 
+const normalizeFilterId = (filterId?: string) =>
+  filterId?.trim()?.toLocaleUpperCase();
+
 const buildSharedFilterNameMatcher =
   (): SharedFilterConfig['getMergedValueKey'] => (value, datasetUrn) => {
     const normalizedName = value?.name?.trim()?.toLocaleLowerCase();
@@ -71,24 +75,31 @@ const buildMergedValueDatasetKey = (datasetUrn: string, valueId: string) =>
 const SHARED_FILTERS_CONFIG: SharedFilterConfig[] = [
   {
     id: COMMON_COUNTRY_FILTER_ID,
+    aliases: [COMMON_COUNTRY_FILTER_ID],
     getMergedValueKey: buildSharedFilterNameMatcher(),
   },
   {
     id: COMMON_FREQUENCY_FILTER_ID,
+    aliases: [COMMON_FREQUENCY_FILTER_ID, 'FREQ'],
     getMergedValueKey: buildSharedFilterNameMatcher(),
   },
   {
     id: COMMON_TIME_PERIOD_FILTER_ID,
+    aliases: [COMMON_TIME_PERIOD_FILTER_ID],
     getMergedValueKey: (value) => value.id,
   },
 ];
 
-const SHARED_FILTERS_CONFIG_MAP = new Map(
-  SHARED_FILTERS_CONFIG.map((config) => [config.id, config]),
+const SHARED_FILTERS_CONFIG_MAP = new Map<string, SharedFilterConfig>(
+  SHARED_FILTERS_CONFIG.flatMap((config) =>
+    config.aliases.map((alias) => [normalizeFilterId(alias) || alias, config]),
+  ),
 );
 
 const getSharedFilterConfig = (filterId?: string) =>
-  filterId ? SHARED_FILTERS_CONFIG_MAP.get(filterId) : void 0;
+  filterId
+    ? SHARED_FILTERS_CONFIG_MAP.get(normalizeFilterId(filterId) || '')
+    : void 0;
 
 const isSharedFilterId = (filterId?: string) =>
   !!getSharedFilterConfig(filterId);
@@ -141,9 +152,11 @@ const mergeSharedFilters = (filters: Filter[]): Filter[] => {
   const otherFilters: Filter[] = [];
 
   filters.forEach((filter) => {
-    if (isSharedFilterId(filter?.id) && filter?.datasetUrn) {
-      const group = groupedFilters.get(filter.id as string) || [];
-      groupedFilters.set(filter.id as string, [...group, filter]);
+    const config = getSharedFilterConfig(filter?.id);
+
+    if (config && filter?.datasetUrn) {
+      const group = groupedFilters.get(config.id) || [];
+      groupedFilters.set(config.id, [...group, filter]);
       return;
     }
 
@@ -159,11 +172,23 @@ const mergeSharedFilters = (filters: Filter[]): Filter[] => {
 
     const sharedFilter: Filter = {
       ...grouped[0],
+      id: config.id,
       datasetUrn: void 0,
       filterType: 'shared',
-      sourceDatasetUrns: grouped
-        .map((filter) => filter.datasetUrn)
-        .filter((datasetUrn): datasetUrn is string => !!datasetUrn),
+      sourceDatasetUrns: Array.from(
+        new Set(
+          grouped
+            .map((filter) => filter.datasetUrn)
+            .filter((datasetUrn): datasetUrn is string => !!datasetUrn),
+        ),
+      ),
+      sourceFilterIdsByDataset: Object.fromEntries(
+        grouped.flatMap((filter) =>
+          filter.datasetUrn && filter.id
+            ? [[filter.datasetUrn, filter.id]]
+            : [],
+        ),
+      ),
       dimensionValues: mergeSharedFilterValues(grouped, config),
     };
 
@@ -183,6 +208,7 @@ const toDatasetFilter = (
   dimensionValues?: FilterValue[],
 ): Filter => ({
   ...filter,
+  id: filter.sourceFilterIdsByDataset?.[datasetUrn] || filter.id,
   datasetUrn,
   filterType: 'dataset',
   ...(dimensionValues ? { dimensionValues } : {}),
