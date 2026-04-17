@@ -94,7 +94,7 @@ npm run start
     DIAL_API_KEY=your-api-key
     DEFAULT_MODEL="ADD_VALUE_HERE"
    
-    # SDMX API Configuration
+    # SDMX API Configuration (optional — if not set, SDMX requests are proxied through DIAL_API_URL)
     SDMX_API_URL=https://your-sdmx-api-endpoint.com
     ```
 
@@ -128,7 +128,7 @@ Portals Example uses environment variables for configuration. All environment va
 | `DIAL_API_KEY`                      | No | AI DIAL Core API Key.<br />Define this variable if authorization using JWT is not configured.<br />Refer to [AI DIAL Core](https://github.com/epam/ai-dial-core?tab=readme-ov-file#dynamic-settings) to learn how to set up AI DIAL Core and define API keys. | Any string       |                                                                                                                                    |
 | `DIAL_API_VERSION`                  |    No    | AI DIAL API Version                                                                                                                                                                                                                                           | Any string       | `2024-02-01`                                                                                                                       |
 | `DEFAULT_MODEL`                     |    No    | A model that will be used for the new conversation. `Reference` or `ID` of the agent.                                                                                                                                                                         | Any string       | First available model from [AI DIAL Core](https://github.com/epam/ai-dial-core?tab=readme-ov-file#dynamic-settings) config listing |
-| `SDMX_API_URL`                     |   Yes    | SDMX+ api url                                                                                                                                                                                                                                                 | URL              |  |
+| `SDMX_API_URL`                     |    No    | SDMX+ api url. If not set, SDMX requests will be proxied through `DIAL_API_URL`.                                                                                                                                                                              | URL              |  |
 | `CONSTRAINS_SDMX_API_URL`          |    No    | SDMX+ Constrains api url                                                                                                                                                                                                                                      | URL              |  |
 | `SDMX_PROXY_URL`          |    No    | SDMX 3.0 constrains api url                                                                                                                                                                                                                                   | URL              |  |
 
