@@ -88,8 +88,10 @@ export default async function LocaleLayout({
               <AdvancedViewProvider>
                 <ConversationListProvider>
                   <ChatMessagesProvider>
-                    <ConversationListWrapper />
-                    <main className="flex-1 h-full min-w-0">{children}</main>
+                    <ConversationListWrapper
+                      clientContactSupportUrl={clientContactSupportUrl}
+                    />
+                    <main className="h-full min-w-0 flex-1">{children}</main>
                   </ChatMessagesProvider>
                 </ConversationListProvider>
               </AdvancedViewProvider>

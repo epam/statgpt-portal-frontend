@@ -6,6 +6,7 @@ export interface UserInfo {
 export interface SignOutTitles {
   signOut?: string;
   settings?: string;
+  contactSupport?: string;
   popupTitle?: string;
   popupText?: string;
   popupApply?: string;

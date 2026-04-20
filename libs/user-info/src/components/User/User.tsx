@@ -11,16 +11,19 @@ interface UserStyles {
   userNameStyles?: string;
   signOutIcon?: ReactNode;
   settingsIcon?: ReactNode;
+  contactSupportIcon?: ReactNode;
   showShortName?: boolean;
   showSeparator?: boolean;
   disableModalDividers?: boolean;
   dropdownButtonStyles?: string;
+  dropdownButtonTypographyStyles?: string;
   dropdownContainerClassName?: string;
 }
 
 interface Props {
   userInfo: UserInfo | null;
   signOutAction?: () => void;
+  contactSupportUrl?: string;
   styles?: UserStyles;
   locale: string;
   titles: SignOutTitles;
@@ -29,6 +32,7 @@ interface Props {
 export const User: FC<Props> = ({
   userInfo,
   signOutAction,
+  contactSupportUrl,
   styles,
   locale,
   titles,
@@ -59,6 +63,10 @@ export const User: FC<Props> = ({
   const onModalClose = useCallback(() => {
     setIsModalOpen(false);
   }, []);
+
+  const onContactSupportClick = useCallback(() => {
+    window.open(contactSupportUrl || '#', '_blank', 'noopener,noreferrer');
+  }, [contactSupportUrl]);
 
   const initialsBlock = useMemo(() => {
     return (
@@ -91,13 +99,33 @@ export const User: FC<Props> = ({
         {styles?.settingsIcon && (
           <button
             className={classNames(
-              'p-2 items-center flex gap-1 text-primary fill-primary body-1',
+              'p-2 items-center flex gap-1 text-primary fill-primary',
+              styles?.dropdownButtonTypographyStyles || 'body-1',
               styles?.dropdownButtonStyles,
             )}
             title={titles?.settings}
           >
-            {styles?.settingsIcon}
-            {titles?.settings || 'Settings'}
+            <span className="shrink-0">{styles?.settingsIcon}</span>
+            <span className="min-w-0 break-words">
+              {titles?.settings || 'Settings'}
+            </span>
+          </button>
+        )}
+
+        {styles?.contactSupportIcon && (
+          <button
+            className={classNames(
+              'p-2 items-center flex gap-1 text-primary fill-primary',
+              styles?.dropdownButtonTypographyStyles || 'body-1',
+              styles?.dropdownButtonStyles,
+            )}
+            title={titles?.contactSupport}
+            onClick={onContactSupportClick}
+          >
+            <span className="shrink-0">{styles?.contactSupportIcon}</span>
+            <span className="min-w-0 break-words">
+              {titles?.contactSupport || 'Contact support'}
+            </span>
           </button>
         )}
 
@@ -110,14 +138,17 @@ export const User: FC<Props> = ({
 
         <button
           className={classNames(
-            'p-2 items-center flex gap-1 text-primary fill-primary body-1',
+            'p-2 items-center flex gap-1 text-primary fill-primary',
+            styles?.dropdownButtonTypographyStyles || 'body-1',
             styles?.dropdownButtonStyles,
           )}
           title={titles?.signOut}
           onClick={openModal}
         >
-          {styles?.signOutIcon}
-          {titles?.signOut || 'Sign out'}
+          <span className="shrink-0">{styles?.signOutIcon}</span>
+          <span className="min-w-0 break-words">
+            {titles?.signOut || 'Sign out'}
+          </span>
           {isModalOpen && (
             <SignOutModal
               onCloseModal={onModalClose}
@@ -134,6 +165,7 @@ export const User: FC<Props> = ({
     styles,
     titles,
     openModal,
+    onContactSupportClick,
     isModalOpen,
     onModalClose,
     locale,
