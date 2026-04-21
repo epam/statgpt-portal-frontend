@@ -195,6 +195,8 @@ const FiltersValuesPanel: FC<Props> = ({
   const hasNoCurrentFilterResults = hierarchyTreeNodes
     ? !hierarchyTreeNodes.length
     : !currentFilterResults?.length;
+  const isCurrentFilterLoading =
+    Boolean(isValuesLoading) || Boolean(hierarchyState?.isLoading);
 
   const otherResultsCount = useMemo(
     () =>
@@ -289,7 +291,7 @@ const FiltersValuesPanel: FC<Props> = ({
                       selectHierarchicalNodes={selectHierarchicalNodes}
                       expandHierarchicalValue={expandHierarchicalValue}
                     />
-                    {!isValuesLoading && hasNoCurrentFilterResults && (
+                    {!isCurrentFilterLoading && hasNoCurrentFilterResults && (
                       <span className="body-2 text-neutrals-700">
                         {titles?.noResultsInSection?.(
                           selectedFilter.title ?? '',
