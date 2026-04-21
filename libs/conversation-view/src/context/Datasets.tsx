@@ -1,11 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GetDatasetDetails } from '../types/actions';
-import {
-  Dataflow,
-  generateShortUrn,
-  StructuralData,
-} from '@epam/statgpt-sdmx-toolkit';
-import { DataQuery } from '@epam/statgpt-shared-toolkit';
+import { generateShortUrn } from '@epam/statgpt-sdmx-toolkit';
+import type { Dataflow, StructuralData } from '@epam/statgpt-sdmx-toolkit';
+import type { DataQuery } from '@epam/statgpt-shared-toolkit';
 import {
   buildRequestCacheKey,
   getCachedRequestResult,
@@ -17,11 +14,17 @@ export function useDatasets(
   updateDataQueries: (dataQueries?: DataQuery[]) => void,
   updateCurrentDataQuery: (dataQuery?: DataQuery) => void,
   dataQueries?: DataQuery[],
+  currentDataQuery?: DataQuery,
 ) {
   const [datasets, setDatasets] = useState<Dataflow[]>([]);
   const [datasetStructuresMap, setDatasetStructuresMap] =
     useState<Map<string, StructuralData | undefined>>();
   const [isLoading, setIsLoading] = useState(false);
+  const currentDataQueryRef = useRef<DataQuery | undefined>(undefined);
+
+  useEffect(() => {
+    currentDataQueryRef.current = currentDataQuery;
+  }, [currentDataQuery]);
 
   useEffect(() => {
     let isActive = true;
@@ -51,7 +54,11 @@ export function useDatasets(
         setDatasets(updatedDatasets);
         updateDatasets(updatedDatasets);
         updateDataQueries(nextDataQueries);
-        updateCurrentDataQuery(nextDataQueries[0]);
+        updateCurrentDataQuery(
+          nextDataQueries.find(
+            (query) => query.urn === currentDataQueryRef.current?.urn,
+          ) ?? nextDataQueries[0],
+        );
 
         setDatasetStructuresMap(
           new Map(
