@@ -14,7 +14,7 @@ import FilterTreeView from './FilterTreeView';
 import { getFilterValuesTree } from '../../../../../utils/filters';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import CheckboxRow from './CheckboxRow';
-import { useIsMobile } from '@epam/statgpt-ui-components';
+import { Loader, useIsMobile } from '@epam/statgpt-ui-components';
 import { StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import { useConversationViewFeatureToggles } from '../../../../../context/ConversationViewFeatureTogglesContext';
 import { getDatasetNameFromFilters } from '../../../../../utils/multiple-filters';
@@ -29,6 +29,7 @@ interface Props {
   isVirtualized?: boolean;
   isScrollable?: boolean;
   isDisableValues?: boolean;
+  isValuesLoading?: boolean;
   structuresMap?: Map<string, StructuralData | undefined>;
   hierarchyTreeNodes?: FilterTreeNodeProps[];
   isHierarchyLoading?: boolean;
@@ -53,6 +54,7 @@ const FilterValues: FC<Props> = ({
   isVirtualized = true,
   isScrollable = true,
   isDisableValues,
+  isValuesLoading,
   structuresMap,
   hierarchyTreeNodes,
   isHierarchyLoading,
@@ -62,7 +64,9 @@ const FilterValues: FC<Props> = ({
 }) => {
   const isMobile = useIsMobile();
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
-  if (!filterValues) return null;
+  const isLoading = isValuesLoading || isHierarchyLoading;
+  if (!filterValues && !isLoading) return null;
+  const values = filterValues ?? [];
   const datasetName = selectedFilter
     ? getDatasetNameFromFilters(selectedFilter, structuresMap)
     : void 0;
@@ -71,9 +75,10 @@ const FilterValues: FC<Props> = ({
     selectedFilter?.filterType !== 'shared' &&
     !!datasetName &&
     !!selectedFilter?.title;
-  const filtersHeight = filterValues.length * ROW_HEIGHT;
+  const filtersHeight = values.length * ROW_HEIGHT;
   const containerHeight =
     filtersHeight > MAX_MOBILE_HEIGHT ? MAX_MOBILE_HEIGHT : filtersHeight;
+
   return (
     <div
       className={classNames(
@@ -94,22 +99,26 @@ const FilterValues: FC<Props> = ({
           isScrollable ? 'min-h-0 flex-1 overflow-auto' : 'overflow-visible',
         )}
         style={
-          isScrollable && isMobile
+          isScrollable && isMobile && !isLoading
             ? { height: `${containerHeight}px` }
             : undefined
         }
       >
-        {hierarchyTreeNodes?.length || isHierarchicalView ? (
+        {isLoading ? (
+          <div className="h-full min-h-12">
+            <Loader />
+          </div>
+        ) : hierarchyTreeNodes?.length || isHierarchicalView ? (
           <FilterTreeView
-            treeNodes={hierarchyTreeNodes ?? getFilterValuesTree(filterValues)}
+            treeNodes={hierarchyTreeNodes ?? getFilterValuesTree(values)}
             checkboxIcon={checkboxIcon}
             selectFilterValue={selectFilterValue}
             selectHierarchicalNodes={selectHierarchicalNodes}
             expandHierarchicalValue={expandHierarchicalValue}
           />
-        ) : isHierarchyLoading ? null : !isVirtualized ? (
+        ) : !isVirtualized ? (
           <div className="flex flex-col gap-y-1">
-            {filterValues.map((filterValue) => (
+            {values.map((filterValue) => (
               <CheckboxRow
                 key={filterValue.id}
                 filterValue={filterValue}
@@ -122,7 +131,7 @@ const FilterValues: FC<Props> = ({
           <AutoSizer>
             {({ width, height }) => (
               <List
-                itemCount={filterValues.length}
+                itemCount={values.length}
                 itemSize={ROW_HEIGHT}
                 width={width}
                 height={height}
@@ -130,7 +139,7 @@ const FilterValues: FC<Props> = ({
                 {({ index, style }: RowProps) => (
                   <CheckboxRow
                     style={style}
-                    filterValue={filterValues[index]}
+                    filterValue={values[index]}
                     checkboxIcon={checkboxIcon}
                     selectFilterValue={selectFilterValue}
                   />

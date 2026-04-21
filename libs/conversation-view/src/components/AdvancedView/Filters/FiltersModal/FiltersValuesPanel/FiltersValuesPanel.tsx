@@ -40,6 +40,7 @@ interface Props {
   filterValuesProps?: FilterValuesProps;
   locale?: string;
   isDisableValues?: boolean;
+  isValuesLoading?: boolean;
   timeRangeOptions?: TimeRangeOptions[];
   initialConstraints?: DataConstraints[];
   structuresMap?: Map<string, StructuralData | undefined>;
@@ -71,6 +72,7 @@ const FiltersValuesPanel: FC<Props> = ({
   filterValuesProps,
   locale,
   isDisableValues,
+  isValuesLoading,
   timeRangeOptions,
   onTimePeriodChange,
   selectFilterValue,
@@ -279,6 +281,7 @@ const FiltersValuesPanel: FC<Props> = ({
                       isVirtualized={false}
                       isScrollable={false}
                       isDisableValues={isDisableValues}
+                      isValuesLoading={isValuesLoading}
                       structuresMap={structuresMap}
                       hierarchyTreeNodes={hierarchyTreeNodes}
                       isHierarchyLoading={hierarchyState?.isLoading}
@@ -286,7 +289,7 @@ const FiltersValuesPanel: FC<Props> = ({
                       selectHierarchicalNodes={selectHierarchicalNodes}
                       expandHierarchicalValue={expandHierarchicalValue}
                     />
-                    {hasNoCurrentFilterResults && (
+                    {!isValuesLoading && hasNoCurrentFilterResults && (
                       <span className="body-2 text-neutrals-700">
                         {titles?.noResultsInSection?.(
                           selectedFilter.title ?? '',
@@ -301,7 +304,7 @@ const FiltersValuesPanel: FC<Props> = ({
                     {titles?.otherResults ?? 'Other results'}:{' '}
                     {otherResultsCount}
                   </span>
-                  {otherResultsCount === 0 && (
+                  {!isValuesLoading && otherResultsCount === 0 && (
                     <p className="body-2 text-neutrals-700 mt-1">
                       {titles?.noResultsInOtherDimensions ??
                         'No results found in other dimensions'}
@@ -326,6 +329,7 @@ const FiltersValuesPanel: FC<Props> = ({
                         isVirtualized={false}
                         isScrollable={false}
                         isDisableValues={isDisableValues}
+                        isValuesLoading={isValuesLoading}
                         structuresMap={structuresMap}
                         selectFilterValue={(id, isSelectedValue) =>
                           selectFilterValue(id, isSelectedValue, filter)
@@ -348,6 +352,7 @@ const FiltersValuesPanel: FC<Props> = ({
                 checkboxIcon={filterValuesProps?.checkboxIcon}
                 isHierarchicalView={isHierarchicalView}
                 isDisableValues={isDisableValues}
+                isValuesLoading={isValuesLoading}
                 structuresMap={structuresMap}
                 hierarchyTreeNodes={hierarchyTreeNodes}
                 isHierarchyLoading={hierarchyState?.isLoading}

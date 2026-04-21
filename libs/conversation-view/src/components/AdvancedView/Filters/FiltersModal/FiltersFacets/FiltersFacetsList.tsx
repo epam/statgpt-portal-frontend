@@ -32,6 +32,7 @@ interface Props {
   onSelectDisplayMode?: (filter?: Filter, displayMode?: string) => void;
   filterValuesProps?: FilterValuesProps;
   isDisableValues?: boolean;
+  isValuesLoading?: boolean;
   timeRangeOptions?: TimeRangeOptions[];
   titles?: ConversationViewTitles;
   initialConstraints?: DataConstraints[];
@@ -68,6 +69,7 @@ const FiltersFacetsList: FC<Props> = ({
   onSelectDisplayMode,
   filterValuesProps,
   isDisableValues,
+  isValuesLoading,
   timeRangeOptions,
   initialConstraints,
   initialConstraintsMap,
@@ -125,6 +127,7 @@ const FiltersFacetsList: FC<Props> = ({
               onDeleteFilter={onDeleteFilter}
               hideFacetCounterByDefault={hideFacetCounterByDefault}
               isDisableValues={isDisableValues}
+              isValuesLoading={isValuesLoading}
               timeRangeOptions={timeRangeOptions}
               selectFilterValue={selectFilterValue}
               selectHierarchicalNodes={selectHierarchicalNodes}
