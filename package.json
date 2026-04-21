@@ -1,6 +1,6 @@
 {
   "name": "statgpt-portal-frontend",
-  "version": "0.4.0-rc",
+  "version": "0.5.0-rc",
   "license": "MIT",
   "scripts": {
     "build": "nx run-many -t build && npm run build:styles",

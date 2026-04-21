@@ -70,11 +70,12 @@ const FilterValues: FC<Props> = ({
   const datasetName = selectedFilter
     ? getDatasetNameFromFilters(selectedFilter, structuresMap)
     : void 0;
+  const isSingleDatasetInModal = structuresMap?.size === 1;
   const shouldShowHeader =
     isCrossDatasetModeOn &&
     selectedFilter?.filterType !== 'shared' &&
-    !!datasetName &&
-    !!selectedFilter?.title;
+    !!selectedFilter?.title &&
+    (isSingleDatasetInModal || !!datasetName);
   const filtersHeight = values.length * ROW_HEIGHT;
   const containerHeight =
     filtersHeight > MAX_MOBILE_HEIGHT ? MAX_MOBILE_HEIGHT : filtersHeight;
@@ -88,9 +89,13 @@ const FilterValues: FC<Props> = ({
     >
       {shouldShowHeader && (
         <div className="mb-2 flex items-center gap-x-1">
-          <DatasetIcon className="size-4 shrink-0 text-neutrals-700" />
-          <span className="h4 text-neutrals-800">{datasetName}</span>
-          <ChevronRightIcon className="size-4 shrink-0 text-neutrals-1000" />
+          {!isSingleDatasetInModal && (
+            <>
+              <DatasetIcon className="size-4 shrink-0 text-neutrals-700" />
+              <span className="h4 text-neutrals-800">{datasetName}</span>
+              <ChevronRightIcon className="size-4 shrink-0 text-neutrals-1000" />
+            </>
+          )}
           <span className="h4 text-neutrals-1000">{selectedFilter?.title}</span>
         </div>
       )}
