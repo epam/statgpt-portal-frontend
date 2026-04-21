@@ -33,6 +33,7 @@ interface Props {
   selectedFilter?: Filter;
   locale?: string;
   isDisableValues?: boolean;
+  isValuesLoading?: boolean;
   titles?: ConversationViewTitles;
   timeSeriesCount?: string;
   timeRangeOptions?: TimeRangeOptions[];
@@ -60,6 +61,7 @@ const FilterSettings: FC<Props> = ({
   modalProps,
   locale,
   isDisableValues,
+  isValuesLoading,
   timeSeriesCount,
   timeRangeOptions,
   initialConstraints,
@@ -282,6 +284,7 @@ const FilterSettings: FC<Props> = ({
           onSelectDisplayMode={onSelectDisplayMode}
           onDeleteFilter={onDeleteFilter}
           isDisableValues={isDisableValues}
+          isValuesLoading={isValuesLoading}
           initialConstraints={initialConstraints}
           initialConstraintsMap={initialConstraintsMap}
           datasetIcon={datasetIcon}
@@ -308,6 +311,7 @@ const FilterSettings: FC<Props> = ({
           locale={locale}
           titles={titles}
           isDisableValues={isDisableValues}
+          isValuesLoading={isValuesLoading}
           timeRangeOptions={timeRangeOptions}
           selectFilterValue={onSelectFilterValue}
           selectHierarchicalNodes={onSelectHierarchicalNodes}

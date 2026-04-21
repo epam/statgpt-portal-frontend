@@ -32,7 +32,11 @@ import { StructureDataMaps } from '../models/structure-data';
 import { getFilledFilters } from './get-filled-filters';
 import { getSeriesFilterDto } from './get-series-filters';
 import { normalizeConstraintFilters } from './normalize-constraint-filters';
-import { buildRequestCacheKey, getCachedRequestResult } from './request-cache';
+import {
+  buildRequestCacheKey,
+  getCachedRequestResult,
+  isRequestCached,
+} from './request-cache';
 import { getQueryFilters, setDataQueryFilters } from './query-filters';
 
 type SharedFilterConfig = {
@@ -804,6 +808,31 @@ export const getConstraintsRequests = (
           });
     }) || []
   );
+};
+
+export const hasUncachedConstraintRequests = (
+  dataQueries?: DataQuery[],
+  filtersMap?: Map<string, Filter[]>,
+  actions?: {
+    getConstraints: (
+      urn: string,
+      filters?: SeriesFilterDto[],
+    ) => Promise<StructuralMetaData>;
+  },
+): boolean => {
+  if (!actions?.getConstraints || !dataQueries?.length) return false;
+  return dataQueries.some((dataQuery) => {
+    const attachmentUrn = dataQuery?.urn ?? '';
+    const constraintFilters = normalizeConstraintFilters(
+      getSeriesFilterDto(filtersMap?.get(attachmentUrn) || []).filter(
+        (filter) => filter.componentCode !== TIME_PERIOD,
+      ),
+    );
+    return !isRequestCached(
+      actions.getConstraints,
+      buildRequestCacheKey(attachmentUrn, constraintFilters),
+    );
+  });
 };
 
 export const getConstraintsMap = (

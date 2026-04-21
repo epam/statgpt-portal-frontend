@@ -39,6 +39,7 @@ const mockGetFilledDatasetFiltersMap = jest.fn(
 );
 const mockGetQueryFiltersMap = jest.fn(() => new Map());
 const mockSetDataQueryFiltersMap = jest.fn(() => new Map());
+const mockHasUncachedConstraintRequests = jest.fn(() => false);
 
 jest.mock('@epam/statgpt-ui-components', () => {
   const R = require('react');
@@ -68,6 +69,8 @@ jest.mock('../../../../utils/multiple-filters', () => ({
     (mockGetConstraintsRequests as any)(...args),
   getConstraintsMap: (...args: any[]) =>
     (mockGetConstraintsMap as any)(...args),
+  hasUncachedConstraintRequests: (...args: any[]) =>
+    (mockHasUncachedConstraintRequests as any)(...args),
   getQueryFiltersMap: (...args: any[]) =>
     (mockGetQueryFiltersMap as any)(...args),
   setDataQueryFiltersMap: (...args: any[]) =>
@@ -242,6 +245,7 @@ beforeEach(() => {
   mockGetFilledDatasetFiltersMap.mockReturnValue(new Map());
   mockGetQueryFiltersMap.mockReturnValue(new Map());
   mockSetDataQueryFiltersMap.mockReturnValue(new Map());
+  mockHasUncachedConstraintRequests.mockReturnValue(false);
   mockIsStructureDataMapsReady.mockReturnValue(false);
   (defaultProps.updateConversation as jest.Mock).mockResolvedValue(undefined);
 });

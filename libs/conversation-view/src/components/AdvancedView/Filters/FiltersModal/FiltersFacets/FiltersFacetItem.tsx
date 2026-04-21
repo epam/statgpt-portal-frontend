@@ -33,6 +33,7 @@ interface Props {
   onDeleteFilter?: (filter?: Filter) => void;
   filterValuesProps?: FilterValuesProps;
   isDisableValues?: boolean;
+  isValuesLoading?: boolean;
   timeRangeOptions?: TimeRangeOptions[];
   titles?: ConversationViewTitles;
   initialConstraints?: DataConstraints[];
@@ -69,6 +70,7 @@ const FiltersFacetItem: FC<Props> = ({
   hideFacetCounterByDefault,
   filterValuesProps,
   isDisableValues,
+  isValuesLoading,
   timeRangeOptions,
   onTimePeriodChange,
   selectFilterValue,
@@ -236,6 +238,7 @@ const FiltersFacetItem: FC<Props> = ({
           selectedFilter={filter}
           locale={locale}
           isDisableValues={isDisableValues}
+          isValuesLoading={isValuesLoading}
           timeRangeOptions={timeRangeOptions}
           selectFilterValue={selectFilterValue}
           selectHierarchicalNodes={selectHierarchicalNodes}
