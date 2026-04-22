@@ -25,5 +25,18 @@ export const getRequestAcceptHeader = (
   }
 };
 
+export const getResponseContentType = (format: string): string => {
+  switch (format) {
+    case SdmxDataFormat.CSV:
+      return 'text/csv; charset=utf-8';
+    case SdmxDataFormat.XML:
+      return 'application/xml; charset=utf-8';
+    case SdmxDataFormat.JSON:
+      return 'application/json; charset=utf-8';
+    default:
+      return 'text/csv; charset=utf-8';
+  }
+};
+
 const getFileAcceptHeader = (acceptHeader: string, attribute: string): string =>
   `${acceptHeader}; labels=${attribute}`;
