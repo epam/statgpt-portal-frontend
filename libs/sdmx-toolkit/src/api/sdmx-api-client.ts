@@ -37,6 +37,7 @@ export class SdmxApiClient {
     endpoint: string,
     options: RequestOptions,
     filename: string,
+    contentType?: string,
   ): Promise<Response> {
     const url = `${this.config.apiUrl}/${endpoint}`;
 
@@ -87,6 +88,7 @@ export class SdmxApiClient {
 
     const responseHeaders = new Headers({
       'Content-Disposition': `attachment; filename=${encodeURIComponent(filename)}`,
+      ...(contentType ? { 'Content-Type': contentType } : {}),
     });
 
     return new Response(stream, { headers: responseHeaders });
