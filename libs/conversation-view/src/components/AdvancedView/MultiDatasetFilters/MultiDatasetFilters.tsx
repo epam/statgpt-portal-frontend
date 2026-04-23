@@ -643,6 +643,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               hierarchyStateMap={hierarchyStateMap}
               onSelectHierarchy={onSelectHierarchy}
               onExpandHierarchyNode={onExpandHierarchyNode}
+              dataQueries={dataQueries}
             />
             <ModalFooter
               titles={titles}

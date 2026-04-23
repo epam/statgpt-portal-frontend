@@ -7,6 +7,7 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import {
   CalendarResolution,
+  DataQuery,
   TimeRange,
   TimeRangeOptions,
 } from '@epam/statgpt-shared-toolkit';
@@ -64,6 +65,7 @@ interface Props {
   titles?: ConversationViewTitles;
   selectedTimeOption?: string | number;
   hierarchyState?: HierarchyState;
+  dataQueries?: DataQuery[];
 }
 
 const FiltersValuesPanel: FC<Props> = ({
@@ -83,6 +85,7 @@ const FiltersValuesPanel: FC<Props> = ({
   expandHierarchicalValue,
   selectedTimeOption,
   hierarchyState,
+  dataQueries,
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -235,6 +238,7 @@ const FiltersValuesPanel: FC<Props> = ({
           calendarIcon={filterValuesProps?.calendarIcon}
           dateFormat={filterValuesProps?.dateFormat}
           defaultTimeOption={selectedTimeOption}
+          dataQueries={dataQueries}
         />
       ) : (
         <div

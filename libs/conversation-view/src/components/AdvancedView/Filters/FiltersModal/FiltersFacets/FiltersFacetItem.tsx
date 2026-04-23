@@ -4,7 +4,11 @@ import { FC, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import ChevronSolidDownIcon from '../../../../../assets/icons/chevron-solid-down.svg';
 import { DataConstraints, Hierarchy } from '@epam/statgpt-sdmx-toolkit';
-import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
+import {
+  DataQuery,
+  TimeRange,
+  TimeRangeOptions,
+} from '@epam/statgpt-shared-toolkit';
 import { Dropdown, IconButton, useIsMobile } from '@epam/statgpt-ui-components';
 import {
   Filter,
@@ -56,6 +60,7 @@ interface Props {
   ) => void;
   hierarchyState?: HierarchyState;
   onSelectHierarchy?: (filter?: Filter, hierarchy?: Hierarchy | null) => void;
+  dataQueries?: DataQuery[];
 }
 
 const FiltersFacetItem: FC<Props> = ({
@@ -78,6 +83,7 @@ const FiltersFacetItem: FC<Props> = ({
   expandHierarchicalValue,
   hierarchyState,
   onSelectHierarchy,
+  dataQueries,
 }) => {
   const isMobile = useIsMobile();
 
@@ -247,6 +253,7 @@ const FiltersFacetItem: FC<Props> = ({
           filterValuesProps={filterValuesProps}
           initialConstraints={initialConstraints}
           hierarchyState={hierarchyState}
+          dataQueries={dataQueries}
         />
       )}
     </div>

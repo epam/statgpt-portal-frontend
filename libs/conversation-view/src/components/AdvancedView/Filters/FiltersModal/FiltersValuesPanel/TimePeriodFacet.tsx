@@ -6,6 +6,7 @@ import {
 import {
   CalendarResolution,
   CUSTOM_PERIOD,
+  DataQuery,
   Locale,
   TimeRange,
   TimeRangeOptions,
@@ -17,6 +18,7 @@ import {
   getMergedInitialConstraints,
   getPickerOptions,
   getRangedTimePeriod,
+  getTimeRangeFromDataQueries,
 } from '../../../../../utils/attachments/time-period';
 import { ConversationViewTitles } from '../../../../../models/titles';
 
@@ -36,6 +38,7 @@ interface Props {
   dateFormat?: string;
   titles?: ConversationViewTitles;
   defaultTimeOption?: string | number;
+  dataQueries?: DataQuery[];
 }
 
 const TimePeriodFacet: FC<Props> = ({
@@ -51,14 +54,24 @@ const TimePeriodFacet: FC<Props> = ({
   dateFormat,
   titles,
   defaultTimeOption,
+  dataQueries,
 }) => {
-  // workaround for specific case for datasets without time perion constraints
-  const initialTimeRange = getMergedInitialConstraints(
+  // workaround for specific case for datasets without time period constraints
+  const rawInitialTimeRange = getMergedInitialConstraints(
     getAnnotationPeriod(initialConstraints?.[0]?.annotations),
     timeRange,
   );
+  const hasConstraintsRange = !!(
+    rawInitialTimeRange?.startPeriod || rawInitialTimeRange?.endPeriod
+  );
+  const timeRangeFromDataQueries =
+    !hasConstraintsRange && !timeRange
+      ? getTimeRangeFromDataQueries(dataQueries)
+      : null;
+  const initialTimeRange = timeRangeFromDataQueries ?? rawInitialTimeRange;
+
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange | null>(
-    timeRange,
+    timeRange ?? timeRangeFromDataQueries,
   );
   const timeOption =
     !timeRange ||
@@ -93,6 +106,20 @@ const TimePeriodFacet: FC<Props> = ({
     //TODO: resolve excessive rerenders
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTimeRange]);
+
+  useEffect(() => {
+    if (timeRange !== null) {
+      return;
+    }
+    const constraintsRange = getAnnotationPeriod(
+      initialConstraints?.[0]?.annotations,
+    );
+    if (constraintsRange?.startPeriod || constraintsRange?.endPeriod) {
+      return;
+    }
+    setSelectedTimeRange(getTimeRangeFromDataQueries(dataQueries));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeRange]);
 
   const pickStartDate = (date: Date) => {
     if (date) {
