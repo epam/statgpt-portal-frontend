@@ -32,7 +32,7 @@ const mockGetFiltersPreselectedByDataQueries = jest.fn(() => [] as Filter[]);
 const mockBuildFiltersMap = jest.fn(() => new Map<string, Filter[]>());
 const mockGetFiltersByConstraints = jest.fn(() => [] as Filter[]);
 const mockGetConstraintsRequests = jest.fn(() => [] as Promise<unknown>[]);
-const mockGetConstraintsMap = jest.fn(() => new Map());
+const mockGetConstraintsMapFromSettledResults = jest.fn(() => new Map());
 const mockIsStructureDataMapsReady = jest.fn(() => false);
 const mockGetFilledDatasetFiltersMap = jest.fn(
   () => new Map<string, Filter[]>(),
@@ -40,6 +40,20 @@ const mockGetFilledDatasetFiltersMap = jest.fn(
 const mockGetQueryFiltersMap = jest.fn(() => new Map());
 const mockSetDataQueryFiltersMap = jest.fn(() => new Map());
 const mockHasUncachedConstraintRequests = jest.fn(() => false);
+const mockMergeConstraintsMaps = jest.fn(
+  (
+    baseConstraintsMap: Map<string, unknown> | undefined,
+    updatedConstraintsMap: Map<string, unknown>,
+  ) => {
+    const mergedConstraintsMap = new Map(baseConstraintsMap);
+
+    updatedConstraintsMap.forEach((constraints, datasetUrn) => {
+      mergedConstraintsMap.set(datasetUrn, constraints);
+    });
+
+    return mergedConstraintsMap;
+  },
+);
 
 jest.mock('@epam/statgpt-ui-components', () => {
   const R = require('react');
@@ -67,10 +81,12 @@ jest.mock('../../../../utils/multiple-filters', () => ({
     (mockGetFiltersByConstraints as any)(...args),
   getConstraintsRequests: (...args: any[]) =>
     (mockGetConstraintsRequests as any)(...args),
-  getConstraintsMap: (...args: any[]) =>
-    (mockGetConstraintsMap as any)(...args),
+  getConstraintsMapFromSettledResults: (...args: any[]) =>
+    (mockGetConstraintsMapFromSettledResults as any)(...args),
   hasUncachedConstraintRequests: (...args: any[]) =>
     (mockHasUncachedConstraintRequests as any)(...args),
+  mergeConstraintsMaps: (...args: any[]) =>
+    (mockMergeConstraintsMaps as any)(...args),
   getQueryFiltersMap: (...args: any[]) =>
     (mockGetQueryFiltersMap as any)(...args),
   setDataQueryFiltersMap: (...args: any[]) =>
@@ -238,7 +254,7 @@ beforeEach(() => {
   mockCallbacks.selectedFiltersCount = null;
   jest.clearAllMocks();
   mockGetConstraintsRequests.mockReturnValue([]);
-  mockGetConstraintsMap.mockReturnValue(new Map());
+  mockGetConstraintsMapFromSettledResults.mockReturnValue(new Map());
   mockGetFiltersPreselectedByDataQueries.mockReturnValue([]);
   mockBuildFiltersMap.mockReturnValue(new Map());
   mockGetFiltersByConstraints.mockReturnValue([]);
@@ -246,6 +262,20 @@ beforeEach(() => {
   mockGetQueryFiltersMap.mockReturnValue(new Map());
   mockSetDataQueryFiltersMap.mockReturnValue(new Map());
   mockHasUncachedConstraintRequests.mockReturnValue(false);
+  mockMergeConstraintsMaps.mockImplementation(
+    (
+      baseConstraintsMap: Map<string, unknown> | undefined,
+      updatedConstraintsMap: Map<string, unknown>,
+    ) => {
+      const mergedConstraintsMap = new Map(baseConstraintsMap);
+
+      updatedConstraintsMap.forEach((constraints, datasetUrn) => {
+        mergedConstraintsMap.set(datasetUrn, constraints);
+      });
+
+      return mergedConstraintsMap;
+    },
+  );
   mockIsStructureDataMapsReady.mockReturnValue(false);
   (defaultProps.updateConversation as jest.Mock).mockResolvedValue(undefined);
 });
@@ -279,6 +309,72 @@ describe('MultiDatasetFilters', () => {
         defaultProps.dataQueries,
         expect.anything(),
         expect.any(Object),
+      );
+    });
+
+    it('keeps existing constraints for datasets whose refresh request fails', async () => {
+      const initialConstraintsA = [{ id: 'initial-a' }] as any[];
+      const initialConstraintsB = [{ id: 'initial-b' }] as any[];
+      const updatedConstraintsA = [{ id: 'updated-a' }] as any[];
+      const fulfilledConstraintData = {
+        urn: DATASET_A_URN,
+        data: { data: { dataConstraints: updatedConstraintsA } },
+      };
+      const initialConstraintsMap = new Map<string, any>([
+        [DATASET_A_URN, initialConstraintsA],
+        [DATASET_B_URN, initialConstraintsB],
+      ]);
+      const updatedConstraintsMap = new Map<string, any>([
+        [DATASET_A_URN, updatedConstraintsA],
+      ]);
+
+      mockIsStructureDataMapsReady.mockReturnValue(true);
+      mockGetFiltersPreselectedByDataQueries.mockReturnValue([
+        makeSharedCountryFilter(),
+      ]);
+      mockGetConstraintsRequests.mockReturnValue([
+        Promise.resolve(fulfilledConstraintData),
+        Promise.reject(new Error('constraints failed')),
+      ]);
+      mockGetConstraintsMapFromSettledResults.mockReturnValue(
+        updatedConstraintsMap,
+      );
+
+      await act(async () => {
+        render(
+          createElement(MultiDatasetFilters, {
+            ...defaultProps,
+            structureDataMaps: {
+              ...defaultProps.structureDataMaps,
+              constraintsMap: initialConstraintsMap,
+            } as StructureDataMaps,
+          }),
+        );
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(mockGetConstraintsMapFromSettledResults).toHaveBeenCalledWith([
+        expect.objectContaining({
+          status: 'fulfilled',
+          value: fulfilledConstraintData,
+        }),
+        expect.objectContaining({
+          status: 'rejected',
+        }),
+      ]);
+
+      const latestCall =
+        mockGetFiltersByConstraints.mock.calls[
+          mockGetFiltersByConstraints.mock.calls.length - 1
+        ];
+      const latestStructureDataMaps = latestCall[1] as StructureDataMaps;
+
+      expect(latestStructureDataMaps.constraintsMap?.get(DATASET_A_URN)).toBe(
+        updatedConstraintsA,
+      );
+      expect(latestStructureDataMaps.constraintsMap?.get(DATASET_B_URN)).toBe(
+        initialConstraintsB,
       );
     });
   });
@@ -497,7 +593,7 @@ describe('MultiDatasetFilters', () => {
         datasetFilterB,
       ]);
       mockGetConstraintsRequests.mockReturnValue([]);
-      mockGetConstraintsMap
+      mockGetConstraintsMapFromSettledResults
         .mockReturnValueOnce(initialConstraintsMap)
         .mockReturnValueOnce(updatedConstraintsMap);
 

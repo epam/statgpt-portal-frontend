@@ -31,7 +31,7 @@ import FilterSettings from '../Filters/FiltersModal/FiltersSettings';
 import ModalFooter from '../Filters/FiltersModal/ModalFooter';
 import {
   buildFiltersMap,
-  getConstraintsMap,
+  getConstraintsMapFromSettledResults,
   getConstraintsRequests,
   getFilledDatasetFiltersMap,
   getFiltersByConstraints,
@@ -39,6 +39,7 @@ import {
   hasUncachedConstraintRequests,
   isStructureDataMapsReady,
   getQueryFiltersMap,
+  mergeConstraintsMaps,
   setDataQueryFiltersMap,
 } from '../../../utils/multiple-filters';
 import { getHierarchyRequestContextForFilter } from '../../../utils/hierarchy-request-context';
@@ -202,9 +203,12 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
 
       const requests = getConstraintsRequests(dataQueries, filtersMap, actions);
 
-      Promise.all(requests)
-        .then((constraintsData) => {
-          const currentConstraintsMap = getConstraintsMap(constraintsData);
+      Promise.allSettled(requests)
+        .then((constraintsResults) => {
+          const currentConstraintsMap = mergeConstraintsMaps(
+            constraintsMapRef.current || structureDataMaps?.constraintsMap,
+            getConstraintsMapFromSettledResults(constraintsResults),
+          );
           const filledFilters = getFiltersByConstraints(
             filtersMap,
             { ...structureDataMaps, constraintsMap: currentConstraintsMap },
@@ -234,7 +238,10 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
           }
         })
         .catch(() => {
-          const currentConstraintsMap = new Map();
+          const currentConstraintsMap =
+            constraintsMapRef.current ||
+            structureDataMaps?.constraintsMap ||
+            new Map();
           const filledFilters = getFiltersByConstraints(
             filtersMap,
             { ...structureDataMaps, constraintsMap: currentConstraintsMap },
@@ -481,15 +488,12 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
 
       const requests = getConstraintsRequests(dataQueries, filtersMap, actions);
 
-      Promise.all(requests)
-        .then((constraintsData) => {
-          const updatedConstraintsMap = getConstraintsMap(constraintsData);
-          const mergedConstraintsMap = new Map(currentConstraintsMap);
-
-          updatedConstraintsMap.forEach((constraints, datasetUrn) => {
-            mergedConstraintsMap.set(datasetUrn, constraints);
-          });
-
+      Promise.allSettled(requests)
+        .then((constraintsResults) => {
+          const mergedConstraintsMap = mergeConstraintsMaps(
+            currentConstraintsMap,
+            getConstraintsMapFromSettledResults(constraintsResults),
+          );
           updateViewAfterDelete(filtersMap, {
             ...structureDataMaps,
             constraintsMap: mergedConstraintsMap,
