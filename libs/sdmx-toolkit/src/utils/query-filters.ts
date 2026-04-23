@@ -12,7 +12,6 @@ import {
 } from '@epam/statgpt-shared-toolkit';
 import { format } from 'date-fns';
 import {
-  AND_QUERY_OPERATOR,
   QUERY_PARAMETER_FILTER_EQUAL,
   QUERY_PARAMETER_FILTER_VALUE_SEPARATOR,
 } from '../constants/query-parameters';
@@ -67,12 +66,8 @@ export const getQueryTimePeriodFilters = (
 
   const id = timePeriodId;
 
-  return filterValues
-    .map(
-      (v) =>
-        `${encodeURIComponent(`c[${id}]`)}${QUERY_PARAMETER_FILTER_EQUAL}${encodeURIComponent(v)}`,
-    )
-    .join(AND_QUERY_OPERATOR);
+  const combinedValue = filterValues.join(GET_v3_FILTER_OR);
+  return `${encodeURIComponent(`c[${id}]`)}${QUERY_PARAMETER_FILTER_EQUAL}${encodeURIComponent(combinedValue)}`;
 };
 
 const formatLocalDate = (date: Date): string => {
