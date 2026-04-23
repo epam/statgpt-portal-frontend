@@ -1,5 +1,6 @@
 import ConversationViewWrapper from '../../../../components/ConversationView/ConversationViewWrapper';
-import { SIGN_IN_LINK } from '../../../../constants/auth';
+import { getSignInLink } from '../../../../constants/auth';
+import { ApplicationRoute } from '../../../../types/application-routes';
 import { getUserToken } from '../../../../utils/auth/auth-request';
 import { getIsEnableAuthToggle } from '../../../../utils/auth/get-auth-toggle';
 import { getIsInvalidSession } from '../../../../utils/auth/is-valid-session';
@@ -12,9 +13,9 @@ export const dynamic = 'force-dynamic';
 export default async function Page({
   params,
 }: {
-  params: Promise<{ id: string[] }>;
+  params: Promise<{ locale: string; id: string[] }>;
 }) {
-  const { id } = await params;
+  const { locale, id } = await params;
   // Join the array parts to reconstruct the full conversation ID
   const bucketId = id[0];
   const conversationId = id.slice(1).join('/');
@@ -24,7 +25,13 @@ export default async function Page({
   const isInvalidSession = await getIsInvalidSession(isEnableAuth, token);
 
   if (isInvalidSession) {
-    return redirect(SIGN_IN_LINK);
+    return redirect(
+      getSignInLink(
+        `/${locale}${ApplicationRoute.Conversations}/${id
+          .map(encodeURIComponent)
+          .join('/')}`,
+      ),
+    );
   }
 
   return (
