@@ -5,7 +5,11 @@ import {
   Hierarchy,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
-import { DataQuery, TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
+import {
+  DataQuery,
+  TimeRange,
+  TimeRangeOptions,
+} from '@epam/statgpt-shared-toolkit';
 import { Button, useIsMobile } from '@epam/statgpt-ui-components';
 import { FC, ReactNode, useCallback } from 'react';
 import {

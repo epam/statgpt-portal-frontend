@@ -311,7 +311,7 @@ const FiltersValuesPanel: FC<Props> = ({
                     {otherResultsCount}
                   </span>
                   {!isValuesLoading && otherResultsCount === 0 && (
-                    <p className="body-2 text-neutrals-700 mt-1">
+                    <p className="body-2 mt-1 text-neutrals-700">
                       {titles?.noResultsInOtherDimensions ??
                         'No results found in other dimensions'}
                     </p>
