@@ -7,6 +7,7 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import {
   CalendarResolution,
+  DataQuery,
   TimeRange,
   TimeRangeOptions,
 } from '@epam/statgpt-shared-toolkit';
@@ -64,6 +65,7 @@ interface Props {
   titles?: ConversationViewTitles;
   selectedTimeOption?: string | number;
   hierarchyState?: HierarchyState;
+  dataQueries?: DataQuery[];
 }
 
 const FiltersValuesPanel: FC<Props> = ({
@@ -83,6 +85,7 @@ const FiltersValuesPanel: FC<Props> = ({
   expandHierarchicalValue,
   selectedTimeOption,
   hierarchyState,
+  dataQueries,
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -235,6 +238,7 @@ const FiltersValuesPanel: FC<Props> = ({
           calendarIcon={filterValuesProps?.calendarIcon}
           dateFormat={filterValuesProps?.dateFormat}
           defaultTimeOption={selectedTimeOption}
+          dataQueries={dataQueries}
         />
       ) : (
         <div
@@ -307,7 +311,7 @@ const FiltersValuesPanel: FC<Props> = ({
                     {otherResultsCount}
                   </span>
                   {!isValuesLoading && otherResultsCount === 0 && (
-                    <p className="body-2 text-neutrals-700 mt-1">
+                    <p className="body-2 mt-1 text-neutrals-700">
                       {titles?.noResultsInOtherDimensions ??
                         'No results found in other dimensions'}
                     </p>

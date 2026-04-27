@@ -624,6 +624,9 @@ const Filters: FC<FiltersProps> = ({
               hierarchyStateMap={hierarchyStateMap}
               onSelectHierarchy={onSelectHierarchy}
               onExpandHierarchyNode={onExpandHierarchyNode}
+              dataQueries={
+                attachmentsDataQuery ? [attachmentsDataQuery] : undefined
+              }
             />
             <ModalFooter
               titles={titles}
