@@ -5,7 +5,11 @@ import {
   Hierarchy,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
-import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
+import {
+  DataQuery,
+  TimeRange,
+  TimeRangeOptions,
+} from '@epam/statgpt-shared-toolkit';
 import classNames from 'classnames';
 import { FC, ReactNode } from 'react';
 import {
@@ -58,6 +62,7 @@ interface Props {
   ) => void;
   hierarchyStateMap?: Map<string, HierarchyState>;
   onSelectHierarchy?: (filter?: Filter, hierarchy?: Hierarchy | null) => void;
+  dataQueries?: DataQuery[];
 }
 
 const FiltersFacetsList: FC<Props> = ({
@@ -82,6 +87,7 @@ const FiltersFacetsList: FC<Props> = ({
   expandHierarchicalValue,
   hierarchyStateMap,
   onSelectHierarchy,
+  dataQueries,
 }) => {
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const datasetCount = new Set(
@@ -144,6 +150,7 @@ const FiltersFacetsList: FC<Props> = ({
                 getFilterIdentity(filter) ?? '',
               )}
               onSelectHierarchy={onSelectHierarchy}
+              dataQueries={dataQueries}
             />
           </div>
         );

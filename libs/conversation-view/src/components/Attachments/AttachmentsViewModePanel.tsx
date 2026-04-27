@@ -85,7 +85,7 @@ const AttachmentsViewModePanel: FC<Props> = ({
       : (attachmentsStyles?.downloadTitle ?? '');
 
   return (
-    <div className="items-center flex w-full min-w-0 justify-between">
+    <div className="flex w-full min-w-0 items-center justify-between">
       <AttachmentTabs
         dataGridTitle={attachmentsStyles?.dataGridTitle}
         attachments={attachments}
