@@ -2,7 +2,10 @@ import { SdmxApiClient } from './sdmx-api-client';
 import { StructuralMetaData } from '../models/structural-metadata/structural-metadata';
 import { splitUrn } from '../utils/urn';
 import { DataMessage } from '../models/data/data-message';
-import { getRequestAcceptHeader } from '../utils/get-file-headers';
+import {
+  getRequestAcceptHeader,
+  getResponseContentType,
+} from '../utils/get-file-headers';
 import { SdmxReferences } from '../types/references';
 import { SdmxDetails } from '../types/details';
 import { ALL_ATTRIBUTES } from '../constants/attributes';
@@ -65,7 +68,6 @@ export class DatasetApi {
     token?: string,
   ) {
     const queryParams = new URLSearchParams({
-      format: dataFormat,
       compress: 'false',
       attributes: isMetadata ? 'all' : 'none',
       limit: '1000',
@@ -84,6 +86,7 @@ export class DatasetApi {
       },
       filename,
       token,
+      getResponseContentType(dataFormat),
     );
   }
 }

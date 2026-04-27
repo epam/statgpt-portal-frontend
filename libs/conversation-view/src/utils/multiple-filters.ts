@@ -1,6 +1,7 @@
 import {
   DataConstraints,
   DatasetQueryFilters,
+  DatasetDimensionsMetadataMap,
   Dimension,
   findCodelistByDimension,
   getAnnotationPeriod,
@@ -31,12 +32,22 @@ import { StructureDataMaps } from '../models/structure-data';
 import { getFilledFilters } from './get-filled-filters';
 import { getSeriesFilterDto } from './get-series-filters';
 import { normalizeConstraintFilters } from './normalize-constraint-filters';
-import { buildRequestCacheKey, getCachedRequestResult } from './request-cache';
+import {
+  buildRequestCacheKey,
+  getCachedRequestResult,
+  isRequestCached,
+} from './request-cache';
 import { getQueryFilters, setDataQueryFilters } from './query-filters';
 
 type SharedFilterConfig = {
   id: string;
+  subtype?: string;
   getMergedValueKey: (value: FilterValue, datasetUrn?: string) => string;
+};
+
+export type ExtendedStructuralMetadata = {
+  urn: string;
+  data?: StructuralMetaData;
 };
 
 export const COMMON_COUNTRY_FILTER_ID = 'COUNTRY';
@@ -48,6 +59,9 @@ export const SHARED_FILTER_IDS = new Set([
   COMMON_FREQUENCY_FILTER_ID,
   COMMON_TIME_PERIOD_FILTER_ID,
 ]);
+
+const normalizeFilterId = (filterId?: string) =>
+  filterId?.trim()?.toLocaleUpperCase();
 
 const buildSharedFilterNameMatcher =
   (): SharedFilterConfig['getMergedValueKey'] => (value, datasetUrn) => {
@@ -63,13 +77,68 @@ const buildMergedValueNameKey = (name: string) => `name:${name}`;
 const buildMergedValueDatasetKey = (datasetUrn: string, valueId: string) =>
   `dataset:${datasetUrn}:id:${valueId}`;
 
+const getDatasetDimensionsMetadata = (
+  datasetUrn?: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+) => (datasetUrn ? datasetDimensionsMetadataMap?.[datasetUrn] : undefined);
+
+const getDatasetDimensionMetadata = (
+  filter?: Filter,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+) => {
+  if (filter?.filterType !== 'dataset' || !filter.id) {
+    return undefined;
+  }
+
+  return getDatasetDimensionsMetadata(
+    filter.datasetUrn,
+    datasetDimensionsMetadataMap,
+  )?.[filter.id];
+};
+
+const findDatasetDimensionKey = (
+  datasetUrn: string,
+  matcher: (dimensionMetadata: {
+    subtype?: string | null;
+    dimensionType?: string | null;
+  }) => boolean,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+): string | undefined =>
+  Object.entries(
+    getDatasetDimensionsMetadata(datasetUrn, datasetDimensionsMetadataMap) ||
+      {},
+  ).find(([, dimensionMetadata]) => matcher(dimensionMetadata))?.[0];
+
+const getDatasetDimensionKeyBySubtype = (
+  datasetUrn: string,
+  subtype: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+) =>
+  findDatasetDimensionKey(
+    datasetUrn,
+    (dimensionMetadata) => dimensionMetadata.subtype === subtype,
+    datasetDimensionsMetadataMap,
+  );
+
+const getTimeDimensionKey = (
+  datasetUrn: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+) =>
+  findDatasetDimensionKey(
+    datasetUrn,
+    (dimensionMetadata) => dimensionMetadata.dimensionType === 'TIME_PERIOD',
+    datasetDimensionsMetadataMap,
+  );
+
 const SHARED_FILTERS_CONFIG: SharedFilterConfig[] = [
   {
     id: COMMON_COUNTRY_FILTER_ID,
+    subtype: 'REGION',
     getMergedValueKey: buildSharedFilterNameMatcher(),
   },
   {
     id: COMMON_FREQUENCY_FILTER_ID,
+    subtype: 'FREQUENCY',
     getMergedValueKey: buildSharedFilterNameMatcher(),
   },
   {
@@ -78,18 +147,76 @@ const SHARED_FILTERS_CONFIG: SharedFilterConfig[] = [
   },
 ];
 
-const SHARED_FILTERS_CONFIG_MAP = new Map(
+const SHARED_FILTERS_CONFIG_MAP = new Map<string, SharedFilterConfig>(
   SHARED_FILTERS_CONFIG.map((config) => [config.id, config]),
 );
 
 const getSharedFilterConfig = (filterId?: string) =>
-  filterId ? SHARED_FILTERS_CONFIG_MAP.get(filterId) : void 0;
+  filterId
+    ? SHARED_FILTERS_CONFIG_MAP.get(normalizeFilterId(filterId) || '')
+    : void 0;
+
+const isMatchingSharedFilterConfig = (
+  filter: Filter,
+  config: SharedFilterConfig,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+) => {
+  if (filter.filterType === 'shared') {
+    return config.id === normalizeFilterId(filter.id);
+  }
+
+  if (config.id === COMMON_TIME_PERIOD_FILTER_ID) {
+    return (
+      filter.isTimeDimension ||
+      getDatasetDimensionMetadata(filter, datasetDimensionsMetadataMap)
+        ?.dimensionType === 'TIME_PERIOD' ||
+      config.id === normalizeFilterId(filter.id)
+    );
+  }
+
+  const dimensionMetadata = getDatasetDimensionMetadata(
+    filter,
+    datasetDimensionsMetadataMap,
+  );
+
+  if (config.subtype && dimensionMetadata?.subtype === config.subtype) {
+    return true;
+  }
+
+  return config.id === normalizeFilterId(filter.id);
+};
+
+const getSharedFilterConfigForFilter = (
+  filter?: Filter,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+) =>
+  filter
+    ? SHARED_FILTERS_CONFIG.find((config) =>
+        isMatchingSharedFilterConfig(
+          filter,
+          config,
+          datasetDimensionsMetadataMap,
+        ),
+      )
+    : undefined;
 
 const isSharedFilterId = (filterId?: string) =>
   !!getSharedFilterConfig(filterId);
 
 const isSharedFilter = (filter?: Filter): filter is SharedFilter =>
   filter?.filterType === 'shared' && isSharedFilterId(filter?.id);
+
+const hasConstraintsForDataset = (
+  constraintsMap: Map<string, DataConstraints[] | undefined> | undefined,
+  datasetUrn: string,
+) => !constraintsMap || Array.isArray(constraintsMap.get(datasetUrn));
+
+const hasDataMessageForDataset = (
+  structureDataMaps: StructureDataMaps | undefined,
+  datasetUrn: string,
+) =>
+  !structureDataMaps?.dataMessagesMap ||
+  structureDataMaps.dataMessagesMap.has(datasetUrn);
 
 const mergeSharedFilterValues = (
   filters: Filter[],
@@ -131,14 +258,22 @@ const mergeSharedFilterValues = (
   return Array.from(valueMap.values());
 };
 
-const mergeSharedFilters = (filters: Filter[]): Filter[] => {
+const mergeSharedFilters = (
+  filters: Filter[],
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+): Filter[] => {
   const groupedFilters = new Map<string, Filter[]>();
   const otherFilters: Filter[] = [];
 
   filters.forEach((filter) => {
-    if (isSharedFilterId(filter?.id) && filter?.datasetUrn) {
-      const group = groupedFilters.get(filter.id as string) || [];
-      groupedFilters.set(filter.id as string, [...group, filter]);
+    const config = getSharedFilterConfigForFilter(
+      filter,
+      datasetDimensionsMetadataMap,
+    );
+
+    if (config && filter?.datasetUrn) {
+      const group = groupedFilters.get(config.id) || [];
+      groupedFilters.set(config.id, [...group, filter]);
       return;
     }
 
@@ -154,11 +289,23 @@ const mergeSharedFilters = (filters: Filter[]): Filter[] => {
 
     const sharedFilter: Filter = {
       ...grouped[0],
+      id: config.id,
       datasetUrn: void 0,
       filterType: 'shared',
-      sourceDatasetUrns: grouped
-        .map((filter) => filter.datasetUrn)
-        .filter((datasetUrn): datasetUrn is string => !!datasetUrn),
+      sourceDatasetUrns: Array.from(
+        new Set(
+          grouped
+            .map((filter) => filter.datasetUrn)
+            .filter((datasetUrn): datasetUrn is string => !!datasetUrn),
+        ),
+      ),
+      sourceFilterIdsByDataset: Object.fromEntries(
+        grouped.flatMap((filter) =>
+          filter.datasetUrn && filter.id
+            ? [[filter.datasetUrn, filter.id]]
+            : [],
+        ),
+      ),
       dimensionValues: mergeSharedFilterValues(grouped, config),
     };
 
@@ -172,20 +319,60 @@ const mergeSharedFilters = (filters: Filter[]): Filter[] => {
   return [...sharedFilters, ...otherFilters];
 };
 
+const getNativeFilterIdForSharedFilter = (
+  filter: SharedFilter,
+  datasetUrn: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+): string | undefined => {
+  const sourceFilterId = filter.sourceFilterIdsByDataset?.[datasetUrn];
+
+  if (sourceFilterId) {
+    return sourceFilterId;
+  }
+
+  if (filter.id === COMMON_TIME_PERIOD_FILTER_ID) {
+    return getTimeDimensionKey(datasetUrn, datasetDimensionsMetadataMap);
+  }
+
+  const config = getSharedFilterConfig(filter.id);
+  return config?.subtype
+    ? getDatasetDimensionKeyBySubtype(
+        datasetUrn,
+        config.subtype,
+        datasetDimensionsMetadataMap,
+      )
+    : undefined;
+};
+
 const toDatasetFilter = (
   filter: SharedFilter,
   datasetUrn: string,
   dimensionValues?: FilterValue[],
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Filter => ({
   ...filter,
+  id:
+    getNativeFilterIdForSharedFilter(
+      filter,
+      datasetUrn,
+      datasetDimensionsMetadataMap,
+    ) || filter.id,
   datasetUrn,
   filterType: 'dataset',
   ...(dimensionValues ? { dimensionValues } : {}),
 });
 
-const expandSharedTimeFilter = (filter: SharedFilter): Filter[] =>
+const expandSharedTimeFilter = (
+  filter: SharedFilter,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+): Filter[] =>
   (filter.sourceDatasetUrns || []).map((datasetUrn) =>
-    toDatasetFilter(filter, datasetUrn),
+    toDatasetFilter(
+      filter,
+      datasetUrn,
+      undefined,
+      datasetDimensionsMetadataMap,
+    ),
   );
 
 const mapSharedValueToDatasetValue = (
@@ -200,6 +387,7 @@ const mapSharedValueToDatasetValue = (
 
 const mapSharedDimensionValuesByDataset = (
   filter: SharedFilter,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Map<string, Filter> => {
   const datasetFiltersMap = new Map<string, Filter>();
 
@@ -219,7 +407,12 @@ const mapSharedDimensionValuesByDataset = (
 
       datasetFiltersMap.set(
         datasetUrn,
-        toDatasetFilter(filter, datasetUrn, [mappedValue]),
+        toDatasetFilter(
+          filter,
+          datasetUrn,
+          [mappedValue],
+          datasetDimensionsMetadataMap,
+        ),
       );
     });
   });
@@ -249,6 +442,7 @@ const getNativeSharedFallbackValues = (
 const applySharedFallbackToDatasets = (
   filter: SharedFilter,
   datasetFiltersMap: Map<string, Filter>,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): void => {
   const selectedValues =
     filter.dimensionValues?.filter((value) => value.isSelectedValue) || [];
@@ -272,7 +466,12 @@ const applySharedFallbackToDatasets = (
     if (!existingFilter || !hasSelectedValue) {
       datasetFiltersMap.set(
         datasetUrn,
-        toDatasetFilter(filter, datasetUrn, nativeFallbackValues),
+        toDatasetFilter(
+          filter,
+          datasetUrn,
+          nativeFallbackValues,
+          datasetDimensionsMetadataMap,
+        ),
       );
     }
   });
@@ -281,19 +480,27 @@ const applySharedFallbackToDatasets = (
 const expandSharedFilter = (
   filter: Filter,
   propagateSharedFiltersToAllDatasets = false,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Filter[] => {
   if (!isSharedFilter(filter)) {
     return [filter];
   }
 
   if (filter.isTimeDimension) {
-    return expandSharedTimeFilter(filter);
+    return expandSharedTimeFilter(filter, datasetDimensionsMetadataMap);
   }
 
-  const datasetFiltersMap = mapSharedDimensionValuesByDataset(filter);
+  const datasetFiltersMap = mapSharedDimensionValuesByDataset(
+    filter,
+    datasetDimensionsMetadataMap,
+  );
 
   if (propagateSharedFiltersToAllDatasets) {
-    applySharedFallbackToDatasets(filter, datasetFiltersMap);
+    applySharedFallbackToDatasets(
+      filter,
+      datasetFiltersMap,
+      datasetDimensionsMetadataMap,
+    );
   }
 
   return Array.from(datasetFiltersMap.values());
@@ -410,8 +617,23 @@ const getFiltersWithValuesMap = (
   return new Map(
     Array.from(structureDataMaps?.dimensionsMap?.entries() || []).map(
       ([datasetUrn, dimensions]) => {
+        const hasDatasetConstraints = hasConstraintsForDataset(
+          structureDataMaps?.constraintsMap,
+          datasetUrn,
+        );
+        const hasDatasetDataMessage = hasDataMessageForDataset(
+          structureDataMaps,
+          datasetUrn,
+        );
         const filters =
           dimensions?.map((dimension) => {
+            if (!hasDatasetConstraints || !hasDatasetDataMessage) {
+              return {
+                ...dimension,
+                dimensionValues: [],
+              };
+            }
+
             const codeList = findCodelistByDimension(
               structureDataMaps?.structuresMap?.get(datasetUrn)?.codelists,
               structureDataMaps?.structuresMap?.get(datasetUrn)?.conceptSchemes,
@@ -434,35 +656,13 @@ const getFiltersWithValuesMap = (
   );
 };
 
-export function getCodelistUrnForFilter(
-  filter: Filter,
-  dimensionsMap?: Map<string, Dimension[]>,
-  structuresMap?: Map<string, StructuralData | undefined>,
-): string | undefined {
-  const datasetUrn =
-    filter.filterType === 'dataset'
-      ? filter.datasetUrn
-      : filter.sourceDatasetUrns?.[0];
-  const dim = dimensionsMap
-    ?.get(datasetUrn ?? '')
-    ?.find((d) => d.id === filter.id);
-  if (!dim) return undefined;
-
-  if (dim.localRepresentation?.enumeration) {
-    return dim.localRepresentation.enumeration;
-  }
-
-  const structuralData = structuresMap?.get(datasetUrn ?? '');
-  const codelist = findCodelistByDimension(
-    structuralData?.codelists,
-    structuralData?.conceptSchemes,
-    dim,
-  );
-  return codelist
-    ? (codelist.urn ??
-        generateShortUrn(codelist.id, codelist.version, codelist.agencyID))
-    : undefined;
-}
+const getFiltersWithSelectedValuesOnly = (filters: Filter[]): Filter[] =>
+  filters.map((filter) => ({
+    ...filter,
+    isDisabled: false,
+    dimensionValues:
+      filter.dimensionValues?.filter((value) => value.isSelectedValue) || [],
+  }));
 
 export const getFilledDatasetFiltersMap = (
   structureDataMaps?: StructureDataMaps,
@@ -499,6 +699,7 @@ export const getFiltersPreselectedByDataQueries = (
   filtersMap: Map<string, Filter[]>,
   dataQueries?: DataQuery[],
   constraintsMap?: Map<string, DataConstraints[] | undefined>,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Filter[] => {
   return mergeSharedFilters(
     dataQueries?.flatMap((dataQuery) => {
@@ -507,6 +708,7 @@ export const getFiltersPreselectedByDataQueries = (
       const constraints = constraintsMap?.get(urn) || [];
       return getFiltersPreselectedByDataQuery(filters, dataQuery, constraints);
     }) || [],
+    datasetDimensionsMetadataMap,
   );
 };
 
@@ -514,9 +716,16 @@ export const buildFiltersMap = (
   filters: Filter[],
   constraintsMap?: Map<string, DataConstraints[] | undefined>,
   applySharedFallback = false,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Map<string, Filter[]> => {
   return filters
-    ?.flatMap((filter) => expandSharedFilter(filter, applySharedFallback))
+    ?.flatMap((filter) =>
+      expandSharedFilter(
+        filter,
+        applySharedFallback,
+        datasetDimensionsMetadataMap,
+      ),
+    )
     ?.reduce((filterMap, filter) => {
       const urn = filter?.datasetUrn || '';
       const filterWithLimitedTimeRange = limitTimeRangeByConstraints(
@@ -536,11 +745,26 @@ export const getFiltersByConstraints = (
   filtersMap: Map<string, Filter[]>,
   structureDataMaps?: StructureDataMaps,
   locale = Locale.EN,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Filter[] => {
   const updatedFilters: Filter[] = [];
   Array.from(filtersMap?.entries())?.forEach(([datasetUrn, filters]) => {
     const dimensions = structureDataMaps?.dimensionsMap?.get(datasetUrn);
     const structures = structureDataMaps?.structuresMap?.get(datasetUrn);
+    const hasDatasetConstraints = hasConstraintsForDataset(
+      structureDataMaps?.constraintsMap,
+      datasetUrn,
+    );
+    const hasDatasetDataMessage = hasDataMessageForDataset(
+      structureDataMaps,
+      datasetUrn,
+    );
+
+    if (!hasDatasetConstraints || !hasDatasetDataMessage) {
+      updatedFilters.push(...getFiltersWithSelectedValuesOnly(filters));
+      return;
+    }
+
     const constraints = structureDataMaps?.constraintsMap?.get(datasetUrn);
 
     updatedFilters.push(
@@ -548,18 +772,26 @@ export const getFiltersByConstraints = (
     );
   });
 
-  return mergeSharedFilters(updatedFilters);
+  return mergeSharedFilters(updatedFilters, datasetDimensionsMetadataMap);
 };
 
 export const getFiltersForQueryContext = (
   filters: Filter[],
   datasetUrn?: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Filter[] => {
   if (!datasetUrn) {
     return filters.filter((filter) => filter.filterType !== 'shared');
   }
 
-  return buildFiltersMap(filters).get(datasetUrn) || [];
+  return (
+    buildFiltersMap(
+      filters,
+      undefined,
+      false,
+      datasetDimensionsMetadataMap,
+    ).get(datasetUrn) || []
+  );
 };
 
 export const getDatasetNameFromFilters = (
@@ -604,7 +836,7 @@ export const getConstraintsRequests = (
       filters?: SeriesFilterDto[],
     ) => Promise<StructuralMetaData>;
   },
-): Promise<StructuralMetaData>[] => {
+): Promise<ExtendedStructuralMetadata>[] => {
   return (
     dataQueries?.map((dataQuery) => {
       const attachmentUrn = dataQuery?.urn ?? '';
@@ -618,28 +850,71 @@ export const getConstraintsRequests = (
             actions.getConstraints,
             buildRequestCacheKey(attachmentUrn, constraintFilters),
             () => actions.getConstraints(attachmentUrn, constraintFilters),
-          )
-        : Promise.resolve({} as StructuralMetaData);
+          ).then((data) => ({ urn: attachmentUrn, data }))
+        : Promise.resolve({
+            urn: attachmentUrn,
+            data: {} as StructuralMetaData,
+          });
     }) || []
   );
 };
 
+export const hasUncachedConstraintRequests = (
+  dataQueries?: DataQuery[],
+  filtersMap?: Map<string, Filter[]>,
+  actions?: {
+    getConstraints: (
+      urn: string,
+      filters?: SeriesFilterDto[],
+    ) => Promise<StructuralMetaData>;
+  },
+): boolean => {
+  if (!actions?.getConstraints || !dataQueries?.length) return false;
+  return dataQueries.some((dataQuery) => {
+    const attachmentUrn = dataQuery?.urn ?? '';
+    const constraintFilters = normalizeConstraintFilters(
+      getSeriesFilterDto(filtersMap?.get(attachmentUrn) || []).filter(
+        (filter) => filter.componentCode !== TIME_PERIOD,
+      ),
+    );
+    return !isRequestCached(
+      actions.getConstraints,
+      buildRequestCacheKey(attachmentUrn, constraintFilters),
+    );
+  });
+};
+
 export const getConstraintsMap = (
-  constraintsData: StructuralMetaData[],
+  constraintsData: ExtendedStructuralMetadata[],
 ): Map<string, DataConstraints[] | undefined> => {
   return new Map(
-    constraintsData?.map((constraintData) => {
-      const constraint = constraintData?.data?.dataConstraints;
-      return [
-        generateShortUrn(
-          constraint?.[0]?.id,
-          constraint?.[0]?.version,
-          constraint?.[0]?.agencyID,
-        ),
-        constraint,
-      ];
+    constraintsData?.flatMap(({ urn, data }) => {
+      const constraints = data?.data?.dataConstraints;
+      return Array.isArray(constraints) ? [[urn, constraints]] : [];
     }),
   );
+};
+
+export const getConstraintsMapFromSettledResults = (
+  constraintsResults: PromiseSettledResult<ExtendedStructuralMetadata>[],
+): Map<string, DataConstraints[] | undefined> =>
+  getConstraintsMap(
+    constraintsResults.flatMap((result) =>
+      result.status === 'fulfilled' ? [result.value] : [],
+    ),
+  );
+
+export const mergeConstraintsMaps = (
+  baseConstraintsMap: Map<string, DataConstraints[] | undefined> | undefined,
+  updatedConstraintsMap: Map<string, DataConstraints[] | undefined>,
+): Map<string, DataConstraints[] | undefined> => {
+  const mergedConstraintsMap = new Map(baseConstraintsMap);
+
+  updatedConstraintsMap.forEach((constraints, datasetUrn) => {
+    mergedConstraintsMap.set(datasetUrn, constraints);
+  });
+
+  return mergedConstraintsMap;
 };
 
 export const getInitialConstraints = (

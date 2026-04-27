@@ -7,12 +7,10 @@ import {
 import ConversationListWrapper from '../../components/ConversationList/ConversationListWrapper';
 import { ConversationListProvider } from '../../context/ConversationListContext';
 import { I18nProvider } from '../../locales/client';
-import { SIGN_IN_LINK } from '../../constants/auth';
 import { getUserToken } from '../../utils/auth/auth-request';
 import { getIsEnableAuthToggle } from '../../utils/auth/get-auth-toggle';
 import { getIsInvalidSession } from '../../utils/auth/is-valid-session';
 import { cookies, headers } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { ReactNode } from 'react';
 import { getDeploymentConfiguration } from '../actions/configuration';
 import { DeploymentConfigProvider } from '../../context/DeploymentConfigProvider';
@@ -33,15 +31,18 @@ export default async function LocaleLayout({
   children: ReactNode;
   params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const isEnableAuth = getIsEnableAuthToggle();
   const token = await getUserToken(isEnableAuth, headers(), cookies());
   const isInvalidSession = await getIsInvalidSession(isEnableAuth, token);
 
   if (isInvalidSession) {
-    return redirect(SIGN_IN_LINK);
+    return (
+      <I18nProvider locale={locale}>
+        <div className="main-layout flex size-full flex-row">{children}</div>
+      </I18nProvider>
+    );
   }
-
-  const { locale } = await params;
 
   const configuration = await getDeploymentConfiguration();
   let isAnyConversationAvailable = false;

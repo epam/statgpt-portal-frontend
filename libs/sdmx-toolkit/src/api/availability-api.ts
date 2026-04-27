@@ -25,12 +25,18 @@ export class AvailabilityApi {
       references: SdmxReferences.NONE,
     };
     const url = AVAILABILITY_URL(agency, id, version);
+    const isStandaloneSdmxProxy = !!this.client.config.sdmxProxyUrl;
+    const needMapResponse =
+      isStandaloneSdmxProxy || this.client.config.isDialProxyMode;
+    const apiUrn = isStandaloneSdmxProxy
+      ? this.client.config.sdmxProxyUrl
+      : this.client.config.constrainsApiUrl || this.client.config.apiUrl;
 
-    if (this.client.config.sdmxProxyUrl) {
+    if (needMapResponse) {
       const resp = await this.client.postRequest<StructuralMetaDataV3>(
         url,
         { body },
-        this.client.config.sdmxProxyUrl,
+        apiUrn,
         token,
       );
       return mapAvailabilityV3ToPlus(resp);
@@ -39,7 +45,7 @@ export class AvailabilityApi {
     return await this.client.postRequest<StructuralMetaData>(
       url,
       { body },
-      this.client.config.constrainsApiUrl || this.client.config.apiUrl,
+      apiUrn,
       token,
     );
   }

@@ -42,6 +42,7 @@ export interface SharedFilter extends FilterBase {
   filterType: 'shared';
   datasetUrn?: undefined;
   sourceDatasetUrns?: string[];
+  sourceFilterIdsByDataset?: Record<string, string>;
 }
 
 export type Filter = DatasetFilter | SharedFilter;
@@ -111,8 +112,12 @@ export interface FiltersProps {
     putOnboardingFile?: PutOnboardingFile;
     getAvailableHierarchies?: (
       codelistUrn: string,
+      sourceArtefactUrn?: string,
     ) => Promise<StructuralMetaData>;
-    getHierarchy?: (hierarchyUrn: string) => Promise<StructuralMetaData>;
+    getHierarchy?: (
+      hierarchyUrn: string,
+      sourceArtefactUrn?: string,
+    ) => Promise<StructuralMetaData>;
   };
   dimensions?: Dimension[];
   structureDimensions?: StructureItemBase[];

@@ -53,6 +53,7 @@ export class SdmxApiClient {
     options: RequestOptions,
     filename: string,
     token?: string,
+    contentType?: string,
   ): Promise<Response> {
     const url = `${this.config.apiUrl}/${endpoint}`;
 
@@ -94,6 +95,7 @@ export class SdmxApiClient {
 
     const responseHeaders = new Headers({
       'Content-Disposition': `attachment; filename=${encodeURIComponent(filename)}`,
+      ...(contentType ? { 'Content-Type': contentType } : {}),
     });
 
     return new Response(stream, { headers: responseHeaders });
@@ -164,7 +166,7 @@ export class SdmxApiClient {
     token?: string,
     optionsHeaders?: Record<string, string>,
   ): Record<string, string> {
-    if (this.config.useDialAuth) {
+    if (this.config.isDialProxyMode) {
       return {
         ...getHeaders(this.config.dialApiKey, { jwt: token }),
         ...optionsHeaders,

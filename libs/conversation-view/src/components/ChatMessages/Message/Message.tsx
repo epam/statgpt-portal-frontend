@@ -141,6 +141,7 @@ const Message: FC<Props> = ({
     actions.updateDataQueries,
     actions.updateCurrentDataQuery,
     attachmentsDataQueries,
+    dataQuery,
   );
   const [isEditing, setIsEditing] = useState(false);
   const [choiceButtons, setChoiceButtons] = useState<FormSchemaButtonOption[]>(

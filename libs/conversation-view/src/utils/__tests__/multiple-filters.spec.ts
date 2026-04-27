@@ -3,35 +3,50 @@ import {
   COMMON_FREQUENCY_FILTER_ID,
   buildFiltersMap,
   getConstraintsMap,
+  getConstraintsMapFromSettledResults,
   getDatasetNameFromFilters,
+  getFilledDatasetFiltersMap,
+  getFiltersByConstraints,
   getFiltersForQueryContext,
   getFiltersPreselectedByDataQueries,
   isStructureDataMapsReady,
+  mergeConstraintsMaps,
 } from '../multiple-filters';
 import type { Filter, SharedFilter } from '../../models/filters';
 
+const mockFindCodelistByDimension = jest.fn();
 const mockGenerateShortUrn = jest.fn(
   (name: string, version: string, agencyId: string) =>
     `${agencyId}:${name}(${version})`,
 );
+const mockGetAvailableCodesFromConstrains = jest.fn(() => [] as any[]);
+const mockGetDatasetFilters = jest.fn(() => [] as Filter[]);
+const mockGetFiltersPreselectedByDataQuery = jest.fn(
+  (filters: Filter[]) => filters,
+);
+const mockGetFilledFilters = jest.fn((filters: Filter[]) => filters);
 
 jest.mock('@epam/statgpt-sdmx-toolkit', () => ({
+  findCodelistByDimension: (...args: any[]) =>
+    (mockFindCodelistByDimension as any)(...args),
   generateShortUrn: (...args: any[]) => (mockGenerateShortUrn as any)(...args),
   getAnnotationPeriod: jest.fn(() => ({ startPeriod: null, endPeriod: null })),
-  findCodelistByDimension: jest.fn(() => null),
-  getAvailableCodesFromConstrains: jest.fn(() => []),
+  getAvailableCodesFromConstrains: (...args: any[]) =>
+    (mockGetAvailableCodesFromConstrains as any)(...args),
   TIME_PERIOD: 'TIME_PERIOD',
   TIME_PERIOD_START_ANNOTATION_KEY: 'TIME_PERIOD_START',
   TIME_PERIOD_END_ANNOTATION_KEY: 'TIME_PERIOD_END',
 }));
 
 jest.mock('../filters', () => ({
-  getDatasetFilters: jest.fn(() => []),
-  getFiltersPreselectedByDataQuery: jest.fn((filters: Filter[]) => filters),
+  getDatasetFilters: (...args: any[]) =>
+    (mockGetDatasetFilters as any)(...args),
+  getFiltersPreselectedByDataQuery: (...args: any[]) =>
+    (mockGetFiltersPreselectedByDataQuery as any)(...args),
 }));
 
 jest.mock('../get-filled-filters', () => ({
-  getFilledFilters: jest.fn((filters: Filter[]) => filters),
+  getFilledFilters: (...args: any[]) => (mockGetFilledFilters as any)(...args),
 }));
 
 jest.mock('../get-series-filters', () => ({
@@ -56,6 +71,34 @@ jest.mock('../query-filters', () => ({
 
 const DATASET_A_URN = 'AGENCY:DF_A(1.0)';
 const DATASET_B_URN = 'AGENCY:DF_B(1.0)';
+const DATASET_DIMENSIONS_METADATA_MAP = {
+  [DATASET_A_URN]: {
+    FREQ: {
+      subtype: 'FREQUENCY',
+      dimensionType: 'NON_INDICATOR',
+    },
+    REF_AREA: {
+      subtype: 'REGION',
+      dimensionType: 'NON_INDICATOR',
+    },
+    TIME_PERIOD: {
+      dimensionType: 'TIME_PERIOD',
+    },
+  },
+  [DATASET_B_URN]: {
+    FREQUENCY: {
+      subtype: 'FREQUENCY',
+      dimensionType: 'NON_INDICATOR',
+    },
+    COUNTRY: {
+      subtype: 'REGION',
+      dimensionType: 'NON_INDICATOR',
+    },
+    TIME_PERIOD: {
+      dimensionType: 'TIME_PERIOD',
+    },
+  },
+} as any;
 
 // ─── Default mock reset ───────────────────────────────────────────────────────
 
@@ -64,13 +107,26 @@ beforeEach(() => {
     (name: string, version: string, agencyId: string) =>
       `${agencyId}:${name}(${version})`,
   );
+  mockFindCodelistByDimension.mockReset();
+  mockFindCodelistByDimension.mockReturnValue(undefined);
+  mockGetAvailableCodesFromConstrains.mockReset();
+  mockGetAvailableCodesFromConstrains.mockReturnValue([]);
+  mockGetDatasetFilters.mockReset();
+  mockGetDatasetFilters.mockReturnValue([]);
+  mockGetFiltersPreselectedByDataQuery.mockReset();
+  mockGetFiltersPreselectedByDataQuery.mockImplementation(
+    (filters: Filter[]) => filters,
+  );
+  mockGetFilledFilters.mockReset();
+  mockGetFilledFilters.mockImplementation((filters: Filter[]) => filters);
 });
 
 const makeDatasetCountryFilter = (
   datasetUrn: string,
   values: Array<{ id: string; name?: string; isSelectedValue?: boolean }>,
+  filterId = COMMON_COUNTRY_FILTER_ID,
 ): Filter => ({
-  id: COMMON_COUNTRY_FILTER_ID,
+  id: filterId,
   filterType: 'dataset',
   datasetUrn,
   dimensionValues: values.map((v) => ({
@@ -210,6 +266,45 @@ describe('merging country filters from multiple datasets', () => {
     expect(merged).toHaveLength(2);
     const indicator = merged.find((f) => f.id === 'INDICATOR');
     expect(indicator?.filterType).toBe('dataset');
+  });
+});
+
+describe('merging shared filters by subtype', () => {
+  it('merges region filters even when dataset ids differ', () => {
+    const merged = getFiltersPreselectedByDataQueries(
+      new Map([
+        [
+          DATASET_A_URN,
+          [
+            makeDatasetCountryFilter(
+              DATASET_A_URN,
+              [{ id: 'FR', name: 'France', isSelectedValue: true }],
+              'REF_AREA',
+            ),
+          ],
+        ],
+        [
+          DATASET_B_URN,
+          [
+            makeDatasetCountryFilter(
+              DATASET_B_URN,
+              [{ id: 'FRA', name: 'France', isSelectedValue: false }],
+              'COUNTRY',
+            ),
+          ],
+        ],
+      ]),
+      [{ urn: DATASET_A_URN }, { urn: DATASET_B_URN }] as any[],
+      undefined,
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
+
+    const sharedCountry = merged.find((f) => f.id === COMMON_COUNTRY_FILTER_ID);
+    expect(sharedCountry?.filterType).toBe('shared');
+    expect((sharedCountry as SharedFilter).sourceFilterIdsByDataset).toEqual({
+      [DATASET_A_URN]: 'REF_AREA',
+      [DATASET_B_URN]: 'COUNTRY',
+    });
   });
 });
 
@@ -446,6 +541,196 @@ describe('isStructureDataMapsReady', () => {
   });
 });
 
+describe('datasets with missing constraints entries', () => {
+  it('does not fill initial values from codelist when a dataset constraints request failed', () => {
+    mockGetDatasetFilters.mockImplementation(
+      (
+        _dimensions: unknown,
+        _structures: unknown,
+        _structureDimensions: unknown,
+        _locale: unknown,
+        datasetUrn: string,
+      ) => [
+        {
+          id: 'FREQ',
+          filterType: 'dataset',
+          datasetUrn,
+          dimensionValues: [],
+        } as Filter,
+      ],
+    );
+    mockFindCodelistByDimension.mockReturnValue({
+      codes: [{ id: 'A', name: 'Annual' }],
+    });
+    mockGetAvailableCodesFromConstrains.mockReturnValue([
+      { id: 'A', name: 'Annual' },
+    ]);
+
+    const result = getFilledDatasetFiltersMap({
+      dimensionsMap: new Map([
+        [DATASET_A_URN, [{ id: 'FREQ' }]],
+        [DATASET_B_URN, [{ id: 'FREQ' }]],
+      ]),
+      structuresMap: new Map([
+        [DATASET_A_URN, {}],
+        [DATASET_B_URN, {}],
+      ]),
+      structureDimensionsMap: new Map(),
+      constraintsMap: new Map([[DATASET_A_URN, []]]),
+    } as any);
+
+    expect(result.get(DATASET_A_URN)?.[0].dimensionValues).toEqual([
+      { id: 'A', name: 'Annual' },
+    ]);
+    expect(result.get(DATASET_B_URN)?.[0].dimensionValues).toEqual([]);
+    expect(mockGetAvailableCodesFromConstrains).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not fill initial values from constraints when a dataset data request failed', () => {
+    mockGetDatasetFilters.mockImplementation(
+      (
+        _dimensions: unknown,
+        _structures: unknown,
+        _structureDimensions: unknown,
+        _locale: unknown,
+        datasetUrn: string,
+      ) => [
+        {
+          id: 'FREQ',
+          filterType: 'dataset',
+          datasetUrn,
+          dimensionValues: [],
+        } as Filter,
+      ],
+    );
+    mockFindCodelistByDimension.mockReturnValue({
+      codes: [{ id: 'A', name: 'Annual' }],
+    });
+    mockGetAvailableCodesFromConstrains.mockReturnValue([
+      { id: 'A', name: 'Annual' },
+    ]);
+
+    const result = getFilledDatasetFiltersMap({
+      dataMessagesMap: new Map([[DATASET_A_URN, {}]]),
+      dimensionsMap: new Map([
+        [DATASET_A_URN, [{ id: 'FREQ' }]],
+        [DATASET_B_URN, [{ id: 'FREQ' }]],
+      ]),
+      structuresMap: new Map([
+        [DATASET_A_URN, {}],
+        [DATASET_B_URN, {}],
+      ]),
+      structureDimensionsMap: new Map(),
+      constraintsMap: new Map([
+        [DATASET_A_URN, []],
+        [DATASET_B_URN, []],
+      ]),
+    } as any);
+
+    expect(result.get(DATASET_A_URN)?.[0].dimensionValues).toEqual([
+      { id: 'A', name: 'Annual' },
+    ]);
+    expect(result.get(DATASET_B_URN)?.[0].dimensionValues).toEqual([]);
+    expect(mockGetAvailableCodesFromConstrains).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps only selected values when refreshing filters for a dataset without constraints', () => {
+    const datasetAFilter: Filter = {
+      id: 'INDICATOR',
+      filterType: 'dataset',
+      datasetUrn: DATASET_A_URN,
+      dimensionValues: [],
+    };
+    const datasetBFilter: Filter = {
+      id: 'INDICATOR',
+      filterType: 'dataset',
+      datasetUrn: DATASET_B_URN,
+      dimensionValues: [
+        { id: 'GDP', name: 'GDP', isSelectedValue: true },
+        { id: 'CPI', name: 'CPI', isSelectedValue: false },
+      ],
+    };
+
+    mockGetFilledFilters.mockReturnValue([
+      {
+        ...datasetAFilter,
+        dimensionValues: [{ id: 'A', name: 'Available' }],
+      },
+    ]);
+
+    const result = getFiltersByConstraints(
+      new Map([
+        [DATASET_A_URN, [datasetAFilter]],
+        [DATASET_B_URN, [datasetBFilter]],
+      ]),
+      {
+        dimensionsMap: new Map([[DATASET_A_URN, [{ id: 'INDICATOR' }]]]),
+        structuresMap: new Map([[DATASET_A_URN, {}]]),
+        constraintsMap: new Map([[DATASET_A_URN, []]]),
+      } as any,
+    );
+
+    expect(mockGetFilledFilters).toHaveBeenCalledTimes(1);
+    expect(
+      result.find((filter) => filter.datasetUrn === DATASET_B_URN)
+        ?.dimensionValues,
+    ).toEqual([{ id: 'GDP', name: 'GDP', isSelectedValue: true }]);
+  });
+
+  it('keeps only selected values when refreshing filters for a dataset without data response', () => {
+    const datasetAFilter: Filter = {
+      id: 'INDICATOR',
+      filterType: 'dataset',
+      datasetUrn: DATASET_A_URN,
+      dimensionValues: [],
+    };
+    const datasetBFilter: Filter = {
+      id: 'INDICATOR',
+      filterType: 'dataset',
+      datasetUrn: DATASET_B_URN,
+      dimensionValues: [
+        { id: 'GDP', name: 'GDP', isSelectedValue: true },
+        { id: 'CPI', name: 'CPI', isSelectedValue: false },
+      ],
+    };
+
+    mockGetFilledFilters.mockReturnValue([
+      {
+        ...datasetAFilter,
+        dimensionValues: [{ id: 'A', name: 'Available' }],
+      },
+    ]);
+
+    const result = getFiltersByConstraints(
+      new Map([
+        [DATASET_A_URN, [datasetAFilter]],
+        [DATASET_B_URN, [datasetBFilter]],
+      ]),
+      {
+        dataMessagesMap: new Map([[DATASET_A_URN, {}]]),
+        dimensionsMap: new Map([
+          [DATASET_A_URN, [{ id: 'INDICATOR' }]],
+          [DATASET_B_URN, [{ id: 'INDICATOR' }]],
+        ]),
+        structuresMap: new Map([
+          [DATASET_A_URN, {}],
+          [DATASET_B_URN, {}],
+        ]),
+        constraintsMap: new Map([
+          [DATASET_A_URN, []],
+          [DATASET_B_URN, []],
+        ]),
+      } as any,
+    );
+
+    expect(mockGetFilledFilters).toHaveBeenCalledTimes(1);
+    expect(
+      result.find((filter) => filter.datasetUrn === DATASET_B_URN)
+        ?.dimensionValues,
+    ).toEqual([{ id: 'GDP', name: 'GDP', isSelectedValue: true }]);
+  });
+});
+
 // ─── getDatasetNameFromFilters ────────────────────────────────────────────────
 
 describe('getDatasetNameFromFilters', () => {
@@ -496,8 +781,13 @@ describe('getConstraintsMap', () => {
   it('builds a map keyed by the short URN generated from each constraint', () => {
     const constraintsData = [
       {
+        urn: 'AGENCY:DF_A(1.0)',
         data: {
-          dataConstraints: [{ id: 'DF_A', version: '1.0', agencyID: 'AGENCY' }],
+          data: {
+            dataConstraints: [
+              { id: 'DF_A', version: '1.0', agencyID: 'AGENCY' },
+            ],
+          },
         },
       },
     ] as any[];
@@ -509,14 +799,91 @@ describe('getConstraintsMap', () => {
       agencyID: 'AGENCY',
     });
   });
+
+  it('does not create a dataset entry when constraints payload is missing', () => {
+    const map = getConstraintsMap([
+      {
+        urn: DATASET_A_URN,
+        data: {},
+      },
+      {
+        urn: DATASET_B_URN,
+        data: {
+          data: {
+            dataConstraints: [],
+          },
+        },
+      },
+    ] as any[]);
+
+    expect(map.has(DATASET_A_URN)).toBe(false);
+    expect(map.has(DATASET_B_URN)).toBe(true);
+  });
+});
+
+describe('getConstraintsMapFromSettledResults', () => {
+  it('builds constraints map from fulfilled results and ignores rejected results', () => {
+    const constraints = [{ id: 'updated-a' }] as any[];
+
+    const map = getConstraintsMapFromSettledResults([
+      {
+        status: 'fulfilled',
+        value: {
+          urn: DATASET_A_URN,
+          data: {
+            data: {
+              dataConstraints: constraints,
+            },
+          },
+        },
+      },
+      {
+        status: 'rejected',
+        reason: new Error('failed'),
+      },
+    ]);
+
+    expect(map.get(DATASET_A_URN)).toBe(constraints);
+    expect(map.has(DATASET_B_URN)).toBe(false);
+  });
+});
+
+describe('mergeConstraintsMaps', () => {
+  it('overrides only updated dataset entries and preserves the rest', () => {
+    const initialConstraintsA = [{ id: 'initial-a' }] as any[];
+    const initialConstraintsB = [{ id: 'initial-b' }] as any[];
+    const updatedConstraintsA = [{ id: 'updated-a' }] as any[];
+
+    const result = mergeConstraintsMaps(
+      new Map([
+        [DATASET_A_URN, initialConstraintsA],
+        [DATASET_B_URN, initialConstraintsB],
+      ]),
+      new Map([[DATASET_A_URN, updatedConstraintsA]]),
+    );
+
+    expect(result.get(DATASET_A_URN)).toBe(updatedConstraintsA);
+    expect(result.get(DATASET_B_URN)).toBe(initialConstraintsB);
+  });
+
+  it('creates a new map when there are no base constraints', () => {
+    const updatedConstraintsA = [{ id: 'updated-a' }] as any[];
+
+    const result = mergeConstraintsMaps(
+      undefined,
+      new Map([[DATASET_A_URN, updatedConstraintsA]]),
+    );
+
+    expect(result).toEqual(new Map([[DATASET_A_URN, updatedConstraintsA]]));
+  });
 });
 
 // ─── FREQUENCY filter follows the same name-based merge strategy ─────────────
 
 describe('merging frequency filters', () => {
-  it('merges FREQUENCY filters from multiple datasets by name', () => {
+  it('merges frequency filters from subtype metadata when dataset ids differ', () => {
     const freqFilterA: Filter = {
-      id: COMMON_FREQUENCY_FILTER_ID,
+      id: 'FREQ',
       filterType: 'dataset',
       datasetUrn: DATASET_A_URN,
       dimensionValues: [
@@ -540,6 +907,8 @@ describe('merging frequency filters', () => {
         [DATASET_B_URN, [freqFilterB]],
       ]),
       [{ urn: DATASET_A_URN }, { urn: DATASET_B_URN }] as any[],
+      undefined,
+      DATASET_DIMENSIONS_METADATA_MAP,
     );
 
     const sharedFreq = merged.find((f) => f.id === COMMON_FREQUENCY_FILTER_ID)!;
@@ -553,6 +922,43 @@ describe('merging frequency filters', () => {
     );
     expect(annual?.isSelectedValue).toBe(true);
     expect(annual?.sourceValues).toHaveLength(2);
+    expect((sharedFreq as SharedFilter).sourceFilterIdsByDataset).toEqual({
+      [DATASET_A_URN]: 'FREQ',
+      [DATASET_B_URN]: COMMON_FREQUENCY_FILTER_ID,
+    });
+  });
+});
+
+describe('expanding shared filters with subtype metadata', () => {
+  it('restores the native filter id for each dataset from metadata', () => {
+    const sharedFreqFilter: Filter = {
+      id: COMMON_FREQUENCY_FILTER_ID,
+      filterType: 'shared',
+      sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
+      dimensionValues: [
+        {
+          id: 'name:annual',
+          name: 'Annual',
+          isSelectedValue: true,
+          sourceValues: [
+            { datasetUrn: DATASET_A_URN, id: 'A', name: 'Annual' },
+            { datasetUrn: DATASET_B_URN, id: 'ANNUAL', name: 'Annual' },
+          ],
+        },
+      ],
+    };
+
+    const filtersMap = buildFiltersMap(
+      [sharedFreqFilter],
+      undefined,
+      false,
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
+
+    expect(filtersMap.get(DATASET_A_URN)?.[0]?.id).toBe('FREQ');
+    expect(filtersMap.get(DATASET_B_URN)?.[0]?.id).toBe(
+      COMMON_FREQUENCY_FILTER_ID,
+    );
   });
 });
 

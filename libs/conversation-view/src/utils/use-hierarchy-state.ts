@@ -18,10 +18,15 @@ import {
 interface UseHierarchyStateOptions {
   getCodelistUrnForFilter: (filter: Filter) => string | undefined;
   getConstraintsForFilter: (filter: Filter) => DataConstraints[] | undefined;
+  getSourceArtefactUrn?: (filter: Filter) => string | undefined;
   getAvailableHierarchies?: (
     codelistUrn: string,
+    sourceArtefactUrn?: string,
   ) => Promise<StructuralMetaData>;
-  getHierarchy?: (hierarchyUrn: string) => Promise<StructuralMetaData>;
+  getHierarchy?: (
+    hierarchyUrn: string,
+    sourceArtefactUrn?: string,
+  ) => Promise<StructuralMetaData>;
 }
 
 const EMPTY_HIERARCHY_STATE: HierarchyState = {
@@ -36,6 +41,7 @@ const EMPTY_HIERARCHY_STATE: HierarchyState = {
 export const useHierarchyState = ({
   getCodelistUrnForFilter,
   getConstraintsForFilter,
+  getSourceArtefactUrn,
   getAvailableHierarchies,
   getHierarchy,
 }: UseHierarchyStateOptions) => {
@@ -88,7 +94,10 @@ export const useHierarchyState = ({
       });
 
       try {
-        const response = await getAvailableHierarchies(codelistUrn);
+        const response = await getAvailableHierarchies(
+          codelistUrn,
+          getSourceArtefactUrn?.(filter),
+        );
         const availableHierarchies = getLatestHierarchies(
           response?.data?.hierarchies ?? [],
         );
@@ -111,7 +120,7 @@ export const useHierarchyState = ({
         });
       }
     },
-    [getAvailableHierarchies, getCodelistUrnForFilter],
+    [getAvailableHierarchies, getCodelistUrnForFilter, getSourceArtefactUrn],
   );
 
   const loadHierarchyTree = useCallback(
@@ -130,7 +139,7 @@ export const useHierarchyState = ({
 
       try {
         const hierarchyUrn = buildHierarchyUrn(hierarchy);
-        const response = await getHierarchy(hierarchyUrn);
+        const response = await getHierarchy(hierarchyUrn, codelistUrn);
         const mainHierarchy = response?.data?.hierarchies?.find(
           (h) => buildHierarchyUrn(h) === hierarchyUrn,
         );

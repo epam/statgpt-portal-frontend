@@ -4,7 +4,11 @@ import { FC, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import ChevronSolidDownIcon from '../../../../../assets/icons/chevron-solid-down.svg';
 import { DataConstraints, Hierarchy } from '@epam/statgpt-sdmx-toolkit';
-import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
+import {
+  DataQuery,
+  TimeRange,
+  TimeRangeOptions,
+} from '@epam/statgpt-shared-toolkit';
 import { Dropdown, IconButton, useIsMobile } from '@epam/statgpt-ui-components';
 import {
   Filter,
@@ -33,6 +37,7 @@ interface Props {
   onDeleteFilter?: (filter?: Filter) => void;
   filterValuesProps?: FilterValuesProps;
   isDisableValues?: boolean;
+  isValuesLoading?: boolean;
   timeRangeOptions?: TimeRangeOptions[];
   titles?: ConversationViewTitles;
   initialConstraints?: DataConstraints[];
@@ -55,6 +60,7 @@ interface Props {
   ) => void;
   hierarchyState?: HierarchyState;
   onSelectHierarchy?: (filter?: Filter, hierarchy?: Hierarchy | null) => void;
+  dataQueries?: DataQuery[];
 }
 
 const FiltersFacetItem: FC<Props> = ({
@@ -69,6 +75,7 @@ const FiltersFacetItem: FC<Props> = ({
   hideFacetCounterByDefault,
   filterValuesProps,
   isDisableValues,
+  isValuesLoading,
   timeRangeOptions,
   onTimePeriodChange,
   selectFilterValue,
@@ -76,6 +83,7 @@ const FiltersFacetItem: FC<Props> = ({
   expandHierarchicalValue,
   hierarchyState,
   onSelectHierarchy,
+  dataQueries,
 }) => {
   const isMobile = useIsMobile();
 
@@ -236,6 +244,7 @@ const FiltersFacetItem: FC<Props> = ({
           selectedFilter={filter}
           locale={locale}
           isDisableValues={isDisableValues}
+          isValuesLoading={isValuesLoading}
           timeRangeOptions={timeRangeOptions}
           selectFilterValue={selectFilterValue}
           selectHierarchicalNodes={selectHierarchicalNodes}
@@ -244,6 +253,7 @@ const FiltersFacetItem: FC<Props> = ({
           filterValuesProps={filterValuesProps}
           initialConstraints={initialConstraints}
           hierarchyState={hierarchyState}
+          dataQueries={dataQueries}
         />
       )}
     </div>

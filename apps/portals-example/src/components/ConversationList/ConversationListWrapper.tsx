@@ -51,7 +51,7 @@ import {
   getConversationId,
   ApiResponse,
 } from '@epam/statgpt-shared-toolkit';
-import { SIGN_IN_LINK } from '../../constants/auth';
+import { getSignInLink } from '../../constants/auth';
 import { wrapWithAuthHandler } from '../../utils/auth/requests-wrapper';
 import { signOut, useSession } from 'next-auth/react';
 import { ConversationInfo } from '@epam/ai-dial-shared';
@@ -86,7 +86,7 @@ const ConversationListWrapper = ({
       action: (...args: Args) => Promise<ApiResponse<T>>,
     ): ((...args: Args) => Promise<T>) => {
       return wrapWithAuthHandler(action, () => {
-        router.push(SIGN_IN_LINK);
+        router.push(getSignInLink(window.location.href));
       });
     },
     [router],

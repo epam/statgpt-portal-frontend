@@ -5,7 +5,11 @@ import {
   Hierarchy,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
-import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
+import {
+  DataQuery,
+  TimeRange,
+  TimeRangeOptions,
+} from '@epam/statgpt-shared-toolkit';
 import { Button, useIsMobile } from '@epam/statgpt-ui-components';
 import { FC, ReactNode, useCallback } from 'react';
 import {
@@ -33,6 +37,7 @@ interface Props {
   selectedFilter?: Filter;
   locale?: string;
   isDisableValues?: boolean;
+  isValuesLoading?: boolean;
   titles?: ConversationViewTitles;
   timeSeriesCount?: string;
   timeRangeOptions?: TimeRangeOptions[];
@@ -51,6 +56,7 @@ interface Props {
   hierarchyStateMap?: Map<string, HierarchyState>;
   onSelectHierarchy?: (filter?: Filter, hierarchy?: Hierarchy | null) => void;
   onExpandHierarchyNode?: (filterKey: string, nodeId: string) => void;
+  dataQueries?: DataQuery[];
 }
 
 const FilterSettings: FC<Props> = ({
@@ -60,6 +66,7 @@ const FilterSettings: FC<Props> = ({
   modalProps,
   locale,
   isDisableValues,
+  isValuesLoading,
   timeSeriesCount,
   timeRangeOptions,
   initialConstraints,
@@ -76,6 +83,7 @@ const FilterSettings: FC<Props> = ({
   hierarchyStateMap,
   onSelectHierarchy,
   onExpandHierarchyNode,
+  dataQueries,
 }) => {
   const hierarchyState = hierarchyStateMap?.get(
     getFilterIdentity(selectedFilter) as string,
@@ -282,6 +290,7 @@ const FilterSettings: FC<Props> = ({
           onSelectDisplayMode={onSelectDisplayMode}
           onDeleteFilter={onDeleteFilter}
           isDisableValues={isDisableValues}
+          isValuesLoading={isValuesLoading}
           initialConstraints={initialConstraints}
           initialConstraintsMap={initialConstraintsMap}
           datasetIcon={datasetIcon}
@@ -294,6 +303,7 @@ const FilterSettings: FC<Props> = ({
           filterValuesProps={modalProps?.filterValuesProps}
           hierarchyStateMap={hierarchyStateMap}
           onSelectHierarchy={onSelectHierarchy}
+          dataQueries={dataQueries}
         />
         {modalProps?.isShowTimeSeriesCount && timeSeriesCount ? (
           <h4 className="my-4 text-neutrals-800">
@@ -308,6 +318,7 @@ const FilterSettings: FC<Props> = ({
           locale={locale}
           titles={titles}
           isDisableValues={isDisableValues}
+          isValuesLoading={isValuesLoading}
           timeRangeOptions={timeRangeOptions}
           selectFilterValue={onSelectFilterValue}
           selectHierarchicalNodes={onSelectHierarchicalNodes}
@@ -323,6 +334,7 @@ const FilterSettings: FC<Props> = ({
           )}
           selectedTimeOption={selectedTimeOption}
           hierarchyState={hierarchyState}
+          dataQueries={dataQueries}
         />
       )}
     </div>
