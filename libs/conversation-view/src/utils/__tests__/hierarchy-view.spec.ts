@@ -5,7 +5,7 @@ import type {
   TreeNode,
   HierarchicalCode,
 } from '@epam/statgpt-sdmx-toolkit';
-import type { FilterTreeNodeProps } from '../../models/filters';
+import type { Filter, FilterTreeNodeProps } from '../../models/filters';
 
 const mockGenerateShortUrn = jest.fn(
   (id?: string, version?: string, agency?: string) =>
@@ -122,8 +122,11 @@ import {
   buildHierarchyFilterTreeProps,
   buildHierarchyUrn,
   filterHierarchyNodes,
+  getSelectedHierarchyNodeIds,
   getLatestHierarchies,
   hierarchyNodesToFilterTreeProps,
+  mapHierarchyNodeIdToFilterValueId,
+  mapHierarchyNodesToFilterValueIds,
   toggleTreeNodeExpansion,
 } from '../hierarchy-view';
 
@@ -531,5 +534,80 @@ describe('filterHierarchyNodes', () => {
 
   it('returns an empty array when nothing matches', () => {
     expect(filterHierarchyNodes(tree, 'oceania')).toEqual([]);
+  });
+});
+
+describe('shared hierarchy selection mapping', () => {
+  const sharedCountryFilter: Filter = {
+    id: 'COUNTRY',
+    filterType: 'shared',
+    dimensionValues: [
+      {
+        id: 'name:italy',
+        name: 'Italy',
+        isSelectedValue: true,
+        sourceValues: [
+          {
+            datasetUrn: 'IMF.RES:WEO(9.0.0)',
+            id: 'ITA',
+            name: 'Italy',
+          },
+        ],
+      },
+      {
+        id: 'name:germany',
+        name: 'Germany',
+        isSelectedValue: false,
+        sourceValues: [
+          {
+            datasetUrn: 'IMF.RES:WEO(9.0.0)',
+            id: 'DEU',
+            name: 'Germany',
+          },
+        ],
+      },
+    ],
+  };
+
+  it('builds selected hierarchy ids from native source values for shared filters', () => {
+    expect(
+      Array.from(getSelectedHierarchyNodeIds(sharedCountryFilter)),
+    ).toEqual(['ITA']);
+  });
+
+  it('maps a hierarchy node id to the merged shared value id', () => {
+    expect(mapHierarchyNodeIdToFilterValueId('ITA', sharedCountryFilter)).toBe(
+      'name:italy',
+    );
+  });
+
+  it('maps hierarchy nodes to shared filter value ids', () => {
+    expect(
+      mapHierarchyNodesToFilterValueIds(
+        [
+          { id: 'ITA', name: 'Italy', isSelectedValue: true, children: [] },
+          {
+            id: 'DEU',
+            name: 'Germany',
+            isSelectedValue: false,
+            children: [],
+          },
+        ],
+        sharedCountryFilter,
+      ),
+    ).toEqual([
+      {
+        id: 'name:italy',
+        name: 'Italy',
+        isSelectedValue: true,
+        children: [],
+      },
+      {
+        id: 'name:germany',
+        name: 'Germany',
+        isSelectedValue: false,
+        children: [],
+      },
+    ]);
   });
 });

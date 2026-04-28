@@ -5,7 +5,11 @@ import {
   Hierarchy,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
-import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
+import {
+  DataQuery,
+  TimeRange,
+  TimeRangeOptions,
+} from '@epam/statgpt-shared-toolkit';
 import classNames from 'classnames';
 import { FC, ReactNode } from 'react';
 import {
@@ -32,6 +36,7 @@ interface Props {
   onSelectDisplayMode?: (filter?: Filter, displayMode?: string) => void;
   filterValuesProps?: FilterValuesProps;
   isDisableValues?: boolean;
+  isValuesLoading?: boolean;
   timeRangeOptions?: TimeRangeOptions[];
   titles?: ConversationViewTitles;
   initialConstraints?: DataConstraints[];
@@ -57,6 +62,7 @@ interface Props {
   ) => void;
   hierarchyStateMap?: Map<string, HierarchyState>;
   onSelectHierarchy?: (filter?: Filter, hierarchy?: Hierarchy | null) => void;
+  dataQueries?: DataQuery[];
 }
 
 const FiltersFacetsList: FC<Props> = ({
@@ -68,6 +74,7 @@ const FiltersFacetsList: FC<Props> = ({
   onSelectDisplayMode,
   filterValuesProps,
   isDisableValues,
+  isValuesLoading,
   timeRangeOptions,
   initialConstraints,
   initialConstraintsMap,
@@ -80,6 +87,7 @@ const FiltersFacetsList: FC<Props> = ({
   expandHierarchicalValue,
   hierarchyStateMap,
   onSelectHierarchy,
+  dataQueries,
 }) => {
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const datasetCount = new Set(
@@ -125,6 +133,7 @@ const FiltersFacetsList: FC<Props> = ({
               onDeleteFilter={onDeleteFilter}
               hideFacetCounterByDefault={hideFacetCounterByDefault}
               isDisableValues={isDisableValues}
+              isValuesLoading={isValuesLoading}
               timeRangeOptions={timeRangeOptions}
               selectFilterValue={selectFilterValue}
               selectHierarchicalNodes={selectHierarchicalNodes}
@@ -141,6 +150,7 @@ const FiltersFacetsList: FC<Props> = ({
                 getFilterIdentity(filter) ?? '',
               )}
               onSelectHierarchy={onSelectHierarchy}
+              dataQueries={dataQueries}
             />
           </div>
         );

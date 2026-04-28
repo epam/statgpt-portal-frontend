@@ -109,7 +109,7 @@
     "vitest": "4.0.0"
   },
   "overrides": {
-    "dompurify": "3.3.2",
+    "dompurify": "3.4.0",
     "koa": "3.1.2",
     "lodash": "$lodash",
     "minimatch": "10.2.3",

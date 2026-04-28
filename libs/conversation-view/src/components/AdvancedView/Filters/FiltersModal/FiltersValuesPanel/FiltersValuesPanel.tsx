@@ -7,6 +7,7 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import {
   CalendarResolution,
+  DataQuery,
   TimeRange,
   TimeRangeOptions,
 } from '@epam/statgpt-shared-toolkit';
@@ -30,6 +31,7 @@ import { getFilterIdentity, isSameFilter } from '../../../../../utils/filters';
 import {
   applySelectionToTree,
   filterHierarchyNodes,
+  getSelectedHierarchyNodeIds,
 } from '../../../../../utils/hierarchy-view';
 
 const MIN_CROSS_DATASET_SEARCH_CHARS = 2;
@@ -40,6 +42,7 @@ interface Props {
   filterValuesProps?: FilterValuesProps;
   locale?: string;
   isDisableValues?: boolean;
+  isValuesLoading?: boolean;
   timeRangeOptions?: TimeRangeOptions[];
   initialConstraints?: DataConstraints[];
   structuresMap?: Map<string, StructuralData | undefined>;
@@ -63,6 +66,7 @@ interface Props {
   titles?: ConversationViewTitles;
   selectedTimeOption?: string | number;
   hierarchyState?: HierarchyState;
+  dataQueries?: DataQuery[];
 }
 
 const FiltersValuesPanel: FC<Props> = ({
@@ -71,6 +75,7 @@ const FiltersValuesPanel: FC<Props> = ({
   filterValuesProps,
   locale,
   isDisableValues,
+  isValuesLoading,
   timeRangeOptions,
   onTimePeriodChange,
   selectFilterValue,
@@ -81,6 +86,7 @@ const FiltersValuesPanel: FC<Props> = ({
   expandHierarchicalValue,
   selectedTimeOption,
   hierarchyState,
+  dataQueries,
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -172,11 +178,7 @@ const FiltersValuesPanel: FC<Props> = ({
   const hierarchyTreeNodes = useMemo(() => {
     const nodes = hierarchyState?.treeNodes;
     if (!nodes?.length) return nodes;
-    const selectedIds = new Set(
-      selectedFilter?.dimensionValues
-        ?.filter((v) => v.isSelectedValue)
-        .map((v) => v.id) ?? [],
-    );
+    const selectedIds = getSelectedHierarchyNodeIds(selectedFilter);
     const withSelection = selectedIds.size
       ? applySelectionToTree(nodes, selectedIds)
       : nodes;
@@ -185,7 +187,7 @@ const FiltersValuesPanel: FC<Props> = ({
       : withSelection;
   }, [
     hierarchyState?.treeNodes,
-    selectedFilter?.dimensionValues,
+    selectedFilter,
     hasSearchQuery,
     normalizedSearchQuery,
   ]);
@@ -193,6 +195,8 @@ const FiltersValuesPanel: FC<Props> = ({
   const hasNoCurrentFilterResults = hierarchyTreeNodes
     ? !hierarchyTreeNodes.length
     : !currentFilterResults?.length;
+  const isCurrentFilterLoading =
+    Boolean(isValuesLoading) || Boolean(hierarchyState?.isLoading);
 
   const otherResultsCount = useMemo(
     () =>
@@ -231,6 +235,7 @@ const FiltersValuesPanel: FC<Props> = ({
           calendarIcon={filterValuesProps?.calendarIcon}
           dateFormat={filterValuesProps?.dateFormat}
           defaultTimeOption={selectedTimeOption}
+          dataQueries={dataQueries}
         />
       ) : (
         <div
@@ -279,6 +284,7 @@ const FiltersValuesPanel: FC<Props> = ({
                       isVirtualized={false}
                       isScrollable={false}
                       isDisableValues={isDisableValues}
+                      isValuesLoading={isValuesLoading}
                       structuresMap={structuresMap}
                       hierarchyTreeNodes={hierarchyTreeNodes}
                       isHierarchyLoading={hierarchyState?.isLoading}
@@ -286,7 +292,7 @@ const FiltersValuesPanel: FC<Props> = ({
                       selectHierarchicalNodes={selectHierarchicalNodes}
                       expandHierarchicalValue={expandHierarchicalValue}
                     />
-                    {hasNoCurrentFilterResults && (
+                    {!isCurrentFilterLoading && hasNoCurrentFilterResults && (
                       <span className="body-2 text-neutrals-700">
                         {titles?.noResultsInSection?.(
                           selectedFilter.title ?? '',
@@ -301,8 +307,8 @@ const FiltersValuesPanel: FC<Props> = ({
                     {titles?.otherResults ?? 'Other results'}:{' '}
                     {otherResultsCount}
                   </span>
-                  {otherResultsCount === 0 && (
-                    <p className="body-2 text-neutrals-700 mt-1">
+                  {!isValuesLoading && otherResultsCount === 0 && (
+                    <p className="body-2 mt-1 text-neutrals-700">
                       {titles?.noResultsInOtherDimensions ??
                         'No results found in other dimensions'}
                     </p>
@@ -326,6 +332,7 @@ const FiltersValuesPanel: FC<Props> = ({
                         isVirtualized={false}
                         isScrollable={false}
                         isDisableValues={isDisableValues}
+                        isValuesLoading={isValuesLoading}
                         structuresMap={structuresMap}
                         selectFilterValue={(id, isSelectedValue) =>
                           selectFilterValue(id, isSelectedValue, filter)
@@ -348,6 +355,7 @@ const FiltersValuesPanel: FC<Props> = ({
                 checkboxIcon={filterValuesProps?.checkboxIcon}
                 isHierarchicalView={isHierarchicalView}
                 isDisableValues={isDisableValues}
+                isValuesLoading={isValuesLoading}
                 structuresMap={structuresMap}
                 hierarchyTreeNodes={hierarchyTreeNodes}
                 isHierarchyLoading={hierarchyState?.isLoading}

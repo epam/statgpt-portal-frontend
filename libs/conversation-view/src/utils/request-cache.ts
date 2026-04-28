@@ -46,6 +46,13 @@ export async function getCachedRequestResult<
   return nextRequest;
 }
 
+export function isRequestCached<TArgs extends readonly unknown[], TResult>(
+  action: AsyncAction<TArgs, TResult>,
+  key: string,
+): boolean {
+  return resolvedRequests.has(getFullKey(action, key));
+}
+
 export function clearRequestCache() {
   resolvedRequests.clear();
   inFlightRequests.clear();
