@@ -106,6 +106,7 @@ import {
 import { updateConversationErrorContext } from '../../utils/conversation';
 import { clearRequestCache } from '../../utils/request-cache';
 import { ConversationViewSidePanelOutlet } from './SidePanel/ConversationViewSidePanelContext';
+import { useCrossDatasetAttachments } from '../../context/CrossDatasetAttachmentsContext';
 
 interface Props {
   conversationKey: string;
@@ -174,6 +175,7 @@ export const ConversationView: FC<Props> = ({
   const [isLoading, setIsLoading] = useState(true);
   const { isStreaming, setIsStreaming } = useChatMessages();
   const { isOpenedAdvancedView } = useAdvancedView();
+  const { setCrossDatasetAttachmentsState } = useCrossDatasetAttachments();
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
 
   const { isAgentAvailable } = useAgentAvailability();
@@ -748,6 +750,7 @@ export const ConversationView: FC<Props> = ({
 
   useEffect(() => {
     clearRequestCache();
+    setCrossDatasetAttachmentsState();
 
     async function fetchConversationById() {
       try {
