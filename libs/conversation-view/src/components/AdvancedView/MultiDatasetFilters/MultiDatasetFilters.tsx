@@ -31,6 +31,7 @@ import FilterSettings from '../Filters/FiltersModal/FiltersSettings';
 import ModalFooter from '../Filters/FiltersModal/ModalFooter';
 import {
   buildFiltersMap,
+  getCompatibleDatasetUrns,
   getConstraintsMapFromSettledResults,
   getConstraintsRequests,
   getFilledDatasetFiltersMap,
@@ -188,7 +189,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       const filtersMap = buildFiltersMap(
         filters,
         constraintsMapRef.current,
-        true,
+        false,
         datasetDimensionsMetadata.map,
       );
       const shouldTrackFilterValuesLoading = hasUncachedConstraintRequests(
@@ -469,7 +470,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       const filtersMap = buildFiltersMap(
         filtersToUpdate,
         constraintsMapRef.current,
-        true,
+        false,
         datasetDimensionsMetadata.map,
       );
       const currentConstraintsMap =
@@ -552,7 +553,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     const appliedFiltersMap = buildFiltersMap(
       modalFilters,
       constraintsMapRef.current,
-      true,
+      false,
       datasetDimensionsMetadata.map,
     );
     const appliedFilters = getFiltersByConstraints(
@@ -565,10 +566,14 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       datasetDimensionsMetadata.map,
     );
     const filtersParamsMap = getFiltersChangeParamsMap(appliedFiltersMap);
+    const compatibleUrns = getCompatibleDatasetUrns(
+      modalFilters,
+      dataQueries?.map((q) => q.urn) ?? [],
+    );
     onMultipleDataFiltersChange?.(
       filtersParamsMap,
       constraintsMapRef.current,
-      dataQueries,
+      dataQueries?.filter((q) => compatibleUrns.has(q.urn)),
     );
 
     setAppliedFilters(appliedFilters);
@@ -576,14 +581,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     setIsModalClosed(true);
 
     startTransition(() => {
-      addSystemMessage(
-        buildFiltersMap(
-          modalFilters,
-          constraintsMapRef.current,
-          true,
-          datasetDimensionsMetadata.map,
-        ),
-      );
+      addSystemMessage(appliedFiltersMap);
     });
   }, [
     getFiltersChangeParamsMap,
