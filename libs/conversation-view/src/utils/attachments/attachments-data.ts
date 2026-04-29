@@ -47,10 +47,11 @@ export const getDataConstraintsMap = async (
 
   settledConstraints.forEach((result) => {
     if (result.status === 'fulfilled') {
-      constraintsMap.set(
-        result.value.urn,
-        result.value.response?.data?.dataConstraints || [],
-      );
+      const constraints = result.value.response?.data?.dataConstraints;
+
+      if (Array.isArray(constraints)) {
+        constraintsMap.set(result.value.urn, constraints);
+      }
     }
   });
 

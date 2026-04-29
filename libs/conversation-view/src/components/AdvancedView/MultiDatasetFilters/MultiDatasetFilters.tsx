@@ -31,13 +31,16 @@ import FilterSettings from '../Filters/FiltersModal/FiltersSettings';
 import ModalFooter from '../Filters/FiltersModal/ModalFooter';
 import {
   buildFiltersMap,
-  getConstraintsMap,
+  getCompatibleDatasetUrns,
+  getConstraintsMapFromSettledResults,
   getConstraintsRequests,
   getFilledDatasetFiltersMap,
   getFiltersByConstraints,
   getFiltersPreselectedByDataQueries,
+  hasUncachedConstraintRequests,
   isStructureDataMapsReady,
   getQueryFiltersMap,
+  mergeConstraintsMaps,
   setDataQueryFiltersMap,
 } from '../../../utils/multiple-filters';
 import { getHierarchyRequestContextForFilter } from '../../../utils/hierarchy-request-context';
@@ -82,7 +85,26 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     useState<Map<string, DataConstraints[] | undefined>>();
   const [isConstraintsLoading, setIsConstraintsLoading] = useState<boolean>();
   const [isDisableFilterValues, setIsDisableFilterValues] = useState<boolean>();
+  const [isFilterValuesLoading, setIsFilterValuesLoading] = useState(false);
+  const filterValuesLoadingRequestsRef = useRef(0);
   const [isModalClosed, setIsModalClosed] = useState(false);
+
+  const startFilterValuesLoading = useCallback(() => {
+    filterValuesLoadingRequestsRef.current += 1;
+    if (filterValuesLoadingRequestsRef.current === 1) {
+      setIsFilterValuesLoading(true);
+    }
+  }, []);
+
+  const finishFilterValuesLoading = useCallback(() => {
+    filterValuesLoadingRequestsRef.current = Math.max(
+      filterValuesLoadingRequestsRef.current - 1,
+      0,
+    );
+    if (filterValuesLoadingRequestsRef.current === 0) {
+      setIsFilterValuesLoading(false);
+    }
+  }, []);
 
   const isStructureDataReady = useMemo(
     () => isStructureDataMapsReady(dataQueries, structureDataMaps),
@@ -167,24 +189,49 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       const filtersMap = buildFiltersMap(
         filters,
         constraintsMapRef.current,
-        true,
+        false,
         datasetDimensionsMetadata.map,
       );
+      const shouldTrackFilterValuesLoading = hasUncachedConstraintRequests(
+        dataQueries,
+        filtersMap,
+        actions,
+      );
 
-      Promise.all(getConstraintsRequests(dataQueries, filtersMap, actions))
-        .then((constraintsData) => {
-          const currentConstraintsMap = getConstraintsMap(constraintsData);
+      if (shouldTrackFilterValuesLoading) {
+        startFilterValuesLoading();
+      }
+
+      const requests = getConstraintsRequests(dataQueries, filtersMap, actions);
+
+      Promise.allSettled(requests)
+        .then((constraintsResults) => {
+          const currentConstraintsMap = mergeConstraintsMaps(
+            constraintsMapRef.current || structureDataMaps?.constraintsMap,
+            getConstraintsMapFromSettledResults(constraintsResults),
+          );
+          const filledFilters = getFiltersByConstraints(
+            filtersMap,
+            { ...structureDataMaps, constraintsMap: currentConstraintsMap },
+            locale as Locale,
+            datasetDimensionsMetadata.map,
+          );
+
           constraintsMapRef.current = currentConstraintsMap;
           setIsConstraintsLoading?.(false);
-          setFilters(
-            getFiltersByConstraints(
-              filtersMap,
-              { ...structureDataMaps, constraintsMap: currentConstraintsMap },
-              locale as Locale,
-              datasetDimensionsMetadata.map,
-            ),
-          );
+          setFilters(filledFilters);
           if (changedFilter) {
+            const updatedSelectedFilter = filledFilters.find((filter) =>
+              isSameFilter(filter, changedFilter),
+            );
+
+            setSelectedFilter((currentFilter) =>
+              currentFilter &&
+              updatedSelectedFilter &&
+              isSameFilter(currentFilter, changedFilter)
+                ? { ...updatedSelectedFilter, isSelectedFilter: true }
+                : currentFilter,
+            );
             rebuildHierarchyTree(
               changedFilter,
               getConstraintsForFilter(changedFilter),
@@ -192,29 +239,50 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
           }
         })
         .catch(() => {
-          const currentConstraintsMap = new Map();
+          const currentConstraintsMap =
+            constraintsMapRef.current ||
+            structureDataMaps?.constraintsMap ||
+            new Map();
+          const filledFilters = getFiltersByConstraints(
+            filtersMap,
+            { ...structureDataMaps, constraintsMap: currentConstraintsMap },
+            locale as Locale,
+            datasetDimensionsMetadata.map,
+          );
+
           constraintsMapRef.current = currentConstraintsMap;
           setIsConstraintsLoading?.(false);
-          setFilters(
-            getFiltersByConstraints(
-              filtersMap,
-              { ...structureDataMaps, constraintsMap: currentConstraintsMap },
-              locale as Locale,
-              datasetDimensionsMetadata.map,
-            ),
-          );
+          setFilters(filledFilters);
+          if (changedFilter) {
+            const updatedSelectedFilter = filledFilters.find((filter) =>
+              isSameFilter(filter, changedFilter),
+            );
+
+            setSelectedFilter((currentFilter) =>
+              currentFilter &&
+              updatedSelectedFilter &&
+              isSameFilter(currentFilter, changedFilter)
+                ? { ...updatedSelectedFilter, isSelectedFilter: true }
+                : currentFilter,
+            );
+          }
         })
         .finally(() => {
           setIsDisableFilterValues(false);
+          if (shouldTrackFilterValuesLoading) {
+            finishFilterValuesLoading();
+          }
         });
     },
     [
       actions,
       dataQueries,
       datasetDimensionsMetadata.map,
+      finishFilterValuesLoading,
       getConstraintsForFilter,
       locale,
       rebuildHierarchyTree,
+      startFilterValuesLoading,
       structureDataMaps,
     ],
   );
@@ -402,23 +470,31 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       const filtersMap = buildFiltersMap(
         filtersToUpdate,
         constraintsMapRef.current,
-        true,
+        false,
         datasetDimensionsMetadata.map,
       );
       const currentConstraintsMap =
         constraintsMapRef.current ||
         structureDataMaps?.constraintsMap ||
         new Map<string, DataConstraints[] | undefined>();
+      const shouldTrackFilterValuesLoading = hasUncachedConstraintRequests(
+        dataQueries,
+        filtersMap,
+        actions,
+      );
 
-      Promise.all(getConstraintsRequests(dataQueries, filtersMap, actions))
-        .then((constraintsData) => {
-          const updatedConstraintsMap = getConstraintsMap(constraintsData);
-          const mergedConstraintsMap = new Map(currentConstraintsMap);
+      if (shouldTrackFilterValuesLoading) {
+        startFilterValuesLoading();
+      }
 
-          updatedConstraintsMap.forEach((constraints, datasetUrn) => {
-            mergedConstraintsMap.set(datasetUrn, constraints);
-          });
+      const requests = getConstraintsRequests(dataQueries, filtersMap, actions);
 
+      Promise.allSettled(requests)
+        .then((constraintsResults) => {
+          const mergedConstraintsMap = mergeConstraintsMaps(
+            currentConstraintsMap,
+            getConstraintsMapFromSettledResults(constraintsResults),
+          );
           updateViewAfterDelete(filtersMap, {
             ...structureDataMaps,
             constraintsMap: mergedConstraintsMap,
@@ -429,11 +505,18 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
             ...structureDataMaps,
             constraintsMap: currentConstraintsMap,
           });
+        })
+        .finally(() => {
+          if (shouldTrackFilterValuesLoading) {
+            finishFilterValuesLoading();
+          }
         });
     },
     [
       actions,
       datasetDimensionsMetadata.map,
+      finishFilterValuesLoading,
+      startFilterValuesLoading,
       structureDataMaps,
       updateViewAfterDelete,
     ],
@@ -470,7 +553,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     const appliedFiltersMap = buildFiltersMap(
       modalFilters,
       constraintsMapRef.current,
-      true,
+      false,
       datasetDimensionsMetadata.map,
     );
     const appliedFilters = getFiltersByConstraints(
@@ -483,10 +566,14 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       datasetDimensionsMetadata.map,
     );
     const filtersParamsMap = getFiltersChangeParamsMap(appliedFiltersMap);
+    const compatibleUrns = getCompatibleDatasetUrns(
+      modalFilters,
+      dataQueries?.map((q) => q.urn) ?? [],
+    );
     onMultipleDataFiltersChange?.(
       filtersParamsMap,
       constraintsMapRef.current,
-      dataQueries,
+      dataQueries?.filter((q) => compatibleUrns.has(q.urn)),
     );
 
     setAppliedFilters(appliedFilters);
@@ -494,14 +581,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     setIsModalClosed(true);
 
     startTransition(() => {
-      addSystemMessage(
-        buildFiltersMap(
-          modalFilters,
-          constraintsMapRef.current,
-          true,
-          datasetDimensionsMetadata.map,
-        ),
-      );
+      addSystemMessage(appliedFiltersMap);
     });
   }, [
     getFiltersChangeParamsMap,
@@ -550,6 +630,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               filtersList={modalFilters}
               selectedFilter={selectedFilter}
               isDisableValues={isDisableFilterValues}
+              isValuesLoading={isFilterValuesLoading}
               modalProps={modalProps}
               initialConstraintsMap={structureDataMaps?.constraintsMap}
               datasetIcon={datasetIcon}
@@ -564,6 +645,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               hierarchyStateMap={hierarchyStateMap}
               onSelectHierarchy={onSelectHierarchy}
               onExpandHierarchyNode={onExpandHierarchyNode}
+              dataQueries={dataQueries}
             />
             <ModalFooter
               titles={titles}

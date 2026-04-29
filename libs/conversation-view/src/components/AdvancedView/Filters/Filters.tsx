@@ -50,6 +50,7 @@ import { useHierarchyState } from '../../../utils/use-hierarchy-state';
 import {
   buildRequestCacheKey,
   getCachedRequestResult,
+  isRequestCached,
 } from '../../../utils/request-cache';
 
 const Filters: FC<FiltersProps> = ({
@@ -90,8 +91,27 @@ const Filters: FC<FiltersProps> = ({
   >([]);
   const [isConstraintsLoading, setIsConstraintsLoading] = useState<boolean>();
   const [isDisableFilterValues, setIsDisableFilterValues] = useState<boolean>();
+  const [isFilterValuesLoading, setIsFilterValuesLoading] = useState(false);
+  const filterValuesLoadingRequestsRef = useRef(0);
   const isPreselectedFromDataQuery = useRef(false);
   const [isModalClosed, setIsModalClosed] = useState(false);
+
+  const startFilterValuesLoading = useCallback(() => {
+    filterValuesLoadingRequestsRef.current += 1;
+    if (filterValuesLoadingRequestsRef.current === 1) {
+      setIsFilterValuesLoading(true);
+    }
+  }, []);
+
+  const finishFilterValuesLoading = useCallback(() => {
+    filterValuesLoadingRequestsRef.current = Math.max(
+      filterValuesLoadingRequestsRef.current - 1,
+      0,
+    );
+    if (filterValuesLoadingRequestsRef.current === 0) {
+      setIsFilterValuesLoading(false);
+    }
+  }, []);
 
   const getCodelistUrnForFilter = useCallback(
     (filter: Filter): string | undefined => {
@@ -173,55 +193,91 @@ const Filters: FC<FiltersProps> = ({
           (filter) => filter.componentCode !== TIME_PERIOD,
         ),
       );
+      const cacheKey = buildRequestCacheKey(attachmentUrn, constraintFilters);
+      const shouldTrackFilterValuesLoading =
+        !!actions?.getConstraints &&
+        !isRequestCached(actions.getConstraints, cacheKey);
+
+      if (shouldTrackFilterValuesLoading) {
+        startFilterValuesLoading();
+      }
+
       const request = actions
-        ? getCachedRequestResult(
-            actions.getConstraints,
-            buildRequestCacheKey(attachmentUrn, constraintFilters),
-            () => actions.getConstraints(attachmentUrn, constraintFilters),
+        ? getCachedRequestResult(actions.getConstraints, cacheKey, () =>
+            actions.getConstraints(attachmentUrn, constraintFilters),
           )
         : Promise.resolve(undefined);
 
       request
         .then((constraints) => {
           const newConstraints = constraints?.data?.dataConstraints || [];
+          const filledFilters = getFilledFilters(
+            filters,
+            dimensions,
+            structures,
+            newConstraints,
+            locale as Locale,
+          );
+
           constraintsRef.current = newConstraints;
           setIsConstraintsLoading?.(false);
-          setFilters(
-            getFilledFilters(
-              filters,
-              dimensions,
-              structures,
-              newConstraints,
-              locale as Locale,
-            ),
-          );
+          setFilters(filledFilters);
           if (changedFilter) {
+            const updatedSelectedFilter = filledFilters.find((filter) =>
+              isSameFilter(filter, changedFilter),
+            );
+
+            setSelectedFilter((currentFilter) =>
+              currentFilter &&
+              updatedSelectedFilter &&
+              isSameFilter(currentFilter, changedFilter)
+                ? { ...updatedSelectedFilter, isSelectedFilter: true }
+                : currentFilter,
+            );
             rebuildHierarchyTree(changedFilter, newConstraints);
           }
         })
         .catch(() => {
+          const filledFilters = getFilledFilters(
+            filters,
+            dimensions,
+            structures,
+            [],
+            locale as Locale,
+          );
+
           constraintsRef.current = [];
           setIsConstraintsLoading?.(false);
-          setFilters(
-            getFilledFilters(
-              filters,
-              dimensions,
-              structures,
-              [],
-              locale as Locale,
-            ),
-          );
+          setFilters(filledFilters);
+          if (changedFilter) {
+            const updatedSelectedFilter = filledFilters.find((filter) =>
+              isSameFilter(filter, changedFilter),
+            );
+
+            setSelectedFilter((currentFilter) =>
+              currentFilter &&
+              updatedSelectedFilter &&
+              isSameFilter(currentFilter, changedFilter)
+                ? { ...updatedSelectedFilter, isSelectedFilter: true }
+                : currentFilter,
+            );
+          }
         })
         .finally(() => {
           setIsDisableFilterValues(false);
+          if (shouldTrackFilterValuesLoading) {
+            finishFilterValuesLoading();
+          }
         });
     },
     [
       actions,
       attachmentsDataQuery?.urn,
       dimensions,
+      finishFilterValuesLoading,
       locale,
       rebuildHierarchyTree,
+      startFilterValuesLoading,
       structures,
     ],
   );
@@ -434,11 +490,18 @@ const Filters: FC<FiltersProps> = ({
         ),
       );
 
+      const cacheKey = buildRequestCacheKey(attachmentUrn, constraintFilters);
+      const shouldTrackFilterValuesLoading =
+        !!actions?.getConstraints &&
+        !isRequestCached(actions.getConstraints, cacheKey);
+
+      if (shouldTrackFilterValuesLoading) {
+        startFilterValuesLoading();
+      }
+
       const request = actions
-        ? getCachedRequestResult(
-            actions.getConstraints,
-            buildRequestCacheKey(attachmentUrn, constraintFilters),
-            () => actions.getConstraints(attachmentUrn, constraintFilters),
+        ? getCachedRequestResult(actions.getConstraints, cacheKey, () =>
+            actions.getConstraints(attachmentUrn, constraintFilters),
           )
         : Promise.resolve(undefined);
 
@@ -451,9 +514,20 @@ const Filters: FC<FiltersProps> = ({
         })
         .catch(() => {
           updateViewAfterDelete([], filtersToUpdate);
+        })
+        .finally(() => {
+          if (shouldTrackFilterValuesLoading) {
+            finishFilterValuesLoading();
+          }
         });
     },
-    [actions, attachmentsDataQuery?.urn, updateViewAfterDelete],
+    [
+      actions,
+      attachmentsDataQuery?.urn,
+      finishFilterValuesLoading,
+      startFilterValuesLoading,
+      updateViewAfterDelete,
+    ],
   );
 
   const onDeleteFilter = useCallback(
@@ -536,6 +610,7 @@ const Filters: FC<FiltersProps> = ({
               filtersList={modalFilters}
               selectedFilter={selectedFilter}
               isDisableValues={isDisableFilterValues}
+              isValuesLoading={isFilterValuesLoading}
               modalProps={modalProps}
               initialConstraints={initialConstraints}
               timeSeriesCount={`${timeSeriesCount}`}
@@ -549,6 +624,9 @@ const Filters: FC<FiltersProps> = ({
               hierarchyStateMap={hierarchyStateMap}
               onSelectHierarchy={onSelectHierarchy}
               onExpandHierarchyNode={onExpandHierarchyNode}
+              dataQueries={
+                attachmentsDataQuery ? [attachmentsDataQuery] : undefined
+              }
             />
             <ModalFooter
               titles={titles}

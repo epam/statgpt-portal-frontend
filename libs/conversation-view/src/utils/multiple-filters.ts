@@ -26,13 +26,18 @@ import {
   DataQuery,
   Locale,
   QueryFilter,
+  QueryFilterType,
   TimeRange,
 } from '@epam/statgpt-shared-toolkit';
 import { StructureDataMaps } from '../models/structure-data';
 import { getFilledFilters } from './get-filled-filters';
 import { getSeriesFilterDto } from './get-series-filters';
 import { normalizeConstraintFilters } from './normalize-constraint-filters';
-import { buildRequestCacheKey, getCachedRequestResult } from './request-cache';
+import {
+  buildRequestCacheKey,
+  getCachedRequestResult,
+  isRequestCached,
+} from './request-cache';
 import { getQueryFilters, setDataQueryFilters } from './query-filters';
 
 type SharedFilterConfig = {
@@ -41,7 +46,7 @@ type SharedFilterConfig = {
   getMergedValueKey: (value: FilterValue, datasetUrn?: string) => string;
 };
 
-type ExtendedStructuralMetadata = {
+export type ExtendedStructuralMetadata = {
   urn: string;
   data?: StructuralMetaData;
 };
@@ -201,6 +206,18 @@ const isSharedFilterId = (filterId?: string) =>
 
 const isSharedFilter = (filter?: Filter): filter is SharedFilter =>
   filter?.filterType === 'shared' && isSharedFilterId(filter?.id);
+
+const hasConstraintsForDataset = (
+  constraintsMap: Map<string, DataConstraints[] | undefined> | undefined,
+  datasetUrn: string,
+) => !constraintsMap || Array.isArray(constraintsMap.get(datasetUrn));
+
+const hasDataMessageForDataset = (
+  structureDataMaps: StructureDataMaps | undefined,
+  datasetUrn: string,
+) =>
+  !structureDataMaps?.dataMessagesMap ||
+  structureDataMaps.dataMessagesMap.has(datasetUrn);
 
 const mergeSharedFilterValues = (
   filters: Filter[],
@@ -601,8 +618,23 @@ const getFiltersWithValuesMap = (
   return new Map(
     Array.from(structureDataMaps?.dimensionsMap?.entries() || []).map(
       ([datasetUrn, dimensions]) => {
+        const hasDatasetConstraints = hasConstraintsForDataset(
+          structureDataMaps?.constraintsMap,
+          datasetUrn,
+        );
+        const hasDatasetDataMessage = hasDataMessageForDataset(
+          structureDataMaps,
+          datasetUrn,
+        );
         const filters =
           dimensions?.map((dimension) => {
+            if (!hasDatasetConstraints || !hasDatasetDataMessage) {
+              return {
+                ...dimension,
+                dimensionValues: [],
+              };
+            }
+
             const codeList = findCodelistByDimension(
               structureDataMaps?.structuresMap?.get(datasetUrn)?.codelists,
               structureDataMaps?.structuresMap?.get(datasetUrn)?.conceptSchemes,
@@ -624,6 +656,14 @@ const getFiltersWithValuesMap = (
     ),
   );
 };
+
+const getFiltersWithSelectedValuesOnly = (filters: Filter[]): Filter[] =>
+  filters.map((filter) => ({
+    ...filter,
+    isDisabled: false,
+    dimensionValues:
+      filter.dimensionValues?.filter((value) => value.isSelectedValue) || [],
+  }));
 
 export const getFilledDatasetFiltersMap = (
   structureDataMaps?: StructureDataMaps,
@@ -702,6 +742,92 @@ export const buildFiltersMap = (
     }, new Map<string, Filter[]>());
 };
 
+export const getCompatibleDatasetUrns = (
+  filters: Filter[],
+  dataQueryUrns: string[],
+): Set<string> => {
+  const sharedFiltersWithSelections = filters.filter(
+    (f): f is SharedFilter =>
+      f.filterType === 'shared' &&
+      !f.isTimeDimension &&
+      (f.dimensionValues?.some((v) => v.isSelectedValue) ?? false),
+  );
+
+  if (!sharedFiltersWithSelections.length) {
+    return new Set(dataQueryUrns);
+  }
+
+  return new Set(
+    dataQueryUrns.filter((urn) =>
+      sharedFiltersWithSelections.every((filter) =>
+        filter.dimensionValues?.some(
+          (v) =>
+            v.isSelectedValue &&
+            v.sourceValues?.some((sv) => sv.datasetUrn === urn),
+        ),
+      ),
+    ),
+  );
+};
+
+export const getRestoredActiveDatasetUrns = (
+  dataQueries?: DataQuery[],
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+): string[] | undefined => {
+  const selectedSharedFilterDatasetUrnsMap = new Map<string, Set<string>>();
+
+  dataQueries?.forEach((dataQuery) => {
+    dataQuery.filters?.forEach((queryFilter) => {
+      if (
+        queryFilter.operator === QueryFilterType.BETWEEN ||
+        !queryFilter.values?.length
+      ) {
+        return;
+      }
+
+      const config = getSharedFilterConfigForFilter(
+        {
+          id: queryFilter.componentCode,
+          datasetUrn: dataQuery.urn,
+          filterType: 'dataset',
+        },
+        datasetDimensionsMetadataMap,
+      );
+
+      if (!config || config.id === COMMON_TIME_PERIOD_FILTER_ID) {
+        return;
+      }
+
+      const datasetUrns =
+        selectedSharedFilterDatasetUrnsMap.get(config.id) ?? new Set<string>();
+      datasetUrns.add(dataQuery.urn);
+      selectedSharedFilterDatasetUrnsMap.set(config.id, datasetUrns);
+    });
+  });
+
+  if (!selectedSharedFilterDatasetUrnsMap.size) {
+    return undefined;
+  }
+
+  return (
+    dataQueries
+      ?.filter((dataQuery) =>
+        Array.from(selectedSharedFilterDatasetUrnsMap.values()).every(
+          (datasetUrns) => datasetUrns.has(dataQuery.urn),
+        ),
+      )
+      .map((dataQuery) => dataQuery.urn) ?? []
+  );
+};
+
+export const getCrossDatasetSnapshotKey = (dataQueries?: DataQuery[]) =>
+  JSON.stringify(
+    dataQueries?.map((dataQuery) => ({
+      urn: dataQuery.urn,
+      filters: dataQuery.filters ?? [],
+    })) ?? [],
+  );
+
 export const getFiltersByConstraints = (
   filtersMap: Map<string, Filter[]>,
   structureDataMaps?: StructureDataMaps,
@@ -712,6 +838,20 @@ export const getFiltersByConstraints = (
   Array.from(filtersMap?.entries())?.forEach(([datasetUrn, filters]) => {
     const dimensions = structureDataMaps?.dimensionsMap?.get(datasetUrn);
     const structures = structureDataMaps?.structuresMap?.get(datasetUrn);
+    const hasDatasetConstraints = hasConstraintsForDataset(
+      structureDataMaps?.constraintsMap,
+      datasetUrn,
+    );
+    const hasDatasetDataMessage = hasDataMessageForDataset(
+      structureDataMaps,
+      datasetUrn,
+    );
+
+    if (!hasDatasetConstraints || !hasDatasetDataMessage) {
+      updatedFilters.push(...getFiltersWithSelectedValuesOnly(filters));
+      return;
+    }
+
     const constraints = structureDataMaps?.constraintsMap?.get(datasetUrn);
 
     updatedFilters.push(
@@ -806,15 +946,62 @@ export const getConstraintsRequests = (
   );
 };
 
+export const hasUncachedConstraintRequests = (
+  dataQueries?: DataQuery[],
+  filtersMap?: Map<string, Filter[]>,
+  actions?: {
+    getConstraints: (
+      urn: string,
+      filters?: SeriesFilterDto[],
+    ) => Promise<StructuralMetaData>;
+  },
+): boolean => {
+  if (!actions?.getConstraints || !dataQueries?.length) return false;
+  return dataQueries.some((dataQuery) => {
+    const attachmentUrn = dataQuery?.urn ?? '';
+    const constraintFilters = normalizeConstraintFilters(
+      getSeriesFilterDto(filtersMap?.get(attachmentUrn) || []).filter(
+        (filter) => filter.componentCode !== TIME_PERIOD,
+      ),
+    );
+    return !isRequestCached(
+      actions.getConstraints,
+      buildRequestCacheKey(attachmentUrn, constraintFilters),
+    );
+  });
+};
+
 export const getConstraintsMap = (
   constraintsData: ExtendedStructuralMetadata[],
 ): Map<string, DataConstraints[] | undefined> => {
   return new Map(
-    constraintsData?.map(({ urn, data }) => {
-      const constraint = data?.data?.dataConstraints;
-      return [urn, constraint];
+    constraintsData?.flatMap(({ urn, data }) => {
+      const constraints = data?.data?.dataConstraints;
+      return Array.isArray(constraints) ? [[urn, constraints]] : [];
     }),
   );
+};
+
+export const getConstraintsMapFromSettledResults = (
+  constraintsResults: PromiseSettledResult<ExtendedStructuralMetadata>[],
+): Map<string, DataConstraints[] | undefined> =>
+  getConstraintsMap(
+    constraintsResults.flatMap((result) =>
+      result.status === 'fulfilled' ? [result.value] : [],
+    ),
+  );
+
+export const mergeConstraintsMaps = (
+  baseConstraintsMap: Map<string, DataConstraints[] | undefined> | undefined,
+  updatedConstraintsMap: Map<string, DataConstraints[] | undefined>,
+): Map<string, DataConstraints[] | undefined> => {
+  const mergedConstraintsMap = new Map(baseConstraintsMap);
+
+  updatedConstraintsMap.forEach((constraints, datasetUrn) => {
+    mergedConstraintsMap.set(datasetUrn, constraints);
+  });
+
+  return mergedConstraintsMap;
 };
 
 export const getInitialConstraints = (

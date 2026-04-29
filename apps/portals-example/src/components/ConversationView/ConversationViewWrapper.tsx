@@ -90,7 +90,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { JWT } from 'next-auth/jwt';
 import { Conversation } from '@epam/ai-dial-shared';
 import { signOut } from 'next-auth/react';
-import { SIGN_IN_LINK } from '../../constants/auth';
+import { getSignInLink } from '../../constants/auth';
 import { wrapWithAuthHandler } from '../../utils/auth/requests-wrapper';
 import { LimitMessages } from '@epam/statgpt-ui-components';
 
@@ -135,7 +135,7 @@ const ConversationViewWrapper: FC<Props> = ({
       action: (...args: Args) => Promise<ApiResponse<T>>,
     ): (...args: Args) => Promise<T> {
       return wrapWithAuthHandler(action, () => {
-        openUrl(SIGN_IN_LINK);
+        openUrl(getSignInLink(window.location.href));
       });
     },
     [openUrl],

@@ -12,7 +12,7 @@ import {
   TreeNode,
   urnMatchesIgnoreVersion,
 } from '@epam/statgpt-sdmx-toolkit';
-import { FilterTreeNodeProps } from '../models/filters';
+import { Filter, FilterTreeNodeProps } from '../models/filters';
 
 function compareVersions(a: string, b: string): number {
   const aParts = (a ?? '').split('.').map(Number);
@@ -164,6 +164,71 @@ export function hierarchyNodesToFilterTreeProps(
       children: hierarchyNodesToFilterTreeProps(node.children),
     } as FilterTreeNodeProps;
   });
+}
+
+function resolveFilterValueId(
+  filter: Filter | undefined,
+  nodeId: string,
+): string | undefined {
+  if (filter?.filterType !== 'shared') {
+    return nodeId;
+  }
+
+  return filter.dimensionValues?.find(
+    (value) =>
+      value.id === nodeId ||
+      value.sourceValues?.some((sourceValue) => sourceValue.id === nodeId),
+  )?.id;
+}
+
+export function getSelectedHierarchyNodeIds(filter?: Filter): Set<string> {
+  if (filter?.filterType !== 'shared') {
+    return new Set(
+      filter?.dimensionValues
+        ?.filter((value) => value.isSelectedValue)
+        .map((value) => value.id) ?? [],
+    );
+  }
+
+  return new Set(
+    filter.dimensionValues?.flatMap((value) =>
+      value.isSelectedValue
+        ? (value.sourceValues?.map((sourceValue) => sourceValue.id) ?? [])
+        : [],
+    ) ?? [],
+  );
+}
+
+export function mapHierarchyNodesToFilterValueIds(
+  nodes: FilterTreeNodeProps[] | undefined,
+  filter?: Filter,
+): FilterTreeNodeProps[] {
+  if (!nodes?.length || filter?.filterType !== 'shared') {
+    return nodes ?? [];
+  }
+
+  const mappedNodesById = new Map<string, FilterTreeNodeProps>();
+
+  nodes.forEach((node) => {
+    const resolvedId = resolveFilterValueId(filter, node.id);
+    if (!resolvedId) {
+      return;
+    }
+
+    mappedNodesById.set(resolvedId, {
+      ...node,
+      id: resolvedId,
+    });
+  });
+
+  return Array.from(mappedNodesById.values());
+}
+
+export function mapHierarchyNodeIdToFilterValueId(
+  nodeId: string,
+  filter?: Filter,
+): string | undefined {
+  return resolveFilterValueId(filter, nodeId);
 }
 
 export function applySelectionToTree(
