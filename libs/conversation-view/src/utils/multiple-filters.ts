@@ -26,6 +26,7 @@ import {
   DataQuery,
   Locale,
   QueryFilter,
+  QueryFilterType,
   TimeRange,
 } from '@epam/statgpt-shared-toolkit';
 import { StructureDataMaps } from '../models/structure-data';
@@ -740,6 +741,92 @@ export const buildFiltersMap = (
       return filterMap;
     }, new Map<string, Filter[]>());
 };
+
+export const getCompatibleDatasetUrns = (
+  filters: Filter[],
+  dataQueryUrns: string[],
+): Set<string> => {
+  const sharedFiltersWithSelections = filters.filter(
+    (f): f is SharedFilter =>
+      f.filterType === 'shared' &&
+      !f.isTimeDimension &&
+      (f.dimensionValues?.some((v) => v.isSelectedValue) ?? false),
+  );
+
+  if (!sharedFiltersWithSelections.length) {
+    return new Set(dataQueryUrns);
+  }
+
+  return new Set(
+    dataQueryUrns.filter((urn) =>
+      sharedFiltersWithSelections.every((filter) =>
+        filter.dimensionValues?.some(
+          (v) =>
+            v.isSelectedValue &&
+            v.sourceValues?.some((sv) => sv.datasetUrn === urn),
+        ),
+      ),
+    ),
+  );
+};
+
+export const getRestoredActiveDatasetUrns = (
+  dataQueries?: DataQuery[],
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+): string[] | undefined => {
+  const selectedSharedFilterDatasetUrnsMap = new Map<string, Set<string>>();
+
+  dataQueries?.forEach((dataQuery) => {
+    dataQuery.filters?.forEach((queryFilter) => {
+      if (
+        queryFilter.operator === QueryFilterType.BETWEEN ||
+        !queryFilter.values?.length
+      ) {
+        return;
+      }
+
+      const config = getSharedFilterConfigForFilter(
+        {
+          id: queryFilter.componentCode,
+          datasetUrn: dataQuery.urn,
+          filterType: 'dataset',
+        },
+        datasetDimensionsMetadataMap,
+      );
+
+      if (!config || config.id === COMMON_TIME_PERIOD_FILTER_ID) {
+        return;
+      }
+
+      const datasetUrns =
+        selectedSharedFilterDatasetUrnsMap.get(config.id) ?? new Set<string>();
+      datasetUrns.add(dataQuery.urn);
+      selectedSharedFilterDatasetUrnsMap.set(config.id, datasetUrns);
+    });
+  });
+
+  if (!selectedSharedFilterDatasetUrnsMap.size) {
+    return undefined;
+  }
+
+  return (
+    dataQueries
+      ?.filter((dataQuery) =>
+        Array.from(selectedSharedFilterDatasetUrnsMap.values()).every(
+          (datasetUrns) => datasetUrns.has(dataQuery.urn),
+        ),
+      )
+      .map((dataQuery) => dataQuery.urn) ?? []
+  );
+};
+
+export const getCrossDatasetSnapshotKey = (dataQueries?: DataQuery[]) =>
+  JSON.stringify(
+    dataQueries?.map((dataQuery) => ({
+      urn: dataQuery.urn,
+      filters: dataQuery.filters ?? [],
+    })) ?? [],
+  );
 
 export const getFiltersByConstraints = (
   filtersMap: Map<string, Filter[]>,
