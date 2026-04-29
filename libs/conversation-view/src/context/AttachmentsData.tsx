@@ -31,7 +31,7 @@ import {
 } from '../types/actions';
 import { buildCustomGridAttachment } from '../utils/attachments/data-grid/build-custom-grid-attachment';
 import { getTimeQueryFilterFromAttachment } from '../utils/query-filters';
-import { buildChartData } from '../utils/attachments/charting/chart-data';
+import { createChartDataResolver } from '../utils/attachments/charting/chart-data';
 import { ChartingStyles } from '../models/attachments-styles';
 import { MetadataSettings } from '../models/metadata';
 import { ConversationViewTitles } from '../models/titles';
@@ -47,6 +47,7 @@ import {
   createInitialGridAttachment,
   createInitialChartAttachment,
 } from '../constants/attachments';
+import { scheduleDeferredWork } from '../utils/deferred-work';
 
 export function useAttachmentsData(
   actions: {
@@ -85,6 +86,8 @@ export function useAttachmentsData(
     StructureItemBase[]
   >([]);
   const [isLoadingGridData, setIsLoadingGridData] = useState(false);
+  const [isBuildingGridAttachment, setIsBuildingGridAttachment] =
+    useState(false);
   const [selectedTimePeriod, setSelectedTimePeriod] = useState<TimeRange>({
     startPeriod: null,
     endPeriod: null,
@@ -160,6 +163,7 @@ export function useAttachmentsData(
           () => getDataSetData(dataQuery.urn, { filterKey, timeFilter }),
         )
           .then((data) => {
+            setIsBuildingGridAttachment(true);
             setDataMessage(data || void 0);
             setStructureDimensions(getStructureDimensions(data));
           })
@@ -214,6 +218,7 @@ export function useAttachmentsData(
         const timePeriodFilter = filters?.find(
           (filter) => filter.id === TIME_PERIOD,
         )?.timeRange;
+
         if (timePeriodFilter) {
           setSelectedTimePeriod(timePeriodFilter);
         }
@@ -223,6 +228,7 @@ export function useAttachmentsData(
           () => getDataSetData(dataQuery?.urn || '', filterParams),
         )
           .then((data) => {
+            setIsBuildingGridAttachment(true);
             setDataMessage(data || void 0);
             setStructureDimensions(getStructureDimensions(data));
           })
@@ -236,23 +242,38 @@ export function useAttachmentsData(
 
   useEffect(() => {
     if (structures != null && dataMessage != null && constraints?.length) {
-      setCustomGridAttachment((prev) => ({
-        ...prev,
-        ...buildCustomGridAttachment(
-          structures,
-          dataMessage,
-          dataQuery,
-          locale,
-          formattingSettings,
-          metadataSettings,
-          chartStyles,
-          titles,
-          putOnboardingFile,
-          constraints,
-          selectedTimePeriod,
-        ),
-      }));
+      setIsBuildingGridAttachment(true);
+
+      const cancel = scheduleDeferredWork(() => {
+        setCustomGridAttachment((prev) => ({
+          ...prev,
+          ...buildCustomGridAttachment(
+            structures,
+            dataMessage,
+            dataQuery,
+            locale,
+            formattingSettings,
+            metadataSettings,
+            chartStyles,
+            titles,
+            putOnboardingFile,
+            constraints,
+            selectedTimePeriod,
+          ),
+        }));
+        setIsBuildingGridAttachment(false);
+      });
+
+      return () => {
+        cancel();
+        setIsBuildingGridAttachment(false);
+      };
     }
+
+    if (dataMessage == null || constraints !== undefined) {
+      setIsBuildingGridAttachment(false);
+    }
+    return undefined;
   }, [
     structures,
     dataMessage,
@@ -271,7 +292,8 @@ export function useAttachmentsData(
     if (structures != null && dataMessage != null) {
       setCustomChartAttachment((prev) => ({
         ...prev,
-        charting_data: buildChartData(
+        charting_data: undefined,
+        getChartingData: createChartDataResolver(
           structures,
           dataMessage,
           dataQuery,
@@ -307,7 +329,7 @@ export function useAttachmentsData(
     structureDimensions,
     onFiltersChange,
     constraints,
-    isLoadingGridData,
+    isLoadingGridData: isLoadingGridData || isBuildingGridAttachment,
     dataSetAttachments: attachments,
   };
 }

@@ -15,17 +15,27 @@ import { buildSingleLineUnit } from '../charting/chart-data';
 import { ChartingStyles } from '../../../models/attachments-styles';
 import { CHART_COLUMN_ID } from '../../../constants/grid';
 
+interface GetRowsDataOptions {
+  includeChartData?: boolean;
+}
+
 export function getRowsData(
   data: DataMessage,
   structures: StructuralData,
   dataQuery: DataQuery | undefined,
   locale: string,
   chartStyles?: ChartingStyles,
+  options: GetRowsDataOptions = {},
 ): GridData[] {
   const timeSeries: TimeSeries[] = data == null ? [] : getParsedResponse(data);
   const dimensions = getDimensions(structures)?.dimensions || [];
   const timeDimensions = getDimensions(structures)?.timeDimensions || [];
   const rows = getConvertedData(timeSeries, dimensions, timeDimensions);
+
+  if (options.includeChartData === false) {
+    return rows;
+  }
+
   return extendDataWithChart(
     rows,
     data,
@@ -49,14 +59,15 @@ function extendDataWithChart(
   return rows.map((row) => {
     return {
       ...row,
-      [CHART_COLUMN_ID]: buildSingleLineUnit(
-        row,
-        sortedTimePeriods,
-        structures,
-        dataQuery,
-        locale,
-        chartStyles,
-      ),
+      [CHART_COLUMN_ID]: () =>
+        buildSingleLineUnit(
+          row,
+          sortedTimePeriods,
+          structures,
+          dataQuery,
+          locale,
+          chartStyles,
+        ),
     };
   });
 }
