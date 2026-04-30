@@ -31,6 +31,7 @@ function extractJsonFromAttachment(mdContent?: string) {
 }
 
 function getDataQueryFromJson(jsonDataQuery: JsonDataQuery): DataQuery {
+  console.log('[DataQuery raw]', JSON.stringify(jsonDataQuery));
   return {
     ...jsonDataQuery,
     filters: jsonDataQuery?.filters?.map((filter) => ({
@@ -45,6 +46,9 @@ function getDataQueryFromJson(jsonDataQuery: JsonDataQuery): DataQuery {
       indicatorDimensions:
         jsonDataQuery?.metadata?.indicator_dimensions ||
         jsonDataQuery?.metadata?.indicatorDimensions,
+      timePeriodDimension: jsonDataQuery?.metadata?.timePeriodDimension,
+      keyDimensionIdsInDsdOrder:
+        jsonDataQuery?.metadata?.keyDimensionIdsInDsdOrder,
     },
   };
 }

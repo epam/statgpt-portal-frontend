@@ -6,11 +6,15 @@ import {
   getLocalizedName,
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
+import { Filter } from '../models/filters';
+import { buildQueryFiltersForPythonAttachment } from '../utils/query-filters';
 import {
   getConstraints,
   GetDatasetData,
   GetDatasetDetails,
+  GetPythonAttachment,
 } from '../types/actions';
+import { AttachmentType } from '@epam/statgpt-dial-toolkit';
 import {
   getDataConstraintsMap,
   getDataSetData,
@@ -41,6 +45,7 @@ export function useAttachmentsDataMultipleQueries(
     getDataSet: GetDatasetDetails;
     getDataSetData: GetDatasetData;
     getConstraints: getConstraints;
+    getPythonAttachment?: GetPythonAttachment;
   },
   locale: string,
   dataQueries?: DataQuery[],
@@ -48,6 +53,7 @@ export function useAttachmentsDataMultipleQueries(
   formattingSettings?: FormatNumbersType,
   metadataSettings?: MetadataSettings,
   rawAttachments?: Attachment[],
+  onCodeAttachmentUpdated?: (attachment: Attachment) => void,
 ) {
   const [structureDataMaps, setStructureDataMaps] =
     useState<StructureDataMaps>();
@@ -70,6 +76,7 @@ export function useAttachmentsDataMultipleQueries(
     getConstraints,
     getDataSet,
     getDataSetData: getDataSetDataAction,
+    getPythonAttachment,
   } = actions;
 
   const loadConstraintsMap = useCallback(
@@ -267,6 +274,7 @@ export function useAttachmentsDataMultipleQueries(
       filterParamsMap: Map<string, DatasetQueryFilters>,
       constraintsMap?: Map<string, DataConstraints[] | undefined>,
       dataQueries?: DataQuery[],
+      filtersMap?: Map<string, Filter[]>,
     ): void => {
       try {
         setIsLoadingGridData(true);
@@ -304,11 +312,53 @@ export function useAttachmentsDataMultipleQueries(
             })
             .finally(() => setIsLoadingGridData(false));
         });
+
+        if (getPythonAttachment && dataQueries?.length) {
+          const updatedDataQueries = dataQueries.map((dq) => {
+            const uiFilters = filtersMap?.get(dq.urn) ?? [];
+            const updatedFiltersFromUI =
+              buildQueryFiltersForPythonAttachment(uiFilters);
+            const uiFilterCodes = new Set(
+              updatedFiltersFromUI.map((f) => f.componentCode),
+            );
+            const hiddenFilters = (dq.filters ?? []).filter(
+              (f) => !uiFilterCodes.has(f.componentCode),
+            );
+            return {
+              ...dq,
+              filters: [...hiddenFilters, ...updatedFiltersFromUI],
+            };
+          });
+          getPythonAttachment(updatedDataQueries)
+            .then((result) => {
+              if (!result?.python_code) return;
+              const newCodeAttachment: CustomCodeAttachment = {
+                type: AttachmentType.CUSTOM_CODE_SAMPLE,
+                data: result.python_code,
+                language: 'python',
+                title: titles?.codeSamples || 'Python Code',
+              };
+              setCodeAttachments([newCodeAttachment]);
+              onCodeAttachmentUpdated?.({
+                type: AttachmentType.MARKDOWN,
+                title: 'Python Code',
+                data: `\`\`\`python\n${result.python_code}\n\`\`\``,
+              });
+            })
+            .catch((err) =>
+              console.error('Error refreshing python attachment:', err),
+            );
+        }
       } catch (err) {
         console.error('Error loading dataset data', err as object);
       }
     },
-    [getDataSetDataAction],
+    [
+      getDataSetDataAction,
+      getPythonAttachment,
+      titles,
+      onCodeAttachmentUpdated,
+    ],
   );
 
   return {

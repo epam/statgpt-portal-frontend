@@ -27,10 +27,15 @@ import {
   getConstraints,
   GetDatasetData,
   GetDatasetDetails,
+  GetPythonAttachment,
   PutOnboardingFile,
 } from '../types/actions';
 import { buildCustomGridAttachment } from '../utils/attachments/data-grid/build-custom-grid-attachment';
-import { getTimeQueryFilterFromAttachment } from '../utils/query-filters';
+import {
+  buildQueryFiltersForPythonAttachment,
+  getTimeQueryFilterFromAttachment,
+} from '../utils/query-filters';
+import { AttachmentType } from '@epam/statgpt-dial-toolkit';
 import { buildChartData } from '../utils/attachments/charting/chart-data';
 import { ChartingStyles } from '../models/attachments-styles';
 import { MetadataSettings } from '../models/metadata';
@@ -54,6 +59,7 @@ export function useAttachmentsData(
     getDataSetData: GetDatasetData;
     getConstraints: getConstraints;
     putOnboardingFile?: PutOnboardingFile;
+    getPythonAttachment?: GetPythonAttachment;
   },
   locale: string,
   dataQuery?: DataQuery,
@@ -64,6 +70,7 @@ export function useAttachmentsData(
   rawAttachments?: Attachment[],
   initialDatasetStructure?: StructuralData,
   isInitialDatasetStructureLoading = false,
+  onCodeAttachmentUpdated?: (attachment: Attachment) => void,
 ) {
   const [dataMessage, setDataMessage] = useState<DataMessage | undefined>();
   const [dataset, setDataset] = useState<Dataflow | undefined>();
@@ -89,8 +96,13 @@ export function useAttachmentsData(
     startPeriod: null,
     endPeriod: null,
   });
-  const { getConstraints, getDataSet, getDataSetData, putOnboardingFile } =
-    actions;
+  const {
+    getConstraints,
+    getDataSet,
+    getDataSetData,
+    putOnboardingFile,
+    getPythonAttachment,
+  } = actions;
 
   const applyStructureData = useCallback(
     (structure?: StructuralData | null) => {
@@ -227,11 +239,58 @@ export function useAttachmentsData(
             setStructureDimensions(getStructureDimensions(data));
           })
           .finally(() => setIsLoadingGridData(false));
+
+        if (getPythonAttachment && dataQuery && filters) {
+          const updatedFiltersFromUI =
+            buildQueryFiltersForPythonAttachment(filters);
+          const uiFilterCodes = new Set(
+            updatedFiltersFromUI.map((f) => f.componentCode),
+          );
+          const hiddenFilters = (dataQuery.filters ?? []).filter(
+            (f) => !uiFilterCodes.has(f.componentCode),
+          );
+          const mergedFilters = [...hiddenFilters, ...updatedFiltersFromUI];
+          const updatedQuery: DataQuery = {
+            ...dataQuery,
+            filters: mergedFilters,
+          };
+          getPythonAttachment([updatedQuery])
+            .then((result) => {
+              if (!result?.python_code) return;
+              const newCodeAttachment: CustomCodeAttachment = {
+                type: AttachmentType.CUSTOM_CODE_SAMPLE,
+                data: result.python_code,
+                language: 'python',
+                title: titles?.codeSamples || 'Python Code',
+              };
+              setCodeAttachments([newCodeAttachment]);
+              const originalTitle = rawAttachments?.find(
+                (a) =>
+                  a.type === AttachmentType.MARKDOWN &&
+                  a.data?.includes('```python'),
+              )?.title;
+              onCodeAttachmentUpdated?.({
+                type: AttachmentType.MARKDOWN,
+                title: originalTitle ?? dataQuery.urn,
+                data: `\`\`\`python\n${result.python_code}\n\`\`\``,
+              });
+            })
+            .catch((err) =>
+              console.error('Error refreshing python attachment:', err),
+            );
+        }
       } catch (err) {
         console.error('Error loading dataset data', err as object);
       }
     },
-    [dataQuery, getDataSetData],
+    [
+      dataQuery,
+      getDataSetData,
+      getPythonAttachment,
+      titles,
+      rawAttachments,
+      onCodeAttachmentUpdated,
+    ],
   );
 
   useEffect(() => {

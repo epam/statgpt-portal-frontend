@@ -83,6 +83,7 @@ interface Props {
   isLastNotUserMessage?: boolean;
   limitMessages: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
+  onCodeAttachmentUpdated?: (messageId: string, attachment: Attachment) => void;
 }
 
 const Message: FC<Props> = ({
@@ -111,6 +112,7 @@ const Message: FC<Props> = ({
   isLastNotUserMessage,
   limitMessages,
   attachmentsConfig,
+  onCodeAttachmentUpdated,
 }) => {
   const [attachmentsDataQueries, setAttachmentsDataQueries] = useState<
     DataQuery[] | undefined
@@ -152,6 +154,15 @@ const Message: FC<Props> = ({
     setCurrentAttachmentDataQuery(attachmentsDataQueries?.[0]);
   }, [attachmentsDataQueries]);
 
+  const handleCodeAttachmentUpdated = useCallback(
+    (attachment: Attachment) => {
+      if (message.id) {
+        onCodeAttachmentUpdated?.(message.id, attachment);
+      }
+    },
+    [message.id, onCodeAttachmentUpdated],
+  );
+
   const { dataSetAttachments, dimensions, isLoadingGridData } =
     useAttachmentsData(
       actions,
@@ -166,6 +177,7 @@ const Message: FC<Props> = ({
         ? datasetStructuresMap?.get(currentAttachmentDataQuery.urn)
         : void 0,
       isLoadingDatasets,
+      handleCodeAttachmentUpdated,
     );
 
   const {
@@ -179,6 +191,7 @@ const Message: FC<Props> = ({
     formattingSettings,
     metadataSettings,
     message.custom_content?.attachments,
+    handleCodeAttachmentUpdated,
   );
   const { isOpenedAdvancedView } = useAdvancedView();
 

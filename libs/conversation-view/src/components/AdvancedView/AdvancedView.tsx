@@ -8,7 +8,8 @@ import { AttachmentsConfig, AttachmentsProps } from '../../models/attachments';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { MetadataSettings } from '../../models/metadata';
-import { FC, useCallback, useMemo, useState } from 'react';
+import { Attachment, Message, Role } from '@epam/ai-dial-shared';
+import { FC, useCallback, useMemo, useRef, useState } from 'react';
 import { AttachmentsActions } from '../../models/actions';
 import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import { Loader, LimitMessages } from '@epam/statgpt-ui-components';
@@ -81,6 +82,47 @@ export const AdvancedView: FC<Props> = ({
     props.filtersProps.conversation?.messages?.at(-1)?.custom_content
       ?.attachments;
 
+  const conversationRef = useRef(props.filtersProps.conversation);
+  conversationRef.current = props.filtersProps.conversation;
+
+  const handleCodeAttachmentUpdated = useCallback(
+    (newRawAttachment: Attachment) => {
+      const conversation = conversationRef.current;
+      if (!conversation) return;
+      const messages = conversation.messages as Message[];
+      const lastMessage = messages.at(-1);
+      if (!lastMessage || lastMessage.role !== Role.System) return;
+      const existingAttachments = lastMessage.custom_content?.attachments ?? [];
+      const updatedAttachments = [
+        ...existingAttachments.filter(
+          (a) => !(a.type === 'text/markdown' && a.data?.includes('```python')),
+        ),
+        newRawAttachment,
+      ];
+      const updatedMessages = [
+        ...messages.slice(0, -1),
+        {
+          ...lastMessage,
+          custom_content: {
+            ...lastMessage.custom_content,
+            attachments: updatedAttachments,
+          },
+        },
+      ];
+      const updatedConversation = { ...conversation, messages: updatedMessages };
+      props.filtersProps.setConversation?.(updatedConversation);
+      props.filtersProps.updateConversation(
+        decodeURI(props.filtersProps.conversationKey),
+        {
+          name: updatedConversation.name,
+          messages: updatedConversation.messages,
+        },
+      );
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   const {
     dataMessage,
     dataset,
@@ -100,6 +142,9 @@ export const AdvancedView: FC<Props> = ({
     metadataSettings,
     titles,
     lastMessageAttachments,
+    undefined,
+    false,
+    handleCodeAttachmentUpdated,
   );
   const {
     structureDataMaps,
@@ -114,6 +159,7 @@ export const AdvancedView: FC<Props> = ({
     formattingSettings,
     metadataSettings,
     lastMessageAttachments,
+    handleCodeAttachmentUpdated,
   );
   const [isFiltering, setIsFiltering] = useState<boolean>();
   const [filters, setFilters] = useState<DatasetQueryFilters>({
@@ -146,10 +192,16 @@ export const AdvancedView: FC<Props> = ({
       filterParamsMap: Map<string, DatasetQueryFilters>,
       constraintsMap?: Map<string, DataConstraints[] | undefined>,
       dataQueries?: DataQuery[],
+      filtersMap?: Map<string, Filter[]>,
     ): void => {
       setFiltersMap(filterParamsMap);
       setIsFiltering(true);
-      onMultipleDataFiltersChange(filterParamsMap, constraintsMap, dataQueries);
+      onMultipleDataFiltersChange(
+        filterParamsMap,
+        constraintsMap,
+        dataQueries,
+        filtersMap,
+      );
     },
     [onMultipleDataFiltersChange],
   );

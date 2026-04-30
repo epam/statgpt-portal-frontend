@@ -17,7 +17,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { LikeState, Role } from '@epam/ai-dial-shared';
+import { Attachment, LikeState, Role } from '@epam/ai-dial-shared';
 import {
   useDebounce,
   LimitMessages,
@@ -78,6 +78,7 @@ interface Props {
   limitMessages: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
   conversationViewState?: CustomViewState;
+  onCodeAttachmentUpdated?: (messageId: string, attachment: Attachment) => void;
 }
 
 const ChatMessages: FC<Props> = ({

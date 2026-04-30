@@ -100,3 +100,44 @@ const formatDate = (date?: Date): string => {
   const year = date.getFullYear();
   return `${month}-${day}-${year}`;
 };
+
+const formatDateIso = (date?: Date): string => {
+  if (!date) return '';
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${year}-${month}-${day}`;
+};
+
+export const buildQueryFiltersForPythonAttachment = (
+  filters: Filter[],
+  datasetUrn?: string,
+): QueryFilter[] => {
+  return getFiltersForQueryContext(filters, datasetUrn)
+    ?.filter(
+      (filter) =>
+        filter.timeRange ||
+        filter.dimensionValues?.some((value) => value.isSelectedValue),
+    )
+    .map((filter) => {
+      if (filter?.isTimeDimension) {
+        return {
+          componentCode: filter?.id as string,
+          operator: QueryFilterType.BETWEEN,
+          values: [
+            formatDateIso(filter?.timeRange?.startPeriod || undefined) || '',
+            formatDateIso(filter?.timeRange?.endPeriod || undefined) || '',
+          ],
+        };
+      }
+
+      return {
+        componentCode: filter?.id as string,
+        operator: QueryFilterType.IN,
+        values:
+          filter?.dimensionValues
+            ?.filter((value) => value.isSelectedValue)
+            ?.map((value) => value.id) || [],
+      };
+    });
+};

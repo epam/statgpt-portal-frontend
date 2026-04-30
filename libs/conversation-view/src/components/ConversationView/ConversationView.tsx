@@ -10,6 +10,7 @@
 'use client';
 
 import {
+  Attachment,
   Conversation,
   ConversationInfo,
   LikeState,
@@ -273,6 +274,36 @@ export const ConversationView: FC<Props> = ({
       }
     },
     [actions, conversationKey],
+  );
+
+  const handleCodeAttachmentUpdated = useCallback(
+    (_messageId: string, newRawAttachment: Attachment) => {
+      if (!conversation) return;
+      const messages = conversation.messages as Message[];
+      const lastMessage = messages.at(-1);
+      if (!lastMessage || lastMessage.role !== Role.System) return;
+      const existingAttachments = lastMessage.custom_content?.attachments ?? [];
+      const updatedAttachments = [
+        ...existingAttachments.filter(
+          (a) => !(a.type === 'text/markdown' && a.data?.includes('```python')),
+        ),
+        newRawAttachment,
+      ];
+      const updatedMessages = [
+        ...messages.slice(0, -1),
+        {
+          ...lastMessage,
+          custom_content: {
+            ...lastMessage.custom_content,
+            attachments: updatedAttachments,
+          },
+        },
+      ];
+      const updatedConversation = { ...conversation, messages: updatedMessages };
+      setConversation(updatedConversation);
+      saveConversation(updatedConversation);
+    },
+    [conversation, setConversation, saveConversation],
   );
 
   const addUserMessageToConversation = useCallback(
@@ -920,6 +951,7 @@ export const ConversationView: FC<Props> = ({
                 limitMessages={limitMessages}
                 attachmentsConfig={attachmentsConfig}
                 conversationViewState={conversationViewState}
+                onCodeAttachmentUpdated={handleCodeAttachmentUpdated}
               />
             </div>
             {isShowOnboarding ? null : !isReadonlyConversation ? (

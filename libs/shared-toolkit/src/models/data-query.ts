@@ -3,16 +3,20 @@ import { QueryFilterType } from '../types/query-filter-type';
 export interface DataQuery {
   title?: string;
   urn: string;
+  sdmx1Source?: string;
   metadata: {
     countryDimension: string;
     indicatorDimensions: string[];
     datasetUrl?: string;
+    timePeriodDimension?: string;
+    keyDimensionIdsInDsdOrder?: string[];
   };
   filters: QueryFilter[];
 }
 
 export interface JsonDataQuery {
   urn: string;
+  sdmx1Source?: string;
   metadata: {
     // Need to support fields from data queries of older conversations
     country_dimension?: string;
@@ -20,6 +24,8 @@ export interface JsonDataQuery {
     indicator_dimensions?: string[];
     indicatorDimensions: string[];
     datasetUrl?: string;
+    timePeriodDimension?: string;
+    keyDimensionIdsInDsdOrder?: string[];
   };
   filters: JsonQueryFilter[];
 }

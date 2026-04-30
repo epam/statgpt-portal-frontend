@@ -569,6 +569,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       filtersParamsMap,
       constraintsMapRef.current,
       dataQueries,
+      appliedFiltersMap,
     );
 
     setAppliedFilters(appliedFilters);

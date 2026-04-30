@@ -137,6 +137,7 @@ export interface FiltersProps {
     filterParamsMap: Map<string, DatasetQueryFilters>,
     constraintsMap?: Map<string, DataConstraints[] | undefined>,
     dataQueries?: DataQuery[],
+    filtersMap?: Map<string, Filter[]>,
   ) => void;
   locale?: string;
   timeRangeOptions?: TimeRangeOptions[];
