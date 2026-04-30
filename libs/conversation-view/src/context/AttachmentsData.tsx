@@ -44,6 +44,7 @@ import { Filter } from '../models/filters';
 import { Attachment } from '@epam/ai-dial-shared';
 import { buildMarkdownAttachments } from '../utils/attachments/markdown-attachments';
 import { hasPythonCodeAttachment } from '../utils/attachments/attachment-parser';
+import { invokePythonAttachment } from '../utils/attachments/python-attachment';
 import {
   buildRequestCacheKey,
   getCachedRequestResult,
@@ -261,32 +262,20 @@ export function useAttachmentsData(
             dataQuery,
             filters,
           );
-          const requestId = ++pythonRequestIdRef.current;
-          getPythonAttachment([updatedQuery])
-            .then((result) => {
-              if (requestId !== pythonRequestIdRef.current) return;
-              if (!result?.python_code) return;
-              const newCodeAttachment: CustomCodeAttachment = {
-                type: AttachmentType.CUSTOM_CODE_SAMPLE,
-                data: result.python_code,
-                language: 'python',
-                title: titles?.codeSamples || 'Python Code',
-              };
-              setCodeAttachments([newCodeAttachment]);
-              const originalTitle = rawAttachments?.find(
-                (a) =>
-                  a.type === AttachmentType.MARKDOWN &&
-                  a.data?.includes('```python'),
-              )?.title;
-              onCodeAttachmentUpdated?.({
-                type: AttachmentType.MARKDOWN,
-                title: originalTitle ?? dataQuery.urn,
-                data: `\`\`\`python\n${result.python_code}\n\`\`\``,
-              });
-            })
-            .catch((err) =>
-              console.error('Error refreshing python attachment:', err),
-            );
+          const originalTitle = rawAttachments?.find(
+            (a) =>
+              a.type === AttachmentType.MARKDOWN &&
+              a.data?.includes('```python'),
+          )?.title;
+          invokePythonAttachment({
+            getPythonAttachment,
+            dataQueries: [updatedQuery],
+            requestIdRef: pythonRequestIdRef,
+            codeTitle: titles?.codeSamples || 'Python Code',
+            markdownTitle: originalTitle ?? dataQuery.urn,
+            setCodeAttachments,
+            onCodeAttachmentUpdated,
+          });
         }
       } catch (err) {
         console.error('Error loading dataset data', err as object);

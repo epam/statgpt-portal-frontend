@@ -13,7 +13,6 @@ import {
   GetDatasetDetails,
   GetPythonAttachment,
 } from '../types/actions';
-import { AttachmentType } from '@epam/statgpt-dial-toolkit';
 import {
   getDataConstraintsMap,
   getDataSetData,
@@ -29,6 +28,7 @@ import {
 } from '../constants/attachments';
 import { buildMarkdownAttachments } from '../utils/attachments/markdown-attachments';
 import { hasPythonCodeAttachment } from '../utils/attachments/attachment-parser';
+import { invokePythonAttachment } from '../utils/attachments/python-attachment';
 import { Attachment } from '@epam/ai-dial-shared';
 import { useConversationViewTitles } from './ConversationViewTitlesContext';
 import {
@@ -381,27 +381,15 @@ export function useAttachmentsDataMultipleQueries(
           const updatedDataQueries = compatibleDataQueries.map((dq) =>
             buildDataQueryWithMergedFilters(dq, filtersMap?.get(dq.urn) ?? []),
           );
-          const requestId = ++pythonRequestIdRef.current;
-          getPythonAttachment(updatedDataQueries)
-            .then((result) => {
-              if (requestId !== pythonRequestIdRef.current) return;
-              if (!result?.python_code) return;
-              const newCodeAttachment: CustomCodeAttachment = {
-                type: AttachmentType.CUSTOM_CODE_SAMPLE,
-                data: result.python_code,
-                language: 'python',
-                title: titles?.codeSamples || 'Python Code',
-              };
-              setCodeAttachments([newCodeAttachment]);
-              onCodeAttachmentUpdated?.({
-                type: AttachmentType.MARKDOWN,
-                title: 'Python Code',
-                data: `\`\`\`python\n${result.python_code}\n\`\`\``,
-              });
-            })
-            .catch((err) =>
-              console.error('Error refreshing python attachment:', err),
-            );
+          invokePythonAttachment({
+            getPythonAttachment,
+            dataQueries: updatedDataQueries,
+            requestIdRef: pythonRequestIdRef,
+            codeTitle: titles?.codeSamples || 'Python Code',
+            markdownTitle: 'Python Code',
+            setCodeAttachments,
+            onCodeAttachmentUpdated,
+          });
         }
       } catch (err) {
         console.error('Error loading dataset data', err as object);
