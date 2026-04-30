@@ -53,3 +53,8 @@ export {
   useConversationViewFeatureToggles,
 } from './context/ConversationViewFeatureTogglesContext';
 export type { ConversationViewFeatureToggles } from './context/ConversationViewFeatureTogglesContext';
+
+export {
+  CrossDatasetAttachmentsProvider,
+  useCrossDatasetAttachments,
+} from './context/CrossDatasetAttachmentsContext';

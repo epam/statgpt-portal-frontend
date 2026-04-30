@@ -91,6 +91,8 @@ jest.mock('../../../../utils/multiple-filters', () => ({
     (mockGetQueryFiltersMap as any)(...args),
   setDataQueryFiltersMap: (...args: any[]) =>
     (mockSetDataQueryFiltersMap as any)(...args),
+  getCompatibleDatasetUrns: (_filters: any[], dataQueryUrns: string[]) =>
+    new Set(dataQueryUrns),
 }));
 
 jest.mock('../../../../utils/filters', () => ({
@@ -408,12 +410,12 @@ describe('MultiDatasetFilters', () => {
           }),
         ]),
         defaultProps.structureDataMaps.constraintsMap,
-        true,
+        false,
         expect.any(Object),
       );
     });
 
-    it('applies shared filter fallback when applying cross-dataset filters', async () => {
+    it('applies filters only with constraint-supported values when applying cross-dataset filters', async () => {
       const onMultipleDataFiltersChange = jest.fn();
       const sharedCountryFilter = makeSharedCountryFilter();
       const expandedFiltersMap = new Map([
@@ -481,7 +483,7 @@ describe('MultiDatasetFilters', () => {
           }),
         ]),
         defaultProps.structureDataMaps.constraintsMap,
-        true,
+        false,
         expect.any(Object),
       );
 
