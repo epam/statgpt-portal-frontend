@@ -7,6 +7,7 @@ import ChartIcon from '../../../assets/icons/chart.svg';
 import { ICellRendererParams } from 'ag-grid-community';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ConversationViewTitles } from '../../../models/titles';
+import { ChartUnit, ChartUnitValue } from '../../../models/charting';
 import { Tooltip } from '../../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
 import { OnboardingElements } from '../../../constants/onboarding-elements';
@@ -23,6 +24,7 @@ interface ChartCellRendererParams extends ICellRendererParams {
 
 const ChartCellRenderer = (params: ChartCellRendererParams) => {
   const [isOpenChart, setIsOpenChart] = useState<boolean>(false);
+  const [chart, setChart] = useState<ChartUnit>();
   const iconRef = useRef<HTMLDivElement | null>(null);
   const [tooltipTitle, setTooltipTitle] = useState<string>('');
   const [tooltipDescription, setTooltipDescription] = useState<string>('');
@@ -32,8 +34,9 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
   const [isChartClosed, setIsChartClosed] = useState(false);
 
   const openChart = useCallback(() => {
+    setChart((currentChart) => currentChart ?? getChartUnit(params.value));
     setIsOpenChart(true);
-  }, []);
+  }, [params.value]);
 
   const closeChart = useCallback(() => {
     setIsOpenChart(false);
@@ -64,6 +67,10 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
     isShowOnboarding,
   ]);
 
+  useEffect(() => {
+    setChart(undefined);
+  }, [params.value]);
+
   return (
     <>
       <div ref={iconRef}>
@@ -83,9 +90,9 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
           shouldCloseTooltip={isChartClosed}
         />
       )}
-      {isOpenChart && (
+      {isOpenChart && chart && (
         <SingleLineChart
-          chart={params.value}
+          chart={chart}
           isOpen={isOpenChart}
           onClose={closeChart}
           titles={params.titles}
@@ -99,5 +106,11 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
     </>
   );
 };
+
+function getChartUnit(
+  chartValue: ChartUnitValue | undefined,
+): ChartUnit | undefined {
+  return typeof chartValue === 'function' ? chartValue() : chartValue;
+}
 
 export default ChartCellRenderer;

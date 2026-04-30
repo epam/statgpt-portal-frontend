@@ -5,7 +5,11 @@ import {
   Hierarchy,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
-import { TimeRange, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
+import {
+  DataQuery,
+  TimeRange,
+  TimeRangeOptions,
+} from '@epam/statgpt-shared-toolkit';
 import { Button, useIsMobile } from '@epam/statgpt-ui-components';
 import { FC, ReactNode, useCallback } from 'react';
 import {
@@ -21,12 +25,17 @@ import classNames from 'classnames';
 import { ConversationViewTitles } from '../../../../models/titles';
 import {
   getFilterIdentity,
+  isSharedFilter,
   getSelectedFilterValues,
   getTotalSelectedValuesLength,
   isSameFilter,
 } from '../../../../utils/filters';
 import { useConversationViewFeatureToggles } from '../../../../context/ConversationViewFeatureTogglesContext';
 import { getInitialConstraints } from '../../../../utils/multiple-filters';
+import {
+  mapHierarchyNodeIdToFilterValueId,
+  mapHierarchyNodesToFilterValueIds,
+} from '../../../../utils/hierarchy-view';
 
 interface Props {
   filtersList: Filter[];
@@ -52,6 +61,7 @@ interface Props {
   hierarchyStateMap?: Map<string, HierarchyState>;
   onSelectHierarchy?: (filter?: Filter, hierarchy?: Hierarchy | null) => void;
   onExpandHierarchyNode?: (filterKey: string, nodeId: string) => void;
+  dataQueries?: DataQuery[];
 }
 
 const FilterSettings: FC<Props> = ({
@@ -78,6 +88,7 @@ const FilterSettings: FC<Props> = ({
   hierarchyStateMap,
   onSelectHierarchy,
   onExpandHierarchyNode,
+  dataQueries,
 }) => {
   const hierarchyState = hierarchyStateMap?.get(
     getFilterIdentity(selectedFilter) as string,
@@ -120,11 +131,19 @@ const FilterSettings: FC<Props> = ({
       return;
     }
 
+    const resolvedId = isSharedFilter(filterToUpdate)
+      ? mapHierarchyNodeIdToFilterValueId(id, filterToUpdate)
+      : id;
+
+    if (!resolvedId) {
+      return;
+    }
+
     const updatedFilter = {
       ...filterToUpdate,
       dimensionValues: filterToUpdate?.dimensionValues?.map(
         (dimensionValue) => {
-          if (dimensionValue?.id === id) {
+          if (dimensionValue?.id === resolvedId) {
             return { ...dimensionValue, isSelectedValue };
           }
           return dimensionValue;
@@ -151,18 +170,25 @@ const FilterSettings: FC<Props> = ({
       return;
     }
 
+    const mappedNodes = isSharedFilter(filterToUpdate)
+      ? mapHierarchyNodesToFilterValueIds(nodes, filterToUpdate)
+      : (nodes ?? []);
+
     // For single-node calls (nodes with all-disabled children that are not yet
     // in dimensionValues), add the node as a new entry so it can be selected.
     const existingIds = new Set(
       filterToUpdate?.dimensionValues?.map((v) => v.id),
     );
     const newEntries: FilterValue[] =
-      nodes?.length === 1 && nodes[0] && !existingIds.has(nodes[0].id)
+      !isSharedFilter(filterToUpdate) &&
+      mappedNodes.length === 1 &&
+      mappedNodes[0] &&
+      !existingIds.has(mappedNodes[0].id)
         ? [
             {
-              id: nodes[0].id,
-              name: nodes[0].name,
-              isSelectedValue: nodes[0].isSelectedValue,
+              id: mappedNodes[0].id,
+              name: mappedNodes[0].name,
+              isSelectedValue: mappedNodes[0].isSelectedValue,
             },
           ]
         : [];
@@ -171,7 +197,7 @@ const FilterSettings: FC<Props> = ({
       ...filterToUpdate,
       dimensionValues: [
         ...(filterToUpdate?.dimensionValues?.map((dimensionValue) => {
-          const nodeValue = nodes?.find(
+          const nodeValue = mappedNodes.find(
             (node) => node?.id === dimensionValue?.id,
           );
           return nodeValue || dimensionValue;
@@ -297,6 +323,7 @@ const FilterSettings: FC<Props> = ({
           filterValuesProps={modalProps?.filterValuesProps}
           hierarchyStateMap={hierarchyStateMap}
           onSelectHierarchy={onSelectHierarchy}
+          dataQueries={dataQueries}
         />
         {modalProps?.isShowTimeSeriesCount && timeSeriesCount ? (
           <h4 className="my-4 text-neutrals-800">
@@ -327,6 +354,7 @@ const FilterSettings: FC<Props> = ({
           )}
           selectedTimeOption={selectedTimeOption}
           hierarchyState={hierarchyState}
+          dataQueries={dataQueries}
         />
       )}
     </div>

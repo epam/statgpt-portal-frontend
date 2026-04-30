@@ -1,5 +1,14 @@
-import { isMonthly, isQuarterly } from '@epam/statgpt-sdmx-toolkit';
-import { CalendarResolution, TimeRange } from '@epam/statgpt-shared-toolkit';
+import {
+  isMonthly,
+  isQuarterly,
+  TIME_PERIOD,
+} from '@epam/statgpt-sdmx-toolkit';
+import {
+  CalendarResolution,
+  DataQuery,
+  getTimePeriod,
+  TimeRange,
+} from '@epam/statgpt-shared-toolkit';
 
 import FlatpickrLanguages from 'flatpickr/dist/l10n';
 import monthSelectPlugin from 'flatpickr/dist/plugins/monthSelect';
@@ -200,4 +209,39 @@ export const getMergedInitialConstraints = (
   }
 
   return mergedTimeRange;
+};
+
+// workaround for specific case for datasets without time period constraints
+export const getTimeRangeFromDataQueries = (
+  dataQueries?: DataQuery[],
+): TimeRange | null => {
+  if (!dataQueries?.length) {
+    return null;
+  }
+  let earliestStart: Date | null = null;
+  let latestEnd: Date | null = null;
+
+  for (const dataQuery of dataQueries) {
+    const filterEntry = dataQuery.filters?.find(
+      (f) => f.componentCode === TIME_PERIOD,
+    );
+    if (!filterEntry) continue;
+
+    const periods = filterEntry.values.filter(Boolean);
+    const startPeriod = periods[0] ? getTimePeriod(periods[0]) : null;
+    const endPeriod = periods[1] ? getTimePeriod(periods[1]) : null;
+
+    if (!startPeriod || !endPeriod) continue;
+
+    if (!earliestStart || startPeriod < earliestStart) {
+      earliestStart = startPeriod;
+    }
+    if (!latestEnd || endPeriod > latestEnd) {
+      latestEnd = endPeriod;
+    }
+  }
+
+  return earliestStart && latestEnd
+    ? { startPeriod: earliestStart, endPeriod: latestEnd }
+    : null;
 };

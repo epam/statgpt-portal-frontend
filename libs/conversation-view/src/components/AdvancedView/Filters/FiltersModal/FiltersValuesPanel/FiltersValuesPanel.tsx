@@ -7,6 +7,7 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import {
   CalendarResolution,
+  DataQuery,
   TimeRange,
   TimeRangeOptions,
 } from '@epam/statgpt-shared-toolkit';
@@ -30,6 +31,7 @@ import { getFilterIdentity, isSameFilter } from '../../../../../utils/filters';
 import {
   applySelectionToTree,
   filterHierarchyNodes,
+  getSelectedHierarchyNodeIds,
 } from '../../../../../utils/hierarchy-view';
 
 const MIN_CROSS_DATASET_SEARCH_CHARS = 2;
@@ -64,6 +66,7 @@ interface Props {
   titles?: ConversationViewTitles;
   selectedTimeOption?: string | number;
   hierarchyState?: HierarchyState;
+  dataQueries?: DataQuery[];
 }
 
 const FiltersValuesPanel: FC<Props> = ({
@@ -83,6 +86,7 @@ const FiltersValuesPanel: FC<Props> = ({
   expandHierarchicalValue,
   selectedTimeOption,
   hierarchyState,
+  dataQueries,
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -174,11 +178,7 @@ const FiltersValuesPanel: FC<Props> = ({
   const hierarchyTreeNodes = useMemo(() => {
     const nodes = hierarchyState?.treeNodes;
     if (!nodes?.length) return nodes;
-    const selectedIds = new Set(
-      selectedFilter?.dimensionValues
-        ?.filter((v) => v.isSelectedValue)
-        .map((v) => v.id) ?? [],
-    );
+    const selectedIds = getSelectedHierarchyNodeIds(selectedFilter);
     const withSelection = selectedIds.size
       ? applySelectionToTree(nodes, selectedIds)
       : nodes;
@@ -187,7 +187,7 @@ const FiltersValuesPanel: FC<Props> = ({
       : withSelection;
   }, [
     hierarchyState?.treeNodes,
-    selectedFilter?.dimensionValues,
+    selectedFilter,
     hasSearchQuery,
     normalizedSearchQuery,
   ]);
@@ -235,6 +235,7 @@ const FiltersValuesPanel: FC<Props> = ({
           calendarIcon={filterValuesProps?.calendarIcon}
           dateFormat={filterValuesProps?.dateFormat}
           defaultTimeOption={selectedTimeOption}
+          dataQueries={dataQueries}
         />
       ) : (
         <div
@@ -307,7 +308,7 @@ const FiltersValuesPanel: FC<Props> = ({
                     {otherResultsCount}
                   </span>
                   {!isValuesLoading && otherResultsCount === 0 && (
-                    <p className="body-2 text-neutrals-700 mt-1">
+                    <p className="body-2 mt-1 text-neutrals-700">
                       {titles?.noResultsInOtherDimensions ??
                         'No results found in other dimensions'}
                     </p>
