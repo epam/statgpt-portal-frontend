@@ -17,7 +17,7 @@ import {
   FormatNumbersType,
   TimeRange,
 } from '@epam/statgpt-shared-toolkit';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   CustomChartAttachmentType,
   CustomCodeAttachment,
@@ -32,7 +32,7 @@ import {
 } from '../types/actions';
 import { buildCustomGridAttachment } from '../utils/attachments/data-grid/build-custom-grid-attachment';
 import {
-  buildQueryFiltersForPythonAttachment,
+  buildDataQueryWithMergedFilters,
   getTimeQueryFilterFromAttachment,
 } from '../utils/query-filters';
 import { AttachmentType } from '@epam/statgpt-dial-toolkit';
@@ -43,6 +43,7 @@ import { ConversationViewTitles } from '../models/titles';
 import { Filter } from '../models/filters';
 import { Attachment } from '@epam/ai-dial-shared';
 import { buildMarkdownAttachments } from '../utils/attachments/markdown-attachments';
+import { hasPythonCodeAttachment } from '../utils/attachments/attachment-parser';
 import {
   buildRequestCacheKey,
   getCachedRequestResult,
@@ -92,6 +93,7 @@ export function useAttachmentsData(
     StructureItemBase[]
   >([]);
   const [isLoadingGridData, setIsLoadingGridData] = useState(false);
+  const pythonRequestIdRef = useRef(0);
   const [selectedTimePeriod, setSelectedTimePeriod] = useState<TimeRange>({
     startPeriod: null,
     endPeriod: null,
@@ -159,7 +161,10 @@ export function useAttachmentsData(
         const filterKey =
           dimensions?.dimensions == null
             ? null
-            : getTimeSeriesFilterKey(dimensions?.dimensions, dataQuery.filters);
+            : getTimeSeriesFilterKey(
+                dimensions?.dimensions,
+                dataQuery.filters ?? [],
+              );
 
         const timeFilter = getTimeQueryFilterFromAttachment(
           dataQuery,
@@ -240,22 +245,21 @@ export function useAttachmentsData(
           })
           .finally(() => setIsLoadingGridData(false));
 
-        if (getPythonAttachment && dataQuery && filters) {
-          const updatedFiltersFromUI =
-            buildQueryFiltersForPythonAttachment(filters);
-          const uiFilterCodes = new Set(
-            updatedFiltersFromUI.map((f) => f.componentCode),
+        const hasPythonAttachment = hasPythonCodeAttachment(rawAttachments);
+        if (
+          getPythonAttachment &&
+          dataQuery &&
+          filters &&
+          hasPythonAttachment
+        ) {
+          const updatedQuery = buildDataQueryWithMergedFilters(
+            dataQuery,
+            filters,
           );
-          const hiddenFilters = (dataQuery.filters ?? []).filter(
-            (f) => !uiFilterCodes.has(f.componentCode),
-          );
-          const mergedFilters = [...hiddenFilters, ...updatedFiltersFromUI];
-          const updatedQuery: DataQuery = {
-            ...dataQuery,
-            filters: mergedFilters,
-          };
+          const requestId = ++pythonRequestIdRef.current;
           getPythonAttachment([updatedQuery])
             .then((result) => {
+              if (requestId !== pythonRequestIdRef.current) return;
               if (!result?.python_code) return;
               const newCodeAttachment: CustomCodeAttachment = {
                 type: AttachmentType.CUSTOM_CODE_SAMPLE,

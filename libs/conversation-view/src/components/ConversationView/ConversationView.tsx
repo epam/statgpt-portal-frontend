@@ -90,6 +90,7 @@ import { ConversationViewTitlesProvider } from '../../context/ConversationViewTi
 import { getRedirectConversationPath } from '../../utils/get-conversation-path';
 import { generateConversation } from '../../utils/generate-conversation';
 import { duplicateConversationAttachments } from '../../utils/duplicate-conversation-attachments';
+import { replacePythonAttachment } from '../../utils/attachments/replace-python-attachment';
 
 import { ABORT_ERROR } from '../../constants/errors';
 import { useOnboarding } from '../../context/OnboardingContext';
@@ -277,29 +278,18 @@ export const ConversationView: FC<Props> = ({
   );
 
   const handleCodeAttachmentUpdated = useCallback(
-    (_messageId: string, newRawAttachment: Attachment) => {
+    (messageId: string, newRawAttachment: Attachment) => {
       if (!conversation) return;
-      const messages = conversation.messages as Message[];
-      const lastMessage = messages.at(-1);
-      if (!lastMessage || lastMessage.role !== Role.System) return;
-      const existingAttachments = lastMessage.custom_content?.attachments ?? [];
-      const updatedAttachments = [
-        ...existingAttachments.filter(
-          (a) => !(a.type === 'text/markdown' && a.data?.includes('```python')),
-        ),
+      const updatedMessages = replacePythonAttachment(
+        conversation.messages as Message[],
         newRawAttachment,
-      ];
-      const updatedMessages = [
-        ...messages.slice(0, -1),
-        {
-          ...lastMessage,
-          custom_content: {
-            ...lastMessage.custom_content,
-            attachments: updatedAttachments,
-          },
-        },
-      ];
-      const updatedConversation = { ...conversation, messages: updatedMessages };
+        messageId,
+      );
+      if (!updatedMessages) return;
+      const updatedConversation = {
+        ...conversation,
+        messages: updatedMessages,
+      };
       setConversation(updatedConversation);
       saveConversation(updatedConversation);
     },
@@ -554,7 +544,7 @@ export const ConversationView: FC<Props> = ({
   );
 
   const handleSendMessageError = useCallback(
-    (error: unknown, userMessage: Message) => {
+    (_error: unknown, userMessage: Message) => {
       setConversation((prev) =>
         prev
           ? {

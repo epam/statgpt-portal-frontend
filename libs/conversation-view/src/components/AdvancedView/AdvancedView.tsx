@@ -8,7 +8,7 @@ import { AttachmentsConfig, AttachmentsProps } from '../../models/attachments';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { MetadataSettings } from '../../models/metadata';
-import { Attachment, Message, Role } from '@epam/ai-dial-shared';
+import { Attachment, Message } from '@epam/ai-dial-shared';
 import { FC, useCallback, useMemo, useRef, useState } from 'react';
 import { AttachmentsActions } from '../../models/actions';
 import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
@@ -24,6 +24,7 @@ import {
   DatasetQueryFilters,
 } from '@epam/statgpt-sdmx-toolkit';
 import { getExternalLink } from '../../utils/attachments-details';
+import { replacePythonAttachment } from '../../utils/attachments/replace-python-attachment';
 import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
 import { TableSettingsProvider } from './TableSettings/TableSettingsContext';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
@@ -89,27 +90,15 @@ export const AdvancedView: FC<Props> = ({
     (newRawAttachment: Attachment) => {
       const conversation = conversationRef.current;
       if (!conversation) return;
-      const messages = conversation.messages as Message[];
-      const lastMessage = messages.at(-1);
-      if (!lastMessage || lastMessage.role !== Role.System) return;
-      const existingAttachments = lastMessage.custom_content?.attachments ?? [];
-      const updatedAttachments = [
-        ...existingAttachments.filter(
-          (a) => !(a.type === 'text/markdown' && a.data?.includes('```python')),
-        ),
+      const updatedMessages = replacePythonAttachment(
+        conversation.messages as Message[],
         newRawAttachment,
-      ];
-      const updatedMessages = [
-        ...messages.slice(0, -1),
-        {
-          ...lastMessage,
-          custom_content: {
-            ...lastMessage.custom_content,
-            attachments: updatedAttachments,
-          },
-        },
-      ];
-      const updatedConversation = { ...conversation, messages: updatedMessages };
+      );
+      if (!updatedMessages) return;
+      const updatedConversation = {
+        ...conversation,
+        messages: updatedMessages,
+      };
       props.filtersProps.setConversation?.(updatedConversation);
       props.filtersProps.updateConversation(
         decodeURI(props.filtersProps.conversationKey),

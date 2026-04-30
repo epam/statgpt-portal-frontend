@@ -11,7 +11,7 @@ export interface DataQuery {
     timePeriodDimension?: string;
     keyDimensionIdsInDsdOrder?: string[];
   };
-  filters: QueryFilter[];
+  filters?: QueryFilter[];
 }
 
 export interface JsonDataQuery {

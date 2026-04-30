@@ -60,39 +60,6 @@ export const getQueryFilters = (
   };
 };
 
-export const setDataQueryFilters = (
-  filters: Filter[],
-  datasetUrn?: string,
-): QueryFilter[] => {
-  return getFiltersForQueryContext(filters, datasetUrn)
-    ?.filter(
-      (filter) =>
-        filter.timeRange ||
-        filter.dimensionValues?.some((value) => value.isSelectedValue),
-    )
-    .map((filter) => {
-      if (filter?.isTimeDimension) {
-        return {
-          componentCode: filter?.id as string,
-          operator: QueryFilterType.BETWEEN,
-          values: [
-            formatDate(filter?.timeRange?.startPeriod || undefined) || '',
-            formatDate(filter?.timeRange?.endPeriod || undefined) || '',
-          ],
-        };
-      }
-
-      return {
-        componentCode: filter?.id as string,
-        operator: QueryFilterType.IN,
-        values:
-          filter?.dimensionValues
-            ?.filter((value) => value.isSelectedValue)
-            ?.map((value) => value.id) || [],
-      };
-    });
-};
-
 const formatDate = (date?: Date): string => {
   if (!date) return '';
   const day = String(date.getDate()).padStart(2, '0');
@@ -109,9 +76,10 @@ const formatDateIso = (date?: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
-export const buildQueryFiltersForPythonAttachment = (
+const buildQueryFiltersCore = (
   filters: Filter[],
   datasetUrn?: string,
+  formatTimePeriod: (date?: Date) => string = formatDate,
 ): QueryFilter[] => {
   return getFiltersForQueryContext(filters, datasetUrn)
     ?.filter(
@@ -125,8 +93,8 @@ export const buildQueryFiltersForPythonAttachment = (
           componentCode: filter?.id as string,
           operator: QueryFilterType.BETWEEN,
           values: [
-            formatDateIso(filter?.timeRange?.startPeriod || undefined) || '',
-            formatDateIso(filter?.timeRange?.endPeriod || undefined) || '',
+            formatTimePeriod(filter?.timeRange?.startPeriod || undefined) || '',
+            formatTimePeriod(filter?.timeRange?.endPeriod || undefined) || '',
           ],
         };
       }
@@ -141,3 +109,27 @@ export const buildQueryFiltersForPythonAttachment = (
       };
     });
 };
+
+export const buildDataQueryWithMergedFilters = (
+  dataQuery: DataQuery,
+  uiFilters: Filter[],
+): DataQuery => {
+  const updatedFiltersFromUI = buildQueryFiltersForPythonAttachment(uiFilters);
+  const uiFilterCodes = new Set(
+    updatedFiltersFromUI.map((f) => f.componentCode),
+  );
+  const hiddenFilters = (dataQuery.filters ?? []).filter(
+    (f) => !uiFilterCodes.has(f.componentCode),
+  );
+  return { ...dataQuery, filters: [...hiddenFilters, ...updatedFiltersFromUI] };
+};
+
+export const setDataQueryFilters = (
+  filters: Filter[],
+  datasetUrn?: string,
+): QueryFilter[] => buildQueryFiltersCore(filters, datasetUrn);
+
+export const buildQueryFiltersForPythonAttachment = (
+  filters: Filter[],
+  datasetUrn?: string,
+): QueryFilter[] => buildQueryFiltersCore(filters, datasetUrn, formatDateIso);

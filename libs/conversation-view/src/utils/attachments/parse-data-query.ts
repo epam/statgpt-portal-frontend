@@ -31,7 +31,6 @@ function extractJsonFromAttachment(mdContent?: string) {
 }
 
 function getDataQueryFromJson(jsonDataQuery: JsonDataQuery): DataQuery {
-  console.log('[DataQuery raw]', JSON.stringify(jsonDataQuery));
   return {
     ...jsonDataQuery,
     filters: jsonDataQuery?.filters?.map((filter) => ({
