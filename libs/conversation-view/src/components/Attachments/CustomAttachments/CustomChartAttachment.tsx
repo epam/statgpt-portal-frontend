@@ -2,8 +2,9 @@
 
 import { CustomChartAttachmentType } from '../../../models/attachments';
 import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { scheduleDeferredWork } from '../../../utils/deferred-work';
 import { Loader } from '@epam/statgpt-ui-components';
-import { ChartUnit } from '../../../models/charting';
+import { ChartingData, ChartUnit } from '../../../models/charting';
 import { ChartingIcon } from '../../../types/charting-icon';
 import ChartSidebar from './ChartSidebar';
 import Slider from './Slider';
@@ -43,6 +44,7 @@ const CustomChartAttachment: FC<Props> = ({
   titles,
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [chartingData, setChartingData] = useState<ChartingData>();
   const [flatUnits, setFlatUnits] = useState<FlatChartUnit[]>([]);
   const [chartIndex, setChartIndex] = useState<number>(0);
   const [selectedUnit, setSelectedUnit] = useState<ChartUnit | undefined>(
@@ -52,11 +54,39 @@ const CustomChartAttachment: FC<Props> = ({
   const { onboardingFileSchema, isShowOnboarding, setOnboardingFileSchema } =
     useOnboarding();
   const chartAttachmentRef = useRef<HTMLDivElement | null>(null);
+  const { charting_data: providedChartingData, getChartingData } = attachment;
 
   useEffect(() => {
-    setIsLoading(attachment.charting_data == null);
-    const groups = attachment.charting_data?.groups ?? [];
-    const units = attachment.charting_data?.units ?? [];
+    setChartIndex(0);
+
+    if (providedChartingData) {
+      setChartingData(providedChartingData);
+      setIsLoading(false);
+      return;
+    }
+
+    if (!getChartingData) {
+      setChartingData(undefined);
+      setIsLoading(true);
+      return;
+    }
+
+    setIsLoading(true);
+    return scheduleDeferredWork(() => {
+      try {
+        setChartingData(getChartingData());
+      } catch (err) {
+        console.error('Error building chart data', err as object);
+        setChartingData({ units: [] });
+      } finally {
+        setIsLoading(false);
+      }
+    });
+  }, [providedChartingData, getChartingData]);
+
+  useEffect(() => {
+    const groups = chartingData?.groups ?? [];
+    const units = chartingData?.units ?? [];
     setFlatUnits(
       groups.length > 0
         ? groups.flatMap((group) =>
@@ -64,7 +94,7 @@ const CustomChartAttachment: FC<Props> = ({
           )
         : units.map((unit) => ({ unit })),
     );
-  }, [attachment.charting_data]);
+  }, [chartingData]);
 
   useEffect(() => {
     const isChartIndexInRange = flatUnits.length > chartIndex;
@@ -125,7 +155,7 @@ const CustomChartAttachment: FC<Props> = ({
 
   return (
     <div className="chart-attachment size-full" ref={chartAttachmentRef}>
-      {attachment.charting_data && (
+      {chartingData && (
         <div className="flex size-full flex-col gap-4">
           {flatUnits.length == 0 || selectedUnit == null ? (
             <h4 className="ml-1">{titles?.chartInfo || 'No data'}</h4>
