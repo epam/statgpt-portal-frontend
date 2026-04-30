@@ -350,19 +350,6 @@ export const getFilterNodesBySelection = (
   ];
 };
 
-export const getFilterDisplaySettings = (titles?: ConversationViewTitles) => {
-  return [
-    {
-      key: FilterDisplayMode.HIERARCHY,
-      title: titles?.hierarchy || 'Hierarchy',
-    },
-    {
-      key: FilterDisplayMode.FLAT_LIST,
-      title: titles?.flatList || 'Flat list',
-    },
-  ];
-};
-
 export const getHierarchyOptions = ({
   isHierarchical,
   availableHierarchies,

@@ -1,7 +1,6 @@
 import {
   clearFilterValues,
   getDatasetFilters,
-  getFilterDisplaySettings,
   getHierarchyOptions,
   getFilterIdentity,
   getFilterNodesBySelection,
@@ -581,27 +580,6 @@ describe('getFilterNodesBySelection', () => {
     const result = getFilterNodesBySelection(node);
     expect(result[0]).toMatchObject({ id: 'EUROPE', isSelectedValue: false });
     expect(result.slice(1).every((n) => !n.isSelectedValue)).toBe(true);
-  });
-});
-
-// ─── getFilterDisplaySettings ─────────────────────────────────────────────────
-
-describe('getFilterDisplaySettings', () => {
-  it('returns two entries with default titles when no titles are provided', () => {
-    const settings = getFilterDisplaySettings();
-    expect(settings).toEqual([
-      { key: FilterDisplayMode.HIERARCHY, title: 'Hierarchy' },
-      { key: FilterDisplayMode.FLAT_LIST, title: 'Flat list' },
-    ]);
-  });
-
-  it('uses provided custom titles', () => {
-    const settings = getFilterDisplaySettings({
-      hierarchy: 'Baumstruktur',
-      flatList: 'Flachliste',
-    } as any);
-    expect(settings[0].title).toBe('Baumstruktur');
-    expect(settings[1].title).toBe('Flachliste');
   });
 });
 
