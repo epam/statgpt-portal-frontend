@@ -202,6 +202,10 @@ const ChatMessages: FC<Props> = ({
             );
           }
 
+          if (isOpenedAdvancedView && message.role === Role.System) {
+            return null;
+          }
+
           const isLast = index === messages.length - 1;
           const previousMessage = getPreviousMessageWithAttachment(
             messages,
