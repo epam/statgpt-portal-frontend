@@ -2,6 +2,7 @@ import {
   DatasetQueryFilters,
   Dimension,
   DimensionList,
+  GET_v3_FILTER_ALL,
   getQueryTimePeriodFilters,
   getTimeRangeFromAttachment,
   getTimeSeriesFilterKey,
@@ -110,18 +111,67 @@ const buildQueryFiltersCore = (
     });
 };
 
+const getUiControlledFilterCodes = (
+  filters: Filter[],
+  datasetUrn: string,
+): Set<string> => {
+  const expandedFilterCodes = getFiltersForQueryContext(
+    filters,
+    datasetUrn,
+  ).flatMap((filter) => (filter.id ? [filter.id] : []));
+  const sharedSourceFilterCodes = filters.flatMap((filter) => {
+    if (filter.filterType !== 'shared') {
+      return [];
+    }
+
+    const sourceFilterId = filter.sourceFilterIdsByDataset?.[datasetUrn];
+    return sourceFilterId ? [sourceFilterId] : [];
+  });
+
+  return new Set([...expandedFilterCodes, ...sharedSourceFilterCodes]);
+};
+
+const getWildcardFiltersForClearedUiCodes = (
+  uiFilterCodes: Set<string>,
+  updatedFiltersFromUI: QueryFilter[],
+): QueryFilter[] => {
+  const updatedFilterCodes = new Set(
+    updatedFiltersFromUI.map((filter) => filter.componentCode),
+  );
+
+  return Array.from(uiFilterCodes)
+    .filter((componentCode) => !updatedFilterCodes.has(componentCode))
+    .map((componentCode) => ({
+      componentCode,
+      operator: QueryFilterType.IN,
+      values: [GET_v3_FILTER_ALL],
+    }));
+};
+
 export const buildDataQueryWithMergedFilters = (
   dataQuery: DataQuery,
   uiFilters: Filter[],
 ): DataQuery => {
-  const updatedFiltersFromUI = buildQueryFiltersForPythonAttachment(uiFilters);
-  const uiFilterCodes = new Set(
-    updatedFiltersFromUI.map((f) => f.componentCode),
+  const updatedFiltersFromUI = buildQueryFiltersForPythonAttachment(
+    uiFilters,
+    dataQuery.urn,
+  );
+  const uiFilterCodes = getUiControlledFilterCodes(uiFilters, dataQuery.urn);
+  const wildcardFiltersFromUI = getWildcardFiltersForClearedUiCodes(
+    uiFilterCodes,
+    updatedFiltersFromUI,
   );
   const hiddenFilters = (dataQuery.filters ?? []).filter(
     (f) => !uiFilterCodes.has(f.componentCode),
   );
-  return { ...dataQuery, filters: [...hiddenFilters, ...updatedFiltersFromUI] };
+  return {
+    ...dataQuery,
+    filters: [
+      ...hiddenFilters,
+      ...updatedFiltersFromUI,
+      ...wildcardFiltersFromUI,
+    ],
+  };
 };
 
 export const setDataQueryFilters = (

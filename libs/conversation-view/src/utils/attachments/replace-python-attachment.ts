@@ -4,7 +4,7 @@ import { Message } from '@epam/statgpt-dial-toolkit';
 /**
  * Replaces the python code-sample attachment in a message's attachment list.
  * When messageId is provided the matching message is targeted; otherwise the
- * last message in the array is used (AdvancedView path, which has no id).
+ * latest system message is used (AdvancedView path, which has no id).
  * Returns the updated messages array, or null when the target message is not
  * found or is not a System message.
  */
@@ -15,7 +15,7 @@ export function replacePythonAttachment(
 ): Message[] | null {
   const targetMessage = messageId
     ? messages.find((m) => m.id === messageId)
-    : messages.at(-1);
+    : [...messages].reverse().find((m) => m.role === Role.System);
 
   if (!targetMessage || targetMessage.role !== Role.System) return null;
 

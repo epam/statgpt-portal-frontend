@@ -91,8 +91,6 @@ jest.mock('../../../../utils/multiple-filters', () => ({
     (mockGetQueryFiltersMap as any)(...args),
   setDataQueryFiltersMap: (...args: any[]) =>
     (mockSetDataQueryFiltersMap as any)(...args),
-  getCompatibleDatasetUrns: (_filters: any[], dataQueryUrns: string[]) =>
-    new Set(dataQueryUrns),
 }));
 
 jest.mock('../../../../utils/filters', () => ({
@@ -492,6 +490,7 @@ describe('MultiDatasetFilters', () => {
         expect.anything(),
         defaultProps.dataQueries,
         expect.any(Map),
+        [sharedCountryFilter],
       );
     });
 

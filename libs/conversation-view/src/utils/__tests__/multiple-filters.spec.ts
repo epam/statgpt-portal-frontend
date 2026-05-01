@@ -964,7 +964,7 @@ describe('expanding shared filters with subtype metadata', () => {
 
 // ─── expandSharedFilter — datasets with no matching source values ─────────────
 
-describe('shared filter fallback for datasets with no matching source values', () => {
+describe('shared filter expansion for datasets with no matching source values', () => {
   const sharedFreqFilter: Filter = {
     id: COMMON_FREQUENCY_FILTER_ID,
     filterType: 'shared',
@@ -990,7 +990,7 @@ describe('shared filter fallback for datasets with no matching source values', (
     ],
   };
 
-  it('does not apply fallback by default', () => {
+  it('does not synthesize selected codes for datasets without matching source values', () => {
     const filtersMap = buildFiltersMap([sharedFreqFilter]);
     const dsBFilter = filtersMap
       .get(DATASET_B_URN)
@@ -1004,19 +1004,19 @@ describe('shared filter fallback for datasets with no matching source values', (
     );
   });
 
-  it('applies selected fallback codes to datasets with no matching source values', () => {
+  it('does not apply fallback codes even when the legacy fallback flag is true', () => {
     const filtersMap = buildFiltersMap([sharedFreqFilter], undefined, true);
     const dsBFilter = filtersMap
       .get(DATASET_B_URN)
       ?.find((f) => f.id === COMMON_FREQUENCY_FILTER_ID);
     const ids = dsBFilter?.dimensionValues?.map((v) => v.id);
 
-    expect(ids).toContain('Q');
-    expect(ids).not.toContain('name:quarterly');
-    expect(ids).not.toContain('ANNUAL');
+    expect(ids).not.toContain('Q');
+    expect(ids).toEqual(['ANNUAL']);
     expect(
-      dsBFilter?.dimensionValues?.find((v) => v.id === 'Q')?.isSelectedValue,
-    ).toBe(true);
+      dsBFilter?.dimensionValues?.find((v) => v.id === 'ANNUAL')
+        ?.isSelectedValue,
+    ).toBe(false);
   });
 
   it('preserves native source codes for datasets that already have matching values', () => {
@@ -1056,7 +1056,7 @@ describe('shared filter fallback for datasets with no matching source values', (
     );
   });
 
-  it('multiple selected values are all propagated to the fallback dataset', () => {
+  it('multiple selected values are not propagated to a dataset without matching values', () => {
     const multiSelectedFilter: Filter = {
       id: COMMON_FREQUENCY_FILTER_ID,
       filterType: 'shared',
@@ -1095,14 +1095,14 @@ describe('shared filter fallback for datasets with no matching source values', (
       .get(DATASET_B_URN)
       ?.find((f) => f.id === COMMON_FREQUENCY_FILTER_ID);
 
-    expect(dsBFilter?.dimensionValues).toHaveLength(2);
-    expect(dsBFilter?.dimensionValues?.every((v) => v.isSelectedValue)).toBe(
-      true,
-    );
-
-    expect(dsBFilter?.dimensionValues?.map((v) => v.id)).toEqual(
-      expect.arrayContaining(['Q', 'M']),
-    );
+    expect(dsBFilter?.dimensionValues).toEqual([
+      {
+        id: 'ANNUAL',
+        name: 'Annual',
+        parent: undefined,
+        isSelectedValue: false,
+      },
+    ]);
   });
 
   it('does not apply fallback when Dataset B already has a natively selected value', () => {
