@@ -139,6 +139,16 @@ const CustomDataGridAttachment: FC<Props> = ({
     [onApiReady],
   );
 
+  const gridContext = useMemo(() => ({ externalLink }), [externalLink]);
+  const gridComponents = useMemo(
+    () => ({
+      [METADATA_CELL_RENDER]: MetadataCellRenderer,
+      [OBSERVATION_VALUE_CELL_RENDER]: ObservationValueCellRenderer,
+      [CHART_CELL_RENDER]: ChartCellRenderer,
+    }),
+    [],
+  );
+
   const memoizedGrid = useMemo(
     () => (
       <AgGridReact
@@ -148,18 +158,15 @@ const CustomDataGridAttachment: FC<Props> = ({
         rowData={rowData}
         enableCellTextSelection
         columnDefs={columnDefs}
-        context={{ externalLink }}
+        context={gridContext}
         domLayout="normal"
         tooltipShowDelay={0}
         tooltipShowMode="whenTruncated"
-        components={{
-          [METADATA_CELL_RENDER]: MetadataCellRenderer,
-          [OBSERVATION_VALUE_CELL_RENDER]: ObservationValueCellRenderer,
-          [CHART_CELL_RENDER]: ChartCellRenderer,
-        }}
+        components={gridComponents}
+        valueCache
       />
     ),
-    [rowData, columnDefs, handleGridReady, externalLink],
+    [rowData, columnDefs, handleGridReady, gridContext, gridComponents],
   );
 
   if (isLoading || isDataLoading) {

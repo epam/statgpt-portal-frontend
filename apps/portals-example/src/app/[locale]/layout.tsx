@@ -3,6 +3,7 @@ import {
   OnboardingProvider,
   ChatMessagesProvider,
   ConversationViewFeatureTogglesProvider,
+  CrossDatasetAttachmentsProvider,
 } from '@epam/statgpt-conversation-view';
 import ConversationListWrapper from '../../components/ConversationList/ConversationListWrapper';
 import { ConversationListProvider } from '../../context/ConversationListContext';
@@ -94,14 +95,16 @@ export default async function LocaleLayout({
           >
             <OnboardingProvider>
               <AdvancedViewProvider>
-                <ConversationListProvider>
-                  <ChatMessagesProvider>
-                    <ConversationListWrapper
-                      clientContactSupportUrl={clientContactSupportUrl}
-                    />
-                    <main className="h-full min-w-0 flex-1">{children}</main>
-                  </ChatMessagesProvider>
-                </ConversationListProvider>
+                <CrossDatasetAttachmentsProvider>
+                  <ConversationListProvider>
+                    <ChatMessagesProvider>
+                      <ConversationListWrapper
+                        clientContactSupportUrl={clientContactSupportUrl}
+                      />
+                      <main className="h-full min-w-0 flex-1">{children}</main>
+                    </ChatMessagesProvider>
+                  </ConversationListProvider>
+                </CrossDatasetAttachmentsProvider>
               </AdvancedViewProvider>
             </OnboardingProvider>
           </ClientProvidersWrapper>

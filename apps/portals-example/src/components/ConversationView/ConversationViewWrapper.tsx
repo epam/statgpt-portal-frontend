@@ -56,6 +56,7 @@ import {
 } from '../../app/api/conversations/client';
 import { getBucketApi } from '../../app/api/bucket/client';
 import { getDataSetApi, getDataSetDataApi } from '../../app/api/dataset/client';
+import { getPythonAttachmentApi } from '../../app/api/python-attachment/client';
 import { getAvailableHierarchiesApi } from '../../app/api/codelist/client';
 import { getHierarchyApi } from '../../app/api/hierarchy/client';
 import { rateResponseApi } from '../../app/api/rate/client';
@@ -241,6 +242,7 @@ const ConversationViewWrapper: FC<Props> = ({
         getDataSetData: authHandler(getDataSetDataApi),
         downloadDataSet: openDownloadWindow,
         getConstraints: authHandler(getConstraintsApi),
+        getPythonAttachment: authHandler(getPythonAttachmentApi),
         updateCurrentDataQuery: (dataQuery?: DataQuery) => {
           setCurrentDataQuery(dataQuery);
         },

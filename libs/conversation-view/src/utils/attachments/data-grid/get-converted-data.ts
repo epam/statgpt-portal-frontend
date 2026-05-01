@@ -32,30 +32,43 @@ export const getGridData = (
   columns: string[],
   rows: string[],
 ): GridData[] => {
-  const flatData = getFlatDataForPivot(data, dimensions);
-
   const gridData: Record<string, GridData> = {};
 
-  for (const key of flatData) {
-    const cell = key.rowTime as GridData;
-    const rowKey = getKey(cell, rows);
-    if (gridData[rowKey] == null) {
-      gridData[rowKey] = {};
+  for (const timeSeries of data) {
+    const row = getSeriesRow(timeSeries, dimensions);
+    const rowKey = getKey(row, rows);
+    let gridRow = gridData[rowKey];
 
-      for (const row of rows) {
-        (gridData[rowKey] as GridData)[row] = cell[row];
+    if (gridRow == null) {
+      gridRow = {};
+      gridData[rowKey] = gridRow;
+
+      for (const rowId of rows) {
+        gridRow[rowId] = row[rowId];
       }
     }
 
-    gridData[rowKey] = {
-      attributes: (key.attributes as TimeSeriesObservation[]).filter(
-        ({ value }: TimeSeriesObservation) => value,
-      ),
-      ...gridData[rowKey],
-      id: rowKey,
-      originalData: key.originalData,
-      ...fillCellValue(cell, columns),
-    };
+    const attributes = getFilledAttributes(timeSeries.attributes);
+    fillRowMetadata(gridRow, rowKey, attributes, timeSeries);
+
+    if (!timeSeries.values.length) {
+      fillCellValue(gridRow, row, columns);
+      continue;
+    }
+
+    for (const timeSeriesValue of timeSeries.values) {
+      const obsAttributes = getFilledAttributes(timeSeriesValue.obsAttributes);
+
+      fillRowMetadata(gridRow, rowKey, attributes, timeSeries);
+      fillCellValue(
+        gridRow,
+        row,
+        columns,
+        timeSeriesValue.dimensionAtObservation,
+        getCellValue(timeSeries, timeSeriesValue),
+        obsAttributes,
+      );
+    }
   }
 
   return Object.values(gridData);
@@ -64,75 +77,81 @@ export const getGridData = (
 const getKey = (cell: GridData, dimensions: string[]): string =>
   dimensions.map((dimension) => cell[dimension]).join('_');
 
-const fillCellValue = (cell: GridData, columns: string[]): GridData => {
-  const key = getKey(cell, columns);
-  const { OBS_VALUE, obsAttributes } = cell;
+const getObservationKey = (
+  row: GridData,
+  columns: string[],
+  timePeriod?: string,
+): string =>
+  columns
+    .map((column) => (column === 'TIME_PERIOD' ? timePeriod : row[column]))
+    .join('_');
 
-  const gridData: GridData = {};
-  gridData[key] = {
-    value: OBS_VALUE,
+const fillCellValue = (
+  gridRow: GridData,
+  row: GridData,
+  columns: string[],
+  timePeriod?: string,
+  value?: TimeSeriesObservation[],
+  obsAttributes?: TimeSeriesObservation[],
+): void => {
+  const key = getObservationKey(row, columns, timePeriod);
+
+  gridRow[key] = {
+    value,
     obsAttributes,
   };
-
-  return gridData;
 };
 
-const getFlatDataForPivot = (
-  data: TimeSeries[],
+const getSeriesRow = (
+  timeSeries: TimeSeries,
   dimensions: string[],
-): GridData[] => {
-  const flatData: GridData[] = [];
+): GridData => {
+  const row: GridData = {};
+  const dimValues = timeSeries.name.split('.');
 
-  for (const timeSeries of data) {
-    const row: GridData = {};
-    const dimValues = timeSeries.name.split('.');
-
-    for (let index = 0; index < dimensions.length; index += 1) {
-      row[dimensions[index]] = dimValues[index];
-    }
-
-    if (!timeSeries.values.length) {
-      const rowTime = { ...row };
-      rowTime.TIME_PERIOD = undefined;
-      rowTime.OBS_VALUE = undefined;
-      flatData.push({
-        rowTime,
-        attributes: timeSeries.attributes,
-        id: timeSeries.name,
-        originalData: timeSeries,
-      });
-    }
-
-    timeSeries.values.forEach((timeSeriesValue) => {
-      const rowTime = { ...row };
-      // todo: delete TIME_PERIOD
-      rowTime.TIME_PERIOD = timeSeriesValue.dimensionAtObservation;
-
-      const value = getCellValue(timeSeries, timeSeriesValue);
-      // todo: delete OBS_VALUE
-      rowTime.OBS_VALUE = value;
-      rowTime.obsAttributes =
-        timeSeriesValue?.obsAttributes?.filter(({ value }) => value) || [];
-      flatData.push({
-        rowTime,
-        attributes: timeSeries.attributes,
-        id: timeSeries.name,
-        originalData: timeSeries,
-      });
-    });
+  for (let index = 0; index < dimensions.length; index += 1) {
+    row[dimensions[index]] = dimValues[index];
   }
 
-  return flatData;
+  return row;
 };
 
 const getCellValue = (
   timeSer: TimeSeries,
   timeSeriesValue: TimeSeriesValue,
 ): TimeSeriesObservation[] => {
-  const attributes = [...timeSer.attributes, ...timeSeriesValue.obsAttributes];
-  const attr = attributes.find(
-    ({ name }: TimeSeriesObservation) => name === 'OBS_VALUE',
-  );
+  const seriesAttribute = findObservationValueAttribute(timeSer.attributes);
+  if (seriesAttribute) {
+    return [seriesAttribute];
+  }
 
-  return attr ? [attr] : timeSeriesValue.values;
+  const obsAttribute = findObservationValueAttribute(
+    timeSeriesValue.obsAttributes,
+  );
+  if (obsAttribute) {
+    return [obsAttribute];
+  }
+
+  return timeSeriesValue.values;
+};
+
+const findObservationValueAttribute = (
+  attributes: TimeSeriesObservation[] = [],
+): TimeSeriesObservation | undefined =>
+  attributes.find(({ name }: TimeSeriesObservation) => name === 'OBS_VALUE');
+
+const getFilledAttributes = (
+  attributes: TimeSeriesObservation[] = [],
+): TimeSeriesObservation[] =>
+  attributes.filter(({ value }: TimeSeriesObservation) => value);
+
+const fillRowMetadata = (
+  gridRow: GridData,
+  rowKey: string,
+  attributes: TimeSeriesObservation[],
+  originalData: TimeSeries,
+): void => {
+  gridRow.attributes ??= attributes;
+  gridRow.id = rowKey;
+  gridRow.originalData = originalData;
 };
