@@ -178,7 +178,7 @@ export const getFiltersPreselectedByDataQuery = (
   constraints?: DataConstraints[],
 ): Filter[] =>
   filters.map((filter) => {
-    const filterFromAttachment = attachmentsFilters?.filters.find(
+    const filterFromAttachment = attachmentsFilters?.filters?.find(
       (aFilter: QueryFilter) => aFilter.componentCode === filter.id,
     );
     let dimensionValues: FilterValue[] | undefined = [];

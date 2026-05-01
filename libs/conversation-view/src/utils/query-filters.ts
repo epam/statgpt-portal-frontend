@@ -60,9 +60,26 @@ export const getQueryFilters = (
   };
 };
 
-export const setDataQueryFilters = (
+const formatDate = (date?: Date): string => {
+  if (!date) return '';
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${month}-${day}-${year}`;
+};
+
+const formatDateIso = (date?: Date): string => {
+  if (!date) return '';
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${year}-${month}-${day}`;
+};
+
+const buildQueryFiltersCore = (
   filters: Filter[],
   datasetUrn?: string,
+  formatTimePeriod: (date?: Date) => string = formatDate,
 ): QueryFilter[] => {
   return getFiltersForQueryContext(filters, datasetUrn)
     ?.filter(
@@ -76,8 +93,8 @@ export const setDataQueryFilters = (
           componentCode: filter?.id as string,
           operator: QueryFilterType.BETWEEN,
           values: [
-            formatDate(filter?.timeRange?.startPeriod || undefined) || '',
-            formatDate(filter?.timeRange?.endPeriod || undefined) || '',
+            formatTimePeriod(filter?.timeRange?.startPeriod || undefined) || '',
+            formatTimePeriod(filter?.timeRange?.endPeriod || undefined) || '',
           ],
         };
       }
@@ -93,10 +110,26 @@ export const setDataQueryFilters = (
     });
 };
 
-const formatDate = (date?: Date): string => {
-  if (!date) return '';
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
-  return `${month}-${day}-${year}`;
+export const buildDataQueryWithMergedFilters = (
+  dataQuery: DataQuery,
+  uiFilters: Filter[],
+): DataQuery => {
+  const updatedFiltersFromUI = buildQueryFiltersForPythonAttachment(uiFilters);
+  const uiFilterCodes = new Set(
+    updatedFiltersFromUI.map((f) => f.componentCode),
+  );
+  const hiddenFilters = (dataQuery.filters ?? []).filter(
+    (f) => !uiFilterCodes.has(f.componentCode),
+  );
+  return { ...dataQuery, filters: [...hiddenFilters, ...updatedFiltersFromUI] };
 };
+
+export const setDataQueryFilters = (
+  filters: Filter[],
+  datasetUrn?: string,
+): QueryFilter[] => buildQueryFiltersCore(filters, datasetUrn);
+
+export const buildQueryFiltersForPythonAttachment = (
+  filters: Filter[],
+  datasetUrn?: string,
+): QueryFilter[] => buildQueryFiltersCore(filters, datasetUrn, formatDateIso);

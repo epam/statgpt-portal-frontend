@@ -17,6 +17,8 @@ export const DIAL_API_ROUTES = {
     `/${VERSION}/deployments/${modelId}/configuration`,
   DATASETS_METADATA: (deploymentId: string) =>
     `/v1/deployments/${deploymentId}/route/metadata/datasets`,
+  PYTHON_ATTACHMENT: (deploymentId: string) =>
+    `/v1/deployments/${deploymentId}/route/python-attachment`,
   SHARE_CONVERSATION: `${SHARE_RESOURCE}/create`,
   SHARE_CONVERSATION_ACCEPT: (invitationId: string) =>
     `/${VERSION}/invitations/${invitationId}?accept=true`,

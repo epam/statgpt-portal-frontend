@@ -17,7 +17,7 @@ import {
   FormatNumbersType,
   TimeRange,
 } from '@epam/statgpt-shared-toolkit';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   CustomChartAttachmentType,
   CustomCodeAttachment,
@@ -27,10 +27,15 @@ import {
   getConstraints,
   GetDatasetData,
   GetDatasetDetails,
+  GetPythonAttachment,
   PutOnboardingFile,
 } from '../types/actions';
 import { buildCustomGridAttachment } from '../utils/attachments/data-grid/build-custom-grid-attachment';
-import { getTimeQueryFilterFromAttachment } from '../utils/query-filters';
+import {
+  buildDataQueryWithMergedFilters,
+  getTimeQueryFilterFromAttachment,
+} from '../utils/query-filters';
+import { AttachmentType } from '@epam/statgpt-dial-toolkit';
 import { createChartDataResolver } from '../utils/attachments/charting/chart-data';
 import { ChartingStyles } from '../models/attachments-styles';
 import { MetadataSettings } from '../models/metadata';
@@ -38,6 +43,8 @@ import { ConversationViewTitles } from '../models/titles';
 import { Filter } from '../models/filters';
 import { Attachment } from '@epam/ai-dial-shared';
 import { buildMarkdownAttachments } from '../utils/attachments/markdown-attachments';
+import { hasPythonCodeAttachment } from '../utils/attachments/attachment-parser';
+import { invokePythonAttachment } from '../utils/attachments/python-attachment';
 import {
   buildRequestCacheKey,
   getCachedRequestResult,
@@ -55,6 +62,7 @@ export function useAttachmentsData(
     getDataSetData: GetDatasetData;
     getConstraints: getConstraints;
     putOnboardingFile?: PutOnboardingFile;
+    getPythonAttachment?: GetPythonAttachment;
   },
   locale: string,
   dataQuery?: DataQuery,
@@ -65,6 +73,7 @@ export function useAttachmentsData(
   rawAttachments?: Attachment[],
   initialDatasetStructure?: StructuralData,
   isInitialDatasetStructureLoading = false,
+  onCodeAttachmentUpdated?: (attachment: Attachment) => void,
 ) {
   const [dataMessage, setDataMessage] = useState<DataMessage | undefined>();
   const [dataset, setDataset] = useState<Dataflow | undefined>();
@@ -88,12 +97,18 @@ export function useAttachmentsData(
   const [isLoadingGridData, setIsLoadingGridData] = useState(false);
   const [isBuildingGridAttachment, setIsBuildingGridAttachment] =
     useState(false);
+  const pythonRequestIdRef = useRef(0);
   const [selectedTimePeriod, setSelectedTimePeriod] = useState<TimeRange>({
     startPeriod: null,
     endPeriod: null,
   });
-  const { getConstraints, getDataSet, getDataSetData, putOnboardingFile } =
-    actions;
+  const {
+    getConstraints,
+    getDataSet,
+    getDataSetData,
+    putOnboardingFile,
+    getPythonAttachment,
+  } = actions;
 
   const applyStructureData = useCallback(
     (structure?: StructuralData | null) => {
@@ -150,7 +165,10 @@ export function useAttachmentsData(
         const filterKey =
           dimensions?.dimensions == null
             ? null
-            : getTimeSeriesFilterKey(dimensions?.dimensions, dataQuery.filters);
+            : getTimeSeriesFilterKey(
+                dimensions?.dimensions,
+                dataQuery.filters ?? [],
+              );
 
         const timeFilter = getTimeQueryFilterFromAttachment(
           dataQuery,
@@ -218,7 +236,6 @@ export function useAttachmentsData(
         const timePeriodFilter = filters?.find(
           (filter) => filter.id === TIME_PERIOD,
         )?.timeRange;
-
         if (timePeriodFilter) {
           setSelectedTimePeriod(timePeriodFilter);
         }
@@ -233,11 +250,45 @@ export function useAttachmentsData(
             setStructureDimensions(getStructureDimensions(data));
           })
           .finally(() => setIsLoadingGridData(false));
+
+        const hasPythonAttachment = hasPythonCodeAttachment(rawAttachments);
+        if (
+          getPythonAttachment &&
+          dataQuery &&
+          filters &&
+          hasPythonAttachment
+        ) {
+          const updatedQuery = buildDataQueryWithMergedFilters(
+            dataQuery,
+            filters,
+          );
+          const originalTitle = rawAttachments?.find(
+            (a) =>
+              a.type === AttachmentType.MARKDOWN &&
+              a.data?.includes('```python'),
+          )?.title;
+          invokePythonAttachment({
+            getPythonAttachment,
+            dataQueries: [updatedQuery],
+            requestIdRef: pythonRequestIdRef,
+            codeTitle: titles?.codeSamples || 'Python Code',
+            markdownTitle: originalTitle ?? dataQuery.urn,
+            setCodeAttachments,
+            onCodeAttachmentUpdated,
+          });
+        }
       } catch (err) {
         console.error('Error loading dataset data', err as object);
       }
     },
-    [dataQuery, getDataSetData],
+    [
+      dataQuery,
+      getDataSetData,
+      getPythonAttachment,
+      titles,
+      rawAttachments,
+      onCodeAttachmentUpdated,
+    ],
   );
 
   useEffect(() => {

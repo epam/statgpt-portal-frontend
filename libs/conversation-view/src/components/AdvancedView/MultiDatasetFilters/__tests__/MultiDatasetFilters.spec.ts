@@ -491,6 +491,7 @@ describe('MultiDatasetFilters', () => {
         queryFiltersMap,
         expect.anything(),
         defaultProps.dataQueries,
+        expect.any(Map),
       );
     });
 

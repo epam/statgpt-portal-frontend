@@ -574,6 +574,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       filtersParamsMap,
       constraintsMapRef.current,
       dataQueries?.filter((q) => compatibleUrns.has(q.urn)),
+      appliedFiltersMap,
     );
 
     setAppliedFilters(appliedFilters);

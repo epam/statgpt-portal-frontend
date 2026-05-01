@@ -10,6 +10,7 @@
 'use client';
 
 import {
+  Attachment,
   Conversation,
   ConversationInfo,
   LikeState,
@@ -89,6 +90,7 @@ import { ConversationViewTitlesProvider } from '../../context/ConversationViewTi
 import { getRedirectConversationPath } from '../../utils/get-conversation-path';
 import { generateConversation } from '../../utils/generate-conversation';
 import { duplicateConversationAttachments } from '../../utils/duplicate-conversation-attachments';
+import { replacePythonAttachment } from '../../utils/attachments/replace-python-attachment';
 
 import { ABORT_ERROR } from '../../constants/errors';
 import { useOnboarding } from '../../context/OnboardingContext';
@@ -275,6 +277,25 @@ export const ConversationView: FC<Props> = ({
       }
     },
     [actions, conversationKey],
+  );
+
+  const handleCodeAttachmentUpdated = useCallback(
+    (messageId: string, newRawAttachment: Attachment) => {
+      if (!conversation) return;
+      const updatedMessages = replacePythonAttachment(
+        conversation.messages as Message[],
+        newRawAttachment,
+        messageId,
+      );
+      if (!updatedMessages) return;
+      const updatedConversation = {
+        ...conversation,
+        messages: updatedMessages,
+      };
+      setConversation(updatedConversation);
+      saveConversation(updatedConversation);
+    },
+    [conversation, setConversation, saveConversation],
   );
 
   const addUserMessageToConversation = useCallback(
@@ -525,7 +546,7 @@ export const ConversationView: FC<Props> = ({
   );
 
   const handleSendMessageError = useCallback(
-    (error: unknown, userMessage: Message) => {
+    (_error: unknown, userMessage: Message) => {
       setConversation((prev) =>
         prev
           ? {
@@ -923,6 +944,7 @@ export const ConversationView: FC<Props> = ({
                 limitMessages={limitMessages}
                 attachmentsConfig={attachmentsConfig}
                 conversationViewState={conversationViewState}
+                onCodeAttachmentUpdated={handleCodeAttachmentUpdated}
               />
             </div>
             {isShowOnboarding ? null : !isReadonlyConversation ? (
