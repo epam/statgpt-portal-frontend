@@ -167,7 +167,22 @@
     "oneFilePerDataset": "- one file per selected dataset.",
     "cancel": "Cancel",
     "datasetsToDownload": "Datasets to download",
-    "rows": "rows"
+    "rows": "rows",
+    "alert": {
+      "startedTitle": "Download started",
+      "startedText": "Preparing {dataFormat} file.",
+      "inProgressTitle": "Downloading file {current} of {total}",
+      "inProgressText": "{datasetName} \u00B7 {dataFormat}",
+      "successTitle": "{dataFormat} file downloaded",
+      "successMultipleTitle": "{count} files downloaded",
+      "successText": "{fileName} \u00B7 {rows} rows",
+      "successMultipleText": "{count} files successfully downloaded",
+      "failedTitle": "Download failed",
+      "failedText": "{datasetName} could not be exported",
+      "failedMultipleText": "{count} datasets could not be exported",
+      "cancelActionText": "Cancel",
+      "retryActionText": "Retry download"
+    }
   },
   "user": {
     "signOut": "Log out",

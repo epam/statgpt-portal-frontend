@@ -10,11 +10,9 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import {
-  Alert,
-  AlertDetails,
+  LimitMessages,
   Loader,
   PopUpState,
-  LimitMessages,
   RequestLimitMessage,
 } from '@epam/statgpt-ui-components';
 import {
@@ -25,9 +23,9 @@ import {
 import {
   AttachmentInfo,
   AttachmentsConfig,
+  CrossDatasetGridAttachmentType,
   CustomChartAttachmentType,
   CustomGridAttachment,
-  CrossDatasetGridAttachmentType,
 } from '../../models/attachments';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
@@ -45,9 +43,10 @@ import DatasetTabs from './Tabs/DatasetTabs/DatasetTabs';
 import { getExternalLink } from '../../utils/attachments-details';
 import AttachmentsViewModePanel from './AttachmentsViewModePanel';
 import AttachmentsContentRenderer from './AttachmentsContentRenderer';
+import { DownloadAlert } from './DownloadAlert/DownloadAlert';
+import { useAttachmentDownloadFlow } from './useAttachmentDownloadFlow';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
-
 interface Props {
   attachments: (
     | Attachment
@@ -117,14 +116,7 @@ const AttachmentRenderer: FC<Props> = ({
   const { isOpenedAdvancedView, setIsOpenedAdvancedView } = useAdvancedView();
   const [modalState, setModalState] = useState(PopUpState.Closed);
   const [showLoading, setShowLoading] = useState<boolean>(false);
-  const [isShowDownloadAlert, setIsShowDownloadAlert] = useState<boolean>();
-  const [downloadAlertDetails, setDownloadAlertDetails] =
-    useState<AlertDetails>();
   const [showLimitMessage, setShowLimitMessage] = useState(false);
-  const downloadActions = {
-    downloadDataSet: actions.downloadDataSet,
-    getConstraints: actions.getConstraints,
-  };
   const downloadType = DownloadTypeOptions.DATA_IN_TABLE;
 
   const selectAttachment = (index: number) => {
@@ -219,6 +211,28 @@ const AttachmentRenderer: FC<Props> = ({
       dataQuery: dataQueries?.find((q) => q.urn === urn),
     }));
   }, [selectedAttachment, dataQueries]);
+
+  const downloadRowCount = useMemo(() => {
+    if (!selectedAttachment) return undefined;
+
+    if (isCustomGridAttachment(selectedAttachment)) {
+      return (selectedAttachment as CustomGridAttachment).grid_data?.data
+        ?.length;
+    }
+
+    if (isCrossDatasetGrid(selectedAttachment)) {
+      return (selectedAttachment as CrossDatasetGridAttachmentType).gridContent
+        ?.data?.length;
+    }
+
+    return undefined;
+  }, [selectedAttachment]);
+
+  const { startDownload, isDownloadRunning, downloadAlertProps } =
+    useAttachmentDownloadFlow({
+      attachmentsStyles,
+      downloadDataSet: actions.downloadDataSet,
+    });
 
   if (!attachments || attachments.length === 0) return null;
 
@@ -326,8 +340,9 @@ const AttachmentRenderer: FC<Props> = ({
           <>
             {modalState === PopUpState.Opened && (
               <DownloadSettings
-                actions={downloadActions}
                 onCloseModal={onCloseModal}
+                onDownloadStart={startDownload}
+                isDownloadInProgress={isDownloadRunning}
                 dataQuery={currentDataQuery}
                 datasetName={selectedAttachment?.title || ''}
                 locale={locale}
@@ -338,8 +353,7 @@ const AttachmentRenderer: FC<Props> = ({
                 datasetIcon={attachmentsStyles?.datasetIcon}
                 isDisplayDatasetIcon={attachmentsStyles?.isDisplayDatasetIcon}
                 titles={attachmentsStyles?.downloadTitles}
-                setIsShowDownloadAlert={setIsShowDownloadAlert}
-                setDownloadAlertDetails={setDownloadAlertDetails}
+                rowCount={downloadRowCount}
                 collapsible={attachmentsStyles?.downloadCollapsible}
                 downloadDatasets={downloadDatasets}
                 limitMessages={limitMessages}
@@ -347,15 +361,7 @@ const AttachmentRenderer: FC<Props> = ({
                 externalLink={externalLink}
               />
             )}
-            {isShowDownloadAlert && (
-              <Alert
-                alertDetails={downloadAlertDetails}
-                successIcon={attachmentsStyles?.successDownloadIcon}
-                errorIcon={attachmentsStyles?.errorDownloadIcon}
-                onClose={() => setIsShowDownloadAlert(false)}
-                closeButtonTitle={attachmentsStyles?.closeTitle || 'Close'}
-              />
-            )}
+            <DownloadAlert {...downloadAlertProps} />
           </>
         </div>
       )}

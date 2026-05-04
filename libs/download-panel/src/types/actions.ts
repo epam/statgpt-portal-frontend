@@ -15,6 +15,7 @@ export type DownloadDatasetAction = (
   filters: DatasetQueryFilters,
   filename: string,
   isMetadata?: boolean,
+  signal?: AbortSignal,
 ) => Promise<void>;
 
 export type GetConstraints = (

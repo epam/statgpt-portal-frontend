@@ -61,6 +61,7 @@ import { getAvailableHierarchiesApi } from '../../app/api/codelist/client';
 import { getHierarchyApi } from '../../app/api/hierarchy/client';
 import { rateResponseApi } from '../../app/api/rate/client';
 import AdvancedModeIcon from '../../../public/images/advanced-mode.svg';
+import InfoIcon from '../../../public/images/statuses/info.svg';
 import WarningIcon from '../../../public/images/statuses/warning.svg';
 import UnfoldIcon from '../../../public/images/unfold.svg';
 import DownloadIcon from '../../../public/images/chat/download.svg';
@@ -78,6 +79,7 @@ import Edit from '../../../public/images/messages/edit.svg';
 import Down from '../../../public/images/chat/down.svg';
 import ThumbPressed from '../../../public/images/messages/thumb-filled.svg';
 import Reset from '../../../public/images/reset.svg';
+import ExternalLink from '../../../public/images/external-link.svg';
 import {
   IconCalendarWeek,
   IconChevronRight,
@@ -284,9 +286,12 @@ const ConversationViewWrapper: FC<Props> = ({
     hideDownloadTextInConversationView: true,
     hideDownloadIconInAdvancedView: true,
     downloadChevronIcon: <ChevronSolidDownIcon className="size-6" />,
+    infoDownloadIcon: <InfoIcon className="size-6 text-primary" />,
     successDownloadIcon: (
       <SuccessIcon className="size-6 text-semantic-success" />
     ),
+    downloadInProgressActionIcon: <Reset className="size-4" />,
+    downloadErrorActionIcon: <ExternalLink className="size-4" />,
     closeTitle: t(AppI18nKeys.CLOSE),
     downloadTitle: t(DownloadI18nKeys.DOWNLOAD),
     columnsTitle: t(AttachmentsI18nKeys.COLUMNS),
@@ -325,6 +330,34 @@ const ConversationViewWrapper: FC<Props> = ({
       oneFilePerDataset: t(DownloadI18nKeys.ONE_FILE_PER_DATASET),
       datasetsToDownload: t(DownloadI18nKeys.DATASETS_TO_DOWNLOAD),
       rows: t(DownloadI18nKeys.ROWS),
+      downloadStartedTitle: t(DownloadI18nKeys.DOWNLOAD_STARTED_TITLE),
+      downloadStartedText: (dataFormat: string) =>
+        t(DownloadI18nKeys.DOWNLOAD_STARTED_TEXT, { dataFormat }),
+      downloadInProgressTitle: (current: number, total: number) =>
+        t(DownloadI18nKeys.DOWNLOAD_IN_PROGRESS_TITLE, {
+          current,
+          total,
+        }),
+      downloadInProgressText: (datasetName: string, dataFormat: string) =>
+        t(DownloadI18nKeys.DOWNLOAD_IN_PROGRESS_TEXT, {
+          dataFormat,
+          datasetName,
+        }),
+      downloadSuccessTitle: (dataFormat: string) =>
+        t(DownloadI18nKeys.DOWNLOAD_SUCCESS_TITLE, { dataFormat }),
+      downloadSuccessMultipleTitle: (count: number) =>
+        t(DownloadI18nKeys.DOWNLOAD_SUCCESS_MULTIPLE_TITLE, { count }),
+      downloadSuccessText: (fileName: string, rows: number) =>
+        t(DownloadI18nKeys.DOWNLOAD_SUCCESS_TEXT, { fileName, rows }),
+      downloadSuccessMultipleText: (count: number) =>
+        t(DownloadI18nKeys.DOWNLOAD_SUCCESS_MULTIPLE_TEXT, { count }),
+      downloadFailedTitle: t(DownloadI18nKeys.DOWNLOAD_FAILED_TITLE),
+      downloadFailedText: (datasetName: string) =>
+        t(DownloadI18nKeys.DOWNLOAD_FAILED_TEXT, { datasetName }),
+      downloadFailedMultipleText: (count: number) =>
+        t(DownloadI18nKeys.DOWNLOAD_FAILED_MULTIPLE_TEXT, { count }),
+      downloadCancelActionText: t(DownloadI18nKeys.DOWNLOAD_CANCEL_ACTION_TEXT),
+      downloadRetryActionText: t(DownloadI18nKeys.DOWNLOAD_RETRY_ACTION_TEXT),
     },
   };
 
