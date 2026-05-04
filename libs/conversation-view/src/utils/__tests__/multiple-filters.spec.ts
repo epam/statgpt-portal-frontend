@@ -1,18 +1,22 @@
 import {
   COMMON_COUNTRY_FILTER_ID,
   COMMON_FREQUENCY_FILTER_ID,
+  COMMON_TIME_PERIOD_FILTER_ID,
   buildFiltersMap,
   getConstraintsMap,
   getConstraintsMapFromSettledResults,
+  getCompatibleDatasetUrns,
   getDatasetNameFromFilters,
   getFilledDatasetFiltersMap,
   getFiltersByConstraints,
   getFiltersForQueryContext,
   getFiltersPreselectedByDataQueries,
+  getRestoredActiveDatasetUrns,
   isStructureDataMapsReady,
   mergeConstraintsMaps,
 } from '../multiple-filters';
 import type { Filter, SharedFilter } from '../../models/filters';
+import { DataQuery, QueryFilterType } from '@epam/statgpt-shared-toolkit';
 
 const mockFindCodelistByDimension = jest.fn();
 const mockGenerateShortUrn = jest.fn(
@@ -33,6 +37,7 @@ jest.mock('@epam/statgpt-sdmx-toolkit', () => ({
   getAnnotationPeriod: jest.fn(() => ({ startPeriod: null, endPeriod: null })),
   getAvailableCodesFromConstrains: (...args: any[]) =>
     (mockGetAvailableCodesFromConstrains as any)(...args),
+  GET_v3_FILTER_ALL: 'all',
   TIME_PERIOD: 'TIME_PERIOD',
   TIME_PERIOD_START_ANNOTATION_KEY: 'TIME_PERIOD_START',
   TIME_PERIOD_END_ANNOTATION_KEY: 'TIME_PERIOD_END',
@@ -1135,5 +1140,157 @@ describe('shared filter expansion for datasets with no matching source values', 
     expect(dsBFilter?.dimensionValues?.map((v) => v.id)).not.toContain(
       'name:annual',
     );
+  });
+});
+
+describe('getCompatibleDatasetUrns', () => {
+  it('returns only datasets that support selected shared values', () => {
+    const sharedFrequencyFilter: Filter = {
+      id: COMMON_FREQUENCY_FILTER_ID,
+      filterType: 'shared',
+      sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
+      dimensionValues: [
+        {
+          id: 'name:daily',
+          name: 'Daily',
+          isSelectedValue: true,
+          sourceValues: [{ datasetUrn: DATASET_A_URN, id: 'D', name: 'Daily' }],
+        },
+        {
+          id: 'name:monthly',
+          name: 'Monthly',
+          isSelectedValue: false,
+          sourceValues: [
+            { datasetUrn: DATASET_A_URN, id: 'M', name: 'Monthly' },
+            { datasetUrn: DATASET_B_URN, id: 'M', name: 'Monthly' },
+          ],
+        },
+      ],
+    };
+
+    const compatibleUrns = getCompatibleDatasetUrns(
+      [sharedFrequencyFilter],
+      [DATASET_A_URN, DATASET_B_URN],
+    );
+
+    expect(Array.from(compatibleUrns)).toEqual([DATASET_A_URN]);
+  });
+
+  it('keeps all datasets when selected value is supported by all', () => {
+    const sharedFrequencyFilter: Filter = {
+      id: COMMON_FREQUENCY_FILTER_ID,
+      filterType: 'shared',
+      sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
+      dimensionValues: [
+        {
+          id: 'name:monthly',
+          name: 'Monthly',
+          isSelectedValue: true,
+          sourceValues: [
+            { datasetUrn: DATASET_A_URN, id: 'M', name: 'Monthly' },
+            { datasetUrn: DATASET_B_URN, id: 'M', name: 'Monthly' },
+          ],
+        },
+      ],
+    };
+
+    const compatibleUrns = getCompatibleDatasetUrns(
+      [sharedFrequencyFilter],
+      [DATASET_A_URN, DATASET_B_URN],
+    );
+
+    expect(Array.from(compatibleUrns)).toEqual([DATASET_A_URN, DATASET_B_URN]);
+  });
+});
+
+describe('getRestoredActiveDatasetUrns', () => {
+  it('restores only datasets that have the persisted shared filter selection', () => {
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [],
+      },
+      {
+        urn: DATASET_B_URN,
+        filters: [
+          {
+            componentCode: 'FREQUENCY',
+            operator: QueryFilterType.IN,
+            values: ['Q'],
+          },
+        ],
+      },
+    ] as DataQuery[];
+
+    expect(
+      getRestoredActiveDatasetUrns(
+        dataQueries,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toEqual([DATASET_B_URN]);
+  });
+
+  it('ignores time filters when restoring active datasets', () => {
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [
+          {
+            componentCode: COMMON_TIME_PERIOD_FILTER_ID,
+            operator: QueryFilterType.BETWEEN,
+            values: ['2024-01-01', '2024-12-31'],
+          },
+        ],
+      },
+      {
+        urn: DATASET_B_URN,
+        filters: [
+          {
+            componentCode: COMMON_TIME_PERIOD_FILTER_ID,
+            operator: QueryFilterType.BETWEEN,
+            values: ['2024-01-01', '2024-12-31'],
+          },
+        ],
+      },
+    ] as DataQuery[];
+
+    expect(
+      getRestoredActiveDatasetUrns(
+        dataQueries,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toBeUndefined();
+  });
+
+  it('ignores wildcard filters when restoring active datasets', () => {
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [
+          {
+            componentCode: 'FREQ',
+            operator: QueryFilterType.IN,
+            values: ['all'],
+          },
+        ],
+      },
+      {
+        urn: DATASET_B_URN,
+        filters: [
+          {
+            componentCode: 'FREQUENCY',
+            operator: QueryFilterType.IN,
+            values: ['Q'],
+          },
+        ],
+      },
+    ] as DataQuery[];
+
+    expect(
+      getRestoredActiveDatasetUrns(
+        dataQueries,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toEqual([DATASET_B_URN]);
   });
 });
