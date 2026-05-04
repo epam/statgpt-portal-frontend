@@ -31,6 +31,7 @@ import FilterSettings from '../Filters/FiltersModal/FiltersSettings';
 import ModalFooter from '../Filters/FiltersModal/ModalFooter';
 import {
   buildFiltersMap,
+  getCompatibleDatasetUrns,
   getConstraintsMapFromSettledResults,
   getConstraintsRequests,
   getFilledDatasetFiltersMap,
@@ -565,10 +566,14 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       datasetDimensionsMetadata.map,
     );
     const filtersParamsMap = getFiltersChangeParamsMap(appliedFiltersMap);
+    const compatibleUrns = getCompatibleDatasetUrns(
+      modalFilters,
+      dataQueries?.map((q) => q.urn) ?? [],
+    );
     onMultipleDataFiltersChange?.(
       filtersParamsMap,
       constraintsMapRef.current,
-      dataQueries,
+      dataQueries?.filter((q) => compatibleUrns.has(q.urn)),
       appliedFiltersMap,
       appliedFilters,
     );
