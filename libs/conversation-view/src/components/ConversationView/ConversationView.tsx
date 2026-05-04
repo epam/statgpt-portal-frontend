@@ -109,6 +109,7 @@ import { updateConversationErrorContext } from '../../utils/conversation';
 import { clearRequestCache } from '../../utils/request-cache';
 import { ConversationViewSidePanelOutlet } from './SidePanel/ConversationViewSidePanelContext';
 import { useCrossDatasetAttachments } from '../../context/CrossDatasetAttachmentsContext';
+import { getTimezone } from '../../utils/timezone';
 
 interface Props {
   conversationKey: string;
@@ -443,6 +444,7 @@ export const ConversationView: FC<Props> = ({
         ...existingConvCustomFields,
         configuration: {
           ...existingConvCustomFields.configuration,
+          timezone: getTimezone(),
           ...(isCrossDatasetModeOn && { merge_python_code: true }),
         },
       };
