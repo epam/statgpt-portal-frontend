@@ -14,7 +14,6 @@ import {
 interface CrossDatasetAttachmentsState {
   attachments?: Attachment[];
   dataQueriesKey?: string;
-  activeDatasetUrns?: string[];
   isLoading?: boolean;
   signature?: string;
 }
@@ -42,14 +41,12 @@ const getStateSignature = (
   try {
     return JSON.stringify({
       dataQueriesKey: state.dataQueriesKey,
-      activeDatasetUrns: state.activeDatasetUrns,
       isLoading: !!state.isLoading,
       attachments: state.attachments,
     });
   } catch {
     return JSON.stringify({
       dataQueriesKey: state.dataQueriesKey,
-      activeDatasetUrns: state.activeDatasetUrns,
       isLoading: !!state.isLoading,
       attachmentsLength: state.attachments?.length ?? 0,
     });

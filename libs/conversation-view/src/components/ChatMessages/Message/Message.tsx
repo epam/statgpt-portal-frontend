@@ -57,11 +57,7 @@ import { ChoiceButtons } from '../../ConversationOnboarding/ChoiceButtons/Choice
 import { useAttachmentsDataMultipleQueries } from '../../../context/AttachmentsDataMultipleQueries';
 import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
 import { useCrossDatasetAttachments } from '../../../context/CrossDatasetAttachmentsContext';
-import { useDatasetDimensionsMetadataMap } from '../../../context/DatasetDimensionsMetadataMapContext';
-import {
-  getCrossDatasetSnapshotKey,
-  getRestoredActiveDatasetUrns,
-} from '../../../utils/multiple-filters';
+import { getCrossDatasetSnapshotKey } from '../../../utils/multiple-filters';
 
 interface Props {
   message: MessageType;
@@ -137,7 +133,6 @@ const Message: FC<Props> = ({
   const [isDataSetAttachments, setIsDataSetAttachments] =
     useState<boolean>(false);
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
-  const datasetDimensionsMetadata = useDatasetDimensionsMetadataMap();
   const isUser = message.role === Role.User;
   const isSystem = message.role === Role.System;
   const {
@@ -187,15 +182,6 @@ const Message: FC<Props> = ({
       handleCodeAttachmentUpdated,
     );
 
-  const restoredActiveDatasetUrns = useMemo(
-    () =>
-      getRestoredActiveDatasetUrns(
-        attachmentsDataQueries,
-        datasetDimensionsMetadata.map,
-      ),
-    [attachmentsDataQueries, datasetDimensionsMetadata.map],
-  );
-
   const {
     crossDatasetAttachments,
     isLoadingGridData: isLoadingCrossDsGridData,
@@ -207,7 +193,6 @@ const Message: FC<Props> = ({
     formattingSettings,
     metadataSettings,
     message.custom_content?.attachments,
-    restoredActiveDatasetUrns,
     handleCodeAttachmentUpdated,
   );
   const { isOpenedAdvancedView } = useAdvancedView();

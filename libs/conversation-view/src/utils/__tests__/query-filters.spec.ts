@@ -1,4 +1,5 @@
 import {
+  buildDataQueryWithMergedFilters,
   getQueryFilters,
   getQueryTimeSeriesFilters,
   getTimeQueryFilterFromAttachment,
@@ -25,6 +26,7 @@ jest.mock('../multiple-filters', () => ({
 }));
 
 jest.mock('@epam/statgpt-sdmx-toolkit', () => ({
+  GET_v3_FILTER_ALL: '*',
   getTimeRangeFromAttachment: (...args: any[]) =>
     (mockGetTimeRangeFromAttachment as any)(...args),
   getQueryTimePeriodFilters: (...args: any[]) =>
@@ -211,5 +213,138 @@ describe('setDataQueryFilters', () => {
       operator: 'between',
       values: ['01-05-2020', '12-31-2023'],
     });
+  });
+});
+
+// ─── buildDataQueryWithMergedFilters ─────────────────────────────────────────
+
+describe('buildDataQueryWithMergedFilters', () => {
+  it('replaces stale original filters with wildcard when UI has no selected values', () => {
+    const dataQuery = {
+      urn: 'AGENCY:DF_A(1.0)',
+      filters: [
+        {
+          componentCode: 'FREQ',
+          operator: 'in',
+          values: ['D'],
+        },
+        {
+          componentCode: 'INDICATOR',
+          operator: 'in',
+          values: ['GDP'],
+        },
+      ],
+    } as any;
+    const uiFilters: Filter[] = [
+      {
+        id: 'FREQ',
+        filterType: 'dataset',
+        datasetUrn: dataQuery.urn,
+        dimensionValues: [{ id: 'M', isSelectedValue: false }],
+      },
+    ];
+
+    mockGetFiltersForQueryContext.mockReturnValue(uiFilters);
+
+    expect(
+      buildDataQueryWithMergedFilters(dataQuery, uiFilters).filters,
+    ).toEqual([
+      {
+        componentCode: 'INDICATOR',
+        operator: 'in',
+        values: ['GDP'],
+      },
+      {
+        componentCode: 'FREQ',
+        operator: 'in',
+        values: ['*'],
+      },
+    ]);
+  });
+
+  it('replaces stale original filters with wildcard for a shared filter source id', () => {
+    const dataQuery = {
+      urn: 'AGENCY:DF_B(1.0)',
+      filters: [
+        {
+          componentCode: 'FREQUENCY',
+          operator: 'in',
+          values: ['D'],
+        },
+      ],
+    } as any;
+    const sharedFilter: Filter = {
+      id: 'FREQUENCY',
+      filterType: 'shared',
+      sourceFilterIdsByDataset: {
+        [dataQuery.urn]: 'FREQUENCY',
+      },
+      dimensionValues: [
+        {
+          id: 'name:daily',
+          name: 'Daily',
+          isSelectedValue: true,
+          sourceValues: [{ datasetUrn: 'AGENCY:DF_A(1.0)', id: 'D' }],
+        },
+      ],
+    };
+
+    mockGetFiltersForQueryContext.mockReturnValue([]);
+
+    expect(
+      buildDataQueryWithMergedFilters(dataQuery, [sharedFilter]).filters,
+    ).toEqual([
+      {
+        componentCode: 'FREQUENCY',
+        operator: 'in',
+        values: ['*'],
+      },
+    ]);
+  });
+
+  it('expands shared selected filters for the matching dataset when building python queries', () => {
+    const dataQuery = {
+      urn: 'AGENCY:DF_A(1.0)',
+      filters: [],
+    } as any;
+    const sharedFilter: Filter = {
+      id: 'FREQUENCY',
+      filterType: 'shared',
+      sourceFilterIdsByDataset: {
+        [dataQuery.urn]: 'FREQ',
+      },
+      dimensionValues: [
+        {
+          id: 'name:quarterly',
+          name: 'Quarterly',
+          isSelectedValue: true,
+          sourceValues: [
+            { datasetUrn: dataQuery.urn, id: 'Q', name: 'Quarterly' },
+          ],
+        },
+      ],
+    };
+    const expandedFilter: Filter = {
+      id: 'FREQ',
+      filterType: 'dataset',
+      datasetUrn: dataQuery.urn,
+      dimensionValues: [{ id: 'Q', isSelectedValue: true }],
+    };
+
+    mockGetFiltersForQueryContext.mockReturnValue([expandedFilter]);
+
+    expect(
+      buildDataQueryWithMergedFilters(dataQuery, [sharedFilter]).filters,
+    ).toEqual([
+      {
+        componentCode: 'FREQ',
+        operator: 'in',
+        values: ['Q'],
+      },
+    ]);
+    expect(mockGetFiltersForQueryContext).toHaveBeenCalledWith(
+      [sharedFilter],
+      dataQuery.urn,
+    );
   });
 });

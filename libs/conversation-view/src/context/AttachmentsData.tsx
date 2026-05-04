@@ -43,7 +43,6 @@ import { ConversationViewTitles } from '../models/titles';
 import { Filter } from '../models/filters';
 import { Attachment } from '@epam/ai-dial-shared';
 import { buildMarkdownAttachments } from '../utils/attachments/markdown-attachments';
-import { hasPythonCodeAttachment } from '../utils/attachments/attachment-parser';
 import { invokePythonAttachment } from '../utils/attachments/python-attachment';
 import {
   buildRequestCacheKey,
@@ -251,13 +250,7 @@ export function useAttachmentsData(
           })
           .finally(() => setIsLoadingGridData(false));
 
-        const hasPythonAttachment = hasPythonCodeAttachment(rawAttachments);
-        if (
-          getPythonAttachment &&
-          dataQuery &&
-          filters &&
-          hasPythonAttachment
-        ) {
+        if (getPythonAttachment && dataQuery && filters) {
           const updatedQuery = buildDataQueryWithMergedFilters(
             dataQuery,
             filters,
@@ -357,13 +350,15 @@ export function useAttachmentsData(
 
   useEffect(() => {
     if (rawAttachments?.length) {
-      setCodeAttachments(
-        buildMarkdownAttachments(
-          rawAttachments,
-          dataQuery?.urn,
-          titles?.codeSamples,
-        ),
+      const markdownCodeAttachments = buildMarkdownAttachments(
+        rawAttachments,
+        dataQuery?.urn,
+        titles?.codeSamples,
       );
+
+      if (markdownCodeAttachments.length > 0) {
+        setCodeAttachments(markdownCodeAttachments);
+      }
     }
   }, [rawAttachments, titles, dataQuery]);
 

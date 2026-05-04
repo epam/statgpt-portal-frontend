@@ -32,11 +32,7 @@ import { ConversationViewSidePanelOutlet } from '../ConversationView/SidePanel/C
 import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
 import { ConversationViewTitlesProvider } from '../../context/ConversationViewTitlesContext';
 import { useCrossDatasetAttachments } from '../../context/CrossDatasetAttachmentsContext';
-import { useDatasetDimensionsMetadataMap } from '../../context/DatasetDimensionsMetadataMapContext';
-import {
-  getCrossDatasetSnapshotKey,
-  getRestoredActiveDatasetUrns,
-} from '../../utils/multiple-filters';
+import { getCrossDatasetSnapshotKey } from '../../utils/multiple-filters';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -79,14 +75,9 @@ export const AdvancedView: FC<Props> = ({
   );
 
   const { isOpenedAdvancedView } = useAdvancedView();
-  const {
-    activeDatasetUrns: sharedActiveDatasetUrns,
-    dataQueriesKey: sharedCrossDatasetDataQueriesKey,
-    setCrossDatasetAttachmentsState,
-  } = useCrossDatasetAttachments();
+  const { setCrossDatasetAttachmentsState } = useCrossDatasetAttachments();
   const { isCrossDatasetModeOn, isMetadataInSidePanel } =
     useConversationViewFeatureToggles();
-  const datasetDimensionsMetadata = useDatasetDimensionsMetadataMap();
   const shouldShowDatasetInfo = !isMetadataInSidePanel;
   const datasets = attachmentsProps.datasets ?? [];
   const showDatasetTabs = datasets.length > 1 && !isCrossDatasetModeOn;
@@ -98,13 +89,6 @@ export const AdvancedView: FC<Props> = ({
     () => getCrossDatasetSnapshotKey(attachmentsProps.dataQueries),
     [attachmentsProps.dataQueries],
   );
-  const initialActiveDatasetUrns =
-    sharedCrossDatasetDataQueriesKey === crossDatasetDataQueriesKey
-      ? sharedActiveDatasetUrns
-      : getRestoredActiveDatasetUrns(
-          attachmentsProps.dataQueries,
-          datasetDimensionsMetadata.map,
-        );
 
   const conversationRef = useRef(props.filtersProps.conversation);
   conversationRef.current = props.filtersProps.conversation;
@@ -161,7 +145,6 @@ export const AdvancedView: FC<Props> = ({
   const {
     structureDataMaps,
     crossDatasetAttachments,
-    activeDatasetUrns,
     isLoadingGridData: isLoadingCrossDsGridData,
     onMultipleDataFiltersChange,
   } = useAttachmentsDataMultipleQueries(
@@ -172,7 +155,6 @@ export const AdvancedView: FC<Props> = ({
     formattingSettings,
     metadataSettings,
     lastMessageAttachments,
-    initialActiveDatasetUrns,
     handleCodeAttachmentUpdated,
   );
 
@@ -189,13 +171,9 @@ export const AdvancedView: FC<Props> = ({
     setCrossDatasetAttachmentsState({
       attachments: crossDatasetAttachments,
       dataQueriesKey: crossDatasetDataQueriesKey,
-      activeDatasetUrns: activeDatasetUrns
-        ? Array.from(activeDatasetUrns)
-        : undefined,
       isLoading: isLoadingCrossDsGridData,
     });
   }, [
-    activeDatasetUrns,
     attachmentsProps.dataQueries?.length,
     crossDatasetAttachments,
     crossDatasetDataQueriesKey,
@@ -236,6 +214,7 @@ export const AdvancedView: FC<Props> = ({
       constraintsMap?: Map<string, DataConstraints[] | undefined>,
       dataQueries?: DataQuery[],
       filtersMap?: Map<string, Filter[]>,
+      filters?: Filter[],
     ): void => {
       setFiltersMap(filterParamsMap);
       setIsFiltering(true);
@@ -244,6 +223,7 @@ export const AdvancedView: FC<Props> = ({
         constraintsMap,
         dataQueries,
         filtersMap,
+        filters,
       );
     },
     [onMultipleDataFiltersChange],
