@@ -48,6 +48,7 @@ type TableSettingsContextValue = {
   gridViewMode: CrossDatasetGridViewMode;
   setGridViewMode: (mode: CrossDatasetGridViewMode) => void;
   texts?: TableSettingsTexts;
+  resetIcon?: ReactNode;
 };
 
 const TableSettingsContext = createContext<TableSettingsContextValue | null>(
@@ -89,6 +90,7 @@ export function TableSettingsProvider({
   gridViewMode = CrossDatasetGridViewMode.Compact,
   onGridViewModeChange,
   texts,
+  resetIcon,
   children,
 }: {
   currentUrn: string;
@@ -98,6 +100,7 @@ export function TableSettingsProvider({
   gridViewMode?: CrossDatasetGridViewMode;
   onGridViewModeChange?: (mode: CrossDatasetGridViewMode) => void;
   texts?: TableSettingsTexts;
+  resetIcon?: ReactNode;
   children: ReactNode;
 }) {
   const { gridApi, onGridApiReady, initialColumnsState } =
@@ -177,6 +180,7 @@ export function TableSettingsProvider({
       gridViewMode,
       setGridViewMode,
       texts,
+      resetIcon,
     }),
     [
       gridApi,
@@ -192,6 +196,7 @@ export function TableSettingsProvider({
       gridViewMode,
       setGridViewMode,
       texts,
+      resetIcon,
     ],
   );
 

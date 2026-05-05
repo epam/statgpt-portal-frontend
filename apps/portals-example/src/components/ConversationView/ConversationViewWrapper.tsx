@@ -81,6 +81,7 @@ import ThumbPressed from '../../../public/images/messages/thumb-filled.svg';
 import Reset from '../../../public/images/reset.svg';
 import ExternalLink from '../../../public/images/external-link.svg';
 import GearIcon from '../../../public/images/gear.svg';
+import ResetArrowIcon from '../../../public/images/reset-arrow.svg';
 import {
   IconCalendarWeek,
   IconChevronRight,
@@ -297,6 +298,7 @@ const ConversationViewWrapper: FC<Props> = ({
     downloadTitle: t(DownloadI18nKeys.DOWNLOAD),
     tableSettings: t(AttachmentsI18nKeys.TABLE_SETTINGS),
     tableSettingsIcon: <GearIcon className="size-4" />,
+    tableSettingsResetIcon: <ResetArrowIcon className="size-4" />,
     columnsDisplayTitle: t(AttachmentsI18nKeys.COLUMNS_DISPLAY),
     columnsSearchPlaceholder: t(AttachmentsI18nKeys.COLUMNS_SEARCH_PLACEHOLDER),
     compactViewTitle: t(AttachmentsI18nKeys.COMPACT_VIEW_TITLE),

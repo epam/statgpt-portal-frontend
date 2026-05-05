@@ -42,6 +42,7 @@ export const TableSettingsPanel = () => {
     gridViewMode,
     setGridViewMode,
     texts,
+    resetIcon,
   } = useTableSettingsContext();
   const dimensionsCtx = useDatasetDimensionsMetadataMapOptional();
   const renderLabel = useDatasetScopedColumnRenderLabel();
@@ -118,7 +119,7 @@ export const TableSettingsPanel = () => {
           className="text-neutrals-800"
           onClick={resetColumns}
         >
-          <IconRotate className="size-4 rotate-180" />
+          {resetIcon ?? <IconRotate className="size-4 rotate-180" />}
         </button>
       </div>
       <AgGridColumnsPanel

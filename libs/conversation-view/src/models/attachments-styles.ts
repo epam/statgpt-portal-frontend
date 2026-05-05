@@ -19,6 +19,7 @@ export interface AttachmentsStyles {
   hideDownloadIconInAdvancedView?: boolean;
   tableSettings?: string;
   tableSettingsIcon?: ReactNode;
+  tableSettingsResetIcon?: ReactNode;
   columnsDisplayTitle?: string;
   columnsSearchPlaceholder?: string;
   compactViewTitle?: string;
