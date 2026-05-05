@@ -98,7 +98,10 @@ export const getStructureDataMaps = async (
         const filterKey =
           dimensions?.dimensions == null
             ? null
-            : getTimeSeriesFilterKey(dimensions?.dimensions, dataQuery.filters);
+            : getTimeSeriesFilterKey(
+                dimensions?.dimensions,
+                dataQuery.filters ?? [],
+              );
 
         const timeFilter = getTimeQueryFilterFromAttachment(
           dataQuery,

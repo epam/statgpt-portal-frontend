@@ -16,6 +16,7 @@ export interface CrossDatasetGridAttachmentType extends Attachment {
 
 export interface CustomChartAttachmentType extends Attachment {
   charting_data?: ChartingData;
+  getChartingData?: () => ChartingData;
 }
 
 export interface CustomCodeAttachment extends Attachment {

@@ -12,6 +12,8 @@ export interface ChartUnit extends ChartUnitRows {
   limitedByRowsAmountTo: number | undefined;
 }
 
+export type ChartUnitValue = ChartUnit | (() => ChartUnit);
+
 export interface ChartUnitGroup {
   title?: string;
   units: ChartUnit[];

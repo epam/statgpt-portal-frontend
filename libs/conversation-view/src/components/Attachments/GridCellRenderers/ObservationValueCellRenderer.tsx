@@ -1,194 +1,29 @@
 'use client';
 
-import { FC, useCallback, useMemo, useState } from 'react';
-import { ICellRendererParams } from 'ag-grid-community';
-import Metadata from '../../AdvancedView/Metadata/Metadata';
-import SidePanelMetadataContent from '../../AdvancedView/Metadata/SidePanel/SidePanelMetadataContent';
-import { getExternalLinkFromContext } from './helpers/get-external-link-from-context';
-import {
-  StructuralData,
-  getLastUpdatedTime,
-  getStructureComponentsMap,
-} from '@epam/statgpt-sdmx-toolkit';
-import {
-  getDatasetNameItem,
-  getDatasetInfoData,
-  getDimensionsFromParams,
-  getMetadataDescriptionItems,
-  getObsAttributesFromParams,
-  getObservationItem,
-  getStructureComponentsValues,
-  getTimeDimensionItem,
-} from '../../../utils/attachments/metadata';
-import { MetadataSettings } from '../../../models/metadata';
-import { ConversationViewTitles } from '../../../models/titles';
-import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
-import { useConversationViewSidePanelOptional } from '../../ConversationView/SidePanel/ConversationViewSidePanelContext';
-import { useAdvancedView } from '../../../context/AdvancedViewContext';
-import { getDateFormattedValue } from '../../../utils/date-format';
+import { FC } from 'react';
 
-interface ObservationValueCellRendererParams extends ICellRendererParams {
-  dataSetData: StructuralData;
-  structuresMap?: Map<string, StructuralData | undefined>;
-  locale: string;
-  metadataSettings?: MetadataSettings;
-  titles?: ConversationViewTitles;
-}
+import { getObsAttributesFromParams } from '../../../utils/attachments/metadata';
+import { ObservationValueCellRendererParams } from './helpers/get-observation-metadata-content';
+import ObservationValueCellWithMetadata from './ObservationValueCellWithMetadata';
 
 const ObservationValueCellRenderer: FC<ObservationValueCellRendererParams> = (
   params: ObservationValueCellRendererParams,
 ) => {
-  const METADATA_SIDE_PANEL_ID = 'observation-metadata-side-panel';
+  const obsAttributes = getObsAttributesFromParams(params);
 
-  const [isOpenMetadata, setIsOpenMetadata] = useState<boolean>(false);
-  const { isOpenedAdvancedView } = useAdvancedView();
-  const sidePanel = useConversationViewSidePanelOptional();
-  const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
-  const rowUrn = params?.data?.dataset?.urn as string | undefined;
-  const externalLink = getExternalLinkFromContext(params?.context, rowUrn);
-  const dataSetData = useMemo(() => {
-    if (params.structuresMap) {
-      const urn = params?.data?.dataset?.urn as string | undefined;
-      return urn != null ? params.structuresMap.get(urn) : undefined;
-    }
-    return params.dataSetData;
-  }, [params.structuresMap, params.data, params.dataSetData]);
-  const structureComponentsMap = useMemo(
-    () => getStructureComponentsMap(dataSetData),
-    [dataSetData],
-  );
-  const attributes = useMemo(
-    () =>
-      getStructureComponentsValues(
-        getObsAttributesFromParams(params),
-        structureComponentsMap,
-        params?.locale,
-      ),
-    [params, structureComponentsMap],
-  );
-  const metadata = useMemo(
-    () => [
-      getDatasetNameItem(
-        dataSetData?.dataflows?.[0],
-        params?.locale,
-        params?.titles,
-      ),
-      ...getStructureComponentsValues(
-        getDimensionsFromParams(params, structureComponentsMap),
-        structureComponentsMap,
-        params?.locale,
-      ),
-      ...(!params?.metadataSettings?.isMetadataDescription
-        ? [
-            getTimeDimensionItem(dataSetData, params?.locale, params?.colDef),
-            getObservationItem(
-              params?.valueFormatted || params?.value,
-              params?.titles,
-            ),
-          ]
-        : []),
-      ...attributes,
-    ],
-    [params, dataSetData, structureComponentsMap, attributes],
-  );
-  const metadataDescription = useMemo(
-    () =>
-      getMetadataDescriptionItems(
-        dataSetData,
-        params?.locale,
-        params?.valueFormatted || params?.value,
-        params?.titles,
-        params?.colDef,
-        params?.data,
-      ),
-    [params, dataSetData],
-  );
-  const sidePanelDatasetInfo = useMemo(() => {
-    const dataset = dataSetData?.dataflows?.[0];
-    const lastUpdatedDate = getDateFormattedValue(
-      getLastUpdatedTime(dataset),
-      params?.locale,
-    );
-
-    return getDatasetInfoData(
-      dataset,
-      lastUpdatedDate,
-      params?.locale,
-      params?.titles,
-    );
-  }, [dataSetData, params?.locale, params?.titles]);
-
-  const openMetadata = useCallback(() => {
-    if (isMetadataInSidePanel && sidePanel) {
-      sidePanel.openPanel({
-        id: METADATA_SIDE_PANEL_ID,
-        scope: isOpenedAdvancedView ? 'advanced' : 'conversation',
-        title: params.titles?.metadata || 'Metadata',
-        bodyClassName: 'overflow-hidden',
-        content: (
-          <SidePanelMetadataContent
-            titles={params.titles}
-            locale={params?.locale}
-            metadata={metadata}
-            datasetInfo={sidePanelDatasetInfo}
-            externalLink={externalLink}
-            metadataDescription={
-              params?.metadataSettings?.isMetadataDescription
-                ? metadataDescription
-                : []
-            }
-          />
-        ),
-      });
-
-      return;
-    }
-
-    setIsOpenMetadata(true);
-  }, [
-    isMetadataInSidePanel,
-    isOpenedAdvancedView,
-    metadata,
-    metadataDescription,
-    sidePanelDatasetInfo,
-    externalLink,
-    params?.locale,
-    params?.metadataSettings?.isMetadataDescription,
-    params.titles,
-    sidePanel,
-  ]);
-
-  const closeMetadata = useCallback(() => {
-    setIsOpenMetadata(false);
-  }, []);
-
-  return (
-    <>
+  if (!obsAttributes?.length) {
+    return (
       <div className="relative size-full p-2 text-end">
         {params?.valueFormatted || params?.value}
-        {attributes?.length > 0 && (
-          <div
-            className="metadata-indicator"
-            title={params.titles?.metadata || 'View details'}
-            onClick={openMetadata}
-          ></div>
-        )}
       </div>
-      {isOpenMetadata && (
-        <Metadata
-          titles={params.titles}
-          locale={params?.locale}
-          metadata={metadata}
-          metadataDescription={
-            params?.metadataSettings?.isMetadataDescription
-              ? metadataDescription
-              : []
-          }
-          isOpenMetadata={isOpenMetadata}
-          onCloseMetadata={closeMetadata}
-        />
-      )}
-    </>
+    );
+  }
+
+  return (
+    <ObservationValueCellWithMetadata
+      params={params}
+      obsAttributes={obsAttributes}
+    />
   );
 };
 

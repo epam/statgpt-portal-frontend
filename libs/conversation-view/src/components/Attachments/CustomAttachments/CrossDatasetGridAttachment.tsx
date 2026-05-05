@@ -82,6 +82,21 @@ const CrossDatasetGridAttachment: FC<Props> = ({
     [onApiReady],
   );
 
+  const gridContext = useMemo(
+    () => ({ externalLink, externalLinksMap }),
+    [externalLink, externalLinksMap],
+  );
+  const gridComponents = useMemo(
+    () => ({
+      [METADATA_CELL_RENDER]: MetadataCellRenderer,
+      [OBSERVATION_VALUE_CELL_RENDER]: ObservationValueCellRenderer,
+      [MERGED_DIMENSION_CELL_RENDER]: MergedDimensionCellRenderer,
+      [CHART_CELL_RENDER]: ChartCellRenderer,
+      [DATASET_DETAIL_CELL_RENDER]: DatasetDetailCellRenderer,
+    }),
+    [],
+  );
+
   //TODO: replace cell renderers
   const memoizedGrid = useMemo(
     () => (
@@ -91,21 +106,16 @@ const CrossDatasetGridAttachment: FC<Props> = ({
         rowData={rowData}
         enableCellTextSelection
         columnDefs={columnDefs}
-        context={{ externalLink, externalLinksMap }}
+        context={gridContext}
         domLayout="normal"
         tooltipShowDelay={0}
         tooltipShowMode="whenTruncated"
-        components={{
-          [METADATA_CELL_RENDER]: MetadataCellRenderer,
-          [OBSERVATION_VALUE_CELL_RENDER]: ObservationValueCellRenderer,
-          [MERGED_DIMENSION_CELL_RENDER]: MergedDimensionCellRenderer,
-          [CHART_CELL_RENDER]: ChartCellRenderer,
-          [DATASET_DETAIL_CELL_RENDER]: DatasetDetailCellRenderer,
-        }}
+        components={gridComponents}
+        valueCache
         onGridReady={handleGridReady}
       />
     ),
-    [rowData, columnDefs, handleGridReady, externalLink, externalLinksMap],
+    [rowData, columnDefs, gridContext, gridComponents, handleGridReady],
   );
 
   if (isLoading || isDataLoading) {

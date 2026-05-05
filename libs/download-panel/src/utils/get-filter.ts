@@ -25,7 +25,7 @@ export const getDownloadFilters = (
     filterKey =
       dimensions == null
         ? null
-        : getTimeSeriesFilterKey(dimensions, dataQuery.filters);
+        : getTimeSeriesFilterKey(dimensions, dataQuery.filters ?? []);
 
     timeFilter = getTimeQueryFilter(dataQuery, getTimeDimension(dimensions));
   }
