@@ -36,6 +36,7 @@ import {
 } from '@epam/statgpt-conversation-view';
 import { buildCrossDatasetGridAttachment } from '../utils/attachments/cross-dataset-grid/build-cross-dataset-grid-attachment';
 import { MetadataSettings } from '../models/metadata';
+import { CrossDatasetGridViewMode } from '../components/AdvancedView/TableSettings/types';
 import { StructureDataMaps } from '../models/structure-data';
 import { createCrossDatasetChartingDataResolver } from '../utils/attachments/charting/cross-dataset-chart-data';
 import { scheduleDeferredWork } from '../utils/deferred-work';
@@ -59,6 +60,7 @@ export function useAttachmentsDataMultipleQueries(
   rawAttachments?: Attachment[],
   initialActiveDatasetUrns?: string[],
   onCodeAttachmentUpdated?: (attachment: Attachment) => void,
+  gridViewMode: CrossDatasetGridViewMode = CrossDatasetGridViewMode.Compact,
 ) {
   const normalizedInitialActiveDatasetUrns = Array.isArray(
     initialActiveDatasetUrns,
@@ -260,6 +262,7 @@ export function useAttachmentsDataMultipleQueries(
               startPeriod: null,
               endPeriod: null,
             },
+            gridViewMode,
           ),
         }));
         setIsBuildingCrossDatasetGridAttachment(false);
@@ -284,6 +287,7 @@ export function useAttachmentsDataMultipleQueries(
     datasetDimensionsSchemesMap,
     isLoadingGridData,
     activeDatasetUrns,
+    gridViewMode,
   ]);
 
   useEffect(() => {

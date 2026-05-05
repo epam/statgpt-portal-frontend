@@ -27,6 +27,7 @@ import { getExternalLink } from '../../utils/attachments-details';
 import { replacePythonAttachment } from '../../utils/attachments/replace-python-attachment';
 import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
 import { TableSettingsProvider } from './TableSettings/TableSettingsContext';
+import { CrossDatasetGridViewMode } from './TableSettings/types';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 import { ConversationViewSidePanelOutlet } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
@@ -76,6 +77,10 @@ export const AdvancedView: FC<Props> = ({
       attachmentsProps.dataQueries?.[0]?.urn ??
       'default',
     [attachmentsProps.currentDataQuery?.urn, attachmentsProps.dataQueries],
+  );
+
+  const [gridViewMode, setGridViewMode] = useState(
+    CrossDatasetGridViewMode.Compact,
   );
 
   const { isOpenedAdvancedView } = useAdvancedView();
@@ -174,6 +179,7 @@ export const AdvancedView: FC<Props> = ({
     lastMessageAttachments,
     initialActiveDatasetUrns,
     handleCodeAttachmentUpdated,
+    gridViewMode,
   );
 
   useEffect(() => {
@@ -278,6 +284,8 @@ export const AdvancedView: FC<Props> = ({
         structuresMap={structureDataMaps?.structuresMap}
         locale={locale}
         dataQueries={attachmentsProps?.dataQueries}
+        gridViewMode={gridViewMode}
+        onGridViewModeChange={setGridViewMode}
       >
         <div className="advanced-view flex h-full min-w-0 flex-1 flex-col">
           <Header

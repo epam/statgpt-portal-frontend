@@ -16,6 +16,7 @@ import type {
   DimensionCustomizationMap,
   DimensionKeyCustomization,
 } from './types';
+import { CrossDatasetGridViewMode } from './types';
 
 type TableSettingsContextValue = {
   gridApi?: GridApi;
@@ -33,6 +34,8 @@ type TableSettingsContextValue = {
     hidden: boolean,
   ) => void;
   resetDimensionCustomization: () => void;
+  gridViewMode: CrossDatasetGridViewMode;
+  setGridViewMode: (mode: CrossDatasetGridViewMode) => void;
 };
 
 const TableSettingsContext = createContext<TableSettingsContextValue | null>(
@@ -71,16 +74,25 @@ export function TableSettingsProvider({
   structuresMap,
   locale,
   dataQueries,
+  gridViewMode = CrossDatasetGridViewMode.Compact,
+  onGridViewModeChange,
   children,
 }: {
   currentUrn: string;
   structuresMap?: Map<string, StructuralData | undefined>;
   locale?: string;
   dataQueries?: Array<{ urn: string }>;
+  gridViewMode?: CrossDatasetGridViewMode;
+  onGridViewModeChange?: (mode: CrossDatasetGridViewMode) => void;
   children: ReactNode;
 }) {
   const { gridApi, onGridApiReady, initialColumnsState } =
     useAgGridColumnPreferences({ currentUrn });
+
+  const setGridViewMode = useCallback(
+    (mode: CrossDatasetGridViewMode) => onGridViewModeChange?.(mode),
+    [onGridViewModeChange],
+  );
 
   const [dimensionCustomization, setDimensionCustomizationState] =
     useState<DimensionCustomizationMap>(new Map());
@@ -148,6 +160,8 @@ export function TableSettingsProvider({
       setDimensionKeyOrder,
       setDimensionKeyHidden,
       resetDimensionCustomization,
+      gridViewMode,
+      setGridViewMode,
     }),
     [
       gridApi,
@@ -160,6 +174,8 @@ export function TableSettingsProvider({
       setDimensionKeyOrder,
       setDimensionKeyHidden,
       resetDimensionCustomization,
+      gridViewMode,
+      setGridViewMode,
     ],
   );
 

@@ -17,6 +17,7 @@ import { buildCrossDatasetGridColumns } from './build-cross-dataset-grid-columns
 import { buildCrossDatasetGridData } from './build-cross-dataset-grid-data';
 import { ChartingStyles } from '../../../models/attachments-styles';
 import { ConversationViewTitles } from '../../../models/titles';
+import { CrossDatasetGridViewMode } from '../../../components/AdvancedView/TableSettings/types';
 
 export function buildCrossDatasetGridAttachment(
   structuresMap: Map<string, StructuralData | undefined>,
@@ -30,6 +31,7 @@ export function buildCrossDatasetGridAttachment(
   titles?: ConversationViewTitles,
   constraintsMap?: Map<string, DataConstraints[] | undefined>,
   selectedTimePeriod?: TimeRange,
+  gridViewMode: CrossDatasetGridViewMode = CrossDatasetGridViewMode.Compact,
 ): Partial<CrossDatasetGridAttachmentType> {
   const gridContent = buildCrossDatasetGridContent(
     structuresMap,
@@ -43,6 +45,7 @@ export function buildCrossDatasetGridAttachment(
     titles,
     constraintsMap,
     selectedTimePeriod,
+    gridViewMode,
   );
 
   return {
@@ -63,6 +66,7 @@ export function buildCrossDatasetGridContent(
   titles?: ConversationViewTitles,
   _constraintsMap?: Map<string, DataConstraints[] | undefined>,
   _selectedTimePeriod?: TimeRange,
+  gridViewMode: CrossDatasetGridViewMode = CrossDatasetGridViewMode.Compact,
 ): { data: GridData[]; columns: ColDef[] } {
   return {
     columns: buildCrossDatasetGridColumns(
@@ -72,6 +76,7 @@ export function buildCrossDatasetGridContent(
       locale,
       titles,
       formattingSettings,
+      gridViewMode,
     ),
     data: buildCrossDatasetGridData(
       structuresMap,

@@ -5,7 +5,9 @@ import { buildCrossDatasetEnrichItem } from './helpers/crossDatasetEnrichment';
 import { restoreInitialColumnsState } from './AgGridColumnPanel/helpers/columnStateSnapshot';
 import { useTableSettingsContext } from './TableSettingsContext';
 import { useDatasetDimensionsMetadataMapOptional } from '../../../context/DatasetDimensionsMetadataMapContext';
-import { useOtherColumnRenderLabel } from './hooks/useOtherColumnRenderLabel';
+import { CrossDatasetGridViewMode } from './types';
+import { useDatasetScopedColumnRenderLabel } from './hooks/useDatasetScopedColumnRenderLabel';
+import { GridViewModeSwitcher } from './GridViewModeSwitcher/GridViewModeSwitcher';
 
 export const TABLE_SETTINGS_SIDE_PANEL_ID = 'table-settings-side-panel';
 
@@ -78,18 +80,44 @@ export const TableSettingsPanelHeaderExtension = ({
 export const TableSettingsPanel = () => {
   const {
     gridApi,
+    initialColumnsState,
     structuresMap,
     locale,
     dataQueries,
     dimensionCustomization,
     setDimensionKeyOrder,
     setDimensionKeyHidden,
+    resetDimensionCustomization,
+    gridViewMode,
+    setGridViewMode,
   } = useTableSettingsContext();
   const dimensionsCtx = useDatasetDimensionsMetadataMapOptional();
-  const renderLabel = useOtherColumnRenderLabel();
+  const renderLabel = useDatasetScopedColumnRenderLabel();
+
+  const handleModeChange = useCallback(
+    (mode: CrossDatasetGridViewMode) => {
+      if (gridApi) {
+        restoreInitialColumnsState(gridApi, initialColumnsState);
+      }
+      resetDimensionCustomization();
+      setGridViewMode(mode);
+    },
+    [
+      gridApi,
+      initialColumnsState,
+      resetDimensionCustomization,
+      setGridViewMode,
+    ],
+  );
 
   const enrichItem = useMemo(() => {
-    if (!dimensionsCtx || !structuresMap || !locale || !dataQueries?.length) {
+    if (
+      gridViewMode !== CrossDatasetGridViewMode.Compact ||
+      !dimensionsCtx ||
+      !structuresMap ||
+      !locale ||
+      !dataQueries?.length
+    ) {
       return undefined;
     }
 
@@ -102,6 +130,7 @@ export const TableSettingsPanel = () => {
       dimensionCustomization,
     });
   }, [
+    gridViewMode,
     dimensionsCtx,
     structuresMap,
     locale,
@@ -110,12 +139,18 @@ export const TableSettingsPanel = () => {
   ]);
 
   return gridApi ? (
-    <AgGridColumnsPanel
-      api={gridApi}
-      enrichItem={enrichItem}
-      renderLabel={renderLabel}
-      onSubItemOrderChange={setDimensionKeyOrder}
-      onSubItemVisibilityChange={setDimensionKeyHidden}
-    />
+    <>
+      <GridViewModeSwitcher
+        gridViewMode={gridViewMode}
+        onModeChange={handleModeChange}
+      />
+      <AgGridColumnsPanel
+        api={gridApi}
+        enrichItem={enrichItem}
+        renderLabel={renderLabel}
+        onSubItemOrderChange={setDimensionKeyOrder}
+        onSubItemVisibilityChange={setDimensionKeyHidden}
+      />
+    </>
   ) : null;
 };
