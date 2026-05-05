@@ -1,14 +1,16 @@
-import { FC, ReactNode, useState } from 'react';
+import { FC, ReactNode, useEffect, useId, useState } from 'react';
 import {
   useFloating,
   offset,
   flip,
   shift,
+  size,
   useClick,
   useDismiss,
   autoUpdate,
   useInteractions,
 } from '@floating-ui/react';
+import type { Middleware } from '@floating-ui/react';
 import classNames from 'classnames';
 import { DropdownItem } from '../../models/dropdown-item';
 
@@ -23,6 +25,32 @@ interface Props {
   onOptionSelect?: (key: string) => void;
 }
 
+const dropdownOpenEventName = 'statgpt-dropdown-open';
+const dropdownViewportPadding = 8;
+
+const keepDropdownWithinViewport: Middleware = {
+  name: 'keepDropdownWithinViewport',
+  fn({ y, rects }) {
+    if (typeof window === 'undefined') {
+      return {};
+    }
+
+    const viewportHeight =
+      document.documentElement.clientHeight || window.innerHeight;
+    const visibleDropdownHeight = Math.min(
+      rects.floating.height,
+      Math.max(0, viewportHeight - dropdownViewportPadding * 2),
+    );
+    const minY = dropdownViewportPadding;
+    const maxY =
+      viewportHeight - visibleDropdownHeight - dropdownViewportPadding;
+
+    return {
+      y: Math.min(Math.max(y, minY), Math.max(minY, maxY)),
+    };
+  },
+};
+
 export const Dropdown: FC<Props> = ({
   triggerButton,
   options,
@@ -33,12 +61,28 @@ export const Dropdown: FC<Props> = ({
   openedClassName,
   onOptionSelect,
 }) => {
+  const dropdownId = useId();
   const [open, setOpen] = useState(false);
   const { refs, floatingStyles, context } = useFloating({
     open,
     onOpenChange: !disabled ? setOpen : void 0,
     placement: 'bottom-end',
-    middleware: [offset(8), flip(), shift()],
+    strategy: 'fixed',
+    middleware: [
+      offset(dropdownViewportPadding),
+      flip({ padding: dropdownViewportPadding }),
+      size({
+        padding: dropdownViewportPadding,
+        apply({ availableHeight, elements }) {
+          elements.floating.style.maxHeight = `${Math.max(
+            0,
+            availableHeight,
+          )}px`;
+        },
+      }),
+      shift({ padding: dropdownViewportPadding }),
+      keepDropdownWithinViewport,
+    ],
     whileElementsMounted: autoUpdate,
   });
 
@@ -48,6 +92,36 @@ export const Dropdown: FC<Props> = ({
     click,
     dismiss,
   ]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    window.dispatchEvent(
+      new CustomEvent(dropdownOpenEventName, { detail: dropdownId }),
+    );
+  }, [dropdownId, open]);
+
+  useEffect(() => {
+    const closeDropdown = (event: Event) => {
+      if (event instanceof CustomEvent && event.detail !== dropdownId) {
+        setOpen(false);
+      }
+    };
+
+    window.addEventListener(dropdownOpenEventName, closeDropdown);
+
+    return () => {
+      window.removeEventListener(dropdownOpenEventName, closeDropdown);
+    };
+  }, [dropdownId]);
+
+  useEffect(() => {
+    if (disabled) {
+      setOpen(false);
+    }
+  }, [disabled]);
 
   return (
     <>
@@ -65,7 +139,7 @@ export const Dropdown: FC<Props> = ({
       {open && (
         <div
           ref={refs.setFloating}
-          style={floatingStyles}
+          style={{ ...floatingStyles, overflowY: 'auto' }}
           className="dropdown-menu-shadow dropdown-container z-10 flex flex-col rounded bg-white"
           {...getFloatingProps()}
         >

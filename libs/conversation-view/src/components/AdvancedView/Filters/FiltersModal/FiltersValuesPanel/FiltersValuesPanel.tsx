@@ -31,6 +31,7 @@ import { getFilterIdentity, isSameFilter } from '../../../../../utils/filters';
 import {
   applySelectionToTree,
   filterHierarchyNodes,
+  getSelectedHierarchyNodeIds,
 } from '../../../../../utils/hierarchy-view';
 
 const MIN_CROSS_DATASET_SEARCH_CHARS = 2;
@@ -177,11 +178,7 @@ const FiltersValuesPanel: FC<Props> = ({
   const hierarchyTreeNodes = useMemo(() => {
     const nodes = hierarchyState?.treeNodes;
     if (!nodes?.length) return nodes;
-    const selectedIds = new Set(
-      selectedFilter?.dimensionValues
-        ?.filter((v) => v.isSelectedValue)
-        .map((v) => v.id) ?? [],
-    );
+    const selectedIds = getSelectedHierarchyNodeIds(selectedFilter);
     const withSelection = selectedIds.size
       ? applySelectionToTree(nodes, selectedIds)
       : nodes;
@@ -190,7 +187,7 @@ const FiltersValuesPanel: FC<Props> = ({
       : withSelection;
   }, [
     hierarchyState?.treeNodes,
-    selectedFilter?.dimensionValues,
+    selectedFilter,
     hasSearchQuery,
     normalizedSearchQuery,
   ]);

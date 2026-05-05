@@ -20,8 +20,11 @@ export interface AttachmentsStyles {
   columnsTitle?: string;
   columnsResetTitle?: string;
   closeTitle?: string;
+  infoDownloadIcon?: ReactNode;
   successDownloadIcon?: ReactNode;
   errorDownloadIcon?: ReactNode;
+  downloadInProgressActionIcon?: ReactNode;
+  downloadErrorActionIcon?: ReactNode;
   datasetIcon?: ReactNode;
   isDisplayDatasetIcon?: boolean;
   isDownloadDescriptionVisible?: boolean;

@@ -10,6 +10,7 @@
 'use client';
 
 import {
+  Attachment,
   Conversation,
   ConversationInfo,
   LikeState,
@@ -89,6 +90,7 @@ import { ConversationViewTitlesProvider } from '../../context/ConversationViewTi
 import { getRedirectConversationPath } from '../../utils/get-conversation-path';
 import { generateConversation } from '../../utils/generate-conversation';
 import { duplicateConversationAttachments } from '../../utils/duplicate-conversation-attachments';
+import { replacePythonAttachment } from '../../utils/attachments/replace-python-attachment';
 
 import { ABORT_ERROR } from '../../constants/errors';
 import { useOnboarding } from '../../context/OnboardingContext';
@@ -106,6 +108,8 @@ import {
 import { updateConversationErrorContext } from '../../utils/conversation';
 import { clearRequestCache } from '../../utils/request-cache';
 import { ConversationViewSidePanelOutlet } from './SidePanel/ConversationViewSidePanelContext';
+import { useCrossDatasetAttachments } from '../../context/CrossDatasetAttachmentsContext';
+import { getTimezone } from '../../utils/timezone';
 
 interface Props {
   conversationKey: string;
@@ -174,6 +178,7 @@ export const ConversationView: FC<Props> = ({
   const [isLoading, setIsLoading] = useState(true);
   const { isStreaming, setIsStreaming } = useChatMessages();
   const { isOpenedAdvancedView } = useAdvancedView();
+  const { setCrossDatasetAttachmentsState } = useCrossDatasetAttachments();
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
 
   const { isAgentAvailable } = useAgentAvailability();
@@ -273,6 +278,25 @@ export const ConversationView: FC<Props> = ({
       }
     },
     [actions, conversationKey],
+  );
+
+  const handleCodeAttachmentUpdated = useCallback(
+    (messageId: string, newRawAttachment: Attachment) => {
+      if (!conversation) return;
+      const updatedMessages = replacePythonAttachment(
+        conversation.messages as Message[],
+        newRawAttachment,
+        messageId,
+      );
+      if (!updatedMessages) return;
+      const updatedConversation = {
+        ...conversation,
+        messages: updatedMessages,
+      };
+      setConversation(updatedConversation);
+      saveConversation(updatedConversation);
+    },
+    [conversation, setConversation, saveConversation],
   );
 
   const addUserMessageToConversation = useCallback(
@@ -420,6 +444,7 @@ export const ConversationView: FC<Props> = ({
         ...existingConvCustomFields,
         configuration: {
           ...existingConvCustomFields.configuration,
+          timezone: getTimezone(),
           ...(isCrossDatasetModeOn && { merge_python_code: true }),
         },
       };
@@ -523,7 +548,7 @@ export const ConversationView: FC<Props> = ({
   );
 
   const handleSendMessageError = useCallback(
-    (error: unknown, userMessage: Message) => {
+    (_error: unknown, userMessage: Message) => {
       setConversation((prev) =>
         prev
           ? {
@@ -748,6 +773,7 @@ export const ConversationView: FC<Props> = ({
 
   useEffect(() => {
     clearRequestCache();
+    setCrossDatasetAttachmentsState();
 
     async function fetchConversationById() {
       try {
@@ -920,6 +946,7 @@ export const ConversationView: FC<Props> = ({
                 limitMessages={limitMessages}
                 attachmentsConfig={attachmentsConfig}
                 conversationViewState={conversationViewState}
+                onCodeAttachmentUpdated={handleCodeAttachmentUpdated}
               />
             </div>
             {isShowOnboarding ? null : !isReadonlyConversation ? (

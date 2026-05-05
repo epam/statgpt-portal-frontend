@@ -17,7 +17,7 @@ import {
   FormatNumbersType,
   TimeRange,
 } from '@epam/statgpt-shared-toolkit';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   CustomChartAttachmentType,
   CustomCodeAttachment,
@@ -27,17 +27,23 @@ import {
   getConstraints,
   GetDatasetData,
   GetDatasetDetails,
+  GetPythonAttachment,
   PutOnboardingFile,
 } from '../types/actions';
 import { buildCustomGridAttachment } from '../utils/attachments/data-grid/build-custom-grid-attachment';
-import { getTimeQueryFilterFromAttachment } from '../utils/query-filters';
-import { buildChartData } from '../utils/attachments/charting/chart-data';
+import {
+  buildDataQueryWithMergedFilters,
+  getTimeQueryFilterFromAttachment,
+} from '../utils/query-filters';
+import { AttachmentType } from '@epam/statgpt-dial-toolkit';
+import { createChartDataResolver } from '../utils/attachments/charting/chart-data';
 import { ChartingStyles } from '../models/attachments-styles';
 import { MetadataSettings } from '../models/metadata';
 import { ConversationViewTitles } from '../models/titles';
 import { Filter } from '../models/filters';
 import { Attachment } from '@epam/ai-dial-shared';
 import { buildMarkdownAttachments } from '../utils/attachments/markdown-attachments';
+import { invokePythonAttachment } from '../utils/attachments/python-attachment';
 import {
   buildRequestCacheKey,
   getCachedRequestResult,
@@ -47,6 +53,7 @@ import {
   createInitialGridAttachment,
   createInitialChartAttachment,
 } from '../constants/attachments';
+import { scheduleDeferredWork } from '../utils/deferred-work';
 
 export function useAttachmentsData(
   actions: {
@@ -54,6 +61,7 @@ export function useAttachmentsData(
     getDataSetData: GetDatasetData;
     getConstraints: getConstraints;
     putOnboardingFile?: PutOnboardingFile;
+    getPythonAttachment?: GetPythonAttachment;
   },
   locale: string,
   dataQuery?: DataQuery,
@@ -64,6 +72,7 @@ export function useAttachmentsData(
   rawAttachments?: Attachment[],
   initialDatasetStructure?: StructuralData,
   isInitialDatasetStructureLoading = false,
+  onCodeAttachmentUpdated?: (attachment: Attachment) => void,
 ) {
   const [dataMessage, setDataMessage] = useState<DataMessage | undefined>();
   const [dataset, setDataset] = useState<Dataflow | undefined>();
@@ -85,12 +94,20 @@ export function useAttachmentsData(
     StructureItemBase[]
   >([]);
   const [isLoadingGridData, setIsLoadingGridData] = useState(false);
+  const [isBuildingGridAttachment, setIsBuildingGridAttachment] =
+    useState(false);
+  const pythonRequestIdRef = useRef(0);
   const [selectedTimePeriod, setSelectedTimePeriod] = useState<TimeRange>({
     startPeriod: null,
     endPeriod: null,
   });
-  const { getConstraints, getDataSet, getDataSetData, putOnboardingFile } =
-    actions;
+  const {
+    getConstraints,
+    getDataSet,
+    getDataSetData,
+    putOnboardingFile,
+    getPythonAttachment,
+  } = actions;
 
   const applyStructureData = useCallback(
     (structure?: StructuralData | null) => {
@@ -147,7 +164,10 @@ export function useAttachmentsData(
         const filterKey =
           dimensions?.dimensions == null
             ? null
-            : getTimeSeriesFilterKey(dimensions?.dimensions, dataQuery.filters);
+            : getTimeSeriesFilterKey(
+                dimensions?.dimensions,
+                dataQuery.filters ?? [],
+              );
 
         const timeFilter = getTimeQueryFilterFromAttachment(
           dataQuery,
@@ -160,6 +180,7 @@ export function useAttachmentsData(
           () => getDataSetData(dataQuery.urn, { filterKey, timeFilter }),
         )
           .then((data) => {
+            setIsBuildingGridAttachment(true);
             setDataMessage(data || void 0);
             setStructureDimensions(getStructureDimensions(data));
           })
@@ -223,36 +244,80 @@ export function useAttachmentsData(
           () => getDataSetData(dataQuery?.urn || '', filterParams),
         )
           .then((data) => {
+            setIsBuildingGridAttachment(true);
             setDataMessage(data || void 0);
             setStructureDimensions(getStructureDimensions(data));
           })
           .finally(() => setIsLoadingGridData(false));
+
+        if (getPythonAttachment && dataQuery && filters) {
+          const updatedQuery = buildDataQueryWithMergedFilters(
+            dataQuery,
+            filters,
+          );
+          const originalTitle = rawAttachments?.find(
+            (a) =>
+              a.type === AttachmentType.MARKDOWN &&
+              a.data?.includes('```python'),
+          )?.title;
+          invokePythonAttachment({
+            getPythonAttachment,
+            dataQueries: [updatedQuery],
+            requestIdRef: pythonRequestIdRef,
+            codeTitle: titles?.codeSamples || 'Python Code',
+            markdownTitle: originalTitle ?? dataQuery.urn,
+            setCodeAttachments,
+            onCodeAttachmentUpdated,
+          });
+        }
       } catch (err) {
         console.error('Error loading dataset data', err as object);
       }
     },
-    [dataQuery, getDataSetData],
+    [
+      dataQuery,
+      getDataSetData,
+      getPythonAttachment,
+      titles,
+      rawAttachments,
+      onCodeAttachmentUpdated,
+    ],
   );
 
   useEffect(() => {
     if (structures != null && dataMessage != null && constraints?.length) {
-      setCustomGridAttachment((prev) => ({
-        ...prev,
-        ...buildCustomGridAttachment(
-          structures,
-          dataMessage,
-          dataQuery,
-          locale,
-          formattingSettings,
-          metadataSettings,
-          chartStyles,
-          titles,
-          putOnboardingFile,
-          constraints,
-          selectedTimePeriod,
-        ),
-      }));
+      setIsBuildingGridAttachment(true);
+
+      const cancel = scheduleDeferredWork(() => {
+        setCustomGridAttachment((prev) => ({
+          ...prev,
+          ...buildCustomGridAttachment(
+            structures,
+            dataMessage,
+            dataQuery,
+            locale,
+            formattingSettings,
+            metadataSettings,
+            chartStyles,
+            titles,
+            putOnboardingFile,
+            constraints,
+            selectedTimePeriod,
+          ),
+        }));
+        setIsBuildingGridAttachment(false);
+      });
+
+      return () => {
+        cancel();
+        setIsBuildingGridAttachment(false);
+      };
     }
+
+    if (dataMessage == null || constraints !== undefined) {
+      setIsBuildingGridAttachment(false);
+    }
+    return undefined;
   }, [
     structures,
     dataMessage,
@@ -271,7 +336,8 @@ export function useAttachmentsData(
     if (structures != null && dataMessage != null) {
       setCustomChartAttachment((prev) => ({
         ...prev,
-        charting_data: buildChartData(
+        charting_data: undefined,
+        getChartingData: createChartDataResolver(
           structures,
           dataMessage,
           dataQuery,
@@ -284,13 +350,15 @@ export function useAttachmentsData(
 
   useEffect(() => {
     if (rawAttachments?.length) {
-      setCodeAttachments(
-        buildMarkdownAttachments(
-          rawAttachments,
-          dataQuery?.urn,
-          titles?.codeSamples,
-        ),
+      const markdownCodeAttachments = buildMarkdownAttachments(
+        rawAttachments,
+        dataQuery?.urn,
+        titles?.codeSamples,
       );
+
+      if (markdownCodeAttachments.length > 0) {
+        setCodeAttachments(markdownCodeAttachments);
+      }
     }
   }, [rawAttachments, titles, dataQuery]);
 
@@ -307,7 +375,7 @@ export function useAttachmentsData(
     structureDimensions,
     onFiltersChange,
     constraints,
-    isLoadingGridData,
+    isLoadingGridData: isLoadingGridData || isBuildingGridAttachment,
     dataSetAttachments: attachments,
   };
 }

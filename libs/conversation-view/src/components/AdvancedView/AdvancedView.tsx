@@ -8,7 +8,8 @@ import { AttachmentsConfig, AttachmentsProps } from '../../models/attachments';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { MetadataSettings } from '../../models/metadata';
-import { FC, useCallback, useMemo, useState } from 'react';
+import { Attachment, Message } from '@epam/ai-dial-shared';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AttachmentsActions } from '../../models/actions';
 import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import { Loader, LimitMessages } from '@epam/statgpt-ui-components';
@@ -23,12 +24,19 @@ import {
   DatasetQueryFilters,
 } from '@epam/statgpt-sdmx-toolkit';
 import { getExternalLink } from '../../utils/attachments-details';
+import { replacePythonAttachment } from '../../utils/attachments/replace-python-attachment';
 import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
 import { TableSettingsProvider } from './TableSettings/TableSettingsContext';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 import { ConversationViewSidePanelOutlet } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
 import { ConversationViewTitlesProvider } from '../../context/ConversationViewTitlesContext';
+import { useCrossDatasetAttachments } from '../../context/CrossDatasetAttachmentsContext';
+import { useDatasetDimensionsMetadataMap } from '../../context/DatasetDimensionsMetadataMapContext';
+import {
+  getCrossDatasetSnapshotKey,
+  getRestoredActiveDatasetUrns,
+} from '../../utils/multiple-filters';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -71,8 +79,14 @@ export const AdvancedView: FC<Props> = ({
   );
 
   const { isOpenedAdvancedView } = useAdvancedView();
+  const {
+    activeDatasetUrns: sharedActiveDatasetUrns,
+    dataQueriesKey: sharedCrossDatasetDataQueriesKey,
+    setCrossDatasetAttachmentsState,
+  } = useCrossDatasetAttachments();
   const { isCrossDatasetModeOn, isMetadataInSidePanel } =
     useConversationViewFeatureToggles();
+  const datasetDimensionsMetadata = useDatasetDimensionsMetadataMap();
   const shouldShowDatasetInfo = !isMetadataInSidePanel;
   const datasets = attachmentsProps.datasets ?? [];
   const showDatasetTabs = datasets.length > 1 && !isCrossDatasetModeOn;
@@ -80,6 +94,46 @@ export const AdvancedView: FC<Props> = ({
   const lastMessageAttachments =
     props.filtersProps.conversation?.messages?.at(-1)?.custom_content
       ?.attachments;
+  const crossDatasetDataQueriesKey = useMemo(
+    () => getCrossDatasetSnapshotKey(attachmentsProps.dataQueries),
+    [attachmentsProps.dataQueries],
+  );
+  const initialActiveDatasetUrns =
+    sharedCrossDatasetDataQueriesKey === crossDatasetDataQueriesKey
+      ? sharedActiveDatasetUrns
+      : getRestoredActiveDatasetUrns(
+          attachmentsProps.dataQueries,
+          datasetDimensionsMetadata.map,
+        );
+
+  const conversationRef = useRef(props.filtersProps.conversation);
+  conversationRef.current = props.filtersProps.conversation;
+
+  const handleCodeAttachmentUpdated = useCallback(
+    (newRawAttachment: Attachment) => {
+      const conversation = conversationRef.current;
+      if (!conversation) return;
+      const updatedMessages = replacePythonAttachment(
+        conversation.messages as Message[],
+        newRawAttachment,
+      );
+      if (!updatedMessages) return;
+      const updatedConversation = {
+        ...conversation,
+        messages: updatedMessages,
+      };
+      props.filtersProps.setConversation?.(updatedConversation);
+      props.filtersProps.updateConversation(
+        decodeURI(props.filtersProps.conversationKey),
+        {
+          name: updatedConversation.name,
+          messages: updatedConversation.messages,
+        },
+      );
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   const {
     dataMessage,
@@ -100,10 +154,14 @@ export const AdvancedView: FC<Props> = ({
     metadataSettings,
     titles,
     lastMessageAttachments,
+    undefined,
+    false,
+    handleCodeAttachmentUpdated,
   );
   const {
     structureDataMaps,
     crossDatasetAttachments,
+    activeDatasetUrns,
     isLoadingGridData: isLoadingCrossDsGridData,
     onMultipleDataFiltersChange,
   } = useAttachmentsDataMultipleQueries(
@@ -114,7 +172,38 @@ export const AdvancedView: FC<Props> = ({
     formattingSettings,
     metadataSettings,
     lastMessageAttachments,
+    initialActiveDatasetUrns,
+    handleCodeAttachmentUpdated,
   );
+
+  useEffect(() => {
+    if (!isCrossDatasetModeOn || !attachmentsProps.dataQueries?.length) {
+      setCrossDatasetAttachmentsState();
+      return;
+    }
+
+    if (!structureDataMaps) {
+      return;
+    }
+
+    setCrossDatasetAttachmentsState({
+      attachments: crossDatasetAttachments,
+      dataQueriesKey: crossDatasetDataQueriesKey,
+      activeDatasetUrns: activeDatasetUrns
+        ? Array.from(activeDatasetUrns)
+        : undefined,
+      isLoading: isLoadingCrossDsGridData,
+    });
+  }, [
+    activeDatasetUrns,
+    attachmentsProps.dataQueries?.length,
+    crossDatasetAttachments,
+    crossDatasetDataQueriesKey,
+    isCrossDatasetModeOn,
+    isLoadingCrossDsGridData,
+    setCrossDatasetAttachmentsState,
+    structureDataMaps,
+  ]);
   const [isFiltering, setIsFiltering] = useState<boolean>();
   const [filters, setFilters] = useState<DatasetQueryFilters>({
     filterKey: null,
@@ -146,10 +235,18 @@ export const AdvancedView: FC<Props> = ({
       filterParamsMap: Map<string, DatasetQueryFilters>,
       constraintsMap?: Map<string, DataConstraints[] | undefined>,
       dataQueries?: DataQuery[],
+      filtersMap?: Map<string, Filter[]>,
+      filters?: Filter[],
     ): void => {
       setFiltersMap(filterParamsMap);
       setIsFiltering(true);
-      onMultipleDataFiltersChange(filterParamsMap, constraintsMap, dataQueries);
+      onMultipleDataFiltersChange(
+        filterParamsMap,
+        constraintsMap,
+        dataQueries,
+        filtersMap,
+        filters,
+      );
     },
     [onMultipleDataFiltersChange],
   );

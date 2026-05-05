@@ -10,6 +10,7 @@ import {
   RateResponse,
   PutOnboardingFile,
   PutFile,
+  GetPythonAttachment,
 } from '../types/actions';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import { Dataflow } from '@epam/statgpt-sdmx-toolkit';
@@ -29,6 +30,7 @@ export interface AttachmentsActions {
   updateCurrentDataQuery: (dataQuery?: DataQuery) => void;
   updateDataQueries: (dataQueries?: DataQuery[]) => void;
   updateDatasets: (datasets?: Dataflow[]) => void;
+  getPythonAttachment?: GetPythonAttachment;
 }
 export type ConversationViewActions = AttachmentsActions & {
   getConversation: GetConversation;

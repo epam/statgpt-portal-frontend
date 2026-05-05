@@ -39,6 +39,9 @@ const mockGetFilledDatasetFiltersMap = jest.fn(
 );
 const mockGetQueryFiltersMap = jest.fn(() => new Map());
 const mockSetDataQueryFiltersMap = jest.fn(() => new Map());
+const mockGetCompatibleDatasetUrns = jest.fn(
+  (_filters: Filter[], dataQueryUrns: string[]) => new Set(dataQueryUrns),
+);
 const mockHasUncachedConstraintRequests = jest.fn(() => false);
 const mockMergeConstraintsMaps = jest.fn(
   (
@@ -91,6 +94,8 @@ jest.mock('../../../../utils/multiple-filters', () => ({
     (mockGetQueryFiltersMap as any)(...args),
   setDataQueryFiltersMap: (...args: any[]) =>
     (mockSetDataQueryFiltersMap as any)(...args),
+  getCompatibleDatasetUrns: (...args: any[]) =>
+    (mockGetCompatibleDatasetUrns as any)(...args),
 }));
 
 jest.mock('../../../../utils/filters', () => ({
@@ -261,6 +266,9 @@ beforeEach(() => {
   mockGetFilledDatasetFiltersMap.mockReturnValue(new Map());
   mockGetQueryFiltersMap.mockReturnValue(new Map());
   mockSetDataQueryFiltersMap.mockReturnValue(new Map());
+  mockGetCompatibleDatasetUrns.mockImplementation(
+    (_filters: Filter[], dataQueryUrns: string[]) => new Set(dataQueryUrns),
+  );
   mockHasUncachedConstraintRequests.mockReturnValue(false);
   mockMergeConstraintsMaps.mockImplementation(
     (
@@ -408,12 +416,12 @@ describe('MultiDatasetFilters', () => {
           }),
         ]),
         defaultProps.structureDataMaps.constraintsMap,
-        true,
+        false,
         expect.any(Object),
       );
     });
 
-    it('applies shared filter fallback when applying cross-dataset filters', async () => {
+    it('applies filters only with constraint-supported values when applying cross-dataset filters', async () => {
       const onMultipleDataFiltersChange = jest.fn();
       const sharedCountryFilter = makeSharedCountryFilter();
       const expandedFiltersMap = new Map([
@@ -481,7 +489,7 @@ describe('MultiDatasetFilters', () => {
           }),
         ]),
         defaultProps.structureDataMaps.constraintsMap,
-        true,
+        false,
         expect.any(Object),
       );
 
@@ -489,6 +497,8 @@ describe('MultiDatasetFilters', () => {
         queryFiltersMap,
         expect.anything(),
         defaultProps.dataQueries,
+        expect.any(Map),
+        [sharedCountryFilter],
       );
     });
 

@@ -1,18 +1,22 @@
 import {
   COMMON_COUNTRY_FILTER_ID,
   COMMON_FREQUENCY_FILTER_ID,
+  COMMON_TIME_PERIOD_FILTER_ID,
   buildFiltersMap,
   getConstraintsMap,
   getConstraintsMapFromSettledResults,
+  getCompatibleDatasetUrns,
   getDatasetNameFromFilters,
   getFilledDatasetFiltersMap,
   getFiltersByConstraints,
   getFiltersForQueryContext,
   getFiltersPreselectedByDataQueries,
+  getRestoredActiveDatasetUrns,
   isStructureDataMapsReady,
   mergeConstraintsMaps,
 } from '../multiple-filters';
 import type { Filter, SharedFilter } from '../../models/filters';
+import { DataQuery, QueryFilterType } from '@epam/statgpt-shared-toolkit';
 
 const mockFindCodelistByDimension = jest.fn();
 const mockGenerateShortUrn = jest.fn(
@@ -33,6 +37,7 @@ jest.mock('@epam/statgpt-sdmx-toolkit', () => ({
   getAnnotationPeriod: jest.fn(() => ({ startPeriod: null, endPeriod: null })),
   getAvailableCodesFromConstrains: (...args: any[]) =>
     (mockGetAvailableCodesFromConstrains as any)(...args),
+  GET_v3_FILTER_ALL: 'all',
   TIME_PERIOD: 'TIME_PERIOD',
   TIME_PERIOD_START_ANNOTATION_KEY: 'TIME_PERIOD_START',
   TIME_PERIOD_END_ANNOTATION_KEY: 'TIME_PERIOD_END',
@@ -964,7 +969,7 @@ describe('expanding shared filters with subtype metadata', () => {
 
 // ─── expandSharedFilter — datasets with no matching source values ─────────────
 
-describe('shared filter fallback for datasets with no matching source values', () => {
+describe('shared filter expansion for datasets with no matching source values', () => {
   const sharedFreqFilter: Filter = {
     id: COMMON_FREQUENCY_FILTER_ID,
     filterType: 'shared',
@@ -990,7 +995,7 @@ describe('shared filter fallback for datasets with no matching source values', (
     ],
   };
 
-  it('does not apply fallback by default', () => {
+  it('does not synthesize selected codes for datasets without matching source values', () => {
     const filtersMap = buildFiltersMap([sharedFreqFilter]);
     const dsBFilter = filtersMap
       .get(DATASET_B_URN)
@@ -1004,19 +1009,19 @@ describe('shared filter fallback for datasets with no matching source values', (
     );
   });
 
-  it('applies selected fallback codes to datasets with no matching source values', () => {
+  it('does not apply fallback codes even when the legacy fallback flag is true', () => {
     const filtersMap = buildFiltersMap([sharedFreqFilter], undefined, true);
     const dsBFilter = filtersMap
       .get(DATASET_B_URN)
       ?.find((f) => f.id === COMMON_FREQUENCY_FILTER_ID);
     const ids = dsBFilter?.dimensionValues?.map((v) => v.id);
 
-    expect(ids).toContain('Q');
-    expect(ids).not.toContain('name:quarterly');
-    expect(ids).not.toContain('ANNUAL');
+    expect(ids).not.toContain('Q');
+    expect(ids).toEqual(['ANNUAL']);
     expect(
-      dsBFilter?.dimensionValues?.find((v) => v.id === 'Q')?.isSelectedValue,
-    ).toBe(true);
+      dsBFilter?.dimensionValues?.find((v) => v.id === 'ANNUAL')
+        ?.isSelectedValue,
+    ).toBe(false);
   });
 
   it('preserves native source codes for datasets that already have matching values', () => {
@@ -1056,7 +1061,7 @@ describe('shared filter fallback for datasets with no matching source values', (
     );
   });
 
-  it('multiple selected values are all propagated to the fallback dataset', () => {
+  it('multiple selected values are not propagated to a dataset without matching values', () => {
     const multiSelectedFilter: Filter = {
       id: COMMON_FREQUENCY_FILTER_ID,
       filterType: 'shared',
@@ -1095,14 +1100,14 @@ describe('shared filter fallback for datasets with no matching source values', (
       .get(DATASET_B_URN)
       ?.find((f) => f.id === COMMON_FREQUENCY_FILTER_ID);
 
-    expect(dsBFilter?.dimensionValues).toHaveLength(2);
-    expect(dsBFilter?.dimensionValues?.every((v) => v.isSelectedValue)).toBe(
-      true,
-    );
-
-    expect(dsBFilter?.dimensionValues?.map((v) => v.id)).toEqual(
-      expect.arrayContaining(['Q', 'M']),
-    );
+    expect(dsBFilter?.dimensionValues).toEqual([
+      {
+        id: 'ANNUAL',
+        name: 'Annual',
+        parent: undefined,
+        isSelectedValue: false,
+      },
+    ]);
   });
 
   it('does not apply fallback when Dataset B already has a natively selected value', () => {
@@ -1135,5 +1140,157 @@ describe('shared filter fallback for datasets with no matching source values', (
     expect(dsBFilter?.dimensionValues?.map((v) => v.id)).not.toContain(
       'name:annual',
     );
+  });
+});
+
+describe('getCompatibleDatasetUrns', () => {
+  it('returns only datasets that support selected shared values', () => {
+    const sharedFrequencyFilter: Filter = {
+      id: COMMON_FREQUENCY_FILTER_ID,
+      filterType: 'shared',
+      sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
+      dimensionValues: [
+        {
+          id: 'name:daily',
+          name: 'Daily',
+          isSelectedValue: true,
+          sourceValues: [{ datasetUrn: DATASET_A_URN, id: 'D', name: 'Daily' }],
+        },
+        {
+          id: 'name:monthly',
+          name: 'Monthly',
+          isSelectedValue: false,
+          sourceValues: [
+            { datasetUrn: DATASET_A_URN, id: 'M', name: 'Monthly' },
+            { datasetUrn: DATASET_B_URN, id: 'M', name: 'Monthly' },
+          ],
+        },
+      ],
+    };
+
+    const compatibleUrns = getCompatibleDatasetUrns(
+      [sharedFrequencyFilter],
+      [DATASET_A_URN, DATASET_B_URN],
+    );
+
+    expect(Array.from(compatibleUrns)).toEqual([DATASET_A_URN]);
+  });
+
+  it('keeps all datasets when selected value is supported by all', () => {
+    const sharedFrequencyFilter: Filter = {
+      id: COMMON_FREQUENCY_FILTER_ID,
+      filterType: 'shared',
+      sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
+      dimensionValues: [
+        {
+          id: 'name:monthly',
+          name: 'Monthly',
+          isSelectedValue: true,
+          sourceValues: [
+            { datasetUrn: DATASET_A_URN, id: 'M', name: 'Monthly' },
+            { datasetUrn: DATASET_B_URN, id: 'M', name: 'Monthly' },
+          ],
+        },
+      ],
+    };
+
+    const compatibleUrns = getCompatibleDatasetUrns(
+      [sharedFrequencyFilter],
+      [DATASET_A_URN, DATASET_B_URN],
+    );
+
+    expect(Array.from(compatibleUrns)).toEqual([DATASET_A_URN, DATASET_B_URN]);
+  });
+});
+
+describe('getRestoredActiveDatasetUrns', () => {
+  it('restores only datasets that have the persisted shared filter selection', () => {
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [],
+      },
+      {
+        urn: DATASET_B_URN,
+        filters: [
+          {
+            componentCode: 'FREQUENCY',
+            operator: QueryFilterType.IN,
+            values: ['Q'],
+          },
+        ],
+      },
+    ] as DataQuery[];
+
+    expect(
+      getRestoredActiveDatasetUrns(
+        dataQueries,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toEqual([DATASET_B_URN]);
+  });
+
+  it('ignores time filters when restoring active datasets', () => {
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [
+          {
+            componentCode: COMMON_TIME_PERIOD_FILTER_ID,
+            operator: QueryFilterType.BETWEEN,
+            values: ['2024-01-01', '2024-12-31'],
+          },
+        ],
+      },
+      {
+        urn: DATASET_B_URN,
+        filters: [
+          {
+            componentCode: COMMON_TIME_PERIOD_FILTER_ID,
+            operator: QueryFilterType.BETWEEN,
+            values: ['2024-01-01', '2024-12-31'],
+          },
+        ],
+      },
+    ] as DataQuery[];
+
+    expect(
+      getRestoredActiveDatasetUrns(
+        dataQueries,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toBeUndefined();
+  });
+
+  it('ignores wildcard filters when restoring active datasets', () => {
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [
+          {
+            componentCode: 'FREQ',
+            operator: QueryFilterType.IN,
+            values: ['all'],
+          },
+        ],
+      },
+      {
+        urn: DATASET_B_URN,
+        filters: [
+          {
+            componentCode: 'FREQUENCY',
+            operator: QueryFilterType.IN,
+            values: ['Q'],
+          },
+        ],
+      },
+    ] as DataQuery[];
+
+    expect(
+      getRestoredActiveDatasetUrns(
+        dataQueries,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toEqual([DATASET_B_URN]);
   });
 });

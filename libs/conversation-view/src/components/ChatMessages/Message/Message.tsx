@@ -56,6 +56,12 @@ import MessageEdit from '../MessageEdit/MessageEdit';
 import { ChoiceButtons } from '../../ConversationOnboarding/ChoiceButtons/ChoiceButtons';
 import { useAttachmentsDataMultipleQueries } from '../../../context/AttachmentsDataMultipleQueries';
 import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
+import { useCrossDatasetAttachments } from '../../../context/CrossDatasetAttachmentsContext';
+import { useDatasetDimensionsMetadataMap } from '../../../context/DatasetDimensionsMetadataMapContext';
+import {
+  getCrossDatasetSnapshotKey,
+  getRestoredActiveDatasetUrns,
+} from '../../../utils/multiple-filters';
 
 interface Props {
   message: MessageType;
@@ -83,6 +89,7 @@ interface Props {
   isLastNotUserMessage?: boolean;
   limitMessages: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
+  onCodeAttachmentUpdated?: (messageId: string, attachment: Attachment) => void;
 }
 
 const Message: FC<Props> = ({
@@ -111,6 +118,7 @@ const Message: FC<Props> = ({
   isLastNotUserMessage,
   limitMessages,
   attachmentsConfig,
+  onCodeAttachmentUpdated,
 }) => {
   const [attachmentsDataQueries, setAttachmentsDataQueries] = useState<
     DataQuery[] | undefined
@@ -129,6 +137,7 @@ const Message: FC<Props> = ({
   const [isDataSetAttachments, setIsDataSetAttachments] =
     useState<boolean>(false);
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
+  const datasetDimensionsMetadata = useDatasetDimensionsMetadataMap();
   const isUser = message.role === Role.User;
   const isSystem = message.role === Role.System;
   const {
@@ -152,6 +161,15 @@ const Message: FC<Props> = ({
     setCurrentAttachmentDataQuery(attachmentsDataQueries?.[0]);
   }, [attachmentsDataQueries]);
 
+  const handleCodeAttachmentUpdated = useCallback(
+    (attachment: Attachment) => {
+      if (message.id) {
+        onCodeAttachmentUpdated?.(message.id, attachment);
+      }
+    },
+    [message.id, onCodeAttachmentUpdated],
+  );
+
   const { dataSetAttachments, dimensions, isLoadingGridData } =
     useAttachmentsData(
       actions,
@@ -166,7 +184,17 @@ const Message: FC<Props> = ({
         ? datasetStructuresMap?.get(currentAttachmentDataQuery.urn)
         : void 0,
       isLoadingDatasets,
+      handleCodeAttachmentUpdated,
     );
+
+  const restoredActiveDatasetUrns = useMemo(
+    () =>
+      getRestoredActiveDatasetUrns(
+        attachmentsDataQueries,
+        datasetDimensionsMetadata.map,
+      ),
+    [attachmentsDataQueries, datasetDimensionsMetadata.map],
+  );
 
   const {
     crossDatasetAttachments,
@@ -179,12 +207,42 @@ const Message: FC<Props> = ({
     formattingSettings,
     metadataSettings,
     message.custom_content?.attachments,
+    restoredActiveDatasetUrns,
+    handleCodeAttachmentUpdated,
   );
   const { isOpenedAdvancedView } = useAdvancedView();
+  const {
+    attachments: sharedCrossDatasetAttachments,
+    dataQueriesKey: crossDatasetDataQueriesKey,
+    isLoading: isCrossDatasetLoading,
+  } = useCrossDatasetAttachments();
+  const messageCrossDatasetDataQueriesKey = useMemo(
+    () => getCrossDatasetSnapshotKey(attachmentsDataQueries),
+    [attachmentsDataQueries],
+  );
+  const shouldUseSharedCrossDatasetAttachments =
+    isCrossDatasetModeOn &&
+    !!showAdvancedView &&
+    sharedCrossDatasetAttachments != null &&
+    crossDatasetDataQueriesKey === messageCrossDatasetDataQueriesKey;
+  const visibleCrossDatasetAttachments = shouldUseSharedCrossDatasetAttachments
+    ? sharedCrossDatasetAttachments
+    : crossDatasetAttachments;
 
   const isDataLoading = useMemo(
-    () => (isCrossDatasetModeOn ? isLoadingCrossDsGridData : isLoadingGridData),
-    [isCrossDatasetModeOn, isLoadingCrossDsGridData, isLoadingGridData],
+    () =>
+      isCrossDatasetModeOn
+        ? shouldUseSharedCrossDatasetAttachments
+          ? isCrossDatasetLoading
+          : isLoadingCrossDsGridData
+        : isLoadingGridData,
+    [
+      isCrossDatasetModeOn,
+      isLoadingCrossDsGridData,
+      isLoadingGridData,
+      isCrossDatasetLoading,
+      shouldUseSharedCrossDatasetAttachments,
+    ],
   );
 
   const onEditClick = () => {
@@ -312,7 +370,7 @@ const Message: FC<Props> = ({
         attachments={
           isDataSetAttachments
             ? isCrossDatasetModeOn
-              ? crossDatasetAttachments
+              ? visibleCrossDatasetAttachments
               : dataSetAttachments
             : baseGridAttachments
         }
@@ -341,7 +399,7 @@ const Message: FC<Props> = ({
       isDataSetAttachments,
       dataSetAttachments,
       baseGridAttachments,
-      crossDatasetAttachments,
+      visibleCrossDatasetAttachments,
       datasets,
       initialSelectedDatasetUrn,
       messageStyles,

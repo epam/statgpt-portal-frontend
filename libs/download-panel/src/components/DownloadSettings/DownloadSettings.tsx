@@ -1,4 +1,4 @@
-import { FC, ReactNode, useCallback, useEffect, useState } from 'react';
+import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   DatasetQueryFilters,
@@ -9,7 +9,6 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery, Locale } from '@epam/statgpt-shared-toolkit';
 import {
-  AlertDetails,
   Button,
   CollapsibleBlock,
   InlineAlert,
@@ -22,7 +21,6 @@ import {
 } from '@epam/statgpt-ui-components';
 import ToggleActiveIcon from '../../assets/icons/toggle-active.svg';
 import ToggleInactiveIcon from '../../assets/icons/toggle-inactive.svg';
-import { DownloadActions } from '../../models/actions';
 import { DownloadSettingItem } from '../../models/download-settings-item';
 import {
   DOWNLOAD_ATTRIBUTES,
@@ -33,12 +31,9 @@ import DownloadDatasetsBlock from '../DownloadDatasetsBlock/DownloadDatasetsBloc
 import { getDownloadFilters } from '../../utils/get-filter';
 import { DownloadTitles } from '../../models/titles';
 import { DownloadDatasetItem } from '../../models/download-dataset-item';
-
-// Browsers block simultaneous download triggers as popups.
-const DOWNLOAD_FILE_INTERVAL_MS = 300;
+import { DownloadRequestConfig } from '../../models/download-request';
 
 interface Props {
-  actions: DownloadActions;
   datasetIcon: ReactNode;
   isDisplayDatasetIcon?: boolean;
   datasetName: string;
@@ -51,16 +46,16 @@ interface Props {
   titles?: DownloadTitles;
   collapsible?: boolean;
   downloadDatasets?: DownloadDatasetItem[];
+  rowCount?: number;
+  isDownloadInProgress?: boolean;
   onCloseModal: () => void;
-  setIsShowDownloadAlert?: (isShowDownloadAlert?: boolean) => void;
-  setDownloadAlertDetails?: (downloadAlertDetails?: AlertDetails) => void;
+  onDownloadStart: (request: DownloadRequestConfig) => boolean;
   limitMessages?: LimitMessages;
   showLimitMessage?: boolean;
   externalLink?: string;
 }
 
 const DownloadSettings: FC<Props> = ({
-  actions,
   dataQuery,
   datasetIcon,
   isDisplayDatasetIcon = true,
@@ -74,6 +69,9 @@ const DownloadSettings: FC<Props> = ({
   titles,
   collapsible = true,
   downloadDatasets,
+  rowCount,
+  isDownloadInProgress = false,
+  onDownloadStart,
   limitMessages,
   showLimitMessage,
   externalLink,
@@ -91,6 +89,7 @@ const DownloadSettings: FC<Props> = ({
   const [selectedDatasetUrns, setSelectedDatasetUrns] = useState<Set<string>>(
     () => new Set(downloadDatasets?.map((d) => d.urn) ?? []),
   );
+  const isDownloadTriggeredRef = useRef(false);
 
   useEffect(() => {
     setSelectedDatasetUrns(new Set(downloadDatasets?.map((d) => d.urn) ?? []));
@@ -112,83 +111,79 @@ const DownloadSettings: FC<Props> = ({
     downloadDatasets !== undefined &&
     (downloadDatasets.length === 0 || selectedDatasetUrns.size === 0);
 
-  const downloadDataset = useCallback(
-    async (
-      dataQuery: DataQuery | undefined,
-      urnParam: string,
-      filename: string,
-    ) => {
-      const downloadFilters = getDownloadFilters(
-        type,
-        dataQuery,
-        dimensions,
-        filters,
-      );
-      await actions.downloadDataSet(
-        urnParam,
-        selectedDataFormat.value as SdmxDataFormat,
-        locale,
-        selectedAttribute.value as FileColumnsAttribute,
-        downloadFilters,
-        filename,
-        isMetadata,
-      );
-    },
-    [
-      type,
-      dimensions,
-      filters,
-      actions,
-      locale,
-      isMetadata,
-      selectedDataFormat.value,
-      selectedAttribute.value,
-    ],
-  );
-
   const onDownloadClick = useCallback(() => {
+    if (isDownloadTriggeredRef.current) {
+      return;
+    }
     const dataFormat = selectedDataFormat.value as SdmxDataFormat;
-    const runDownloads = async () => {
-      if (downloadDatasets && downloadDatasets.length > 0) {
-        const selected = downloadDatasets.filter((d) =>
-          selectedDatasetUrns.has(d.urn),
-        );
-
-        for (const [index, dataset] of selected.entries()) {
-          await downloadDataset(
-            dataset.dataQuery,
-            dataset.urn,
-            `${dataset.name}.${dataFormat}`,
-          );
-
-          if (index < selected.length - 1) {
-            await new Promise((resolve) =>
-              window.setTimeout(resolve, DOWNLOAD_FILE_INTERVAL_MS),
-            );
-          }
-        }
-      } else {
-        await downloadDataset(
-          dataQuery,
-          dataQuery?.urn || urn || '',
-          `${datasetName}.${dataFormat}`,
-        );
-      }
-    };
-
-    void runDownloads().catch((error) => {
-      console.error('Failed to download dataset', error);
+    const getRequestItem = (
+      currentDataQuery: DataQuery | undefined,
+      currentUrn: string,
+      name: string,
+      currentRowCount: number,
+    ) => ({
+      dataQuery: currentDataQuery,
+      urn: currentUrn,
+      name,
+      rowCount: currentRowCount,
+      fileName: `${name}.${dataFormat}`,
+      filters: getDownloadFilters(type, currentDataQuery, dimensions, filters),
     });
 
+    const items =
+      downloadDatasets && downloadDatasets.length > 0
+        ? downloadDatasets
+            .filter((dataset) => selectedDatasetUrns.has(dataset.urn))
+            .map((dataset) =>
+              getRequestItem(
+                dataset.dataQuery,
+                dataset.urn,
+                dataset.name,
+                dataset.rowCount,
+              ),
+            )
+        : [
+            getRequestItem(
+              dataQuery,
+              dataQuery?.urn || urn || '',
+              datasetName || dataQuery?.urn || urn || '',
+              rowCount ?? 0,
+            ),
+          ];
+
+    const request = {
+      items,
+      dataFormat,
+      dataFormatTitle: selectedDataFormat.title,
+      attribute: selectedAttribute.value as FileColumnsAttribute,
+      language: locale,
+      isMetadata,
+    };
+
+    const isStarted = onDownloadStart(request);
+    if (!isStarted) {
+      isDownloadTriggeredRef.current = false;
+      return;
+    }
+
+    isDownloadTriggeredRef.current = true;
     onCloseModal();
   }, [
+    selectedDataFormat.value,
+    selectedDataFormat.title,
+    selectedAttribute.value,
     downloadDatasets,
     selectedDatasetUrns,
-    selectedDataFormat.value,
     dataQuery,
     urn,
     datasetName,
-    downloadDataset,
+    rowCount,
+    type,
+    dimensions,
+    filters,
+    locale,
+    isMetadata,
+    onDownloadStart,
     onCloseModal,
   ]);
 
@@ -328,7 +323,7 @@ const DownloadSettings: FC<Props> = ({
         <Button
           buttonClassName="text-button-primary"
           title={titles?.download || 'Download'}
-          disabled={isDownloadDisabled}
+          disabled={isDownloadDisabled || isDownloadInProgress}
           onClick={onDownloadClick}
         />
       </div>

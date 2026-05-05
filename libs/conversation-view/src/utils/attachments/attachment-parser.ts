@@ -66,3 +66,12 @@ export function isAnyGridAttachment(attachment: Attachment): boolean {
     isCrossDatasetGrid(attachment)
   );
 }
+
+export function hasPythonCodeAttachment(attachments?: Attachment[]): boolean {
+  return (
+    attachments?.some(
+      (a) =>
+        a.type === AttachmentType.MARKDOWN && a.data?.includes('```python'),
+    ) ?? false
+  );
+}

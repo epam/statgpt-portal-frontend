@@ -31,6 +31,39 @@
   }
 
   &-text {
-    @apply body-3;
+    @apply body-3 text-neutrals-900;
+  }
+
+  &-title {
+    @apply h3;
+  }
+
+  &-progress {
+    @apply h-1 w-full rounded-[2px] bg-neutrals-400;
+  }
+
+  &-progress-value {
+    @apply h-full rounded-[2px] bg-hues-400;
+    @apply transition-all duration-300;
+  }
+
+  &-action {
+    @apply flex w-fit items-center gap-1 text-primary;
+
+    &:disabled {
+      @apply cursor-not-allowed opacity-50;
+    }
+  }
+
+  &-action-icon {
+    @apply shrink-0;
+
+    & > svg {
+      @apply block size-4 overflow-visible;
+    }
+  }
+
+  &-action-text {
+    @apply h4;
   }
 }

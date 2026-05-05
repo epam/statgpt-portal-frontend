@@ -12,6 +12,7 @@ export const openDownloadWindow = async (
   filters: DatasetQueryFilters,
   filename: string,
   isMetadata?: boolean,
+  signal?: AbortSignal,
 ) => {
   const queryParams = new URLSearchParams({
     urn,
@@ -29,6 +30,7 @@ export const openDownloadWindow = async (
   const response = await fetch(link, {
     method: 'GET',
     credentials: 'same-origin',
+    signal,
   });
 
   if (!response.ok) {
@@ -39,6 +41,10 @@ export const openDownloadWindow = async (
   }
 
   const blob = await response.blob();
+  if (signal?.aborted) {
+    return;
+  }
+
   const objectUrl = URL.createObjectURL(blob);
   const a = document.createElement('a');
 
