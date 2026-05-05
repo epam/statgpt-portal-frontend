@@ -18,6 +18,7 @@ export interface AttachmentsStyles {
   hideDownloadTextInConversationView?: boolean;
   hideDownloadIconInAdvancedView?: boolean;
   tableSettings?: string;
+  tableSettingsIcon?: ReactNode;
   columnsDisplayTitle?: string;
   columnsSearchPlaceholder?: string;
   compactViewTitle?: string;
