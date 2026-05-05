@@ -1,6 +1,9 @@
 import { Fragment, type CSSProperties } from 'react';
 import { mergeClasses } from '../../../../../../src/utils/mergeClasses';
-import { CELL_CLASS_BY_ROLE_AND_EMPHASIS, SCHEME_GRID_CLASS } from './constants';
+import {
+  CELL_CLASS_BY_ROLE_AND_EMPHASIS,
+  SCHEME_GRID_CLASS,
+} from './constants';
 import { type ViewSchemeCell } from './types';
 
 type ViewSchemeGridProps = {

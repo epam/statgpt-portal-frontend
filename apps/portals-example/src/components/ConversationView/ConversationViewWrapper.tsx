@@ -294,8 +294,21 @@ const ConversationViewWrapper: FC<Props> = ({
     downloadErrorActionIcon: <ExternalLink className="size-4" />,
     closeTitle: t(AppI18nKeys.CLOSE),
     downloadTitle: t(DownloadI18nKeys.DOWNLOAD),
-    columnsTitle: t(AttachmentsI18nKeys.COLUMNS),
-    columnsResetTitle: t(AttachmentsI18nKeys.COLUMNS_RESET),
+    tableSettings: t(AttachmentsI18nKeys.TABLE_SETTINGS),
+    columnsDisplayTitle: t(AttachmentsI18nKeys.COLUMNS_DISPLAY),
+    columnsSearchPlaceholder: t(AttachmentsI18nKeys.COLUMNS_SEARCH_PLACEHOLDER),
+    compactViewTitle: t(AttachmentsI18nKeys.COMPACT_VIEW_TITLE),
+    compactViewDescription: t(AttachmentsI18nKeys.COMPACT_VIEW_DESCRIPTION, {
+      bold: (
+        <strong>{t(AttachmentsI18nKeys.COMPACT_VIEW_DESCRIPTION_BOLD)}</strong>
+      ),
+    }),
+    extendedViewTitle: t(AttachmentsI18nKeys.EXTENDED_VIEW_TITLE),
+    extendedViewDescription: t(AttachmentsI18nKeys.EXTENDED_VIEW_DESCRIPTION, {
+      bold: (
+        <strong>{t(AttachmentsI18nKeys.EXTENDED_VIEW_DESCRIPTION_BOLD)}</strong>
+      ),
+    }),
     openLinkTitle: t(AttachmentsI18nKeys.OPEN_URL),
     dataGridTitle: t(AttachmentsI18nKeys.DATA_GRID),
     errorDownloadIcon: <ErrorIcon className="size-6 text-semantic-error" />,

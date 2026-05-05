@@ -12,55 +12,6 @@ import { GridViewModeSwitcher } from './GridViewModeSwitcher/GridViewModeSwitche
 export const TABLE_SETTINGS_SIDE_PANEL_ID = 'table-settings-side-panel';
 
 /**
- * Renders a reset button intended for use as a header extension inside the
- * table settings side panel.
- *
- * The button restores all column visibility and order to the initial snapshot
- * and clears any dimension customization tracked by `TableSettingsContext`.
- *
- * @example
- * Embedding in a panel header
- * ```tsx
- * <SidePanel
- *   id={TABLE_SETTINGS_SIDE_PANEL_ID}
- *   headerExtension={<TableSettingsPanelHeaderExtension resetTitle="Restore" />}
- * />
- * ```
- *
- * @param resetTitle - Label shown next to the rotate icon. Defaults to "Reset".
- */
-export const TableSettingsPanelHeaderExtension = ({
-  resetTitle,
-}: {
-  resetTitle?: string;
-}) => {
-  const { gridApi, initialColumnsState, resetDimensionCustomization } =
-    useTableSettingsContext();
-
-  const resetColumns = useCallback(() => {
-    if (!gridApi) {
-      return;
-    }
-
-    restoreInitialColumnsState(gridApi, initialColumnsState);
-    resetDimensionCustomization();
-  }, [gridApi, initialColumnsState, resetDimensionCustomization]);
-
-  const headerExtension = (
-    <button
-      type="button"
-      className="flex items-center gap-1 text-neutrals-800"
-      onClick={resetColumns}
-    >
-      <IconRotate className="size-4 rotate-180" />
-      <span className="h4">{resetTitle || 'Reset'}</span>
-    </button>
-  );
-
-  return headerExtension;
-};
-
-/**
  * Renders the column visibility and order panel for the AG Grid table,
  * enriching merged cross-dataset columns with dimension metadata when available.
  *
@@ -90,6 +41,7 @@ export const TableSettingsPanel = () => {
     resetDimensionCustomization,
     gridViewMode,
     setGridViewMode,
+    texts,
   } = useTableSettingsContext();
   const dimensionsCtx = useDatasetDimensionsMetadataMapOptional();
   const renderLabel = useDatasetScopedColumnRenderLabel();
@@ -109,6 +61,14 @@ export const TableSettingsPanel = () => {
       setGridViewMode,
     ],
   );
+
+  const resetColumns = useCallback(() => {
+    if (!gridApi) {
+      return;
+    }
+    restoreInitialColumnsState(gridApi, initialColumnsState);
+    resetDimensionCustomization();
+  }, [gridApi, initialColumnsState, resetDimensionCustomization]);
 
   const enrichItem = useMemo(() => {
     if (
@@ -143,13 +103,31 @@ export const TableSettingsPanel = () => {
       <GridViewModeSwitcher
         gridViewMode={gridViewMode}
         onModeChange={handleModeChange}
+        compactViewTitle={texts?.compactViewTitle}
+        compactViewDescription={texts?.compactViewDescription}
+        extendedViewTitle={texts?.extendedViewTitle}
+        extendedViewDescription={texts?.extendedViewDescription}
       />
+      <hr className="border-neutrals-500" />
+      <div className="mx-5 mb-4 mt-5 flex items-center justify-between">
+        <h3 className="text-neutrals-1000">
+          {texts?.columnsDisplayTitle || 'Columns display'}
+        </h3>
+        <button
+          type="button"
+          className="text-neutrals-800"
+          onClick={resetColumns}
+        >
+          <IconRotate className="size-4 rotate-180" />
+        </button>
+      </div>
       <AgGridColumnsPanel
         api={gridApi}
         enrichItem={enrichItem}
         renderLabel={renderLabel}
         onSubItemOrderChange={setDimensionKeyOrder}
         onSubItemVisibilityChange={setDimensionKeyHidden}
+        searchPlaceholder={texts?.columnsSearchPlaceholder}
       />
     </>
   ) : null;

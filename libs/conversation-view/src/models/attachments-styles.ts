@@ -17,8 +17,13 @@ export interface AttachmentsStyles {
   downloadButtonTextClassName?: string;
   hideDownloadTextInConversationView?: boolean;
   hideDownloadIconInAdvancedView?: boolean;
-  columnsTitle?: string;
-  columnsResetTitle?: string;
+  tableSettings?: string;
+  columnsDisplayTitle?: string;
+  columnsSearchPlaceholder?: string;
+  compactViewTitle?: string;
+  compactViewDescription?: ReactNode;
+  extendedViewTitle?: string;
+  extendedViewDescription?: ReactNode;
   closeTitle?: string;
   infoDownloadIcon?: ReactNode;
   successDownloadIcon?: ReactNode;

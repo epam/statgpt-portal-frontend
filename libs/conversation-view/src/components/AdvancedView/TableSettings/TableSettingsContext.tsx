@@ -17,6 +17,17 @@ import type {
   DimensionKeyCustomization,
 } from './types';
 import { CrossDatasetGridViewMode } from './types';
+import type { AttachmentsStyles } from '../../../models/attachments-styles';
+
+type TableSettingsTexts = Pick<
+  AttachmentsStyles,
+  | 'columnsDisplayTitle'
+  | 'columnsSearchPlaceholder'
+  | 'compactViewTitle'
+  | 'compactViewDescription'
+  | 'extendedViewTitle'
+  | 'extendedViewDescription'
+>;
 
 type TableSettingsContextValue = {
   gridApi?: GridApi;
@@ -36,6 +47,7 @@ type TableSettingsContextValue = {
   resetDimensionCustomization: () => void;
   gridViewMode: CrossDatasetGridViewMode;
   setGridViewMode: (mode: CrossDatasetGridViewMode) => void;
+  texts?: TableSettingsTexts;
 };
 
 const TableSettingsContext = createContext<TableSettingsContextValue | null>(
@@ -76,6 +88,7 @@ export function TableSettingsProvider({
   dataQueries,
   gridViewMode = CrossDatasetGridViewMode.Compact,
   onGridViewModeChange,
+  texts,
   children,
 }: {
   currentUrn: string;
@@ -84,6 +97,7 @@ export function TableSettingsProvider({
   dataQueries?: Array<{ urn: string }>;
   gridViewMode?: CrossDatasetGridViewMode;
   onGridViewModeChange?: (mode: CrossDatasetGridViewMode) => void;
+  texts?: TableSettingsTexts;
   children: ReactNode;
 }) {
   const { gridApi, onGridApiReady, initialColumnsState } =
@@ -162,6 +176,7 @@ export function TableSettingsProvider({
       resetDimensionCustomization,
       gridViewMode,
       setGridViewMode,
+      texts,
     }),
     [
       gridApi,
@@ -176,6 +191,7 @@ export function TableSettingsProvider({
       resetDimensionCustomization,
       gridViewMode,
       setGridViewMode,
+      texts,
     ],
   );
 

@@ -286,6 +286,17 @@ export const AdvancedView: FC<Props> = ({
         dataQueries={attachmentsProps?.dataQueries}
         gridViewMode={gridViewMode}
         onGridViewModeChange={setGridViewMode}
+        texts={{
+          columnsDisplayTitle: attachmentsProps.styles?.columnsDisplayTitle,
+          columnsSearchPlaceholder:
+            attachmentsProps.styles?.columnsSearchPlaceholder,
+          compactViewTitle: attachmentsProps.styles?.compactViewTitle,
+          compactViewDescription:
+            attachmentsProps.styles?.compactViewDescription,
+          extendedViewTitle: attachmentsProps.styles?.extendedViewTitle,
+          extendedViewDescription:
+            attachmentsProps.styles?.extendedViewDescription,
+        }}
       >
         <div className="advanced-view flex h-full min-w-0 flex-1 flex-col">
           <Header
