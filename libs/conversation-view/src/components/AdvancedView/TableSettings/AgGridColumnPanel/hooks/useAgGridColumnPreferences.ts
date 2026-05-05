@@ -47,7 +47,9 @@ export function useAgGridColumnPreferences({
           state: userState.columnState,
           applyOrder: true,
         });
-        api.setColumnGroupState(userState.columnGroupState);
+        if (userState.columnGroupState != null) {
+          api.setColumnGroupState(userState.columnGroupState);
+        }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
