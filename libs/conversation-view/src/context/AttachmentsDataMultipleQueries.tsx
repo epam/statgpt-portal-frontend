@@ -42,6 +42,7 @@ import { scheduleDeferredWork } from '../utils/deferred-work';
 import {
   filterDataQueriesByActiveDatasetUrns,
   filterMapByActiveDatasetUrns,
+  getImplicitSharedWildcardFilterParams,
 } from '../utils/multiple-filters';
 
 export function useAttachmentsDataMultipleQueries(
@@ -124,33 +125,59 @@ export function useAttachmentsDataMultipleQueries(
           ...prevStructureDataMaps,
           constraintsMap,
         }));
+        return constraintsMap;
       } catch {
+        const constraintsMap = new Map<string, DataConstraints[]>();
         setStructureDataMaps((prevStructureDataMaps) => ({
           ...prevStructureDataMaps,
-          constraintsMap: new Map<string, DataConstraints[]>(),
+          constraintsMap,
         }));
+        return constraintsMap;
       }
     },
     [getConstraints],
   );
 
+  const datasetDimensionsMetadata = useDatasetDimensionsMetadataMap();
+  const { getDimensionsScheme } = datasetDimensionsMetadata;
+
   const loadStructureData = useCallback(
-    async (dataQueries: DataQuery[]) => {
+    async (
+      dataQueries: DataQuery[],
+      constraintsMap?: Map<string, DataConstraints[] | undefined>,
+    ) => {
       const structureDataMaps = await getStructureDataMaps(
         dataQueries,
         getDataSet,
         getDataSetDataAction,
         setIsLoadingGridData,
+        async (structureDataMaps) => {
+          const implicitWildcardFilterParams =
+            getImplicitSharedWildcardFilterParams(
+              dataQueries,
+              structureDataMaps,
+              constraintsMap,
+              locale,
+              datasetDimensionsMetadata.map,
+            );
+
+          if (!implicitWildcardFilterParams) {
+            return undefined;
+          }
+
+          setActiveDatasetUrns(implicitWildcardFilterParams.compatibleUrns);
+
+          return implicitWildcardFilterParams.filterParamsMap;
+        },
       );
       setStructureDataMaps((prevStructureDataMaps) => ({
         ...prevStructureDataMaps,
         ...structureDataMaps,
+        constraintsMap: constraintsMap ?? prevStructureDataMaps?.constraintsMap,
       }));
     },
-    [getDataSet, getDataSetDataAction],
+    [datasetDimensionsMetadata.map, getDataSet, getDataSetDataAction, locale],
   );
-
-  const { getDimensionsScheme } = useDatasetDimensionsMetadataMap();
 
   const loadDimensionsSchemes = useCallback(
     (dataQueries: DataQuery[]) => {
@@ -179,7 +206,8 @@ export function useAttachmentsDataMultipleQueries(
 
       try {
         loadDimensionsSchemes(dq);
-        await Promise.all([loadConstraintsMap(dq), loadStructureData(dq)]);
+        const constraintsMap = await loadConstraintsMap(dq);
+        await loadStructureData(dq, constraintsMap);
       } catch (err) {
         console.error('Error loading dataset details', err as object);
       } finally {

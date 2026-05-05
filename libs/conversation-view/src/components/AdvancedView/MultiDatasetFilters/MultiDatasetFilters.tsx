@@ -196,13 +196,21 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         dataQueries,
         filtersMap,
         actions,
+        datasetDimensionsMetadata.map,
+        filters,
       );
 
       if (shouldTrackFilterValuesLoading) {
         startFilterValuesLoading();
       }
 
-      const requests = getConstraintsRequests(dataQueries, filtersMap, actions);
+      const requests = getConstraintsRequests(
+        dataQueries,
+        filtersMap,
+        actions,
+        datasetDimensionsMetadata.map,
+        filters,
+      );
 
       Promise.allSettled(requests)
         .then((constraintsResults) => {
@@ -481,13 +489,21 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         dataQueries,
         filtersMap,
         actions,
+        datasetDimensionsMetadata.map,
+        filtersToUpdate,
       );
 
       if (shouldTrackFilterValuesLoading) {
         startFilterValuesLoading();
       }
 
-      const requests = getConstraintsRequests(dataQueries, filtersMap, actions);
+      const requests = getConstraintsRequests(
+        dataQueries,
+        filtersMap,
+        actions,
+        datasetDimensionsMetadata.map,
+        filtersToUpdate,
+      );
 
       Promise.allSettled(requests)
         .then((constraintsResults) => {
@@ -569,6 +585,8 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     const compatibleUrns = getCompatibleDatasetUrns(
       modalFilters,
       dataQueries?.map((q) => q.urn) ?? [],
+      dataQueries,
+      datasetDimensionsMetadata.map,
     );
     onMultipleDataFiltersChange?.(
       filtersParamsMap,

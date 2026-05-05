@@ -6,7 +6,6 @@ import {
   findCodelistByDimension,
   getAnnotationPeriod,
   generateShortUrn,
-  GET_v3_FILTER_ALL,
   getAvailableCodesFromConstrains,
   SeriesFilterDto,
   StructuralData,
@@ -550,6 +549,7 @@ const getDatasetFiltersMapFromMultipleQueries = (
 const getFiltersWithValuesMap = (
   structureDataMaps?: StructureDataMaps,
   locale?: string,
+  requireDataMessages = true,
 ) => {
   return new Map(
     Array.from(structureDataMaps?.dimensionsMap?.entries() || []).map(
@@ -564,7 +564,10 @@ const getFiltersWithValuesMap = (
         );
         const filters =
           dimensions?.map((dimension) => {
-            if (!hasDatasetConstraints || !hasDatasetDataMessage) {
+            if (
+              !hasDatasetConstraints ||
+              (requireDataMessages && !hasDatasetDataMessage)
+            ) {
               return {
                 ...dimension,
                 dimensionValues: [],
@@ -604,6 +607,7 @@ const getFiltersWithSelectedValuesOnly = (filters: Filter[]): Filter[] =>
 export const getFilledDatasetFiltersMap = (
   structureDataMaps?: StructureDataMaps,
   locale?: string,
+  requireDataMessages = true,
 ) => {
   const datasetFiltersMap = getDatasetFiltersMapFromMultipleQueries(
     structureDataMaps,
@@ -612,6 +616,7 @@ export const getFilledDatasetFiltersMap = (
   const filledDimensionsMap = getFiltersWithValuesMap(
     structureDataMaps,
     locale,
+    requireDataMessages,
   );
 
   return new Map(
@@ -638,12 +643,86 @@ export const getFiltersPreselectedByDataQueries = (
   constraintsMap?: Map<string, DataConstraints[] | undefined>,
   datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Filter[] => {
+  const hasExplicitSharedSelectionInOtherDataset = (
+    currentDataQuery: DataQuery,
+    config: SharedFilterConfig,
+  ) =>
+    dataQueries?.some(
+      (dataQuery) =>
+        dataQuery.urn !== currentDataQuery.urn &&
+        dataQuery.filters?.some((queryFilter) => {
+          if (
+            queryFilter.operator === QueryFilterType.BETWEEN ||
+            !queryFilter.values?.length
+          ) {
+            return false;
+          }
+
+          const queryFilterConfig = getSharedFilterConfigForFilter(
+            {
+              id: queryFilter.componentCode,
+              datasetUrn: dataQuery.urn,
+              filterType: 'dataset',
+            },
+            datasetDimensionsMetadataMap,
+          );
+
+          return queryFilterConfig?.id === config.id;
+        }),
+    ) ?? false;
+
   return mergeSharedFilters(
     dataQueries?.flatMap((dataQuery) => {
       const urn = dataQuery?.urn;
       const filters = filtersMap?.get(urn) || [];
       const constraints = constraintsMap?.get(urn) || [];
-      return getFiltersPreselectedByDataQuery(filters, dataQuery, constraints);
+      const preselected = getFiltersPreselectedByDataQuery(
+        filters,
+        dataQuery,
+        constraints,
+      );
+
+      return preselected.map((filter) => {
+        if (filter.isTimeDimension || filter.filterType !== 'dataset') {
+          return filter;
+        }
+
+        const config = getSharedFilterConfigForFilter(
+          filter,
+          datasetDimensionsMetadataMap,
+        );
+        if (!config || config.id === COMMON_TIME_PERIOD_FILTER_ID) {
+          return filter;
+        }
+
+        const hasExplicitFilter = dataQuery.filters?.some(
+          (f) =>
+            f.componentCode === filter.id &&
+            f.operator !== QueryFilterType.BETWEEN,
+        );
+        if (hasExplicitFilter) {
+          return filter;
+        }
+
+        if (!hasExplicitSharedSelectionInOtherDataset(dataQuery, config)) {
+          return filter;
+        }
+
+        const hasAnySelected = filter.dimensionValues?.some(
+          (v) => v.isSelectedValue,
+        );
+        if (hasAnySelected) {
+          return filter;
+        }
+
+        return {
+          ...filter,
+          dimensionValues: filter.dimensionValues?.map((v) => ({
+            ...v,
+            isSelectedValue: true,
+          })),
+        };
+      });
     }) || [],
     datasetDimensionsMetadataMap,
   );
@@ -681,6 +760,8 @@ export const buildFiltersMap = (
 export const getCompatibleDatasetUrns = (
   filters: Filter[],
   dataQueryUrns: string[],
+  dataQueries?: DataQuery[],
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): Set<string> => {
   const sharedFiltersWithSelections = filters.filter(
     (f): f is SharedFilter =>
@@ -693,14 +774,42 @@ export const getCompatibleDatasetUrns = (
     return new Set(dataQueryUrns);
   }
 
+  const hasImplicitWildcardForSharedFilter = (
+    datasetUrn: string,
+    filter: SharedFilter,
+  ): boolean => {
+    const dataQuery = dataQueries?.find((query) => query.urn === datasetUrn);
+
+    if (!dataQuery) {
+      return false;
+    }
+
+    const nativeFilterId = getNativeFilterIdForSharedFilter(
+      filter,
+      datasetUrn,
+      datasetDimensionsMetadataMap,
+    );
+
+    if (!nativeFilterId) {
+      return false;
+    }
+
+    return !dataQuery.filters?.some(
+      (queryFilter) =>
+        queryFilter.componentCode === nativeFilterId &&
+        queryFilter.operator !== QueryFilterType.BETWEEN,
+    );
+  };
+
   return new Set(
     dataQueryUrns.filter((urn) =>
-      sharedFiltersWithSelections.every((filter) =>
-        filter.dimensionValues?.some(
-          (v) =>
-            v.isSelectedValue &&
-            v.sourceValues?.some((sv) => sv.datasetUrn === urn),
-        ),
+      sharedFiltersWithSelections.every(
+        (filter) =>
+          filter.dimensionValues?.some(
+            (v) =>
+              v.isSelectedValue &&
+              v.sourceValues?.some((sv) => sv.datasetUrn === urn),
+          ) || hasImplicitWildcardForSharedFilter(urn, filter),
       ),
     ),
   );
@@ -742,8 +851,7 @@ export const getRestoredActiveDatasetUrns = (
     dataQuery.filters?.forEach((queryFilter) => {
       if (
         queryFilter.operator === QueryFilterType.BETWEEN ||
-        !queryFilter.values?.length ||
-        queryFilter.values.every((value) => value === GET_v3_FILTER_ALL)
+        !queryFilter.values?.length
       ) {
         return;
       }
@@ -877,6 +985,33 @@ export const isStructureDataMapsReady = (
   );
 };
 
+const getConstraintFilters = (
+  attachmentUrn: string,
+  sourceFilters: Filter[],
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+): SeriesFilterDto[] => {
+  const hasMergedSharedFilters = sourceFilters.some(
+    (filter) => filter.filterType === 'shared',
+  );
+  const filtersForConstraint = hasMergedSharedFilters
+    ? sourceFilters.filter((filter) => {
+        const config = getSharedFilterConfigForFilter(
+          filter,
+          datasetDimensionsMetadataMap,
+        );
+        return !config || config.id === COMMON_TIME_PERIOD_FILTER_ID;
+      })
+    : sourceFilters;
+
+  return normalizeConstraintFilters(
+    getSeriesFilterDto(
+      filtersForConstraint,
+      attachmentUrn,
+      datasetDimensionsMetadataMap,
+    ).filter((filter) => filter.componentCode !== TIME_PERIOD),
+  );
+};
+
 export const getConstraintsRequests = (
   dataQueries?: DataQuery[],
   filtersMap?: Map<string, Filter[]>,
@@ -886,15 +1021,19 @@ export const getConstraintsRequests = (
       filters?: SeriesFilterDto[],
     ) => Promise<StructuralMetaData>;
   },
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+  filters?: Filter[],
 ): Promise<ExtendedStructuralMetadata>[] => {
   return (
     dataQueries?.map((dataQuery) => {
       const attachmentUrn = dataQuery?.urn ?? '';
-      const constraintFilters = normalizeConstraintFilters(
-        getSeriesFilterDto(filtersMap?.get(attachmentUrn) || []).filter(
-          (filter) => filter.componentCode !== TIME_PERIOD,
-        ),
+      const sourceFilters = filters ?? filtersMap?.get(attachmentUrn) ?? [];
+      const constraintFilters = getConstraintFilters(
+        attachmentUrn,
+        sourceFilters,
+        datasetDimensionsMetadataMap,
       );
+
       return actions
         ? getCachedRequestResult(
             actions.getConstraints,
@@ -918,20 +1057,86 @@ export const hasUncachedConstraintRequests = (
       filters?: SeriesFilterDto[],
     ) => Promise<StructuralMetaData>;
   },
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+  filters?: Filter[],
 ): boolean => {
   if (!actions?.getConstraints || !dataQueries?.length) return false;
+
   return dataQueries.some((dataQuery) => {
     const attachmentUrn = dataQuery?.urn ?? '';
-    const constraintFilters = normalizeConstraintFilters(
-      getSeriesFilterDto(filtersMap?.get(attachmentUrn) || []).filter(
-        (filter) => filter.componentCode !== TIME_PERIOD,
-      ),
+    const sourceFilters = filters ?? filtersMap?.get(attachmentUrn) ?? [];
+    const constraintFilters = getConstraintFilters(
+      attachmentUrn,
+      sourceFilters,
+      datasetDimensionsMetadataMap,
     );
+
     return !isRequestCached(
       actions.getConstraints,
       buildRequestCacheKey(attachmentUrn, constraintFilters),
     );
   });
+};
+
+export const hasImplicitSharedWildcard = (
+  dataQueries: DataQuery[],
+  structureDataMaps: StructureDataMaps,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+): boolean => {
+  if (dataQueries.length < 2) return false;
+
+  const sharedFilterStateById = new Map<
+    string,
+    {
+      datasetsWithExplicitValues: Set<string>;
+      datasetsWithMissingFilter: Set<string>;
+    }
+  >();
+
+  for (const dataQuery of dataQueries) {
+    const dimensions = structureDataMaps.dimensionsMap?.get(dataQuery.urn);
+    if (!dimensions) continue;
+
+    for (const dimension of dimensions) {
+      const dimensionId = dimension.id;
+      if (!dimensionId) continue;
+
+      const metadata =
+        datasetDimensionsMetadataMap?.[dataQuery.urn]?.[dimensionId];
+      const subtype = metadata?.subtype;
+      if (!subtype || metadata?.dimensionType === 'TIME_PERIOD') continue;
+
+      const config = SHARED_FILTERS_CONFIG.find((c) => c.subtype === subtype);
+      if (!config) continue;
+
+      const state = sharedFilterStateById.get(config.id) ?? {
+        datasetsWithExplicitValues: new Set<string>(),
+        datasetsWithMissingFilter: new Set<string>(),
+      };
+
+      const matchingFilter = dataQuery.filters?.find(
+        (f) =>
+          f.componentCode === dimensionId &&
+          f.operator !== QueryFilterType.BETWEEN,
+      );
+
+      if (!matchingFilter) {
+        state.datasetsWithMissingFilter.add(dataQuery.urn);
+      } else if (matchingFilter.values?.length) {
+        state.datasetsWithExplicitValues.add(dataQuery.urn);
+      }
+
+      sharedFilterStateById.set(config.id, state);
+    }
+  }
+
+  return [...sharedFilterStateById.values()].some((state) =>
+    [...state.datasetsWithMissingFilter].some((missingDatasetUrn) =>
+      [...state.datasetsWithExplicitValues].some(
+        (explicitDatasetUrn) => explicitDatasetUrn !== missingDatasetUrn,
+      ),
+    ),
+  );
 };
 
 export const getConstraintsMap = (
@@ -1038,6 +1243,67 @@ export const getQueryFiltersMap = (
       ];
     }),
   );
+};
+
+export const getImplicitSharedWildcardFilterParams = (
+  dataQueries: DataQuery[],
+  structureDataMaps: StructureDataMaps,
+  constraintsMap: Map<string, DataConstraints[] | undefined> | undefined,
+  locale: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+):
+  | {
+      compatibleUrns: Set<string>;
+      filterParamsMap: Map<string, DatasetQueryFilters>;
+    }
+  | undefined => {
+  const hasImplicitWildcard = hasImplicitSharedWildcard(
+    dataQueries,
+    structureDataMaps,
+    datasetDimensionsMetadataMap,
+  );
+
+  if (!constraintsMap || !dataQueries.length || !hasImplicitWildcard) {
+    return undefined;
+  }
+
+  const structureDataMapsWithConstraints = {
+    ...structureDataMaps,
+    constraintsMap,
+  };
+  const filledDatasetFiltersMap = getFilledDatasetFiltersMap(
+    structureDataMapsWithConstraints,
+    locale,
+    false,
+  );
+  const preselectedFilters = getFiltersPreselectedByDataQueries(
+    filledDatasetFiltersMap,
+    dataQueries,
+    constraintsMap,
+    datasetDimensionsMetadataMap,
+  );
+  const expandedFiltersMap = buildFiltersMap(
+    preselectedFilters,
+    constraintsMap,
+    false,
+    datasetDimensionsMetadataMap,
+  );
+  const compatibleUrns = getCompatibleDatasetUrns(
+    preselectedFilters,
+    dataQueries.map((dataQuery) => dataQuery.urn),
+  );
+  const compatibleDataQueries = dataQueries.filter((dataQuery) =>
+    compatibleUrns.has(dataQuery.urn),
+  );
+
+  return {
+    compatibleUrns,
+    filterParamsMap: getQueryFiltersMap(
+      expandedFiltersMap,
+      compatibleDataQueries,
+      structureDataMaps.dimensionsMap,
+    ),
+  };
 };
 
 export const setDataQueryFiltersMap = (
