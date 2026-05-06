@@ -41,6 +41,8 @@ export enum ChatI18nKeys {
   CHAT_WARNING = 'chat.chatWarning',
   DUPLICATE_CHAT = 'chat.duplicateChat',
   EXPLORE_DATA = 'chart.exploreData',
+  CONVERSATION_ACCESS_ERROR_TITLE = 'chat.conversationAccessErrorTitle',
+  CONVERSATION_ACCESS_ERROR_TEXT = 'chat.conversationAccessErrorText',
 }
 
 export enum LogOutI18nKeys {

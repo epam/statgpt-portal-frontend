@@ -1388,6 +1388,88 @@ describe('getCompatibleDatasetUrns', () => {
 
     expect(Array.from(compatibleUrns)).toEqual([DATASET_A_URN, DATASET_B_URN]);
   });
+
+  it('uses applied filters to keep a dataset that becomes an implicit wildcard after modal changes', () => {
+    const sharedCountryFilter: Filter = {
+      id: COMMON_COUNTRY_FILTER_ID,
+      filterType: 'shared',
+      sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
+      sourceFilterIdsByDataset: {
+        [DATASET_A_URN]: 'REF_AREA',
+        [DATASET_B_URN]: 'COUNTRY',
+      },
+      dimensionValues: [
+        {
+          id: 'name:united-states',
+          name: 'United States',
+          isSelectedValue: true,
+          sourceValues: [
+            { datasetUrn: DATASET_A_URN, id: 'US', name: 'United States' },
+          ],
+        },
+        {
+          id: 'name:canada',
+          name: 'Canada',
+          isSelectedValue: false,
+          sourceValues: [
+            { datasetUrn: DATASET_B_URN, id: 'CA', name: 'Canada' },
+          ],
+        },
+      ],
+    };
+    const staleDataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [
+          {
+            componentCode: 'REF_AREA',
+            operator: QueryFilterType.IN,
+            values: ['US'],
+          },
+        ],
+      },
+      {
+        urn: DATASET_B_URN,
+        filters: [
+          {
+            componentCode: 'COUNTRY',
+            operator: QueryFilterType.IN,
+            values: ['CA'],
+          },
+        ],
+      },
+    ] as DataQuery[];
+    const appliedFiltersMap = new Map<string, Filter[]>([
+      [
+        DATASET_A_URN,
+        [
+          {
+            id: 'REF_AREA',
+            datasetUrn: DATASET_A_URN,
+            filterType: 'dataset',
+            dimensionValues: [
+              {
+                id: 'US',
+                name: 'United States',
+                isSelectedValue: true,
+              },
+            ],
+          } as Filter,
+        ],
+      ],
+      [DATASET_B_URN, []],
+    ]);
+
+    const compatibleUrns = getCompatibleDatasetUrns(
+      [sharedCountryFilter],
+      [DATASET_A_URN, DATASET_B_URN],
+      staleDataQueries,
+      DATASET_DIMENSIONS_METADATA_MAP,
+      appliedFiltersMap,
+    );
+
+    expect(Array.from(compatibleUrns)).toEqual([DATASET_A_URN, DATASET_B_URN]);
+  });
 });
 
 describe('getConstraintsRequests', () => {
