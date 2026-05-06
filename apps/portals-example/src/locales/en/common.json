@@ -33,7 +33,9 @@
     "chatName": "Chat name:",
     "chatExpiration": "Link expiration date:",
     "chatExpirationDays": "days",
-    "chatWarning": "This chat has not been shared with anyone yet."
+    "chatWarning": "This chat has not been shared with anyone yet.",
+    "conversationAccessErrorTitle": "Access error",
+    "conversationAccessErrorText": "The link has expired or the chat has been deleted."
   },
   "advancedView": {
     "title": "Advanced view",
