@@ -7,6 +7,7 @@ import {
   getConstraintsMapFromSettledResults,
   getConstraintsRequests,
   getCompatibleDatasetUrns,
+  getDataQueriesWithExpandedSharedDimensionFilters,
   getDatasetNameFromFilters,
   getFilledDatasetFiltersMap,
   getFiltersByConstraints,
@@ -1758,5 +1759,136 @@ describe('getRestoredActiveDatasetUrns', () => {
         DATASET_DIMENSIONS_METADATA_MAP,
       ),
     ).toBeUndefined();
+  });
+});
+
+describe('getDataQueriesWithExpandedSharedDimensionFilters', () => {
+  const constraintsWithValues = (componentId: string, values: string[]) =>
+    [
+      {
+        cubeRegions: [
+          {
+            isIncluded: true,
+            memberSelection: [
+              {
+                componentId,
+                selectionValues: values.map((memberValue) => ({
+                  memberValue,
+                })),
+              },
+            ],
+          },
+        ],
+      },
+    ] as any;
+
+  it('expands an explicit frequency filter with values available to an implicit sibling dataset', () => {
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [
+          {
+            componentCode: 'FREQ',
+            operator: QueryFilterType.IN,
+            values: ['D'],
+          },
+          {
+            componentCode: 'EER_TYPE',
+            operator: QueryFilterType.IN,
+            values: ['N'],
+          },
+        ],
+      },
+      {
+        urn: DATASET_B_URN,
+        filters: [],
+      },
+    ] as DataQuery[];
+
+    const result = getDataQueriesWithExpandedSharedDimensionFilters(
+      dataQueries,
+      new Map([
+        [DATASET_A_URN, constraintsWithValues('FREQ', ['D', 'M', 'A'])],
+        [
+          DATASET_B_URN,
+          constraintsWithValues(COMMON_FREQUENCY_FILTER_ID, ['D', 'M']),
+        ],
+      ]),
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
+
+    expect(result[0].filters).toEqual([
+      {
+        componentCode: 'FREQ',
+        operator: QueryFilterType.IN,
+        values: ['D', 'M'],
+      },
+      {
+        componentCode: 'EER_TYPE',
+        operator: QueryFilterType.IN,
+        values: ['N'],
+      },
+    ]);
+    expect(result[1]).toBe(dataQueries[1]);
+  });
+
+  it('expands an explicit region filter with values available to an implicit sibling dataset', () => {
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [
+          {
+            componentCode: 'REF_AREA',
+            operator: QueryFilterType.IN,
+            values: ['US'],
+          },
+        ],
+      },
+      {
+        urn: DATASET_B_URN,
+        filters: [],
+      },
+    ] as DataQuery[];
+
+    const result = getDataQueriesWithExpandedSharedDimensionFilters(
+      dataQueries,
+      new Map([
+        [DATASET_A_URN, constraintsWithValues('REF_AREA', ['US', 'CA', 'MX'])],
+        [DATASET_B_URN, constraintsWithValues('COUNTRY', ['US', 'CA'])],
+      ]),
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
+
+    expect(result[0].filters).toEqual([
+      {
+        componentCode: 'REF_AREA',
+        operator: QueryFilterType.IN,
+        values: ['US', 'CA'],
+      },
+    ]);
+    expect(result[1]).toBe(dataQueries[1]);
+  });
+
+  it('does not expand shared dimension filters when there is no implicit sibling dataset', () => {
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [
+          {
+            componentCode: 'FREQ',
+            operator: QueryFilterType.IN,
+            values: ['D'],
+          },
+        ],
+      },
+    ] as DataQuery[];
+
+    expect(
+      getDataQueriesWithExpandedSharedDimensionFilters(
+        dataQueries,
+        new Map([[DATASET_A_URN, constraintsWithValues('FREQ', ['D', 'M'])]]),
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toBe(dataQueries);
   });
 });

@@ -42,6 +42,7 @@ import { scheduleDeferredWork } from '../utils/deferred-work';
 import {
   filterDataQueriesByActiveDatasetUrns,
   filterMapByActiveDatasetUrns,
+  getDataQueriesWithExpandedSharedDimensionFilters,
   getImplicitSharedWildcardFilterParams,
 } from '../utils/multiple-filters';
 
@@ -113,6 +114,8 @@ export function useAttachmentsDataMultipleQueries(
     () => compatibleDataQueries?.map((q) => q.urn).join(',') ?? '',
     [compatibleDataQueries],
   );
+  const datasetDimensionsMetadata = useDatasetDimensionsMetadataMap();
+  const { getDimensionsScheme } = datasetDimensionsMetadata;
 
   const loadConstraintsMap = useCallback(
     async (dataQueries: DataQuery[]) => {
@@ -121,11 +124,22 @@ export function useAttachmentsDataMultipleQueries(
           dataQueries.map((q) => ({ ...q, filters: [] })),
           getConstraints,
         );
+        const expandedDataQueries =
+          getDataQueriesWithExpandedSharedDimensionFilters(
+            dataQueries,
+            constraintsMap,
+            datasetDimensionsMetadata.map,
+          );
+        const resolvedConstraintsMap =
+          expandedDataQueries === dataQueries
+            ? constraintsMap
+            : await getDataConstraintsMap(expandedDataQueries, getConstraints);
+
         setStructureDataMaps((prevStructureDataMaps) => ({
           ...prevStructureDataMaps,
-          constraintsMap,
+          constraintsMap: resolvedConstraintsMap,
         }));
-        return constraintsMap;
+        return resolvedConstraintsMap;
       } catch {
         const constraintsMap = new Map<string, DataConstraints[]>();
         setStructureDataMaps((prevStructureDataMaps) => ({
@@ -135,11 +149,8 @@ export function useAttachmentsDataMultipleQueries(
         return constraintsMap;
       }
     },
-    [getConstraints],
+    [datasetDimensionsMetadata.map, getConstraints],
   );
-
-  const datasetDimensionsMetadata = useDatasetDimensionsMetadataMap();
-  const { getDimensionsScheme } = datasetDimensionsMetadata;
 
   const loadStructureData = useCallback(
     async (

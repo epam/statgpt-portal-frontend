@@ -105,6 +105,8 @@ export const AdvancedView: FC<Props> = ({
           attachmentsProps.dataQueries,
           datasetDimensionsMetadata.map,
         );
+  const skipSingleDatasetConstraintsLoading =
+    isCrossDatasetModeOn && !!attachmentsProps.dataQueries?.length;
 
   const conversationRef = useRef(props.filtersProps.conversation);
   conversationRef.current = props.filtersProps.conversation;
@@ -157,6 +159,7 @@ export const AdvancedView: FC<Props> = ({
     undefined,
     false,
     handleCodeAttachmentUpdated,
+    skipSingleDatasetConstraintsLoading,
   );
   const {
     structureDataMaps,

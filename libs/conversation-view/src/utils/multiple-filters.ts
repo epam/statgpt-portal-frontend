@@ -51,6 +51,14 @@ export type ExtendedStructuralMetadata = {
   data?: StructuralMetaData;
 };
 
+type SharedDimensionFilterState = {
+  configId: string;
+  dataQuery: DataQuery;
+  dimensionId: string;
+  filter?: QueryFilter;
+  availableValues: string[];
+};
+
 export const COMMON_COUNTRY_FILTER_ID = 'COUNTRY';
 export const COMMON_FREQUENCY_FILTER_ID = 'FREQUENCY';
 export const COMMON_TIME_PERIOD_FILTER_ID = 'TIME_PERIOD';
@@ -889,6 +897,153 @@ export const getRestoredActiveDatasetUrns = (
       )
       .map((dataQuery) => dataQuery.urn) ?? []
   );
+};
+
+const getConstraintDimensionValues = (
+  constraints: DataConstraints[] | undefined,
+  dimensionId: string | undefined,
+): string[] => {
+  if (!dimensionId) {
+    return [];
+  }
+
+  return Array.from(
+    new Set(
+      constraints?.flatMap(
+        (constraint) =>
+          constraint.cubeRegions
+            ?.filter((cubeRegion) => cubeRegion.isIncluded)
+            .flatMap(
+              (cubeRegion) =>
+                cubeRegion.memberSelection
+                  ?.filter((selection) => selection.componentId === dimensionId)
+                  .flatMap((selection) =>
+                    selection.selectionValues.map((value) => value.memberValue),
+                  ) ?? [],
+            ) ?? [],
+      ) ?? [],
+    ),
+  );
+};
+
+export const getDataQueriesWithExpandedSharedDimensionFilters = (
+  dataQueries: DataQuery[],
+  constraintsMap: Map<string, DataConstraints[] | undefined> | undefined,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+): DataQuery[] => {
+  if (dataQueries.length < 2 || !constraintsMap) {
+    return dataQueries;
+  }
+
+  const sharedDimensionStates: SharedDimensionFilterState[] =
+    dataQueries.flatMap((dataQuery) =>
+      SHARED_FILTERS_CONFIG.flatMap((config) => {
+        if (!config.subtype) {
+          return [];
+        }
+
+        const dimensionId = getDatasetDimensionKeyBySubtype(
+          dataQuery.urn,
+          config.subtype,
+          datasetDimensionsMetadataMap,
+        );
+
+        if (!dimensionId) {
+          return [];
+        }
+
+        return [
+          {
+            configId: config.id,
+            dataQuery,
+            dimensionId,
+            filter: dataQuery.filters?.find(
+              (queryFilter) =>
+                queryFilter.componentCode === dimensionId &&
+                queryFilter.operator !== QueryFilterType.BETWEEN,
+            ),
+            availableValues: getConstraintDimensionValues(
+              constraintsMap.get(dataQuery.urn),
+              dimensionId,
+            ),
+          },
+        ];
+      }),
+    );
+
+  const statesByConfigId = new Map<string, SharedDimensionFilterState[]>();
+  sharedDimensionStates.forEach((state) => {
+    statesByConfigId.set(state.configId, [
+      ...(statesByConfigId.get(state.configId) ?? []),
+      state,
+    ]);
+  });
+
+  const expandedValuesByFilter = new Map<QueryFilter, string[]>();
+  statesByConfigId.forEach((states) => {
+    const explicitStates = states.filter(
+      (state) => state.filter?.values?.length,
+    );
+    const missingStates = states.filter((state) => !state.filter);
+    if (!explicitStates.length || !missingStates.length) {
+      return;
+    }
+
+    const implicitValues = new Set(
+      missingStates.flatMap((state) => state.availableValues),
+    );
+    if (!implicitValues.size) {
+      return;
+    }
+
+    explicitStates.forEach((state) => {
+      const filter = state.filter;
+      if (!filter?.values?.length) {
+        return;
+      }
+
+      const availableValues = new Set(state.availableValues);
+      const expandedValues = Array.from(
+        new Set([
+          ...filter.values,
+          ...Array.from(implicitValues).filter((value) =>
+            availableValues.has(value),
+          ),
+        ]),
+      );
+
+      if (expandedValues.length > filter.values.length) {
+        expandedValuesByFilter.set(filter, expandedValues);
+      }
+    });
+  });
+
+  if (!expandedValuesByFilter.size) {
+    return dataQueries;
+  }
+
+  return dataQueries.map((dataQuery) => {
+    let hasExpandedFilters = false;
+    const filters = dataQuery.filters?.map((queryFilter) => {
+      const expandedValues = expandedValuesByFilter.get(queryFilter);
+      if (!expandedValues) {
+        return queryFilter;
+      }
+
+      hasExpandedFilters = true;
+      return {
+        ...queryFilter,
+        values: expandedValues,
+      };
+    });
+
+    return hasExpandedFilters
+      ? {
+          ...dataQuery,
+          filters,
+        }
+      : dataQuery;
+  });
 };
 
 export const getCrossDatasetSnapshotKey = (dataQueries?: DataQuery[]) =>
