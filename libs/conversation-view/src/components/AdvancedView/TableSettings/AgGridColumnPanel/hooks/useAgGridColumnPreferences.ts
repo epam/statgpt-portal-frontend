@@ -73,11 +73,21 @@ export function useAgGridColumnPreferences({
     );
   }, [currentUrn, gridApi]);
 
+  const clearUserColumnState = useCallback(() => {
+    columnsUserStateByUrnRef.current.delete(currentUrn);
+  }, [currentUrn]);
+
+  const clearInitialColumnState = useCallback(() => {
+    columnsInitialStateByUrnRef.current.delete(currentUrn);
+  }, [currentUrn]);
+
   useAgGridColumnGridListeners(gridApi, persistUserState);
 
   return {
     gridApi,
     onGridApiReady,
     initialColumnsState,
+    clearUserColumnState,
+    clearInitialColumnState,
   };
 }

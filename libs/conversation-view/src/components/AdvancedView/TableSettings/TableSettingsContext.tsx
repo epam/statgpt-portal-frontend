@@ -45,6 +45,8 @@ type TableSettingsContextValue = {
     hidden: boolean,
   ) => void;
   resetDimensionCustomization: () => void;
+  clearUserColumnState: () => void;
+  clearInitialColumnState: () => void;
   gridViewMode: CrossDatasetGridViewMode;
   setGridViewMode: (mode: CrossDatasetGridViewMode) => void;
   texts?: TableSettingsTexts;
@@ -103,8 +105,13 @@ export function TableSettingsProvider({
   resetIcon?: ReactNode;
   children: ReactNode;
 }) {
-  const { gridApi, onGridApiReady, initialColumnsState } =
-    useAgGridColumnPreferences({ currentUrn });
+  const {
+    gridApi,
+    onGridApiReady,
+    initialColumnsState,
+    clearUserColumnState,
+    clearInitialColumnState,
+  } = useAgGridColumnPreferences({ currentUrn });
 
   const setGridViewMode = useCallback(
     (mode: CrossDatasetGridViewMode) => onGridViewModeChange?.(mode),
@@ -177,6 +184,8 @@ export function TableSettingsProvider({
       setDimensionKeyOrder,
       setDimensionKeyHidden,
       resetDimensionCustomization,
+      clearUserColumnState,
+      clearInitialColumnState,
       gridViewMode,
       setGridViewMode,
       texts,
@@ -193,6 +202,8 @@ export function TableSettingsProvider({
       setDimensionKeyOrder,
       setDimensionKeyHidden,
       resetDimensionCustomization,
+      clearUserColumnState,
+      clearInitialColumnState,
       gridViewMode,
       setGridViewMode,
       texts,

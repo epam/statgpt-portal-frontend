@@ -39,6 +39,8 @@ export const TableSettingsPanel = () => {
     setDimensionKeyOrder,
     setDimensionKeyHidden,
     resetDimensionCustomization,
+    clearUserColumnState,
+    clearInitialColumnState,
     gridViewMode,
     setGridViewMode,
     texts,
@@ -49,15 +51,14 @@ export const TableSettingsPanel = () => {
 
   const handleModeChange = useCallback(
     (mode: CrossDatasetGridViewMode) => {
-      if (gridApi) {
-        restoreInitialColumnsState(gridApi, initialColumnsState);
-      }
+      clearUserColumnState();
+      clearInitialColumnState();
       resetDimensionCustomization();
       setGridViewMode(mode);
     },
     [
-      gridApi,
-      initialColumnsState,
+      clearUserColumnState,
+      clearInitialColumnState,
       resetDimensionCustomization,
       setGridViewMode,
     ],
