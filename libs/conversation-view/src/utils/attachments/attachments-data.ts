@@ -71,6 +71,12 @@ export const getStructureDataMaps = async (
   getDataSetAction: GetDatasetDetails,
   getDataSetDataAction: GetDatasetData,
   setIsLoadingGridData: (isLoading: boolean) => void,
+  getFilterParamsMap?: (
+    structureDataMaps: StructureDataMaps,
+  ) =>
+    | Map<string, DatasetQueryFilters>
+    | undefined
+    | Promise<Map<string, DatasetQueryFilters> | undefined>,
 ): Promise<StructureDataMaps> => {
   const structureDataMaps = initStructureDataMaps();
 
@@ -94,37 +100,53 @@ export const getStructureDataMaps = async (
           ...(dimensions?.dimensions || []),
           ...(dimensions?.timeDimensions || []),
         ]);
-
-        const filterKey =
-          dimensions?.dimensions == null
-            ? null
-            : getTimeSeriesFilterKey(
-                dimensions?.dimensions,
-                dataQuery.filters ?? [],
-              );
-
-        const timeFilter = getTimeQueryFilterFromAttachment(
-          dataQuery,
-          dimensions,
-        );
-
-        await getDataSetData(
-          dataQuery,
-          { filterKey, timeFilter },
-          getDataSetDataAction,
-        )
-          .then(({ dataMessage, structureDimensions }) => {
-            structureDataMaps?.dataMessagesMap?.set(dataQuery.urn, dataMessage);
-            structureDataMaps?.structureDimensionsMap?.set(
-              dataQuery.urn,
-              structureDimensions || [],
-            );
-          })
-          .catch(() => {
-            structureDataMaps?.structureDimensionsMap?.set(dataQuery.urn, []);
-          })
-          .finally(() => setIsLoadingGridData(false));
       }
+    }),
+  );
+
+  const filterParamsMap = await getFilterParamsMap?.(structureDataMaps);
+
+  await Promise.allSettled(
+    dataQueries.map(async (dataQuery) => {
+      const dataSet = structureDataMaps.structuresMap?.get(dataQuery.urn);
+
+      if (!dataSet) {
+        return;
+      }
+
+      if (filterParamsMap && !filterParamsMap.has(dataQuery.urn)) {
+        return;
+      }
+
+      const dimensions = getDimensions(dataSet);
+      const filterKey =
+        dimensions?.dimensions == null
+          ? null
+          : getTimeSeriesFilterKey(
+              dimensions?.dimensions,
+              dataQuery.filters ?? [],
+            );
+      const timeFilter = getTimeQueryFilterFromAttachment(
+        dataQuery,
+        dimensions,
+      );
+
+      await getDataSetData(
+        dataQuery,
+        filterParamsMap?.get(dataQuery.urn) ?? { filterKey, timeFilter },
+        getDataSetDataAction,
+      )
+        .then(({ dataMessage, structureDimensions }) => {
+          structureDataMaps?.dataMessagesMap?.set(dataQuery.urn, dataMessage);
+          structureDataMaps?.structureDimensionsMap?.set(
+            dataQuery.urn,
+            structureDimensions || [],
+          );
+        })
+        .catch(() => {
+          structureDataMaps?.structureDimensionsMap?.set(dataQuery.urn, []);
+        })
+        .finally(() => setIsLoadingGridData(false));
     }),
   );
 

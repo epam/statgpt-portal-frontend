@@ -73,6 +73,7 @@ export function useAttachmentsData(
   initialDatasetStructure?: StructuralData,
   isInitialDatasetStructureLoading = false,
   onCodeAttachmentUpdated?: (attachment: Attachment) => void,
+  skipInitialConstraintsLoading = false,
 ) {
   const [dataMessage, setDataMessage] = useState<DataMessage | undefined>();
   const [dataset, setDataset] = useState<Dataflow | undefined>();
@@ -199,7 +200,9 @@ export function useAttachmentsData(
       setIsLoadingGridData(true);
       try {
         await Promise.all([
-          loadConstraints(dataQuery),
+          ...(skipInitialConstraintsLoading
+            ? []
+            : [loadConstraints(dataQuery)]),
           loadStructureAndData(dataQuery),
         ]);
       } catch (err) {
@@ -221,6 +224,7 @@ export function useAttachmentsData(
     isInitialDatasetStructureLoading,
     loadConstraints,
     loadStructureAndData,
+    skipInitialConstraintsLoading,
   ]);
 
   const onFiltersChange = useCallback(
