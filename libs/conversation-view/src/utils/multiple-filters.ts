@@ -770,6 +770,7 @@ export const getCompatibleDatasetUrns = (
   dataQueryUrns: string[],
   dataQueries?: DataQuery[],
   datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+  appliedFiltersMap?: Map<string, Filter[]>,
 ): Set<string> => {
   const sharedFiltersWithSelections = filters.filter(
     (f): f is SharedFilter =>
@@ -786,12 +787,6 @@ export const getCompatibleDatasetUrns = (
     datasetUrn: string,
     filter: SharedFilter,
   ): boolean => {
-    const dataQuery = dataQueries?.find((query) => query.urn === datasetUrn);
-
-    if (!dataQuery) {
-      return false;
-    }
-
     const nativeFilterId = getNativeFilterIdForSharedFilter(
       filter,
       datasetUrn,
@@ -799,6 +794,22 @@ export const getCompatibleDatasetUrns = (
     );
 
     if (!nativeFilterId) {
+      return false;
+    }
+
+    if (appliedFiltersMap) {
+      return !appliedFiltersMap
+        .get(datasetUrn)
+        ?.some(
+          (datasetFilter) =>
+            datasetFilter.id === nativeFilterId &&
+            datasetFilter.dimensionValues?.some((v) => v.isSelectedValue),
+        );
+    }
+
+    const dataQuery = dataQueries?.find((query) => query.urn === datasetUrn);
+
+    if (!dataQuery) {
       return false;
     }
 
@@ -1446,6 +1457,9 @@ export const getImplicitSharedWildcardFilterParams = (
   const compatibleUrns = getCompatibleDatasetUrns(
     preselectedFilters,
     dataQueries.map((dataQuery) => dataQuery.urn),
+    dataQueries,
+    datasetDimensionsMetadataMap,
+    expandedFiltersMap,
   );
   const compatibleDataQueries = dataQueries.filter((dataQuery) =>
     compatibleUrns.has(dataQuery.urn),
