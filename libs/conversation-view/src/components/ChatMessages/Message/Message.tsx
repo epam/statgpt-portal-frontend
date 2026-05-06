@@ -160,6 +160,8 @@ const Message: FC<Props> = ({
   useEffect(() => {
     setCurrentAttachmentDataQuery(attachmentsDataQueries?.[0]);
   }, [attachmentsDataQueries]);
+  const skipSingleDatasetConstraintsLoading =
+    isCrossDatasetModeOn && !!attachmentsDataQueries?.length;
 
   const handleCodeAttachmentUpdated = useCallback(
     (attachment: Attachment) => {
@@ -185,6 +187,7 @@ const Message: FC<Props> = ({
         : void 0,
       isLoadingDatasets,
       handleCodeAttachmentUpdated,
+      skipSingleDatasetConstraintsLoading,
     );
 
   const restoredActiveDatasetUrns = useMemo(

@@ -1,4 +1,5 @@
 import {
+  DatasetDimensionsMetadataMap,
   GET_v3_FILTER_AND,
   SeriesFilterDto,
   SeriesFilterOperator,
@@ -10,9 +11,10 @@ import { getFiltersForQueryContext } from './multiple-filters';
 export const getSeriesFilterDto = (
   filters: Filter[],
   datasetUrn?: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): SeriesFilterDto[] => {
   let seriesFilters: SeriesFilterDto[] = [];
-  getFiltersForQueryContext(filters, datasetUrn)
+  getFiltersForQueryContext(filters, datasetUrn, datasetDimensionsMetadataMap)
     .filter(
       (filter) =>
         filter.timeRange ||
