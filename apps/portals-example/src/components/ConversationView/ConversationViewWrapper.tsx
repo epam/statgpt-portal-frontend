@@ -88,14 +88,15 @@ import {
   IconSquareCheckFilled,
 } from '@tabler/icons-react';
 import classNames from 'classnames';
-import { FC, useCallback, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { JWT } from 'next-auth/jwt';
 import { Conversation } from '@epam/ai-dial-shared';
 import { signOut } from 'next-auth/react';
 import { getSignInLink } from '../../constants/auth';
 import { wrapWithAuthHandler } from '../../utils/auth/requests-wrapper';
-import { LimitMessages } from '@epam/statgpt-ui-components';
+import { Alert, AlertType, LimitMessages } from '@epam/statgpt-ui-components';
+import WelcomeView from '../WelcomeView/WelcomeView';
 
 interface Props {
   bucketId: string;
@@ -118,6 +119,8 @@ const ConversationViewWrapper: FC<Props> = ({
   >();
   const [dataQueries, setDataQueries] = useState<DataQuery[]>();
   const [datasets, setDatasets] = useState<Dataflow[]>();
+  const [isConversationNotFound, setIsConversationNotFound] = useState(false);
+  const [showNotFoundAlert, setShowNotFoundAlert] = useState(false);
   const { locale, id }: { locale: string; id: string[] } = useParams();
   const chartingIcons = {
     [ChartingIcon.NEXT]: <ChevronRight width={20} height={20} />,
@@ -130,6 +133,16 @@ const ConversationViewWrapper: FC<Props> = ({
     () => `${bucketId}/${locale}/${conversationId}`,
     [locale, bucketId, conversationId],
   );
+
+  useEffect(() => {
+    setIsConversationNotFound(false);
+    setShowNotFoundAlert(false);
+  }, [conversationKey]);
+
+  const handleConversationNotFound = useCallback(() => {
+    setIsConversationNotFound(true);
+    setShowNotFoundAlert(true);
+  }, []);
 
   const openUrl = useCallback((url: string) => router.push(url), [router]);
 
@@ -405,6 +418,25 @@ const ConversationViewWrapper: FC<Props> = ({
     }
   }, []);
 
+  if (isConversationNotFound) {
+    return (
+      <>
+        <WelcomeView />
+        {showNotFoundAlert && (
+          <Alert
+            alertDetails={{
+              type: AlertType.ERROR,
+              title: t(ChatI18nKeys.CONVERSATION_ACCESS_ERROR_TITLE),
+              text: t(ChatI18nKeys.CONVERSATION_ACCESS_ERROR_TEXT),
+            }}
+            errorIcon={<ErrorIcon className="size-6 text-semantic-error" />}
+            onClose={() => setShowNotFoundAlert(false)}
+          />
+        )}
+      </>
+    );
+  }
+
   return (
     <div
       className={classNames(
@@ -427,6 +459,7 @@ const ConversationViewWrapper: FC<Props> = ({
             actions={conversationViewActions}
             locale={locale}
             handleInvalidStreaming={handleInvalidStreaming}
+            onConversationNotFound={handleConversationNotFound}
             signOutAction={signOutAction}
             messageStyles={{
               advanceViewIcon: <AdvancedModeIcon className="size-4" />,
