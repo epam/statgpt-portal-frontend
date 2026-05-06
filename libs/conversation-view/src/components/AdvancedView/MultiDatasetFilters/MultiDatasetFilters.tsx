@@ -587,6 +587,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       dataQueries?.map((q) => q.urn) ?? [],
       dataQueries,
       datasetDimensionsMetadata.map,
+      appliedFiltersMap,
     );
     onMultipleDataFiltersChange?.(
       filtersParamsMap,
