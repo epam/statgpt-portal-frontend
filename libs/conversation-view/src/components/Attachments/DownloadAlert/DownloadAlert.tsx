@@ -1,4 +1,3 @@
-/* eslint-disable @nx/enforce-module-boundaries */
 import { FC } from 'react';
 import { Alert, AlertDetails } from '@epam/statgpt-ui-components';
 import { AttachmentsStyles } from '../../../models/attachments-styles';

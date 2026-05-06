@@ -27,7 +27,7 @@ export const GridViewModeSwitcherButton = ({
     ])}
     onClick={() => onClick(mode)}
   >
-    <div className="bg-neutrals-100 px-2 py-1 rounded-[5px]">{visual}</div>
+    <div className="rounded-[5px] bg-neutrals-100 px-2 py-1">{visual}</div>
 
     <div className="flex flex-col gap-1 text-left">
       <span className="h4 text-neutrals-1000">{title}</span>

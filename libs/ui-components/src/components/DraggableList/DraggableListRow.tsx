@@ -136,7 +136,7 @@ export function DraggableListRow({
           />
         ) : null}
 
-        <span className="body-3 truncate text-neutrals-800 w-full">
+        <span className="body-3 w-full truncate text-neutrals-800">
           {renderLabel ? renderLabel(item) : item.label}
         </span>
       </button>
