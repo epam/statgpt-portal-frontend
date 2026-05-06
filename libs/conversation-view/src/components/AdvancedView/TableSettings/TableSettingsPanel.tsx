@@ -68,9 +68,15 @@ export const TableSettingsPanel = () => {
     if (!gridApi) {
       return;
     }
+    clearUserColumnState();
     restoreInitialColumnsState(gridApi, initialColumnsState);
     resetDimensionCustomization();
-  }, [gridApi, initialColumnsState, resetDimensionCustomization]);
+  }, [
+    clearUserColumnState,
+    gridApi,
+    initialColumnsState,
+    resetDimensionCustomization,
+  ]);
 
   const enrichItem = useMemo(() => {
     if (

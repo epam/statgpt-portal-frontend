@@ -84,9 +84,10 @@ const CrossDatasetGridAttachment: FC<Props> = ({
       .map((col) => col.colId ?? col.field ?? '')
       .filter(Boolean);
     const prevColIds = prevColIdsRef.current;
+    const prevColIdSet = new Set(prevColIds);
     const colStructureChanged =
       newColIds.length !== prevColIds.length ||
-      newColIds.some((id, i) => id !== prevColIds[i]);
+      newColIds.some((id) => !prevColIdSet.has(id));
 
     prevColIdsRef.current = newColIds;
 
