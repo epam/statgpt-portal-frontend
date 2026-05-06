@@ -87,6 +87,8 @@ export function useAttachmentsDataMultipleQueries(
   ] = useState(false);
 
   const pythonRequestIdRef = useRef(0);
+  const prevGridViewModeRef = useRef(gridViewMode);
+  const prevStructureDataMapsRef = useRef(structureDataMaps);
 
   const [crossDatasetGridAttachment, setCrossDatasetGridAttachment] =
     useState<CustomGridAttachment>(
@@ -254,6 +256,12 @@ export function useAttachmentsDataMultipleQueries(
   }, [rawAttachments, titles]);
 
   useEffect(() => {
+    const isOnlyModeChange =
+      prevGridViewModeRef.current !== gridViewMode &&
+      prevStructureDataMapsRef.current === structureDataMaps;
+    prevGridViewModeRef.current = gridViewMode;
+    prevStructureDataMapsRef.current = structureDataMaps;
+
     const { structuresMap, dataMessagesMap, constraintsMap } =
       structureDataMaps ?? {};
     if (
@@ -264,7 +272,9 @@ export function useAttachmentsDataMultipleQueries(
       datasetDimensionsSchemesMap != null &&
       !isLoadingGridData
     ) {
-      setIsBuildingCrossDatasetGridAttachment(true);
+      if (!isOnlyModeChange) {
+        setIsBuildingCrossDatasetGridAttachment(true);
+      }
 
       const cancel = scheduleDeferredWork(() => {
         const visibleDataQueries = filterDataQueriesByActiveDatasetUrns(
@@ -304,16 +314,22 @@ export function useAttachmentsDataMultipleQueries(
             gridViewMode,
           ),
         }));
-        setIsBuildingCrossDatasetGridAttachment(false);
+        if (!isOnlyModeChange) {
+          setIsBuildingCrossDatasetGridAttachment(false);
+        }
       });
 
       return () => {
         cancel();
-        setIsBuildingCrossDatasetGridAttachment(false);
+        if (!isOnlyModeChange) {
+          setIsBuildingCrossDatasetGridAttachment(false);
+        }
       };
     }
 
-    setIsBuildingCrossDatasetGridAttachment(false);
+    if (!isOnlyModeChange) {
+      setIsBuildingCrossDatasetGridAttachment(false);
+    }
     return undefined;
   }, [
     structureDataMaps,
