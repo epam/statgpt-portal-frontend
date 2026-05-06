@@ -635,6 +635,8 @@ describe('MultiDatasetFilters', () => {
         [props.dataQueries[0]],
         filtersMap,
         props.actions,
+        expect.any(Object),
+        expect.any(Array),
       );
 
       const latestCall =

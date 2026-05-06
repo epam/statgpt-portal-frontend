@@ -5,13 +5,17 @@ import {
   buildFiltersMap,
   getConstraintsMap,
   getConstraintsMapFromSettledResults,
+  getConstraintsRequests,
   getCompatibleDatasetUrns,
+  getDataQueriesWithExpandedSharedDimensionFilters,
   getDatasetNameFromFilters,
   getFilledDatasetFiltersMap,
   getFiltersByConstraints,
   getFiltersForQueryContext,
   getFiltersPreselectedByDataQueries,
+  getImplicitSharedWildcardFilterParams,
   getRestoredActiveDatasetUrns,
+  hasImplicitSharedWildcard,
   isStructureDataMapsReady,
   mergeConstraintsMaps,
 } from '../multiple-filters';
@@ -29,6 +33,8 @@ const mockGetFiltersPreselectedByDataQuery = jest.fn(
   (filters: Filter[]) => filters,
 );
 const mockGetFilledFilters = jest.fn((filters: Filter[]) => filters);
+const mockGetQueryFilters = jest.fn(() => ({}));
+const mockGetSeriesFilterDto = jest.fn(() => [] as any[]);
 
 jest.mock('@epam/statgpt-sdmx-toolkit', () => ({
   findCodelistByDimension: (...args: any[]) =>
@@ -37,7 +43,6 @@ jest.mock('@epam/statgpt-sdmx-toolkit', () => ({
   getAnnotationPeriod: jest.fn(() => ({ startPeriod: null, endPeriod: null })),
   getAvailableCodesFromConstrains: (...args: any[]) =>
     (mockGetAvailableCodesFromConstrains as any)(...args),
-  GET_v3_FILTER_ALL: 'all',
   TIME_PERIOD: 'TIME_PERIOD',
   TIME_PERIOD_START_ANNOTATION_KEY: 'TIME_PERIOD_START',
   TIME_PERIOD_END_ANNOTATION_KEY: 'TIME_PERIOD_END',
@@ -55,7 +60,8 @@ jest.mock('../get-filled-filters', () => ({
 }));
 
 jest.mock('../get-series-filters', () => ({
-  getSeriesFilterDto: jest.fn(() => []),
+  getSeriesFilterDto: (...args: any[]) =>
+    (mockGetSeriesFilterDto as any)(...args),
 }));
 
 jest.mock('../normalize-constraint-filters', () => ({
@@ -70,7 +76,7 @@ jest.mock('../request-cache', () => ({
 }));
 
 jest.mock('../query-filters', () => ({
-  getQueryFilters: jest.fn(() => ({})),
+  getQueryFilters: (...args: any[]) => (mockGetQueryFilters as any)(...args),
   setDataQueryFilters: jest.fn(() => []),
 }));
 
@@ -124,6 +130,10 @@ beforeEach(() => {
   );
   mockGetFilledFilters.mockReset();
   mockGetFilledFilters.mockImplementation((filters: Filter[]) => filters);
+  mockGetQueryFilters.mockReset();
+  mockGetQueryFilters.mockReturnValue({});
+  mockGetSeriesFilterDto.mockReset();
+  mockGetSeriesFilterDto.mockReturnValue([]);
 });
 
 const makeDatasetCountryFilter = (
@@ -934,6 +944,135 @@ describe('merging frequency filters', () => {
   });
 });
 
+describe('implicit wildcard in getFiltersPreselectedByDataQueries', () => {
+  it('selects all values for a missing shared dimension when a sibling has explicit values', () => {
+    const freqFilterA: Filter = {
+      id: 'FREQ',
+      filterType: 'dataset',
+      datasetUrn: DATASET_A_URN,
+      dimensionValues: [
+        { id: 'D', name: 'Daily', isSelectedValue: false },
+        { id: 'M', name: 'Monthly', isSelectedValue: false },
+        { id: 'Q', name: 'Quarterly', isSelectedValue: false },
+        { id: 'A', name: 'Annual', isSelectedValue: false },
+      ],
+    };
+    const freqFilterB: Filter = {
+      id: COMMON_FREQUENCY_FILTER_ID,
+      filterType: 'dataset',
+      datasetUrn: DATASET_B_URN,
+      dimensionValues: [
+        { id: 'D', name: 'Daily', isSelectedValue: false },
+        { id: 'M', name: 'Monthly', isSelectedValue: false },
+      ],
+    };
+    mockGetFiltersPreselectedByDataQuery.mockImplementation(
+      (filters: Filter[]) => filters,
+    );
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [
+          {
+            componentCode: 'FREQ',
+            operator: QueryFilterType.IN,
+            values: ['D'],
+          },
+        ],
+      },
+      { urn: DATASET_B_URN, filters: [] },
+    ] as any;
+
+    const merged = getFiltersPreselectedByDataQueries(
+      new Map([
+        [DATASET_A_URN, [freqFilterA]],
+        [DATASET_B_URN, [freqFilterB]],
+      ]),
+      dataQueries,
+      undefined,
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
+
+    const sharedFreq = merged.find((f) => f.id === COMMON_FREQUENCY_FILTER_ID)!;
+    expect(sharedFreq.filterType).toBe('shared');
+
+    const monthly = sharedFreq.dimensionValues?.find(
+      (v) => v.name === 'Monthly',
+    );
+    expect(monthly?.isSelectedValue).toBe(true);
+    const daily = sharedFreq.dimensionValues?.find((v) => v.name === 'Daily');
+    expect(daily?.isSelectedValue).toBe(true);
+  });
+
+  it('does not select all values for a shared dimension that already has an explicit filter', () => {
+    const freqFilterA: Filter = {
+      id: 'FREQ',
+      filterType: 'dataset',
+      datasetUrn: DATASET_A_URN,
+      dimensionValues: [
+        { id: 'D', name: 'Daily', isSelectedValue: false },
+        { id: 'M', name: 'Monthly', isSelectedValue: false },
+      ],
+    };
+    mockGetFiltersPreselectedByDataQuery.mockImplementation(
+      (filters: Filter[]) => filters,
+    );
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [
+          {
+            componentCode: 'FREQ',
+            operator: QueryFilterType.IN,
+            values: ['D'],
+          },
+        ],
+      },
+    ] as any;
+
+    const merged = getFiltersPreselectedByDataQueries(
+      new Map([[DATASET_A_URN, [freqFilterA]]]),
+      dataQueries,
+      undefined,
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
+
+    const freqFilter = merged.find(
+      (f) => f.id === 'FREQ' || f.id === COMMON_FREQUENCY_FILTER_ID,
+    )!;
+    const monthly = freqFilter?.dimensionValues?.find(
+      (v) => v.name === 'Monthly',
+    );
+    expect(monthly?.isSelectedValue).toBe(false);
+  });
+
+  it('does not select all values for a missing shared filter without a sibling explicit selection', () => {
+    const freqFilter: Filter = {
+      id: 'FREQ',
+      filterType: 'dataset',
+      datasetUrn: DATASET_A_URN,
+      dimensionValues: [
+        { id: 'D', name: 'Daily', isSelectedValue: false },
+        { id: 'M', name: 'Monthly', isSelectedValue: false },
+      ],
+    };
+    mockGetFiltersPreselectedByDataQuery.mockImplementation(
+      (filters: Filter[]) => filters,
+    );
+
+    const merged = getFiltersPreselectedByDataQueries(
+      new Map([[DATASET_A_URN, [freqFilter]]]),
+      [{ urn: DATASET_A_URN, filters: [] }] as any,
+      undefined,
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
+
+    expect(
+      merged[0].dimensionValues?.some((value) => value.isSelectedValue),
+    ).toBe(false);
+  });
+});
+
 describe('expanding shared filters with subtype metadata', () => {
   it('restores the native filter id for each dataset from metadata', () => {
     const sharedFreqFilter: Filter = {
@@ -1201,6 +1340,366 @@ describe('getCompatibleDatasetUrns', () => {
 
     expect(Array.from(compatibleUrns)).toEqual([DATASET_A_URN, DATASET_B_URN]);
   });
+
+  it('keeps a dataset with an implicit wildcard for the selected shared filter', () => {
+    const sharedFrequencyFilter: Filter = {
+      id: COMMON_FREQUENCY_FILTER_ID,
+      filterType: 'shared',
+      sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
+      dimensionValues: [
+        {
+          id: 'name:daily',
+          name: 'Daily',
+          isSelectedValue: true,
+          sourceValues: [{ datasetUrn: DATASET_A_URN, id: 'D', name: 'Daily' }],
+        },
+        {
+          id: 'name:annual',
+          name: 'Annual',
+          isSelectedValue: false,
+          sourceValues: [
+            { datasetUrn: DATASET_B_URN, id: 'A', name: 'Annual' },
+          ],
+        },
+      ],
+    };
+
+    const compatibleUrns = getCompatibleDatasetUrns(
+      [sharedFrequencyFilter],
+      [DATASET_A_URN, DATASET_B_URN],
+      [
+        {
+          urn: DATASET_A_URN,
+          filters: [
+            {
+              componentCode: 'FREQ',
+              operator: QueryFilterType.IN,
+              values: ['D'],
+            },
+          ],
+        },
+        {
+          urn: DATASET_B_URN,
+          filters: [],
+        },
+      ] as DataQuery[],
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
+
+    expect(Array.from(compatibleUrns)).toEqual([DATASET_A_URN, DATASET_B_URN]);
+  });
+});
+
+describe('getConstraintsRequests', () => {
+  it('excludes shared non-time dimension filters from constraint requests in cross-dataset mode', async () => {
+    const sharedFrequencyFilter = {
+      id: COMMON_FREQUENCY_FILTER_ID,
+      filterType: 'shared',
+      sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
+      sourceFilterIdsByDataset: {
+        [DATASET_A_URN]: 'FREQ',
+        [DATASET_B_URN]: COMMON_FREQUENCY_FILTER_ID,
+      },
+      dimensionValues: [
+        {
+          id: 'name:daily',
+          name: 'Daily',
+          isSelectedValue: true,
+          sourceValues: [{ datasetUrn: DATASET_A_URN, id: 'D', name: 'Daily' }],
+        },
+      ],
+    } as Filter;
+    const sourceFilters = [sharedFrequencyFilter];
+    const actions = {
+      getConstraints: jest.fn(() =>
+        Promise.resolve({ data: { dataConstraints: [] } } as any),
+      ),
+    };
+
+    await Promise.all(
+      getConstraintsRequests(
+        [{ urn: DATASET_A_URN }, { urn: DATASET_B_URN }] as any[],
+        new Map(),
+        actions,
+        DATASET_DIMENSIONS_METADATA_MAP,
+        sourceFilters,
+      ),
+    );
+
+    expect(mockGetSeriesFilterDto).toHaveBeenCalledWith(
+      [],
+      DATASET_A_URN,
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
+    expect(mockGetSeriesFilterDto).toHaveBeenCalledWith(
+      [],
+      DATASET_B_URN,
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
+  });
+});
+
+describe('hasImplicitSharedWildcard', () => {
+  const buildStructureDataMaps = (dimensionsMap: Map<string, any[]>): any => ({
+    dimensionsMap,
+    structuresMap: new Map(),
+    dataMessagesMap: new Map(),
+    datasetsMap: new Map(),
+    structureDimensionsMap: new Map(),
+    constraintsMap: new Map(),
+  });
+
+  it('returns false for a single dataset (nothing to merge)', () => {
+    const structureDataMaps = buildStructureDataMaps(
+      new Map([[DATASET_A_URN, [{ id: 'FREQ' }]]]),
+    );
+    expect(
+      hasImplicitSharedWildcard(
+        [
+          {
+            urn: DATASET_A_URN,
+            filters: [{ componentCode: 'FREQ', operator: 'IN', values: ['D'] }],
+          },
+        ] as any,
+        structureDataMaps,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toBe(false);
+  });
+
+  it('returns true when one dataset lacks a shared dimension filter that another dataset has explicit values for', () => {
+    const structureDataMaps = buildStructureDataMaps(
+      new Map([
+        [DATASET_A_URN, [{ id: 'FREQ' }]],
+        [DATASET_B_URN, [{ id: 'FREQUENCY' }]],
+      ]),
+    );
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [{ componentCode: 'FREQ', operator: 'IN', values: ['D'] }],
+      },
+      {
+        urn: DATASET_B_URN,
+        filters: [],
+      },
+    ] as any;
+    expect(
+      hasImplicitSharedWildcard(
+        dataQueries,
+        structureDataMaps,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toBe(true);
+  });
+
+  it('returns false when both datasets have explicit filters for the shared dimension', () => {
+    const structureDataMaps = buildStructureDataMaps(
+      new Map([
+        [DATASET_A_URN, [{ id: 'FREQ' }]],
+        [DATASET_B_URN, [{ id: 'FREQUENCY' }]],
+      ]),
+    );
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [{ componentCode: 'FREQ', operator: 'IN', values: ['D'] }],
+      },
+      {
+        urn: DATASET_B_URN,
+        filters: [
+          { componentCode: 'FREQUENCY', operator: 'IN', values: ['M'] },
+        ],
+      },
+    ] as any;
+    expect(
+      hasImplicitSharedWildcard(
+        dataQueries,
+        structureDataMaps,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toBe(false);
+  });
+
+  it('returns false when neither dataset has explicit values (both implicit wildcards)', () => {
+    const structureDataMaps = buildStructureDataMaps(
+      new Map([
+        [DATASET_A_URN, [{ id: 'FREQ' }]],
+        [DATASET_B_URN, [{ id: 'FREQUENCY' }]],
+      ]),
+    );
+    const dataQueries = [
+      { urn: DATASET_A_URN, filters: [] },
+      { urn: DATASET_B_URN, filters: [] },
+    ] as any;
+    expect(
+      hasImplicitSharedWildcard(
+        dataQueries,
+        structureDataMaps,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toBe(false);
+  });
+
+  it('ignores time dimensions', () => {
+    const structureDataMaps = buildStructureDataMaps(
+      new Map([
+        [DATASET_A_URN, [{ id: 'TIME_PERIOD' }]],
+        [DATASET_B_URN, [{ id: 'TIME_PERIOD' }]],
+      ]),
+    );
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [
+          {
+            componentCode: 'TIME_PERIOD',
+            operator: 'BETWEEN',
+            values: ['2020', '2024'],
+          },
+        ],
+      },
+      { urn: DATASET_B_URN, filters: [] },
+    ] as any;
+    expect(
+      hasImplicitSharedWildcard(
+        dataQueries,
+        structureDataMaps,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toBe(false);
+  });
+});
+
+describe('getImplicitSharedWildcardFilterParams', () => {
+  const buildStructureDataMaps = (dimensionsMap: Map<string, any[]>): any => ({
+    dimensionsMap,
+    structuresMap: new Map([
+      [DATASET_A_URN, {}],
+      [DATASET_B_URN, {}],
+    ]),
+    dataMessagesMap: new Map(),
+    datasetsMap: new Map(),
+    structureDimensionsMap: new Map(),
+    constraintsMap: new Map(),
+  });
+
+  beforeEach(() => {
+    mockGetDatasetFilters.mockImplementation(
+      (_dimensions, _structures, _structureDimensions, _locale, datasetUrn) =>
+        datasetUrn === DATASET_A_URN
+          ? [
+              {
+                id: 'FREQ',
+                filterType: 'dataset',
+                datasetUrn: DATASET_A_URN,
+                dimensionValues: [],
+              } as Filter,
+            ]
+          : [
+              {
+                id: COMMON_FREQUENCY_FILTER_ID,
+                filterType: 'dataset',
+                datasetUrn: DATASET_B_URN,
+                dimensionValues: [],
+              } as Filter,
+            ],
+    );
+    mockGetAvailableCodesFromConstrains.mockImplementation(
+      (_codes, dimensionId) =>
+        dimensionId === 'FREQ'
+          ? [
+              { id: 'D', name: 'Daily', isSelectedValue: false },
+              { id: 'M', name: 'Monthly', isSelectedValue: false },
+            ]
+          : [{ id: 'M', name: 'Monthly', isSelectedValue: false }],
+    );
+    mockGetFiltersPreselectedByDataQuery.mockImplementation(
+      (filters: Filter[], dataQuery: DataQuery) =>
+        filters.map((filter) => ({
+          ...filter,
+          dimensionValues: filter.dimensionValues?.map((value) => ({
+            ...value,
+            isSelectedValue: dataQuery.filters?.some(
+              (queryFilter) =>
+                queryFilter.componentCode === filter.id &&
+                queryFilter.values?.includes(value.id),
+            ),
+          })),
+        })),
+    );
+    mockGetQueryFilters.mockReturnValue({
+      filterKey: 'EXPANDED',
+      timeFilter: null,
+    });
+  });
+
+  it('builds expanded filter params for datasets made compatible by an implicit shared wildcard', () => {
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [
+          {
+            componentCode: 'FREQ',
+            operator: QueryFilterType.IN,
+            values: ['D'],
+          },
+        ],
+      },
+      { urn: DATASET_B_URN, filters: [] },
+    ] as DataQuery[];
+    const structureDataMaps = buildStructureDataMaps(
+      new Map([
+        [DATASET_A_URN, [{ id: 'FREQ' }]],
+        [DATASET_B_URN, [{ id: COMMON_FREQUENCY_FILTER_ID }]],
+      ]),
+    );
+
+    const result = getImplicitSharedWildcardFilterParams(
+      dataQueries,
+      structureDataMaps,
+      new Map([
+        [DATASET_A_URN, []],
+        [DATASET_B_URN, []],
+      ]),
+      'en',
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
+
+    expect(Array.from(result?.compatibleUrns ?? [])).toEqual([
+      DATASET_A_URN,
+      DATASET_B_URN,
+    ]);
+    expect(result?.filterParamsMap).toEqual(
+      new Map([
+        [DATASET_A_URN, { filterKey: 'EXPANDED', timeFilter: null }],
+        [DATASET_B_URN, { filterKey: 'EXPANDED', timeFilter: null }],
+      ]),
+    );
+  });
+
+  it('returns undefined when there is no implicit shared wildcard to expand', () => {
+    const result = getImplicitSharedWildcardFilterParams(
+      [
+        {
+          urn: DATASET_A_URN,
+          filters: [
+            {
+              componentCode: 'FREQ',
+              operator: QueryFilterType.IN,
+              values: ['D'],
+            },
+          ],
+        },
+      ] as DataQuery[],
+      buildStructureDataMaps(new Map([[DATASET_A_URN, [{ id: 'FREQ' }]]])),
+      new Map([[DATASET_A_URN, []]]),
+      'en',
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
+
+    expect(result).toBeUndefined();
+  });
 });
 
 describe('getRestoredActiveDatasetUrns', () => {
@@ -1261,8 +1760,29 @@ describe('getRestoredActiveDatasetUrns', () => {
       ),
     ).toBeUndefined();
   });
+});
 
-  it('ignores wildcard filters when restoring active datasets', () => {
+describe('getDataQueriesWithExpandedSharedDimensionFilters', () => {
+  const constraintsWithValues = (componentId: string, values: string[]) =>
+    [
+      {
+        cubeRegions: [
+          {
+            isIncluded: true,
+            memberSelection: [
+              {
+                componentId,
+                selectionValues: values.map((memberValue) => ({
+                  memberValue,
+                })),
+              },
+            ],
+          },
+        ],
+      },
+    ] as any;
+
+  it('expands an explicit frequency filter with values available to an implicit sibling dataset', () => {
     const dataQueries = [
       {
         urn: DATASET_A_URN,
@@ -1270,27 +1790,105 @@ describe('getRestoredActiveDatasetUrns', () => {
           {
             componentCode: 'FREQ',
             operator: QueryFilterType.IN,
-            values: ['all'],
+            values: ['D'],
+          },
+          {
+            componentCode: 'EER_TYPE',
+            operator: QueryFilterType.IN,
+            values: ['N'],
           },
         ],
       },
       {
         urn: DATASET_B_URN,
+        filters: [],
+      },
+    ] as DataQuery[];
+
+    const result = getDataQueriesWithExpandedSharedDimensionFilters(
+      dataQueries,
+      new Map([
+        [DATASET_A_URN, constraintsWithValues('FREQ', ['D', 'M', 'A'])],
+        [
+          DATASET_B_URN,
+          constraintsWithValues(COMMON_FREQUENCY_FILTER_ID, ['D', 'M']),
+        ],
+      ]),
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
+
+    expect(result[0].filters).toEqual([
+      {
+        componentCode: 'FREQ',
+        operator: QueryFilterType.IN,
+        values: ['D', 'M'],
+      },
+      {
+        componentCode: 'EER_TYPE',
+        operator: QueryFilterType.IN,
+        values: ['N'],
+      },
+    ]);
+    expect(result[1]).toBe(dataQueries[1]);
+  });
+
+  it('expands an explicit region filter with values available to an implicit sibling dataset', () => {
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
         filters: [
           {
-            componentCode: 'FREQUENCY',
+            componentCode: 'REF_AREA',
             operator: QueryFilterType.IN,
-            values: ['Q'],
+            values: ['US'],
+          },
+        ],
+      },
+      {
+        urn: DATASET_B_URN,
+        filters: [],
+      },
+    ] as DataQuery[];
+
+    const result = getDataQueriesWithExpandedSharedDimensionFilters(
+      dataQueries,
+      new Map([
+        [DATASET_A_URN, constraintsWithValues('REF_AREA', ['US', 'CA', 'MX'])],
+        [DATASET_B_URN, constraintsWithValues('COUNTRY', ['US', 'CA'])],
+      ]),
+      DATASET_DIMENSIONS_METADATA_MAP,
+    );
+
+    expect(result[0].filters).toEqual([
+      {
+        componentCode: 'REF_AREA',
+        operator: QueryFilterType.IN,
+        values: ['US', 'CA'],
+      },
+    ]);
+    expect(result[1]).toBe(dataQueries[1]);
+  });
+
+  it('does not expand shared dimension filters when there is no implicit sibling dataset', () => {
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [
+          {
+            componentCode: 'FREQ',
+            operator: QueryFilterType.IN,
+            values: ['D'],
           },
         ],
       },
     ] as DataQuery[];
 
     expect(
-      getRestoredActiveDatasetUrns(
+      getDataQueriesWithExpandedSharedDimensionFilters(
         dataQueries,
+        new Map([[DATASET_A_URN, constraintsWithValues('FREQ', ['D', 'M'])]]),
         DATASET_DIMENSIONS_METADATA_MAP,
       ),
-    ).toEqual([DATASET_B_URN]);
+    ).toBe(dataQueries);
   });
 });
