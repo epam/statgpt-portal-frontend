@@ -9,7 +9,11 @@ import {
   SeriesFilterDto,
   StructuralMetaData,
 } from '@epam/statgpt-sdmx-toolkit';
-import { OnboardingFileSchema, TimeRange } from '@epam/statgpt-shared-toolkit';
+import {
+  DataQuery,
+  OnboardingFileSchema,
+  TimeRange,
+} from '@epam/statgpt-shared-toolkit';
 import { Conversation, ConversationInfo, Entity } from '@epam/ai-dial-shared';
 
 export type GetAttachmentContent = (
@@ -59,3 +63,7 @@ export type PutOnboardingFile = (
 ) => Promise<Entity | null>;
 
 export type PutFile = (filePath: string, file: Blob) => Promise<void>;
+
+export type GetPythonAttachment = (
+  queries: DataQuery[],
+) => Promise<{ python_code: string } | null>;

@@ -172,6 +172,7 @@ describe('getSeriesFilterDto', () => {
     expect(mockGetFiltersForQueryContext).toHaveBeenCalledWith(
       filters,
       'AGENCY:DF(1.0)',
+      undefined,
     );
   });
 });

@@ -22,4 +22,17 @@ export interface DownloadTitles {
   rows?: string;
   filesWillBeDownloaded?: (count: number) => string;
   oneFilePerDataset?: string;
+  downloadStartedTitle?: string;
+  downloadStartedText?: (dataFormat: string) => string;
+  downloadInProgressTitle?: (current: number, total: number) => string;
+  downloadInProgressText?: (datasetName: string, dataFormat: string) => string;
+  downloadSuccessTitle?: (dataFormat: string) => string;
+  downloadSuccessMultipleTitle?: (count: number) => string;
+  downloadSuccessText?: (fileName: string, rows: number) => string;
+  downloadSuccessMultipleText?: (count: number) => string;
+  downloadFailedTitle?: string;
+  downloadFailedText?: (datasetName: string) => string;
+  downloadFailedMultipleText?: (count: number) => string;
+  downloadCancelActionText?: string;
+  downloadRetryActionText?: string;
 }

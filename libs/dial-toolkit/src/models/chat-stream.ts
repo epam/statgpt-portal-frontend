@@ -41,6 +41,7 @@ export interface CustomFields {
     configuration?: {
       choice?: string;
       merge_python_code?: boolean;
+      timezone?: string;
     };
   };
 }

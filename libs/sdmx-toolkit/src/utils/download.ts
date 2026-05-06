@@ -3,8 +3,22 @@ import { FileColumnsAttribute, SdmxDataFormat } from '../types';
 
 const DOWNLOAD_PATH = '/api/download';
 const OBJECT_URL_REVOKE_DELAY_MS = 60_000;
+// eslint-disable-next-line no-control-regex
+const UNSAFE_FILENAME_CHARS = /[\x00-\x1F\x7F<>:"/\\|?*]/g;
 
-export const openDownloadWindow = async (
+export const sanitizeDownloadFilename = (filename: string): string => {
+  const sanitized = filename
+    .normalize('NFKC')
+    .replace(UNSAFE_FILENAME_CHARS, '_')
+    .replace(/_+/g, '_')
+    .replace(/\s+/g, ' ')
+    .replace(/^[._ ]+/, '')
+    .trim();
+
+  return sanitized || 'download';
+};
+
+const createDownloadUrl = (
   urn: string,
   format: SdmxDataFormat,
   language: string,
@@ -12,8 +26,10 @@ export const openDownloadWindow = async (
   filters: DatasetQueryFilters,
   filename: string,
   isMetadata?: boolean,
-) => {
-  const queryParams = new URLSearchParams({
+): string => {
+  const downloadUrl = new URL(DOWNLOAD_PATH, window.location.origin);
+
+  downloadUrl.search = new URLSearchParams({
     urn,
     format: format,
     compress: 'false',
@@ -24,11 +40,57 @@ export const openDownloadWindow = async (
     isMetadata: isMetadata ? 'true' : 'none',
   }).toString();
 
-  const link = `${DOWNLOAD_PATH}?${queryParams}`;
+  if (
+    downloadUrl.origin !== window.location.origin ||
+    downloadUrl.pathname !== DOWNLOAD_PATH
+  ) {
+    throw new Error('Invalid download URL');
+  }
+
+  return downloadUrl.toString();
+};
+
+const triggerBrowserDownload = (blob: Blob, filename: string): void => {
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  link.href = objectUrl;
+  link.download = sanitizeDownloadFilename(filename);
+  link.rel = 'noopener noreferrer';
+
+  link.click();
+
+  window.setTimeout(
+    () => URL.revokeObjectURL(objectUrl),
+    OBJECT_URL_REVOKE_DELAY_MS,
+  );
+};
+
+export const openDownloadWindow = async (
+  urn: string,
+  format: SdmxDataFormat,
+  language: string,
+  attribute: FileColumnsAttribute,
+  filters: DatasetQueryFilters,
+  filename: string,
+  isMetadata?: boolean,
+  signal?: AbortSignal,
+) => {
+  const safeFilename = sanitizeDownloadFilename(filename);
+  const link = createDownloadUrl(
+    urn,
+    format,
+    language,
+    attribute,
+    filters,
+    safeFilename,
+    isMetadata,
+  );
 
   const response = await fetch(link, {
     method: 'GET',
     credentials: 'same-origin',
+    signal,
   });
 
   if (!response.ok) {
@@ -39,19 +101,9 @@ export const openDownloadWindow = async (
   }
 
   const blob = await response.blob();
-  const objectUrl = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  if (signal?.aborted) {
+    return;
+  }
 
-  a.href = objectUrl;
-  a.download = filename;
-  a.style.display = 'none';
-
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-
-  window.setTimeout(
-    () => URL.revokeObjectURL(objectUrl),
-    OBJECT_URL_REVOKE_DELAY_MS,
-  );
+  triggerBrowserDownload(blob, safeFilename);
 };

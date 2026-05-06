@@ -2,6 +2,7 @@ import {
   DatasetQueryFilters,
   Dimension,
   DimensionList,
+  GET_v3_FILTER_ALL,
   getQueryTimePeriodFilters,
   getTimeRangeFromAttachment,
   getTimeSeriesFilterKey,
@@ -60,9 +61,26 @@ export const getQueryFilters = (
   };
 };
 
-export const setDataQueryFilters = (
+const formatDate = (date?: Date): string => {
+  if (!date) return '';
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${month}-${day}-${year}`;
+};
+
+const formatDateIso = (date?: Date): string => {
+  if (!date) return '';
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${year}-${month}-${day}`;
+};
+
+const buildQueryFiltersCore = (
   filters: Filter[],
   datasetUrn?: string,
+  formatTimePeriod: (date?: Date) => string = formatDate,
 ): QueryFilter[] => {
   return getFiltersForQueryContext(filters, datasetUrn)
     ?.filter(
@@ -76,8 +94,8 @@ export const setDataQueryFilters = (
           componentCode: filter?.id as string,
           operator: QueryFilterType.BETWEEN,
           values: [
-            formatDate(filter?.timeRange?.startPeriod || undefined) || '',
-            formatDate(filter?.timeRange?.endPeriod || undefined) || '',
+            formatTimePeriod(filter?.timeRange?.startPeriod || undefined) || '',
+            formatTimePeriod(filter?.timeRange?.endPeriod || undefined) || '',
           ],
         };
       }
@@ -93,10 +111,75 @@ export const setDataQueryFilters = (
     });
 };
 
-const formatDate = (date?: Date): string => {
-  if (!date) return '';
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
-  return `${month}-${day}-${year}`;
+const getUiControlledFilterCodes = (
+  filters: Filter[],
+  datasetUrn: string,
+): Set<string> => {
+  const expandedFilterCodes = getFiltersForQueryContext(
+    filters,
+    datasetUrn,
+  ).flatMap((filter) => (filter.id ? [filter.id] : []));
+  const sharedSourceFilterCodes = filters.flatMap((filter) => {
+    if (filter.filterType !== 'shared') {
+      return [];
+    }
+
+    const sourceFilterId = filter.sourceFilterIdsByDataset?.[datasetUrn];
+    return sourceFilterId ? [sourceFilterId] : [];
+  });
+
+  return new Set([...expandedFilterCodes, ...sharedSourceFilterCodes]);
 };
+
+const getWildcardFiltersForClearedUiCodes = (
+  uiFilterCodes: Set<string>,
+  updatedFiltersFromUI: QueryFilter[],
+): QueryFilter[] => {
+  const updatedFilterCodes = new Set(
+    updatedFiltersFromUI.map((filter) => filter.componentCode),
+  );
+
+  return Array.from(uiFilterCodes)
+    .filter((componentCode) => !updatedFilterCodes.has(componentCode))
+    .map((componentCode) => ({
+      componentCode,
+      operator: QueryFilterType.IN,
+      values: [GET_v3_FILTER_ALL],
+    }));
+};
+
+export const buildDataQueryWithMergedFilters = (
+  dataQuery: DataQuery,
+  uiFilters: Filter[],
+): DataQuery => {
+  const updatedFiltersFromUI = buildQueryFiltersForPythonAttachment(
+    uiFilters,
+    dataQuery.urn,
+  );
+  const uiFilterCodes = getUiControlledFilterCodes(uiFilters, dataQuery.urn);
+  const wildcardFiltersFromUI = getWildcardFiltersForClearedUiCodes(
+    uiFilterCodes,
+    updatedFiltersFromUI,
+  );
+  const hiddenFilters = (dataQuery.filters ?? []).filter(
+    (f) => !uiFilterCodes.has(f.componentCode),
+  );
+  return {
+    ...dataQuery,
+    filters: [
+      ...hiddenFilters,
+      ...updatedFiltersFromUI,
+      ...wildcardFiltersFromUI,
+    ],
+  };
+};
+
+export const setDataQueryFilters = (
+  filters: Filter[],
+  datasetUrn?: string,
+): QueryFilter[] => buildQueryFiltersCore(filters, datasetUrn);
+
+export const buildQueryFiltersForPythonAttachment = (
+  filters: Filter[],
+  datasetUrn?: string,
+): QueryFilter[] => buildQueryFiltersCore(filters, datasetUrn, formatDateIso);

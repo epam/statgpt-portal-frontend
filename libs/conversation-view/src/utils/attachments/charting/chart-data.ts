@@ -40,7 +40,9 @@ export function buildChartData(
   locale: string,
   styles?: ChartingStyles,
 ): ChartingData {
-  const rows = getRowsData(data, structures, dataQuery, locale, styles);
+  const rows = getRowsData(data, structures, dataQuery, locale, styles, {
+    includeChartData: false,
+  });
   const timePeriods = getTimePeriods(data);
   const sortedTimePeriods = timePeriods.sort((a, b) => sortPeriods(a, b));
   const sortedDimensionsList = buildSortedNonRegionDimensionsList(
@@ -59,6 +61,28 @@ export function buildChartData(
     units: units.map((unit) =>
       buildUnit(unit, structures, dataQuery, sortedTimePeriods, locale, styles),
     ),
+  };
+}
+
+export function createChartDataResolver(
+  structures: StructuralData,
+  data: DataMessage,
+  dataQuery: DataQuery | undefined,
+  locale: string,
+  styles?: ChartingStyles,
+): () => ChartingData {
+  let cachedChartingData: ChartingData | undefined;
+
+  return () => {
+    cachedChartingData ??= buildChartData(
+      structures,
+      data,
+      dataQuery,
+      locale,
+      styles,
+    );
+
+    return cachedChartingData;
   };
 }
 

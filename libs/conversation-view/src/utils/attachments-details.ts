@@ -52,7 +52,7 @@ export const getAttachmentInfoList = (
           locale,
         ),
         getQueryFiltersDetails(
-          dataQuery?.filters,
+          dataQuery?.filters ?? [],
           dimensions,
           conceptSchemes,
           codelists,
@@ -139,7 +139,7 @@ export const getExternalUrlQueryParam = (
     startPeriod = timeFilterValue[1] || '';
     endPeriod = timeFilterValue[3] || '';
   } else if (dataQuery) {
-    const periodFilter = dataQuery?.filters.find(
+    const periodFilter = dataQuery?.filters?.find(
       (filter) => filter.componentCode === TIME_PERIOD,
     );
     startPeriod = periodFilter?.values?.[0] || '';
