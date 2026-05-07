@@ -10,6 +10,7 @@ import {
   DatasetQueryFilters,
   TIME_PERIOD,
   getTimeSeriesFilterKey,
+  DatasetDimensionsMetadataMap,
 } from '@epam/statgpt-sdmx-toolkit';
 import {
   DataQuery,
@@ -21,12 +22,14 @@ import {
 import { isEqual } from 'lodash';
 import { getDateString } from './attachments/time-period';
 import { AttachmentInfo } from '../models/attachments';
+import { getSharedFilterIdForDatasetDimension } from './multiple-filters';
 
 export const getAttachmentInfoList = (
   previousDataQueries: DataQuery[],
   currentDataQueries: DataQuery[],
   datasetStructuresMap: Map<string, StructuralData | undefined>,
   locale: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): AttachmentInfo[] => {
   return currentDataQueries?.map((dataQuery) => {
     const previousDataQuery = previousDataQueries?.find(
@@ -46,17 +49,21 @@ export const getAttachmentInfoList = (
       queryFiltersDetails: getUpdatedQueryFiltersDetails(
         getQueryFiltersDetails(
           previousDataQuery?.filters || [],
+          dataQuery?.urn,
           dimensions,
           conceptSchemes,
           codelists,
           locale,
+          datasetDimensionsMetadataMap,
         ),
         getQueryFiltersDetails(
           dataQuery?.filters ?? [],
+          dataQuery?.urn,
           dimensions,
           conceptSchemes,
           codelists,
           locale,
+          datasetDimensionsMetadataMap,
         ),
       ),
     };
@@ -84,10 +91,12 @@ const getUpdatedQueryFiltersDetails = (
 
 const getQueryFiltersDetails = (
   filters: QueryFilter[],
+  datasetUrn: string | undefined,
   dimensions: Dimension[],
   conceptSchemes: ConceptScheme[],
   codelists: Codelist[],
   locale: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): QueryFilterDetails[] => {
   return filters?.map((filter) => {
     const filterDimension = dimensions.find(
@@ -105,7 +114,12 @@ const getQueryFiltersDetails = (
     );
 
     return {
-      id: filter?.componentCode,
+      id:
+        getSharedFilterIdForDatasetDimension(
+          datasetUrn,
+          filter?.componentCode,
+          datasetDimensionsMetadataMap,
+        ) ?? filter?.componentCode,
       title: getLocalizedName(concept, locale),
       valuesTitles:
         filter?.operator === QueryFilterType.BETWEEN
