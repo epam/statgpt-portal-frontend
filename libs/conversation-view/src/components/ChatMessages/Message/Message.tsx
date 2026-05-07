@@ -324,6 +324,7 @@ const Message: FC<Props> = ({
             attachmentsDataQueries,
             datasetStructuresMap,
             locale,
+            datasetDimensionsMetadata.map,
           ),
         );
       }
@@ -332,6 +333,7 @@ const Message: FC<Props> = ({
     attachmentsDataQueries,
     currentAttachmentDataQuery,
     datasetStructuresMap,
+    datasetDimensionsMetadata.map,
     dimensions,
     locale,
     message?.role,
