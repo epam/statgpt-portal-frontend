@@ -209,6 +209,31 @@ const getSharedFilterConfigForFilter = (
       )
     : undefined;
 
+export const getSharedFilterIdForDatasetDimension = (
+  datasetUrn?: string,
+  dimensionId?: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+): string | undefined => {
+  if (!dimensionId) {
+    return undefined;
+  }
+
+  const dimensionMetadata = datasetUrn
+    ? datasetDimensionsMetadataMap?.[datasetUrn]?.[dimensionId]
+    : undefined;
+
+  if (dimensionMetadata?.dimensionType === 'TIME_PERIOD') {
+    return COMMON_TIME_PERIOD_FILTER_ID;
+  }
+
+  const sharedConfigBySubtype = SHARED_FILTERS_CONFIG.find(
+    (config) =>
+      !!config.subtype && config.subtype === dimensionMetadata?.subtype,
+  );
+
+  return sharedConfigBySubtype?.id ?? getSharedFilterConfig(dimensionId)?.id;
+};
+
 const isSharedFilterId = (filterId?: string) =>
   !!getSharedFilterConfig(filterId);
 
