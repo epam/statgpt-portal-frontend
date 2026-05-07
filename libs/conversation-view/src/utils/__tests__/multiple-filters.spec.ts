@@ -15,6 +15,7 @@ import {
   getFiltersPreselectedByDataQueries,
   getImplicitSharedWildcardFilterParams,
   getRestoredActiveDatasetUrns,
+  getSharedFilterIdForDatasetDimension,
   hasImplicitSharedWildcard,
   isStructureDataMapsReady,
   mergeConstraintsMaps,
@@ -134,6 +135,41 @@ beforeEach(() => {
   mockGetQueryFilters.mockReturnValue({});
   mockGetSeriesFilterDto.mockReset();
   mockGetSeriesFilterDto.mockReturnValue([]);
+});
+
+describe('getSharedFilterIdForDatasetDimension', () => {
+  it('maps native dataset frequency and region dimensions to shared filter ids', () => {
+    expect(
+      getSharedFilterIdForDatasetDimension(
+        DATASET_A_URN,
+        'FREQ',
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toBe(COMMON_FREQUENCY_FILTER_ID);
+    expect(
+      getSharedFilterIdForDatasetDimension(
+        DATASET_A_URN,
+        'REF_AREA',
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toBe(COMMON_COUNTRY_FILTER_ID);
+  });
+
+  it('maps time dimensions to the shared time period filter id', () => {
+    expect(
+      getSharedFilterIdForDatasetDimension(
+        DATASET_A_URN,
+        'TIME_PERIOD',
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toBe(COMMON_TIME_PERIOD_FILTER_ID);
+  });
+
+  it('falls back to common shared ids when metadata is unavailable', () => {
+    expect(getSharedFilterIdForDatasetDimension(undefined, 'FREQUENCY')).toBe(
+      COMMON_FREQUENCY_FILTER_ID,
+    );
+  });
 });
 
 const makeDatasetCountryFilter = (
