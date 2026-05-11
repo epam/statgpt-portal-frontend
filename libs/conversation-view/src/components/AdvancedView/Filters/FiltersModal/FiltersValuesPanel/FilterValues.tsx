@@ -83,6 +83,7 @@ const FilterValues: FC<Props> = ({
   return (
     <div
       className={classNames(
+        'relative',
         isDisableValues && 'pointer-events-none opacity-[0.7]',
         isScrollable ? 'flex h-full min-h-0 flex-col' : 'flex flex-col',
       )}
@@ -99,9 +100,15 @@ const FilterValues: FC<Props> = ({
           <span className="h4 text-neutrals-1000">{selectedFilter?.title}</span>
         </div>
       )}
+      {isLoading && (
+        <div className="pointer-events-none absolute inset-0 z-10 min-h-12">
+          <Loader />
+        </div>
+      )}
       <div
         className={classNames(
           isScrollable ? 'min-h-0 flex-1 overflow-auto' : 'overflow-visible',
+          isLoading && 'pointer-events-none opacity-[0.7]',
         )}
         style={
           isScrollable && isMobile && !isLoading
@@ -109,11 +116,7 @@ const FilterValues: FC<Props> = ({
             : undefined
         }
       >
-        {isLoading ? (
-          <div className="h-full min-h-12">
-            <Loader />
-          </div>
-        ) : hierarchyTreeNodes?.length || isHierarchicalView ? (
+        {hierarchyTreeNodes?.length || isHierarchicalView ? (
           <FilterTreeView
             treeNodes={hierarchyTreeNodes ?? getFilterValuesTree(values)}
             checkboxIcon={checkboxIcon}
