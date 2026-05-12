@@ -31,6 +31,7 @@ interface FilterBase {
   isHierarchical?: boolean;
   isDisabled?: boolean;
   displayMode?: string;
+  isExcluded?: boolean;
 }
 
 export interface DatasetFilter extends FilterBase {

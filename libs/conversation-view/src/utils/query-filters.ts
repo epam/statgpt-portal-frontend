@@ -86,6 +86,7 @@ const buildQueryFiltersCore = (
     ?.filter(
       (filter) =>
         filter.timeRange ||
+        filter.isExcluded ||
         filter.dimensionValues?.some((value) => value.isSelectedValue),
     )
     .map((filter) => {
@@ -97,6 +98,14 @@ const buildQueryFiltersCore = (
             formatTimePeriod(filter?.timeRange?.startPeriod || undefined) || '',
             formatTimePeriod(filter?.timeRange?.endPeriod || undefined) || '',
           ],
+        };
+      }
+
+      if (filter.isExcluded) {
+        return {
+          componentCode: filter?.id as string,
+          operator: QueryFilterType.EXCLUDED,
+          values: [],
         };
       }
 
