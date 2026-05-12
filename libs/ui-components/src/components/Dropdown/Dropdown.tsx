@@ -9,6 +9,7 @@ import {
   useDismiss,
   autoUpdate,
   useInteractions,
+  FloatingPortal,
 } from '@floating-ui/react';
 import type { Middleware } from '@floating-ui/react';
 import classNames from 'classnames';
@@ -137,37 +138,39 @@ export const Dropdown: FC<Props> = ({
         {triggerButton}
       </div>
       {open && (
-        <div
-          ref={refs.setFloating}
-          style={{ ...floatingStyles, overflowY: 'auto' }}
-          className="dropdown-menu-shadow dropdown-container z-10 flex flex-col rounded bg-white"
-          {...getFloatingProps()}
-        >
-          {content && content}
-          {options &&
-            options.map((option) => (
-              <div
-                key={option.key}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOptionSelect?.(option.key);
-                  setOpen(false);
-                }}
-                className={classNames(
-                  'text-neutrals-900 body-3 cursor-pointer dropdown-item min-w-[200px]',
-                  selectedOption === option.key && 'bg-hues-100',
-                )}
-              >
+        <FloatingPortal>
+          <div
+            ref={refs.setFloating}
+            style={{ ...floatingStyles, overflowY: 'auto' }}
+            className="dropdown-menu-shadow dropdown-container z-10 flex flex-col rounded bg-white"
+            {...getFloatingProps()}
+          >
+            {content && content}
+            {options &&
+              options.map((option) => (
                 <div
-                  className="dropdown-item-text flex h-full items-center gap-x-2 p-2 hover:bg-hues-100"
-                  title={option.title}
+                  key={option.key}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOptionSelect?.(option.key);
+                    setOpen(false);
+                  }}
+                  className={classNames(
+                    'text-neutrals-900 body-3 cursor-pointer dropdown-item min-w-[200px]',
+                    selectedOption === option.key && 'bg-hues-100',
+                  )}
                 >
-                  {option.icon ? option.icon : null}
-                  <p>{option?.title}</p>
+                  <div
+                    className="dropdown-item-text flex h-full items-center gap-x-2 p-2 hover:bg-hues-100"
+                    title={option.title}
+                  >
+                    {option.icon ? option.icon : null}
+                    <p>{option?.title}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-        </div>
+              ))}
+          </div>
+        </FloatingPortal>
       )}
     </>
   );
