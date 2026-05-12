@@ -36,7 +36,7 @@ jest.mock('@epam/statgpt-sdmx-toolkit', () => ({
 }));
 
 jest.mock('@epam/statgpt-shared-toolkit', () => ({
-  QueryFilterType: { IN: 'in', BETWEEN: 'between' },
+  QueryFilterType: { IN: 'in', BETWEEN: 'between', EXCLUDED: 'excluded' },
 }));
 
 // ─── Default mock reset ───────────────────────────────────────────────────────
@@ -192,6 +192,34 @@ describe('setDataQueryFilters', () => {
       operator: 'in',
       values: ['FR'],
     });
+  });
+
+  it('emits an EXCLUDED filter with empty values when isExcluded is true', () => {
+    const filter: Filter = {
+      id: 'FREQ',
+      filterType: 'dataset',
+      isExcluded: true,
+      dimensionValues: [{ id: 'A', isSelectedValue: false }],
+    };
+
+    const result = setDataQueryFilters([filter]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual({
+      componentCode: 'FREQ',
+      operator: 'excluded',
+      values: [],
+    });
+  });
+
+  it('does not emit EXCLUDED for a filter without isExcluded even when no values are selected', () => {
+    const filter: Filter = {
+      id: 'FREQ',
+      filterType: 'dataset',
+      dimensionValues: [{ id: 'A', isSelectedValue: false }],
+    };
+
+    expect(setDataQueryFilters([filter])).toEqual([]);
   });
 
   it('builds a BETWEEN filter with MM-DD-YYYY formatted dates for a time dimension filter', () => {
