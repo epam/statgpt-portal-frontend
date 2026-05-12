@@ -52,7 +52,7 @@ const AttachmentDetails: FC<Props> = ({
           } else {
             sharedFiltersMap.set(detail.id, { ...detail });
           }
-        } else {
+        } else if (detail.valuesTitles?.length) {
           datasetOnlyFilters.push(detail);
         }
       });
