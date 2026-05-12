@@ -38,7 +38,7 @@ describe('Dropdown', () => {
 
     fireEvent.click(getByText('Open'));
 
-    expect(container.querySelector('.dropdown-container')).toHaveStyle({
+    expect(document.body.querySelector('.dropdown-container')).toHaveStyle({
       overflowY: 'auto',
     });
   });
