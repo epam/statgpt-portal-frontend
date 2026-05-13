@@ -142,7 +142,7 @@ export const Dropdown: FC<Props> = ({
           <div
             ref={refs.setFloating}
             style={{ ...floatingStyles, overflowY: 'auto' }}
-            className="dropdown-menu-shadow dropdown-container z-10 flex flex-col rounded bg-white"
+            className="dropdown-menu-shadow dropdown-container z-dropdown flex flex-col rounded bg-white"
             {...getFloatingProps()}
           >
             {content && content}
