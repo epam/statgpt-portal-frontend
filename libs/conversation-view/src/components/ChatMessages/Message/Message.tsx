@@ -463,8 +463,8 @@ const Message: FC<Props> = ({
     >
       <div
         className={classNames(
-          'flex items-start max-w-full',
-          (isSystem || isEditing) && 'w-full',
+          'flex items-start',
+          isUser && !isEditing ? 'max-w-full' : 'w-full',
         )}
       >
         <div className="relative mr-2">
