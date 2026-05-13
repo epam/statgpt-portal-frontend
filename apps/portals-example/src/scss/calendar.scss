@@ -42,7 +42,7 @@ $calendar-width: $inner-width;
   &.open {
     @apply bg-white;
     @apply px-[12px] py-[16px];
-    @apply z-[100002] !important;
+    @apply z-[100003] !important;
     min-width: $calendar-width !important;
     &:before,
     &:after {
