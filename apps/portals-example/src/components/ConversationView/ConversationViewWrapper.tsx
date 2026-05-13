@@ -299,9 +299,9 @@ const ConversationViewWrapper: FC<Props> = ({
     hideDownloadTextInConversationView: true,
     hideDownloadIconInAdvancedView: true,
     downloadChevronIcon: <ChevronSolidDownIcon className="size-6" />,
-    infoDownloadIcon: <InfoIcon className="size-6 text-primary" />,
+    infoDownloadIcon: <InfoIcon className="text-primary size-6" />,
     successDownloadIcon: (
-      <SuccessIcon className="size-6 text-semantic-success" />
+      <SuccessIcon className="text-semantic-success size-6" />
     ),
     downloadInProgressActionIcon: <Reset className="size-4" />,
     downloadErrorActionIcon: <ExternalLink className="size-4" />,
@@ -311,11 +311,12 @@ const ConversationViewWrapper: FC<Props> = ({
     columnsResetTitle: t(AttachmentsI18nKeys.COLUMNS_RESET),
     openLinkTitle: t(AttachmentsI18nKeys.OPEN_URL),
     dataGridTitle: t(AttachmentsI18nKeys.DATA_GRID),
-    errorDownloadIcon: <ErrorIcon className="size-6 text-semantic-error" />,
+    errorDownloadIcon: <ErrorIcon className="text-semantic-error size-6" />,
     datasetIcon: <Dataset className="size-5" />,
     chartingIcons,
     copyTitle: t(ChatI18nKeys.COPY),
     copiedTitle: t(ChatI18nKeys.SHARE_COPIED_LINK),
+    copyHoverTooltip: t(ChatI18nKeys.COPY),
     copyIcon: <Copy className="size-4" />,
     copiedIcon: <CheckIcon className="size-4" />,
     downloadTitles: {
@@ -384,7 +385,7 @@ const ConversationViewWrapper: FC<Props> = ({
   };
 
   const limitMessages: LimitMessages = {
-    warningIcon: <WarningIcon className="size-4 text-semantic-warning" />,
+    warningIcon: <WarningIcon className="text-semantic-warning size-4" />,
     largeQuery: t(AdvancedViewI18nKeys.LARGE_QUERY),
     showingLimit: (limit: number) =>
       t(AdvancedViewI18nKeys.SHOWING_LIMIT, { limit }),
@@ -429,7 +430,7 @@ const ConversationViewWrapper: FC<Props> = ({
               title: t(ChatI18nKeys.CONVERSATION_ACCESS_ERROR_TITLE),
               text: t(ChatI18nKeys.CONVERSATION_ACCESS_ERROR_TEXT),
             }}
-            errorIcon={<ErrorIcon className="size-6 text-semantic-error" />}
+            errorIcon={<ErrorIcon className="text-semantic-error size-6" />}
             onClose={() => setShowNotFoundAlert(false)}
           />
         )}
