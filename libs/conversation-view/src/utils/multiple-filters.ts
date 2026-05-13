@@ -823,13 +823,14 @@ export const getCompatibleDatasetUrns = (
     }
 
     if (appliedFiltersMap) {
-      return !appliedFiltersMap
-        .get(datasetUrn)
-        ?.some(
-          (datasetFilter) =>
-            datasetFilter.id === nativeFilterId &&
-            datasetFilter.dimensionValues?.some((v) => v.isSelectedValue),
-        );
+      const datasetFilters = appliedFiltersMap.get(datasetUrn) ?? [];
+      const matchingFilter = datasetFilters.find(
+        (f) => f.id === nativeFilterId,
+      );
+      if (!matchingFilter) {
+        return true;
+      }
+      return false;
     }
 
     const dataQuery = dataQueries?.find((query) => query.urn === datasetUrn);

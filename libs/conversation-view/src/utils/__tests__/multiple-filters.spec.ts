@@ -1425,6 +1425,71 @@ describe('getCompatibleDatasetUrns', () => {
     expect(Array.from(compatibleUrns)).toEqual([DATASET_A_URN, DATASET_B_URN]);
   });
 
+  it('excludes a dataset whose filter entry is present in appliedFiltersMap but has no selected values', () => {
+    const sharedCountryFilter: Filter = {
+      id: COMMON_COUNTRY_FILTER_ID,
+      filterType: 'shared',
+      sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
+      sourceFilterIdsByDataset: {
+        [DATASET_A_URN]: 'REF_AREA',
+        [DATASET_B_URN]: 'COUNTRY',
+      },
+      dimensionValues: [
+        {
+          id: 'name:united-states',
+          name: 'United States',
+          isSelectedValue: true,
+          sourceValues: [
+            { datasetUrn: DATASET_A_URN, id: 'US', name: 'United States' },
+          ],
+        },
+        {
+          id: 'name:canada',
+          name: 'Canada',
+          isSelectedValue: false,
+          sourceValues: [
+            { datasetUrn: DATASET_B_URN, id: 'CA', name: 'Canada' },
+          ],
+        },
+      ],
+    };
+    const appliedFiltersMap = new Map<string, Filter[]>([
+      [
+        DATASET_A_URN,
+        [
+          {
+            id: 'REF_AREA',
+            datasetUrn: DATASET_A_URN,
+            filterType: 'dataset',
+            dimensionValues: [{ id: 'US', isSelectedValue: true }],
+          } as Filter,
+        ],
+      ],
+      [
+        DATASET_B_URN,
+        [
+          {
+            id: 'COUNTRY',
+            datasetUrn: DATASET_B_URN,
+            filterType: 'dataset',
+            isExcluded: true,
+            dimensionValues: [{ id: 'CA', isSelectedValue: false }],
+          } as Filter,
+        ],
+      ],
+    ]);
+
+    const compatibleUrns = getCompatibleDatasetUrns(
+      [sharedCountryFilter],
+      [DATASET_A_URN, DATASET_B_URN],
+      undefined,
+      DATASET_DIMENSIONS_METADATA_MAP,
+      appliedFiltersMap,
+    );
+
+    expect(Array.from(compatibleUrns)).toEqual([DATASET_A_URN]);
+  });
+
   it('uses applied filters to keep a dataset that becomes an implicit wildcard after modal changes', () => {
     const sharedCountryFilter: Filter = {
       id: COMMON_COUNTRY_FILTER_ID,
@@ -1659,6 +1724,45 @@ describe('hasImplicitSharedWildcard', () => {
     ).toBe(false);
   });
 
+  it('returns false when one dataset has an EXCLUDED filter for the shared dimension', () => {
+    const structureDataMaps = buildStructureDataMaps(
+      new Map([
+        [DATASET_A_URN, [{ id: 'FREQ' }]],
+        [DATASET_B_URN, [{ id: 'FREQUENCY' }]],
+      ]),
+    );
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [
+          {
+            componentCode: 'FREQ',
+            operator: QueryFilterType.IN,
+            values: ['D'],
+          },
+        ],
+      },
+      {
+        urn: DATASET_B_URN,
+        filters: [
+          {
+            componentCode: 'FREQUENCY',
+            operator: QueryFilterType.EXCLUDED,
+            values: [],
+          },
+        ],
+      },
+    ] as any;
+
+    expect(
+      hasImplicitSharedWildcard(
+        dataQueries,
+        structureDataMaps,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toBe(false);
+  });
+
   it('ignores time dimensions', () => {
     const structureDataMaps = buildStructureDataMaps(
       new Map([
@@ -1877,6 +1981,38 @@ describe('getRestoredActiveDatasetUrns', () => {
         DATASET_DIMENSIONS_METADATA_MAP,
       ),
     ).toBeUndefined();
+  });
+
+  it('does not restore a dataset whose shared dimension filter is EXCLUDED', () => {
+    const dataQueries = [
+      {
+        urn: DATASET_A_URN,
+        filters: [
+          {
+            componentCode: 'FREQ',
+            operator: QueryFilterType.IN,
+            values: ['D'],
+          },
+        ],
+      },
+      {
+        urn: DATASET_B_URN,
+        filters: [
+          {
+            componentCode: 'FREQUENCY',
+            operator: QueryFilterType.EXCLUDED,
+            values: [],
+          },
+        ],
+      },
+    ] as DataQuery[];
+
+    expect(
+      getRestoredActiveDatasetUrns(
+        dataQueries,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toEqual([DATASET_A_URN]);
   });
 });
 
