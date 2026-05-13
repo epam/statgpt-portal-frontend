@@ -9,6 +9,7 @@ interface CopyButtonProps {
   title?: string;
   copiedTitle?: string;
   tooltip?: string;
+  hoverTooltip?: string;
   icon?: ReactNode;
   copiedIcon?: ReactNode;
   className?: string;
@@ -40,6 +41,7 @@ interface CopyButtonProps {
  * @param title - Title shown in the default state.
  * @param copiedTitle - Title shown while in the copied state.
  * @param tooltip - Optional tooltip displayed during the copied state.
+ * @param hoverTooltip - Optional native browser tooltip shown on hover (via the HTML `title` attribute).
  * @param icon - Icon shown in the default state.
  * @param copiedIcon - Icon shown in the copied state.
  * @param className - Additional classes applied to the button.
@@ -49,6 +51,7 @@ export const CopyButton = ({
   title,
   copiedTitle,
   tooltip,
+  hoverTooltip,
   icon,
   copiedIcon,
   className,
@@ -81,7 +84,7 @@ export const CopyButton = ({
   }, []);
 
   return (
-    <div className="relative w-fit">
+    <div className="relative w-fit" title={hoverTooltip}>
       <Button
         title={copied ? copiedTitle : title}
         isSmallButton
