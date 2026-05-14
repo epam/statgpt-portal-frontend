@@ -212,9 +212,6 @@ export const AdvancedView: FC<Props> = ({
     filterKey: null,
     timeFilter: null,
   });
-  const [filtersMap, setFiltersMap] =
-    useState<Map<string, DatasetQueryFilters>>();
-
   const isDataLoading = useMemo(
     () => (isCrossDatasetModeOn ? isLoadingCrossDsGridData : isLoadingGridData),
     [isCrossDatasetModeOn, isLoadingCrossDsGridData, isLoadingGridData],
@@ -241,7 +238,6 @@ export const AdvancedView: FC<Props> = ({
       filtersMap?: Map<string, Filter[]>,
       filters?: Filter[],
     ): void => {
-      setFiltersMap(filterParamsMap);
       setIsFiltering(true);
       onMultipleDataFiltersChange(
         filterParamsMap,
@@ -361,7 +357,6 @@ export const AdvancedView: FC<Props> = ({
                         setIsFiltering={setIsFiltering}
                         attachmentsConfig={attachmentsConfig}
                         filters={filters}
-                        filtersMap={filtersMap}
                         onFiltersChange={handleFiltersChange}
                       />
                     </div>

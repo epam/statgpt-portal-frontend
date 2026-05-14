@@ -10,6 +10,7 @@ import {
   DatasetQueryFilters,
   TIME_PERIOD,
   getTimeSeriesFilterKey,
+  DatasetDimensionsMetadataMap,
 } from '@epam/statgpt-sdmx-toolkit';
 import {
   DataQuery,
@@ -21,44 +22,96 @@ import {
 import { isEqual } from 'lodash';
 import { getDateString } from './attachments/time-period';
 import { AttachmentInfo } from '../models/attachments';
+import { getSharedFilterIdForDatasetDimension } from './multiple-filters';
+
+const getStructurePartsForDataQuery = (
+  dataQuery: DataQuery,
+  datasetStructuresMap: Map<string, StructuralData | undefined>,
+) => {
+  const structures = datasetStructuresMap?.get(dataQuery?.urn);
+  const conceptSchemes = structures?.conceptSchemes || [];
+  const codelists = structures?.codelists || [];
+  const dimensionsList = getDimensions(structures as StructuralData);
+  const dimensions = [
+    ...(dimensionsList?.dimensions || []),
+    ...(dimensionsList?.timeDimensions || []),
+  ];
+  return { structures, conceptSchemes, codelists, dimensions };
+};
 
 export const getAttachmentInfoList = (
   previousDataQueries: DataQuery[],
   currentDataQueries: DataQuery[],
   datasetStructuresMap: Map<string, StructuralData | undefined>,
   locale: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): AttachmentInfo[] => {
+  const currentValuesByFilterId = new Map<string, string[]>();
+  currentDataQueries?.forEach((dataQuery) => {
+    const { conceptSchemes, codelists, dimensions } =
+      getStructurePartsForDataQuery(dataQuery, datasetStructuresMap);
+    getQueryFiltersDetails(
+      (dataQuery?.filters ?? []).filter(
+        (f) => f.operator !== QueryFilterType.EXCLUDED,
+      ),
+      dataQuery?.urn,
+      dimensions,
+      conceptSchemes,
+      codelists,
+      locale,
+      datasetDimensionsMetadataMap,
+    ).forEach((detail) => {
+      if (detail.valuesTitles?.length) {
+        const existing = currentValuesByFilterId.get(detail.id) ?? [];
+        currentValuesByFilterId.set(
+          detail.id,
+          Array.from(new Set([...existing, ...detail.valuesTitles])),
+        );
+      }
+    });
+  });
+
   return currentDataQueries?.map((dataQuery) => {
     const previousDataQuery = previousDataQueries?.find(
       (previousDataQuery) => previousDataQuery?.urn === dataQuery?.urn,
     );
-    const structures = datasetStructuresMap?.get(dataQuery?.urn);
-    const conceptSchemes = structures?.conceptSchemes || [];
-    const codelists = structures?.codelists || [];
-    const dimensionsList = getDimensions(structures as StructuralData);
-    const dimensions = [
-      ...(dimensionsList?.dimensions || []),
-      ...(dimensionsList?.timeDimensions || []),
-    ];
+    const { structures, conceptSchemes, codelists, dimensions } =
+      getStructurePartsForDataQuery(dataQuery, datasetStructuresMap);
+
+    const rawChanged = getUpdatedQueryFiltersDetails(
+      getQueryFiltersDetails(
+        previousDataQuery?.filters || [],
+        dataQuery?.urn,
+        dimensions,
+        conceptSchemes,
+        codelists,
+        locale,
+        datasetDimensionsMetadataMap,
+      ),
+      getQueryFiltersDetails(
+        dataQuery?.filters ?? [],
+        dataQuery?.urn,
+        dimensions,
+        conceptSchemes,
+        codelists,
+        locale,
+        datasetDimensionsMetadataMap,
+      ),
+    );
+
+    const queryFiltersDetails = rawChanged
+      .map((detail) => {
+        if (detail.valuesTitles?.length) return detail;
+        const siblingValues = currentValuesByFilterId.get(detail.id);
+        return siblingValues?.length
+          ? { ...detail, valuesTitles: siblingValues }
+          : null;
+      })
+      .filter((d): d is QueryFilterDetails => d !== null);
 
     return {
       datasetName: getLocalizedName(structures?.dataflows?.[0], locale),
-      queryFiltersDetails: getUpdatedQueryFiltersDetails(
-        getQueryFiltersDetails(
-          previousDataQuery?.filters || [],
-          dimensions,
-          conceptSchemes,
-          codelists,
-          locale,
-        ),
-        getQueryFiltersDetails(
-          dataQuery?.filters ?? [],
-          dimensions,
-          conceptSchemes,
-          codelists,
-          locale,
-        ),
-      ),
+      queryFiltersDetails,
     };
   });
 };
@@ -84,10 +137,12 @@ const getUpdatedQueryFiltersDetails = (
 
 const getQueryFiltersDetails = (
   filters: QueryFilter[],
+  datasetUrn: string | undefined,
   dimensions: Dimension[],
   conceptSchemes: ConceptScheme[],
   codelists: Codelist[],
   locale: string,
+  datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): QueryFilterDetails[] => {
   return filters?.map((filter) => {
     const filterDimension = dimensions.find(
@@ -105,7 +160,12 @@ const getQueryFiltersDetails = (
     );
 
     return {
-      id: filter?.componentCode,
+      id:
+        getSharedFilterIdForDatasetDimension(
+          datasetUrn,
+          filter?.componentCode,
+          datasetDimensionsMetadataMap,
+        ) ?? filter?.componentCode,
       title: getLocalizedName(concept, locale),
       valuesTitles:
         filter?.operator === QueryFilterType.BETWEEN

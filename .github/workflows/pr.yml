@@ -18,3 +18,4 @@ jobs:
     secrets: inherit
     with:
       node-version: "24"
+      ort-version: "85.0.0" # HACK: pin ORT version due to java.util.NoSuchElementException in 85.1.0

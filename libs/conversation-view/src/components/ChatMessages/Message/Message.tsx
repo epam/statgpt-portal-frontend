@@ -324,6 +324,7 @@ const Message: FC<Props> = ({
             attachmentsDataQueries,
             datasetStructuresMap,
             locale,
+            datasetDimensionsMetadata.map,
           ),
         );
       }
@@ -332,6 +333,7 @@ const Message: FC<Props> = ({
     attachmentsDataQueries,
     currentAttachmentDataQuery,
     datasetStructuresMap,
+    datasetDimensionsMetadata.map,
     dimensions,
     locale,
     message?.role,
@@ -423,95 +425,98 @@ const Message: FC<Props> = ({
     ],
   );
 
+  if (isSystem && isOpenedAdvancedView) return null;
+
+  const actionPanel = (() => {
+    if (isCurrentMessageStreaming) return null;
+    if (isUser)
+      return isEditing ? null : (
+        <RequestActionsPanel
+          messageActionsIcons={messageActionsIcons}
+          message={message}
+          isStreaming={isStreaming}
+          onEditClick={onEditClick}
+          isReadOnly={isReadOnlyConversation}
+        />
+      );
+    if (isSystem) return null;
+    return (
+      <AssistantActionsPanel
+        messageActionsIcons={messageActionsIcons}
+        message={message}
+        isStreaming={isStreaming}
+        regenerateMessage={regenerateMessage}
+        rateResponse={rateResponse}
+        isReadOnly={isReadOnlyConversation}
+        isRegenerateAvailable={isLastNotUserMessage}
+      />
+    );
+  })();
+
   return (
-    <>
-      {!(isSystem && isOpenedAdvancedView) && (
-        <div
-          className={classNames(
-            'max-w-full flex',
-            isUser ? 'justify-end' : 'justify-start',
-            'message-wrapper',
-          )}
-        >
+    <div
+      className={classNames(
+        'max-w-full flex',
+        isUser ? 'justify-end' : 'justify-start',
+        'message-wrapper',
+      )}
+    >
+      <div
+        className={classNames(
+          'flex items-start',
+          isUser && !isEditing ? 'max-w-full' : 'w-full',
+        )}
+      >
+        <div className="relative mr-2">
+          {getMessageIcon()}
+          {isCurrentMessageStreaming && <Loader />}
+        </div>
+        <div className="min-w-0 flex-1">
           <div
             className={classNames(
-              'flex items-start max-w-full',
-              (isSystem || isEditing) && 'w-full',
+              isUser ? 'bg-neutrals-300 px-6' : 'pt-0',
+              isUser ? 'user-message' : 'system-message',
+              isUser && (isEditing ? 'w-[100%] ml-0' : 'ml-12'),
             )}
           >
-            <div className="relative mr-2">
-              {getMessageIcon()}
-              {isCurrentMessageStreaming && <Loader />}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div
-                className={classNames(
-                  isUser ? 'bg-neutrals-300 px-6' : 'pt-0',
-                  isUser ? 'user-message' : 'system-message',
-                  isUser && (isEditing ? 'w-[100%] ml-0' : 'ml-12'),
-                )}
-              >
-                {!isUser &&
-                !isOpenedAdvancedView &&
-                message?.custom_content?.stages ? (
-                  <MessageStages
-                    stages={message?.custom_content?.stages}
-                    expandIcon={expandStagesIcon}
-                    processingTitle={messageStyles?.processingTitle}
-                  />
-                ) : (
-                  isCurrentMessageStreaming && (
-                    <p className="body-1 loading-message text-neutrals-700">
-                      {titles?.loading}
-                    </p>
-                  )
-                )}
+            {!isUser &&
+            !isOpenedAdvancedView &&
+            message?.custom_content?.stages ? (
+              <MessageStages
+                stages={message?.custom_content?.stages}
+                expandIcon={expandStagesIcon}
+                processingTitle={messageStyles?.processingTitle}
+              />
+            ) : (
+              isCurrentMessageStreaming && (
+                <p className="body-1 loading-message text-neutrals-700">
+                  {titles?.loading}
+                </p>
+              )
+            )}
 
-                {isEditing ? (
-                  <MessageEdit
-                    content={message.content}
-                    onCancel={onCancel}
-                    onEditApply={onEditApply}
-                    editMessageTitles={editMessageTitles}
-                  />
-                ) : (
-                  <MessageContent content={message.content} />
-                )}
-              </div>
-              {attachmentRendererMemoized}
-              {!isCurrentMessageStreaming &&
-                (isUser ? (
-                  !isEditing && (
-                    <RequestActionsPanel
-                      messageActionsIcons={messageActionsIcons}
-                      message={message}
-                      isStreaming={isStreaming}
-                      onEditClick={onEditClick}
-                      isReadOnly={isReadOnlyConversation}
-                    />
-                  )
-                ) : (
-                  <AssistantActionsPanel
-                    messageActionsIcons={messageActionsIcons}
-                    message={message}
-                    isStreaming={isStreaming}
-                    regenerateMessage={regenerateMessage}
-                    rateResponse={rateResponse}
-                    isReadOnly={isReadOnlyConversation}
-                    isRegenerateAvailable={isLastNotUserMessage}
-                  />
-                ))}
-              {!isOpenedAdvancedView && !isDataLoading && (
-                <ChoiceButtons
-                  choiceButtons={choiceButtons}
-                  onClick={selectMessageToSend}
-                />
-              )}
-            </div>
+            {isEditing ? (
+              <MessageEdit
+                content={message.content}
+                onCancel={onCancel}
+                onEditApply={onEditApply}
+                editMessageTitles={editMessageTitles}
+              />
+            ) : (
+              <MessageContent content={message.content} />
+            )}
           </div>
+          {attachmentRendererMemoized}
+          {actionPanel}
+          {!isOpenedAdvancedView && !isDataLoading && (
+            <ChoiceButtons
+              choiceButtons={choiceButtons}
+              onClick={selectMessageToSend}
+            />
+          )}
         </div>
-      )}
-    </>
+      </div>
+    </div>
   );
 };
 

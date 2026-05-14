@@ -134,6 +134,7 @@ interface Props {
   openUrl: (url: string) => void;
   signOutAction?: () => void;
   handleInvalidStreaming?: (error: HttpError) => void;
+  onConversationNotFound?: () => void;
   messageActionsIcons?: MessageActionIcons;
   editMessageTitles: EditMessageTitles;
   scrollBottomIcon?: ReactNode;
@@ -161,6 +162,7 @@ export const ConversationView: FC<Props> = ({
   titles,
   dataQuery,
   handleInvalidStreaming,
+  onConversationNotFound,
   setConversation,
   setConversations,
   openUrl,
@@ -795,6 +797,7 @@ export const ConversationView: FC<Props> = ({
         }
       } catch {
         setIsReadonlyConversation(true);
+        onConversationNotFound?.();
       } finally {
         setIsLoading(false);
       }

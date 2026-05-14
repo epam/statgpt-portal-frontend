@@ -44,6 +44,7 @@ import {
   filterMapByActiveDatasetUrns,
   getDataQueriesWithExpandedSharedDimensionFilters,
   getImplicitSharedWildcardFilterParams,
+  setDataQueryFiltersMap,
 } from '../utils/multiple-filters';
 
 export function useAttachmentsDataMultipleQueries(
@@ -399,10 +400,32 @@ export function useAttachmentsDataMultipleQueries(
           return;
         }
 
+        const queryFiltersMap = filtersMap
+          ? setDataQueryFiltersMap(dataQueries, filtersMap)
+          : undefined;
+        const dataQueriesWithAppliedFilters = queryFiltersMap
+          ? dataQueries.map((dataQuery) => ({
+              ...dataQuery,
+              filters: queryFiltersMap.get(dataQuery.urn) ?? [],
+            }))
+          : dataQueries;
+        const implicitWildcardFilterParams =
+          constraintsMap && structureDataMaps
+            ? getImplicitSharedWildcardFilterParams(
+                dataQueriesWithAppliedFilters,
+                structureDataMaps,
+                constraintsMap,
+                locale,
+                datasetDimensionsMetadata.map,
+              )
+            : undefined;
+        const resolvedFilterParamsMap =
+          implicitWildcardFilterParams?.filterParamsMap ?? filterParamsMap;
+
         dataQueries.forEach((dataQuery) => {
           getDataSetData(
             dataQuery,
-            filterParamsMap?.get(dataQuery?.urn) as DatasetQueryFilters,
+            resolvedFilterParamsMap?.get(dataQuery?.urn) as DatasetQueryFilters,
             getDataSetDataAction,
           )
             .then(({ dataMessage, structureDimensions }) => {
@@ -453,10 +476,13 @@ export function useAttachmentsDataMultipleQueries(
       }
     },
     [
+      datasetDimensionsMetadata.map,
       getDataSetDataAction,
       getPythonAttachment,
-      titles,
+      locale,
       onCodeAttachmentUpdated,
+      structureDataMaps,
+      titles,
     ],
   );
 

@@ -587,7 +587,28 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       dataQueries?.map((q) => q.urn) ?? [],
       dataQueries,
       datasetDimensionsMetadata.map,
+      appliedFiltersMap,
     );
+
+    const incompatibleUrns = (dataQueries?.map((q) => q.urn) ?? []).filter(
+      (urn) => !compatibleUrns.has(urn),
+    );
+    for (const urn of incompatibleUrns) {
+      const filters = appliedFiltersMap.get(urn);
+      if (filters) {
+        appliedFiltersMap.set(
+          urn,
+          filters.map((filter) =>
+            !filter.isTimeDimension &&
+            filter.dimensionValues?.length &&
+            !filter.dimensionValues.some((v) => v.isSelectedValue)
+              ? { ...filter, isExcluded: true }
+              : filter,
+          ),
+        );
+      }
+    }
+
     onMultipleDataFiltersChange?.(
       filtersParamsMap,
       constraintsMapRef.current,
