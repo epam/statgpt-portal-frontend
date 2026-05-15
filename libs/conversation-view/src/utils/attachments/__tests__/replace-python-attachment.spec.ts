@@ -78,4 +78,45 @@ describe('replacePythonAttachment', () => {
       result?.find((m) => m.id === 'system-2')?.custom_content?.attachments,
     ).toEqual([newAttachment]);
   });
+
+  it('only updates the last system message when multiple system messages have no id', () => {
+    const earlierSystemMsg = {
+      role: Role.System,
+      content: '',
+      custom_content: {
+        attachments: [
+          {
+            type: AttachmentType.MARKDOWN,
+            data: '```python\nprint("earlier")\n```',
+          },
+        ],
+      },
+    };
+    const laterSystemMsg = {
+      role: Role.System,
+      content: '',
+      custom_content: {
+        attachments: [
+          {
+            type: AttachmentType.MARKDOWN,
+            data: '```python\nprint("later")\n```',
+          },
+        ],
+      },
+    };
+
+    const result = replacePythonAttachment(
+      [
+        earlierSystemMsg,
+        { id: 'user-1', role: Role.User, content: '' },
+        laterSystemMsg,
+      ] as any,
+      newAttachment,
+    );
+
+    expect(result?.[0].custom_content?.attachments).toEqual(
+      earlierSystemMsg.custom_content.attachments,
+    );
+    expect(result?.[2].custom_content?.attachments).toEqual([newAttachment]);
+  });
 });
