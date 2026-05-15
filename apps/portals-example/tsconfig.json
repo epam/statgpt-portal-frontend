@@ -4,7 +4,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "allowJs": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "noEmit": true,
     "incremental": true,
     "resolveJsonModule": true,
@@ -21,7 +21,8 @@
     "../../.next/types/**/*.ts",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    "../../dist/apps/portals-example/.next/types/**/*.ts"
+    "../../dist/apps/portals-example/.next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": ["node_modules", "jest.config.ts", "**/*.spec.ts", "**/*.test.ts"]
 }
