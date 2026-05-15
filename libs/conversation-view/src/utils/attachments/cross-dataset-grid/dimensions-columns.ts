@@ -25,13 +25,31 @@ import {
   INDICATOR_COL_ID,
   INDICATORS_CONCATENATION_SYMBOL,
 } from '../../../constants/cross-dataset-grid';
+import { CrossDatasetGridViewMode } from '../../../components/AdvancedView/TableSettings/types';
 
 export function getCrossDatasetDimensionsColumns(
   structuresMap: Map<string, StructuralData | undefined>,
   datasetDimensionsSchemesMap: Map<string, DatasetDimensionsScheme | undefined>,
   locale: string,
   titles?: ConversationViewTitles,
+  gridViewMode: CrossDatasetGridViewMode = CrossDatasetGridViewMode.Compact,
 ): ColDef[] {
+  const indicatorColumns =
+    gridViewMode === CrossDatasetGridViewMode.Extended
+      ? buildExtendedIndicatorColDefs(
+          structuresMap,
+          datasetDimensionsSchemesMap,
+          locale,
+        )
+      : [
+          buildIndicatorColDef(
+            structuresMap,
+            datasetDimensionsSchemesMap,
+            locale,
+            titles,
+          ),
+        ];
+
   return [
     buildCountryColDef(
       structuresMap,
@@ -39,12 +57,7 @@ export function getCrossDatasetDimensionsColumns(
       locale,
       titles,
     ),
-    buildIndicatorColDef(
-      structuresMap,
-      datasetDimensionsSchemesMap,
-      locale,
-      titles,
-    ),
+    ...indicatorColumns,
     buildFrequencyColDef(
       structuresMap,
       datasetDimensionsSchemesMap,
@@ -182,6 +195,49 @@ function buildOtherDimensionColDefs(
       locale,
     ),
   );
+}
+
+function buildExtendedIndicatorColDefs(
+  structuresMap: Map<string, StructuralData | undefined>,
+  datasetDimensionsSchemesMap: Map<string, DatasetDimensionsScheme | undefined>,
+  locale: string,
+): ColDef[] {
+  const uniqueIndicatorDimensionIds = new Set<string>();
+
+  datasetDimensionsSchemesMap.forEach((scheme) => {
+    scheme?.indicators?.forEach((dimensionId) => {
+      uniqueIndicatorDimensionIds.add(dimensionId);
+    });
+  });
+
+  return Array.from(uniqueIndicatorDimensionIds).map((dimensionId) => {
+    const valueGetter = (value: ValueGetterParams) => {
+      const { structures, urn, data } = getCellParams(value, structuresMap);
+      const indicatorDimensions =
+        datasetDimensionsSchemesMap.get(urn)?.indicators ?? [];
+
+      if (
+        data == null ||
+        urn == null ||
+        structures == null ||
+        !indicatorDimensions.includes(dimensionId)
+      ) {
+        return '';
+      }
+
+      return getDimensionValue(structures, dimensionId, data, locale);
+    };
+
+    return {
+      headerName: getOtherDimensionTitle(dimensionId, structuresMap, locale),
+      field: dimensionId,
+      colId: dimensionId,
+      valueGetter,
+      ...GRID_COLUMN_FLEX,
+      cellClass: CELL_PADDING_0,
+      tooltipValueGetter: (p: ITooltipParams) => p.value,
+    };
+  });
 }
 
 function buildOtherDimensionColDef(

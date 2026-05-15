@@ -5,34 +5,48 @@ import type { ReactNode } from 'react';
 import { getLocalizedName } from '@epam/statgpt-sdmx-toolkit';
 import { useTableSettingsContext } from '../TableSettingsContext';
 import { useDatasetDimensionsMetadataMapOptional } from '../../../../context/DatasetDimensionsMetadataMapContext';
+import { CrossDatasetGridViewMode } from '../types';
 
 /**
  * Builds a `renderLabel` callback for `AgGridColumnsPanel` that decorates
- * "other" dimension column items with a right-aligned, truncated dataset name.
+ * dataset-scoped dimension column items with a right-aligned, truncated dataset
+ * name. A column is considered dataset-scoped when its dim ID appears in
+ * `scheme.other` (always) or in `scheme.indicators` while in extended mode.
  *
- * Returns `undefined` when there are no "other" columns, so the panel falls
+ * Returns `undefined` when no dataset-scoped columns exist, so the panel falls
  * back to its default label rendering for all items.
  */
-export function useOtherColumnRenderLabel():
+export function useDatasetScopedColumnRenderLabel():
   | ((item: { id: string; label: string }) => ReactNode)
   | undefined {
-  const { dataQueries, structuresMap, locale } = useTableSettingsContext();
+  const { dataQueries, structuresMap, locale, gridViewMode } =
+    useTableSettingsContext();
   const dimensionsCtx = useDatasetDimensionsMetadataMapOptional();
 
-  const otherColDatasetLabels = useMemo(() => {
+  const datasetScopedColLabels = useMemo(() => {
     const map = new Map<string, string[]>();
     if (!dimensionsCtx || !dataQueries?.length) return map;
 
     for (const { urn } of dataQueries) {
       const scheme = dimensionsCtx.getDimensionsScheme(urn);
-      if (!scheme?.other.length) continue;
+      const hasOther = !!scheme?.other.length;
+      const hasIndicators =
+        gridViewMode === CrossDatasetGridViewMode.Extended &&
+        !!scheme?.indicators?.length;
+
+      if (!hasOther && !hasIndicators) continue;
 
       const datasetLabel = locale
         ? (getLocalizedName(structuresMap?.get(urn)?.dataflows?.[0], locale) ??
           urn)
         : urn;
 
-      for (const colId of scheme.other) {
+      const colIds = [
+        ...(scheme?.other ?? []),
+        ...(hasIndicators ? (scheme?.indicators ?? []) : []),
+      ];
+
+      for (const colId of colIds) {
         const existing = map.get(colId);
         if (existing) {
           existing.push(datasetLabel);
@@ -42,16 +56,16 @@ export function useOtherColumnRenderLabel():
       }
     }
     return map;
-  }, [dimensionsCtx, dataQueries, structuresMap, locale]);
+  }, [dimensionsCtx, dataQueries, structuresMap, locale, gridViewMode]);
 
   return useMemo(() => {
-    if (!otherColDatasetLabels.size) return undefined;
+    if (!datasetScopedColLabels.size) return undefined;
 
-    function renderOtherColumnLabel(item: {
+    function renderDatasetScopedColumnLabel(item: {
       id: string;
       label: string;
     }): ReactNode {
-      const names = otherColDatasetLabels.get(item.id);
+      const names = datasetScopedColLabels.get(item.id);
 
       if (!names?.length) return item.label;
 
@@ -70,6 +84,6 @@ export function useOtherColumnRenderLabel():
       );
     }
 
-    return renderOtherColumnLabel;
-  }, [otherColDatasetLabels]);
+    return renderDatasetScopedColumnLabel;
+  }, [datasetScopedColLabels]);
 }

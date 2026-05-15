@@ -139,8 +139,15 @@ export enum StatusMessagesI18nKeys {
 
 export enum AttachmentsI18nKeys {
   DOWNLOAD = 'attachments.download',
-  COLUMNS = 'attachments.columns',
-  COLUMNS_RESET = 'attachments.columnsReset',
+  TABLE_SETTINGS = 'attachments.tableSettings',
+  COLUMNS_DISPLAY = 'attachments.columnsDisplay',
+  COLUMNS_SEARCH_PLACEHOLDER = 'attachments.columnsSearchPlaceholder',
+  COMPACT_VIEW_TITLE = 'attachments.compactViewTitle',
+  COMPACT_VIEW_DESCRIPTION = 'attachments.compactViewDescription',
+  COMPACT_VIEW_DESCRIPTION_BOLD = 'attachments.compactViewDescriptionBold',
+  EXTENDED_VIEW_TITLE = 'attachments.extendedViewTitle',
+  EXTENDED_VIEW_DESCRIPTION = 'attachments.extendedViewDescription',
+  EXTENDED_VIEW_DESCRIPTION_BOLD = 'attachments.extendedViewDescriptionBold',
   OPEN_URL = 'attachments.openUrl',
   DATA_GRID = 'attachments.dataGrid',
   CHART = 'attachments.chart',

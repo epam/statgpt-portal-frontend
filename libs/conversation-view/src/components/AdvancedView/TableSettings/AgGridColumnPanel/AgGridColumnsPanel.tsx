@@ -46,6 +46,7 @@ export function AgGridColumnsPanel({
   renderLabel,
   onSubItemOrderChange,
   onSubItemVisibilityChange,
+  searchPlaceholder,
 }: {
   api: GridApi | null;
   includeColumn?: ColumnPanelFilter;
@@ -58,6 +59,7 @@ export function AgGridColumnsPanel({
     dimensionKey: string,
     hidden: boolean,
   ) => void;
+  searchPlaceholder?: string;
 }) {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const changeSearchHandler = useCallback(
@@ -105,12 +107,12 @@ export function AgGridColumnsPanel({
   });
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-2 px-5 py-7">
+    <div className="flex h-full min-h-0 flex-col gap-2 px-5">
       <InputWithIcon
         inputId="columns-search-input"
         containerClasses={'items-center filters-search-input gap-1 !p-2'}
         cssClass="filters-search-input-text"
-        placeholder="Search"
+        placeholder={searchPlaceholder || 'Search'}
         iconBeforeInput={<IconSearch className="size-4 text-neutrals-1000" />}
         iconAfterInput={searchQuery ? clearSearchButton : undefined}
         value={searchQuery}

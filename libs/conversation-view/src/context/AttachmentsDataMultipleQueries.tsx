@@ -36,6 +36,7 @@ import {
 } from '@epam/statgpt-conversation-view';
 import { buildCrossDatasetGridAttachment } from '../utils/attachments/cross-dataset-grid/build-cross-dataset-grid-attachment';
 import { MetadataSettings } from '../models/metadata';
+import { CrossDatasetGridViewMode } from '../components/AdvancedView/TableSettings/types';
 import { StructureDataMaps } from '../models/structure-data';
 import { createCrossDatasetChartingDataResolver } from '../utils/attachments/charting/cross-dataset-chart-data';
 import { scheduleDeferredWork } from '../utils/deferred-work';
@@ -62,6 +63,7 @@ export function useAttachmentsDataMultipleQueries(
   rawAttachments?: Attachment[],
   initialActiveDatasetUrns?: string[],
   onCodeAttachmentUpdated?: (attachment: Attachment) => void,
+  gridViewMode: CrossDatasetGridViewMode = CrossDatasetGridViewMode.Compact,
 ) {
   const normalizedInitialActiveDatasetUrns = Array.isArray(
     initialActiveDatasetUrns,
@@ -86,6 +88,8 @@ export function useAttachmentsDataMultipleQueries(
   ] = useState(false);
 
   const pythonRequestIdRef = useRef(0);
+  const prevGridViewModeRef = useRef(gridViewMode);
+  const prevStructureDataMapsRef = useRef(structureDataMaps);
 
   const [crossDatasetGridAttachment, setCrossDatasetGridAttachment] =
     useState<CustomGridAttachment>(
@@ -253,6 +257,12 @@ export function useAttachmentsDataMultipleQueries(
   }, [rawAttachments, titles]);
 
   useEffect(() => {
+    const isOnlyModeChange =
+      prevGridViewModeRef.current !== gridViewMode &&
+      prevStructureDataMapsRef.current === structureDataMaps;
+    prevGridViewModeRef.current = gridViewMode;
+    prevStructureDataMapsRef.current = structureDataMaps;
+
     const { structuresMap, dataMessagesMap, constraintsMap } =
       structureDataMaps ?? {};
     if (
@@ -263,7 +273,9 @@ export function useAttachmentsDataMultipleQueries(
       datasetDimensionsSchemesMap != null &&
       !isLoadingGridData
     ) {
-      setIsBuildingCrossDatasetGridAttachment(true);
+      if (!isOnlyModeChange) {
+        setIsBuildingCrossDatasetGridAttachment(true);
+      }
 
       const cancel = scheduleDeferredWork(() => {
         const visibleDataQueries = filterDataQueriesByActiveDatasetUrns(
@@ -300,18 +312,25 @@ export function useAttachmentsDataMultipleQueries(
               startPeriod: null,
               endPeriod: null,
             },
+            gridViewMode,
           ),
         }));
-        setIsBuildingCrossDatasetGridAttachment(false);
+        if (!isOnlyModeChange) {
+          setIsBuildingCrossDatasetGridAttachment(false);
+        }
       });
 
       return () => {
         cancel();
-        setIsBuildingCrossDatasetGridAttachment(false);
+        if (!isOnlyModeChange) {
+          setIsBuildingCrossDatasetGridAttachment(false);
+        }
       };
     }
 
-    setIsBuildingCrossDatasetGridAttachment(false);
+    if (!isOnlyModeChange) {
+      setIsBuildingCrossDatasetGridAttachment(false);
+    }
     return undefined;
   }, [
     structureDataMaps,
@@ -324,6 +343,7 @@ export function useAttachmentsDataMultipleQueries(
     datasetDimensionsSchemesMap,
     isLoadingGridData,
     activeDatasetUrns,
+    gridViewMode,
   ]);
 
   useEffect(() => {
