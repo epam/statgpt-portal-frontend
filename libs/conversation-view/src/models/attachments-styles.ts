@@ -43,6 +43,7 @@ export interface AttachmentsStyles {
   copyIcon?: ReactNode;
   copiedIcon?: ReactNode;
   copiedTooltip?: string;
+  copyHoverTooltip?: string;
 }
 
 export interface ChartingStyles {

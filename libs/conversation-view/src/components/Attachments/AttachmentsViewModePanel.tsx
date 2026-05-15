@@ -138,6 +138,7 @@ const AttachmentsViewModePanel: FC<Props> = ({
               title={attachmentsStyles?.copyTitle}
               copiedTitle={attachmentsStyles?.copiedTitle}
               tooltip={attachmentsStyles?.copiedTooltip}
+              hoverTooltip={attachmentsStyles?.copyHoverTooltip}
               icon={attachmentsStyles?.copyIcon}
               copiedIcon={attachmentsStyles?.copiedIcon}
               onClick={() =>
