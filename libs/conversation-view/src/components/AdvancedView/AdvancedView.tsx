@@ -25,6 +25,7 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { getExternalLink } from '../../utils/attachments-details';
 import { replacePythonAttachment } from '../../utils/attachments/replace-python-attachment';
+import { getLastMessageWithAttachmentIndex } from '../../utils/messages';
 import { useAttachmentsDataMultipleQueries } from '../../context/AttachmentsDataMultipleQueries';
 import { TableSettingsProvider } from './TableSettings/TableSettingsContext';
 import { CrossDatasetGridViewMode } from './TableSettings/types';
@@ -96,9 +97,11 @@ export const AdvancedView: FC<Props> = ({
   const datasets = attachmentsProps.datasets ?? [];
   const showDatasetTabs = datasets.length > 1 && !isCrossDatasetModeOn;
 
-  const lastMessageAttachments =
-    props.filtersProps.conversation?.messages?.at(-1)?.custom_content
-      ?.attachments;
+  const lastMessageAttachments = useMemo(() => {
+    const messages = props.filtersProps.conversation?.messages ?? [];
+    const idx = getLastMessageWithAttachmentIndex(messages);
+    return idx >= 0 ? messages[idx].custom_content?.attachments : undefined;
+  }, [props.filtersProps.conversation?.messages]);
   const crossDatasetDataQueriesKey = useMemo(
     () => getCrossDatasetSnapshotKey(attachmentsProps.dataQueries),
     [attachmentsProps.dataQueries],
