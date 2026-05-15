@@ -1,7 +1,7 @@
 'use client';
 
 import { CrossDatasetGridAttachmentType } from '../../../models/attachments';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Loader, SERIES_LIMIT } from '@epam/statgpt-ui-components';
 import type { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
@@ -49,6 +49,8 @@ const CrossDatasetGridAttachment: FC<Props> = ({
   const [rowData, setRowData] = useState<GridData[]>([]);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>();
   const [gridHeight, setGridHeight] = useState<number>(400);
+  const gridApiRef = useRef<GridApi | null>(null);
+  const prevColIdsRef = useRef<string[]>([]);
 
   useEffect(() => {
     if (attachment.gridContent == null) {
@@ -75,8 +77,28 @@ const CrossDatasetGridAttachment: FC<Props> = ({
     }
   }, [rowData, showLimitMessage]);
 
+  useEffect(() => {
+    if (!columnDefs || !gridApiRef.current) return;
+
+    const newColIds = columnDefs
+      .map((col) => col.colId ?? col.field ?? '')
+      .filter(Boolean);
+    const prevColIds = prevColIdsRef.current;
+    const prevColIdSet = new Set(prevColIds);
+    const colStructureChanged =
+      newColIds.length !== prevColIds.length ||
+      newColIds.some((id) => !prevColIdSet.has(id));
+
+    prevColIdsRef.current = newColIds;
+
+    if (colStructureChanged) {
+      gridApiRef.current.resetColumnState();
+    }
+  }, [columnDefs]);
+
   const handleGridReady = useCallback(
     (event: GridReadyEvent) => {
+      gridApiRef.current = event.api;
       onApiReady?.(event.api);
     },
     [onApiReady],

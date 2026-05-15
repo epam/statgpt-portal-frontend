@@ -5,58 +5,11 @@ import { buildCrossDatasetEnrichItem } from './helpers/crossDatasetEnrichment';
 import { restoreInitialColumnsState } from './AgGridColumnPanel/helpers/columnStateSnapshot';
 import { useTableSettingsContext } from './TableSettingsContext';
 import { useDatasetDimensionsMetadataMapOptional } from '../../../context/DatasetDimensionsMetadataMapContext';
-import { useOtherColumnRenderLabel } from './hooks/useOtherColumnRenderLabel';
+import { CrossDatasetGridViewMode } from './types';
+import { useDatasetScopedColumnRenderLabel } from './hooks/useDatasetScopedColumnRenderLabel';
+import { GridViewModeSwitcher } from './GridViewModeSwitcher/GridViewModeSwitcher';
 
 export const TABLE_SETTINGS_SIDE_PANEL_ID = 'table-settings-side-panel';
-
-/**
- * Renders a reset button intended for use as a header extension inside the
- * table settings side panel.
- *
- * The button restores all column visibility and order to the initial snapshot
- * and clears any dimension customization tracked by `TableSettingsContext`.
- *
- * @example
- * Embedding in a panel header
- * ```tsx
- * <SidePanel
- *   id={TABLE_SETTINGS_SIDE_PANEL_ID}
- *   headerExtension={<TableSettingsPanelHeaderExtension resetTitle="Restore" />}
- * />
- * ```
- *
- * @param resetTitle - Label shown next to the rotate icon. Defaults to "Reset".
- */
-export const TableSettingsPanelHeaderExtension = ({
-  resetTitle,
-}: {
-  resetTitle?: string;
-}) => {
-  const { gridApi, initialColumnsState, resetDimensionCustomization } =
-    useTableSettingsContext();
-
-  const resetColumns = useCallback(() => {
-    if (!gridApi) {
-      return;
-    }
-
-    restoreInitialColumnsState(gridApi, initialColumnsState);
-    resetDimensionCustomization();
-  }, [gridApi, initialColumnsState, resetDimensionCustomization]);
-
-  const headerExtension = (
-    <button
-      type="button"
-      className="flex items-center gap-1 text-neutrals-800"
-      onClick={resetColumns}
-    >
-      <IconRotate className="size-4 rotate-180" />
-      <span className="h4">{resetTitle || 'Reset'}</span>
-    </button>
-  );
-
-  return headerExtension;
-};
 
 /**
  * Renders the column visibility and order panel for the AG Grid table,
@@ -78,18 +31,61 @@ export const TableSettingsPanelHeaderExtension = ({
 export const TableSettingsPanel = () => {
   const {
     gridApi,
+    initialColumnsState,
     structuresMap,
     locale,
     dataQueries,
     dimensionCustomization,
     setDimensionKeyOrder,
     setDimensionKeyHidden,
+    resetDimensionCustomization,
+    clearUserColumnState,
+    clearInitialColumnState,
+    gridViewMode,
+    setGridViewMode,
+    texts,
+    resetIcon,
   } = useTableSettingsContext();
   const dimensionsCtx = useDatasetDimensionsMetadataMapOptional();
-  const renderLabel = useOtherColumnRenderLabel();
+  const renderLabel = useDatasetScopedColumnRenderLabel();
+
+  const handleModeChange = useCallback(
+    (mode: CrossDatasetGridViewMode) => {
+      clearUserColumnState();
+      clearInitialColumnState();
+      resetDimensionCustomization();
+      setGridViewMode(mode);
+    },
+    [
+      clearUserColumnState,
+      clearInitialColumnState,
+      resetDimensionCustomization,
+      setGridViewMode,
+    ],
+  );
+
+  const resetColumns = useCallback(() => {
+    if (!gridApi) {
+      return;
+    }
+    clearUserColumnState();
+    restoreInitialColumnsState(gridApi, initialColumnsState);
+    resetDimensionCustomization();
+  }, [
+    clearUserColumnState,
+    gridApi,
+    initialColumnsState,
+    resetDimensionCustomization,
+  ]);
 
   const enrichItem = useMemo(() => {
-    if (!dimensionsCtx || !structuresMap || !locale || !dataQueries?.length) {
+    if (
+      gridViewMode !== CrossDatasetGridViewMode.Compact ||
+      !dimensionsCtx ||
+      !structuresMap ||
+      !locale ||
+      !dataQueries?.length
+    ) {
       return undefined;
     }
 
@@ -102,6 +98,7 @@ export const TableSettingsPanel = () => {
       dimensionCustomization,
     });
   }, [
+    gridViewMode,
     dimensionsCtx,
     structuresMap,
     locale,
@@ -110,12 +107,36 @@ export const TableSettingsPanel = () => {
   ]);
 
   return gridApi ? (
-    <AgGridColumnsPanel
-      api={gridApi}
-      enrichItem={enrichItem}
-      renderLabel={renderLabel}
-      onSubItemOrderChange={setDimensionKeyOrder}
-      onSubItemVisibilityChange={setDimensionKeyHidden}
-    />
+    <>
+      <GridViewModeSwitcher
+        gridViewMode={gridViewMode}
+        onModeChange={handleModeChange}
+        compactViewTitle={texts?.compactViewTitle}
+        compactViewDescription={texts?.compactViewDescription}
+        extendedViewTitle={texts?.extendedViewTitle}
+        extendedViewDescription={texts?.extendedViewDescription}
+      />
+      <hr className="border-neutrals-500" />
+      <div className="mx-5 mb-4 mt-5 flex items-center justify-between">
+        <h3 className="text-neutrals-1000">
+          {texts?.columnsDisplayTitle || 'Columns display'}
+        </h3>
+        <button
+          type="button"
+          className="text-neutrals-800"
+          onClick={resetColumns}
+        >
+          {resetIcon ?? <IconRotate className="size-4 rotate-180" />}
+        </button>
+      </div>
+      <AgGridColumnsPanel
+        api={gridApi}
+        enrichItem={enrichItem}
+        renderLabel={renderLabel}
+        onSubItemOrderChange={setDimensionKeyOrder}
+        onSubItemVisibilityChange={setDimensionKeyHidden}
+        searchPlaceholder={texts?.columnsSearchPlaceholder}
+      />
+    </>
   ) : null;
 };

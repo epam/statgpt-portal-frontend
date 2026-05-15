@@ -80,6 +80,8 @@ import Down from '../../../public/images/chat/down.svg';
 import ThumbPressed from '../../../public/images/messages/thumb-filled.svg';
 import Reset from '../../../public/images/reset.svg';
 import ExternalLink from '../../../public/images/external-link.svg';
+import GearIcon from '../../../public/images/gear.svg';
+import ResetArrowIcon from '../../../public/images/reset-arrow.svg';
 import {
   IconCalendarWeek,
   IconChevronRight,
@@ -321,8 +323,23 @@ const ConversationViewWrapper: FC<Props> = ({
     downloadErrorActionIcon: <ExternalLink className="size-4" />,
     closeTitle: t(AppI18nKeys.CLOSE),
     downloadTitle: t(DownloadI18nKeys.DOWNLOAD),
-    columnsTitle: t(AttachmentsI18nKeys.COLUMNS),
-    columnsResetTitle: t(AttachmentsI18nKeys.COLUMNS_RESET),
+    tableSettings: t(AttachmentsI18nKeys.TABLE_SETTINGS),
+    tableSettingsIcon: <GearIcon className="size-4" />,
+    tableSettingsResetIcon: <ResetArrowIcon className="size-4" />,
+    columnsDisplayTitle: t(AttachmentsI18nKeys.COLUMNS_DISPLAY),
+    columnsSearchPlaceholder: t(AttachmentsI18nKeys.COLUMNS_SEARCH_PLACEHOLDER),
+    compactViewTitle: t(AttachmentsI18nKeys.COMPACT_VIEW_TITLE),
+    compactViewDescription: t(AttachmentsI18nKeys.COMPACT_VIEW_DESCRIPTION, {
+      bold: (
+        <strong>{t(AttachmentsI18nKeys.COMPACT_VIEW_DESCRIPTION_BOLD)}</strong>
+      ),
+    }),
+    extendedViewTitle: t(AttachmentsI18nKeys.EXTENDED_VIEW_TITLE),
+    extendedViewDescription: t(AttachmentsI18nKeys.EXTENDED_VIEW_DESCRIPTION, {
+      bold: (
+        <strong>{t(AttachmentsI18nKeys.EXTENDED_VIEW_DESCRIPTION_BOLD)}</strong>
+      ),
+    }),
     openLinkTitle: t(AttachmentsI18nKeys.OPEN_URL),
     dataGridTitle: t(AttachmentsI18nKeys.DATA_GRID),
     errorDownloadIcon: <ErrorIcon className="text-semantic-error size-6" />,

@@ -16,6 +16,18 @@ import type {
   DimensionCustomizationMap,
   DimensionKeyCustomization,
 } from './types';
+import { CrossDatasetGridViewMode } from './types';
+import type { AttachmentsStyles } from '../../../models/attachments-styles';
+
+type TableSettingsTexts = Pick<
+  AttachmentsStyles,
+  | 'columnsDisplayTitle'
+  | 'columnsSearchPlaceholder'
+  | 'compactViewTitle'
+  | 'compactViewDescription'
+  | 'extendedViewTitle'
+  | 'extendedViewDescription'
+>;
 
 type TableSettingsContextValue = {
   gridApi?: GridApi;
@@ -33,6 +45,12 @@ type TableSettingsContextValue = {
     hidden: boolean,
   ) => void;
   resetDimensionCustomization: () => void;
+  clearUserColumnState: () => void;
+  clearInitialColumnState: () => void;
+  gridViewMode: CrossDatasetGridViewMode;
+  setGridViewMode: (mode: CrossDatasetGridViewMode) => void;
+  texts?: TableSettingsTexts;
+  resetIcon?: ReactNode;
 };
 
 const TableSettingsContext = createContext<TableSettingsContextValue | null>(
@@ -71,16 +89,34 @@ export function TableSettingsProvider({
   structuresMap,
   locale,
   dataQueries,
+  gridViewMode = CrossDatasetGridViewMode.Compact,
+  onGridViewModeChange,
+  texts,
+  resetIcon,
   children,
 }: {
   currentUrn: string;
   structuresMap?: Map<string, StructuralData | undefined>;
   locale?: string;
   dataQueries?: Array<{ urn: string }>;
+  gridViewMode?: CrossDatasetGridViewMode;
+  onGridViewModeChange?: (mode: CrossDatasetGridViewMode) => void;
+  texts?: TableSettingsTexts;
+  resetIcon?: ReactNode;
   children: ReactNode;
 }) {
-  const { gridApi, onGridApiReady, initialColumnsState } =
-    useAgGridColumnPreferences({ currentUrn });
+  const {
+    gridApi,
+    onGridApiReady,
+    initialColumnsState,
+    clearUserColumnState,
+    clearInitialColumnState,
+  } = useAgGridColumnPreferences({ currentUrn });
+
+  const setGridViewMode = useCallback(
+    (mode: CrossDatasetGridViewMode) => onGridViewModeChange?.(mode),
+    [onGridViewModeChange],
+  );
 
   const [dimensionCustomization, setDimensionCustomizationState] =
     useState<DimensionCustomizationMap>(new Map());
@@ -148,6 +184,12 @@ export function TableSettingsProvider({
       setDimensionKeyOrder,
       setDimensionKeyHidden,
       resetDimensionCustomization,
+      clearUserColumnState,
+      clearInitialColumnState,
+      gridViewMode,
+      setGridViewMode,
+      texts,
+      resetIcon,
     }),
     [
       gridApi,
@@ -160,6 +202,12 @@ export function TableSettingsProvider({
       setDimensionKeyOrder,
       setDimensionKeyHidden,
       resetDimensionCustomization,
+      clearUserColumnState,
+      clearInitialColumnState,
+      gridViewMode,
+      setGridViewMode,
+      texts,
+      resetIcon,
     ],
   );
 

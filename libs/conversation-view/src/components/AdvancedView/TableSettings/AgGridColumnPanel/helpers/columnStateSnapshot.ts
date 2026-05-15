@@ -12,7 +12,7 @@ export function captureInitialColumnsState(
 ): AgGridInitialColumnsState {
   return {
     columnState: api.getColumnState(),
-    columnGroupState: api.getColumnGroupState(),
+    columnGroupState: api.getColumnGroupState() ?? [],
   };
 }
 

@@ -7,7 +7,6 @@ import { useTableSettingsContext } from './TableSettings/TableSettingsContext';
 import { useConversationViewSidePanelOptional } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import {
   TABLE_SETTINGS_SIDE_PANEL_ID,
-  TableSettingsPanelHeaderExtension,
   TableSettingsPanel,
 } from './TableSettings/TableSettingsPanel';
 
@@ -28,20 +27,11 @@ export const AdvancedAttachmentRenderer: FC<AttachmentRendererProps> = ({
     sidePanel.openPanel({
       id: TABLE_SETTINGS_SIDE_PANEL_ID,
       scope: 'advanced',
-      title: attachmentsStyles?.columnsTitle || 'Columns',
+      title: attachmentsStyles?.tableSettings || 'Table settings',
       headerClassName: 'border-b border-neutrals-500',
-      headerExtension: (
-        <TableSettingsPanelHeaderExtension
-          resetTitle={attachmentsStyles?.columnsResetTitle}
-        />
-      ),
       content: <TableSettingsPanel />,
     });
-  }, [
-    attachmentsStyles?.columnsResetTitle,
-    attachmentsStyles?.columnsTitle,
-    sidePanel,
-  ]);
+  }, [sidePanel, attachmentsStyles?.tableSettings]);
 
   return (
     <AttachmentRenderer

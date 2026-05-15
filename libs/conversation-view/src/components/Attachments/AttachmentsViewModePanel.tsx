@@ -16,7 +16,7 @@ import {
 import AttachmentTabs from './Tabs/AttachmentTabs/AttachmentTabs';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import { ConversationViewTitles } from '../../models/titles';
-import ColumnsIcon from '../../assets/icons/columns.svg';
+import { IconSettings } from '@tabler/icons-react';
 import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 
@@ -123,8 +123,12 @@ const AttachmentsViewModePanel: FC<Props> = ({
             disabled={isTableSettingsOpen}
             buttonClassName="text-button-tertiary !p-0 !h-6"
             textClassName="ml-1 h4"
-            iconBefore={<ColumnsIcon className="size-4" />}
-            title={attachmentsStyles?.columnsTitle || 'Columns'}
+            iconBefore={
+              attachmentsStyles?.tableSettingsIcon ?? (
+                <IconSettings className="size-4" />
+              )
+            }
+            title={attachmentsStyles?.tableSettings || 'Table settings'}
             onClick={onTableSettingsOpen}
           />
         )}

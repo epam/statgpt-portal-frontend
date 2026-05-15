@@ -13,6 +13,7 @@ import {
   getChartColumn,
   getCrossDatasetMetadataColumn,
 } from '../../../constants/grid';
+import { CrossDatasetGridViewMode } from '../../../components/AdvancedView/TableSettings/types';
 
 export function buildCrossDatasetGridColumns(
   structuresMap: Map<string, StructuralData | undefined>,
@@ -21,6 +22,7 @@ export function buildCrossDatasetGridColumns(
   locale: string,
   titles?: ConversationViewTitles,
   formattingSettings?: FormatNumbersType,
+  gridViewMode: CrossDatasetGridViewMode = CrossDatasetGridViewMode.Compact,
 ): ColDef[] {
   const datasetInfoColumns = getCrossDatasetInfoColumns(
     structuresMap,
@@ -32,6 +34,7 @@ export function buildCrossDatasetGridColumns(
     datasetDimensionsSchemesMap,
     locale,
     titles,
+    gridViewMode,
   );
   const timeColumns = getCrossDatasetTimeseriesColumns(
     dataMessagesMap,
