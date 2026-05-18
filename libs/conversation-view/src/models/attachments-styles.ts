@@ -44,6 +44,8 @@ export interface AttachmentsStyles {
   copiedIcon?: ReactNode;
   copiedTooltip?: string;
   copyHoverTooltip?: string;
+  limitationInfoIcon?: ReactNode;
+  limitationInfoContentClassName?: string;
 }
 
 export interface ChartingStyles {

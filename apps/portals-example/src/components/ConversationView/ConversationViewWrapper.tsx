@@ -82,6 +82,7 @@ import Reset from '../../../public/images/reset.svg';
 import ExternalLink from '../../../public/images/external-link.svg';
 import GearIcon from '../../../public/images/gear.svg';
 import ResetArrowIcon from '../../../public/images/reset-arrow.svg';
+import InfoBubble from '../../../public/images/info-bubble.svg';
 import {
   IconCalendarWeek,
   IconChevronRight,
@@ -315,9 +316,9 @@ const ConversationViewWrapper: FC<Props> = ({
     hideDownloadTextInConversationView: true,
     hideDownloadIconInAdvancedView: true,
     downloadChevronIcon: <ChevronSolidDownIcon className="size-6" />,
-    infoDownloadIcon: <InfoIcon className="text-primary size-6" />,
+    infoDownloadIcon: <InfoIcon className="size-6 text-primary" />,
     successDownloadIcon: (
-      <SuccessIcon className="text-semantic-success size-6" />
+      <SuccessIcon className="size-6 text-semantic-success" />
     ),
     downloadInProgressActionIcon: <Reset className="size-4" />,
     downloadErrorActionIcon: <ExternalLink className="size-4" />,
@@ -342,7 +343,7 @@ const ConversationViewWrapper: FC<Props> = ({
     }),
     openLinkTitle: t(AttachmentsI18nKeys.OPEN_URL),
     dataGridTitle: t(AttachmentsI18nKeys.DATA_GRID),
-    errorDownloadIcon: <ErrorIcon className="text-semantic-error size-6" />,
+    errorDownloadIcon: <ErrorIcon className="size-6 text-semantic-error" />,
     datasetIcon: <Dataset className="size-5" />,
     chartingIcons,
     copyTitle: t(ChatI18nKeys.COPY),
@@ -350,6 +351,8 @@ const ConversationViewWrapper: FC<Props> = ({
     copyHoverTooltip: t(ChatI18nKeys.COPY),
     copyIcon: <Copy className="size-4" />,
     copiedIcon: <CheckIcon className="size-4" />,
+    limitationInfoIcon: <InfoBubble className="size-4 text-hues-900" />,
+    limitationInfoContentClassName: 'py-1 px-2 rounded',
     downloadTitles: {
       partialDataset: t(DownloadI18nKeys.PARTIAL_DATASET),
       fullDataset: t(DownloadI18nKeys.FULL_DATASET),
@@ -416,7 +419,7 @@ const ConversationViewWrapper: FC<Props> = ({
   };
 
   const limitMessages: LimitMessages = {
-    warningIcon: <WarningIcon className="text-semantic-warning size-4" />,
+    warningIcon: <WarningIcon className="size-4 text-semantic-warning" />,
     largeQuery: t(AdvancedViewI18nKeys.LARGE_QUERY),
     showingLimit: (limit: number) =>
       t(AdvancedViewI18nKeys.SHOWING_LIMIT, { limit }),
@@ -461,7 +464,7 @@ const ConversationViewWrapper: FC<Props> = ({
               title: t(ChatI18nKeys.CONVERSATION_ACCESS_ERROR_TITLE),
               text: t(ChatI18nKeys.CONVERSATION_ACCESS_ERROR_TEXT),
             }}
-            errorIcon={<ErrorIcon className="text-semantic-error size-6" />}
+            errorIcon={<ErrorIcon className="size-6 text-semantic-error" />}
             onClose={() => setShowNotFoundAlert(false)}
           />
         )}
