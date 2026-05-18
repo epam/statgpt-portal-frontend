@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useState } from 'react';
+import { FC, ReactNode, useState } from 'react';
 import {
   safePolygon,
   useFloating,
@@ -8,17 +8,22 @@ import {
   useInteractions,
 } from '@floating-ui/react';
 import { ConversationViewTitles } from '../../../models/titles';
+import { mergeClasses } from '../../../utils/mergeClasses';
 
 interface Props {
   limitAmount: number;
   openAdvancedView?: () => void;
   titles?: ConversationViewTitles;
+  prefixIcon?: ReactNode;
+  contentClassName?: string;
 }
 
 const ChartLimitationInfo: FC<Props> = ({
   limitAmount,
   titles,
   openAdvancedView,
+  prefixIcon,
+  contentClassName,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { refs, floatingStyles, context } = useFloating({
@@ -40,7 +45,13 @@ const ChartLimitationInfo: FC<Props> = ({
         ref={refs.setReference}
         {...getReferenceProps()}
       >
-        <div className="mt-1 flex w-fit gap-1 bg-hues-100 px-4 py-2">
+        <div
+          className={mergeClasses(
+            'mt-1 flex w-fit items-center gap-1 bg-hues-100 px-4 py-2',
+            contentClassName,
+          )}
+        >
+          {prefixIcon}
           <h5 className="font-bold">{titles?.limits || 'Limited to'}</h5>
           <h5>
             {limitAmount} {titles?.timeseriesLimit || 'Timeseries'}

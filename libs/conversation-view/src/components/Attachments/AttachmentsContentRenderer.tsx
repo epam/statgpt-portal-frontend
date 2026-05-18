@@ -99,6 +99,10 @@ const AttachmentsContentRenderer: FC<Props> = ({
           icons={attachmentsStyles?.chartingIcons}
           openAdvancedView={!isOpenedAdvancedView ? onOpenAdvancedView : void 0}
           fixHeight={!isOpenedAdvancedView}
+          limitationInfoPrefixIcon={attachmentsStyles?.limitationInfoIcon}
+          limitationInfoContentClassName={
+            attachmentsStyles?.limitationInfoContentClassName
+          }
         />
       )}
       {isUrlAttachment(selectedAttachment) && (

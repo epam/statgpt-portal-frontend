@@ -20,7 +20,6 @@ import {
 import { OnboardingElements } from '../../../constants/onboarding-elements';
 import ResponsiveEChart from './ResponsiveChart';
 import DatasetIcon from '../../../assets/icons/dataset.svg';
-
 interface Props {
   attachment: CustomChartAttachmentType;
   icons?: Record<ChartingIcon, ReactNode>;
@@ -28,6 +27,8 @@ interface Props {
   isDataLoading?: boolean;
   fixHeight?: boolean;
   titles?: ConversationViewTitles;
+  limitationInfoPrefixIcon?: ReactNode;
+  limitationInfoContentClassName?: string;
 }
 
 interface FlatChartUnit {
@@ -42,6 +43,8 @@ const CustomChartAttachment: FC<Props> = ({
   openAdvancedView,
   fixHeight = true,
   titles,
+  limitationInfoPrefixIcon,
+  limitationInfoContentClassName,
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [chartingData, setChartingData] = useState<ChartingData>();
@@ -199,7 +202,9 @@ const CustomChartAttachment: FC<Props> = ({
                         limitAmount={selectedUnit.limitedByRowsAmountTo}
                         openAdvancedView={openAdvancedView}
                         titles={titles}
-                      ></ChartLimitationInfo>
+                        prefixIcon={limitationInfoPrefixIcon}
+                        contentClassName={limitationInfoContentClassName}
+                      />
                     )}
                     {flatUnits.length > 1 && (
                       <Slider
