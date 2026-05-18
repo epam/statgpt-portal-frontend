@@ -11,6 +11,7 @@
 
       &-trigger {
         @apply text-primary border-none w-auto h-auto;
+
         span {
           @apply inline-block h4;
         }
@@ -77,6 +78,7 @@
 .filters {
   &-search-input {
     @apply h-[32px] p-1 rounded text-neutrals-900;
+
     &-text {
       @apply body-3;
     }
@@ -84,17 +86,23 @@
 
   &-settings {
     @apply pl-6 pt-2;
+
+    .radio-title {
+      @apply body-3;
+    }
   }
 
   &-facet {
     &-dataset-icon {
       @apply text-neutrals-800 mr-1;
     }
+
     &-dataset-name {
       @apply mt-4 mb-1;
       @apply inline-flex items-center;
       @apply text-neutrals-800;
     }
+
     &-item {
       &-counter {
         @apply text-neutrals-800 body-3;
@@ -114,6 +122,7 @@
 
   &-time-period {
     @apply ml-6 mb-6 flex-col gap-5;
+
     & > div {
       @apply m-0;
     }
