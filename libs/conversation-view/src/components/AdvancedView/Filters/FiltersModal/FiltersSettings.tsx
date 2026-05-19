@@ -200,7 +200,9 @@ const FilterSettings: FC<Props> = ({
           const nodeValue = mappedNodes.find(
             (node) => node?.id === dimensionValue?.id,
           );
-          return nodeValue || dimensionValue;
+          return nodeValue
+            ? { ...dimensionValue, isSelectedValue: nodeValue.isSelectedValue }
+            : dimensionValue;
         }) ?? []),
         ...newEntries,
       ],

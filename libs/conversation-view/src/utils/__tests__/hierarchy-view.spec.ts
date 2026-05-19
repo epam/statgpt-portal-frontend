@@ -450,6 +450,109 @@ describe('applySelectionToTree', () => {
       },
     ]);
   });
+
+  it('marks parent as selected when all non-disabled children are selected', () => {
+    const nodes: FilterTreeNodeProps[] = [
+      {
+        id: 'WORLD',
+        children: [
+          { id: 'FR', children: [] },
+          { id: 'DE', children: [] },
+        ],
+      },
+    ];
+
+    expect(applySelectionToTree(nodes, new Set(['FR', 'DE']))).toEqual([
+      {
+        id: 'WORLD',
+        isSelectedValue: true,
+        children: [
+          { id: 'FR', isSelectedValue: true, children: [] },
+          { id: 'DE', isSelectedValue: true, children: [] },
+        ],
+      },
+    ]);
+  });
+
+  it('marks parent as not selected when only some children are selected', () => {
+    const nodes: FilterTreeNodeProps[] = [
+      {
+        id: 'WORLD',
+        children: [
+          { id: 'FR', children: [] },
+          { id: 'DE', children: [] },
+        ],
+      },
+    ];
+
+    expect(applySelectionToTree(nodes, new Set(['FR']))).toEqual([
+      {
+        id: 'WORLD',
+        isSelectedValue: false,
+        children: [
+          { id: 'FR', isSelectedValue: true, children: [] },
+          { id: 'DE', isSelectedValue: false, children: [] },
+        ],
+      },
+    ]);
+  });
+
+  it('ignores disabled children when deriving parent selection', () => {
+    const nodes: FilterTreeNodeProps[] = [
+      {
+        id: 'WORLD',
+        children: [
+          { id: 'FR', children: [] },
+          { id: 'DE', disabled: true, children: [] },
+        ],
+      },
+    ];
+
+    expect(applySelectionToTree(nodes, new Set(['FR']))).toEqual([
+      {
+        id: 'WORLD',
+        isSelectedValue: true,
+        children: [
+          { id: 'FR', isSelectedValue: true, children: [] },
+          { id: 'DE', disabled: true, isSelectedValue: false, children: [] },
+        ],
+      },
+    ]);
+  });
+
+  it('derives selection through multiple nesting levels', () => {
+    const nodes: FilterTreeNodeProps[] = [
+      {
+        id: 'WORLD',
+        children: [
+          {
+            id: 'EU',
+            children: [
+              { id: 'FR', children: [] },
+              { id: 'DE', children: [] },
+            ],
+          },
+        ],
+      },
+    ];
+
+    expect(applySelectionToTree(nodes, new Set(['FR', 'DE']))).toEqual([
+      {
+        id: 'WORLD',
+        isSelectedValue: true,
+        children: [
+          {
+            id: 'EU',
+            isSelectedValue: true,
+            children: [
+              { id: 'FR', isSelectedValue: true, children: [] },
+              { id: 'DE', isSelectedValue: true, children: [] },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
 });
 
 describe('toggleTreeNodeExpansion', () => {

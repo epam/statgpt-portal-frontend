@@ -235,13 +235,25 @@ export function applySelectionToTree(
   nodes: FilterTreeNodeProps[],
   selectedIds: Set<string>,
 ): FilterTreeNodeProps[] {
-  return nodes.map((node) => ({
-    ...node,
-    isSelectedValue: selectedIds.has(node.id),
-    children: node.children
+  return nodes.map((node) => {
+    const updatedChildren = node.children?.length
       ? applySelectionToTree(node.children, selectedIds)
-      : undefined,
-  }));
+      : node.children;
+
+    let isSelectedValue: boolean;
+    if (selectedIds.has(node.id)) {
+      isSelectedValue = true;
+    } else if (updatedChildren?.length) {
+      const enabledChildren = updatedChildren.filter((c) => !c.disabled);
+      isSelectedValue =
+        enabledChildren.length > 0 &&
+        enabledChildren.every((c) => !!c.isSelectedValue);
+    } else {
+      isSelectedValue = false;
+    }
+
+    return { ...node, isSelectedValue, children: updatedChildren };
+  });
 }
 
 export function toggleTreeNodeExpansion(
