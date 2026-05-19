@@ -257,6 +257,7 @@ export const ConversationList: FC<Props> = ({
                 actions={{
                   ...actions,
                   deleteConversation: handleDeleteConversation,
+                  renameConversation: handleRenameConversation,
                 }}
               />
             ) : (
