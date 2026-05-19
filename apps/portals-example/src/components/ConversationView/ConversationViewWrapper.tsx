@@ -2,6 +2,7 @@
 
 import {
   AdvancedView,
+  CollapsedChatPanel,
   ConversationView,
   DatasetInfoOptions,
   useAdvancedView,
@@ -79,6 +80,8 @@ import Edit from '../../../public/images/messages/edit.svg';
 import Down from '../../../public/images/chat/down.svg';
 import ThumbPressed from '../../../public/images/messages/thumb-filled.svg';
 import Reset from '../../../public/images/reset.svg';
+import Collapse from '../../../public/images/menu/collapse.svg';
+import Expand from '../../../public/images/menu/expand.svg';
 import ExternalLink from '../../../public/images/external-link.svg';
 import GearIcon from '../../../public/images/gear.svg';
 import ResetArrowIcon from '../../../public/images/reset-arrow.svg';
@@ -124,6 +127,7 @@ const ConversationViewWrapper: FC<Props> = ({
   const [datasets, setDatasets] = useState<Dataflow[]>();
   const [isConversationNotFound, setIsConversationNotFound] = useState(false);
   const [showNotFoundAlert, setShowNotFoundAlert] = useState(false);
+  const [isChatCollapsed, setIsChatCollapsed] = useState(false);
   const { locale, id }: { locale: string; id: string[] } = useParams();
   const chartingIcons = {
     [ChartingIcon.NEXT]: <ChevronRight width={20} height={20} />,
@@ -141,6 +145,10 @@ const ConversationViewWrapper: FC<Props> = ({
     setIsConversationNotFound(false);
     setShowNotFoundAlert(false);
   }, [conversationKey]);
+
+  useEffect(() => {
+    if (!isOpenedAdvancedView) setIsChatCollapsed(false);
+  }, [isOpenedAdvancedView]);
 
   const handleConversationNotFound = useCallback(() => {
     setIsConversationNotFound(true);
@@ -316,9 +324,9 @@ const ConversationViewWrapper: FC<Props> = ({
     hideDownloadTextInConversationView: true,
     hideDownloadIconInAdvancedView: true,
     downloadChevronIcon: <ChevronSolidDownIcon className="size-6" />,
-    infoDownloadIcon: <InfoIcon className="size-6 text-primary" />,
+    infoDownloadIcon: <InfoIcon className="text-primary size-6" />,
     successDownloadIcon: (
-      <SuccessIcon className="size-6 text-semantic-success" />
+      <SuccessIcon className="text-semantic-success size-6" />
     ),
     downloadInProgressActionIcon: <Reset className="size-4" />,
     downloadErrorActionIcon: <ExternalLink className="size-4" />,
@@ -343,7 +351,7 @@ const ConversationViewWrapper: FC<Props> = ({
     }),
     openLinkTitle: t(AttachmentsI18nKeys.OPEN_URL),
     dataGridTitle: t(AttachmentsI18nKeys.DATA_GRID),
-    errorDownloadIcon: <ErrorIcon className="size-6 text-semantic-error" />,
+    errorDownloadIcon: <ErrorIcon className="text-semantic-error size-6" />,
     datasetIcon: <Dataset className="size-5" />,
     chartingIcons,
     copyTitle: t(ChatI18nKeys.COPY),
@@ -351,7 +359,7 @@ const ConversationViewWrapper: FC<Props> = ({
     copyHoverTooltip: t(ChatI18nKeys.COPY),
     copyIcon: <Copy className="size-4" />,
     copiedIcon: <CheckIcon className="size-4" />,
-    limitationInfoIcon: <InfoBubble className="size-4 text-hues-900" />,
+    limitationInfoIcon: <InfoBubble className="text-hues-900 size-4" />,
     limitationInfoContentClassName: 'py-1 px-2 rounded',
     downloadTitles: {
       partialDataset: t(DownloadI18nKeys.PARTIAL_DATASET),
@@ -419,7 +427,7 @@ const ConversationViewWrapper: FC<Props> = ({
   };
 
   const limitMessages: LimitMessages = {
-    warningIcon: <WarningIcon className="size-4 text-semantic-warning" />,
+    warningIcon: <WarningIcon className="text-semantic-warning size-4" />,
     largeQuery: t(AdvancedViewI18nKeys.LARGE_QUERY),
     showingLimit: (limit: number) =>
       t(AdvancedViewI18nKeys.SHOWING_LIMIT, { limit }),
@@ -464,7 +472,7 @@ const ConversationViewWrapper: FC<Props> = ({
               title: t(ChatI18nKeys.CONVERSATION_ACCESS_ERROR_TITLE),
               text: t(ChatI18nKeys.CONVERSATION_ACCESS_ERROR_TEXT),
             }}
-            errorIcon={<ErrorIcon className="size-6 text-semantic-error" />}
+            errorIcon={<ErrorIcon className="text-semantic-error size-6" />}
             onClose={() => setShowNotFoundAlert(false)}
           />
         )}
@@ -478,12 +486,21 @@ const ConversationViewWrapper: FC<Props> = ({
         'flex flex-row justify-center h-full w-full bg-white',
       )}
     >
+      {isOpenedAdvancedView && isChatCollapsed && (
+        <CollapsedChatPanel
+          conversationName={conversation?.name}
+          expandTitle={t(AppI18nKeys.EXPAND)}
+          expandIcon={<Expand width={20} height={20} />}
+          onExpand={() => setIsChatCollapsed(false)}
+        />
+      )}
       <div
         className={classNames(
           'flex flex-col h-full',
           isOpenedAdvancedView
             ? 'w-[422px] border border-neutrals-400'
             : 'w-full',
+          isOpenedAdvancedView && isChatCollapsed && 'hidden',
         )}
       >
         <div className={classNames('flex-1 min-h-0')}>
@@ -546,6 +563,18 @@ const ConversationViewWrapper: FC<Props> = ({
             }}
             scrollBottomIcon={<Down width={20} height={20} />}
             limitMessages={limitMessages}
+            headerRightSlot={
+              isOpenedAdvancedView ? (
+                <button
+                  type="button"
+                  className="text-primary cursor-pointer"
+                  aria-label={t(AppI18nKeys.COLLAPSE)}
+                  onClick={() => setIsChatCollapsed(true)}
+                >
+                  <Collapse width={20} height={20} />
+                </button>
+              ) : undefined
+            }
           >
             <Footer />
           </ConversationView>
