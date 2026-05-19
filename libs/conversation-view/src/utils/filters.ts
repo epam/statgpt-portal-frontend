@@ -316,30 +316,9 @@ const setSelectedChildrenNodes = (
 export const getFilterNodesBySelection = (
   node: FilterTreeNodeProps,
 ): FilterTreeNodeProps[] => {
-  const enabledChildren = node.children?.filter((child) => !child.disabled);
-  const allChildrenSelected = enabledChildren?.every(
-    (child) => child.isSelectedValue,
-  );
-  const allChildrenUnselected = enabledChildren?.every(
-    (child) => !child.isSelectedValue,
-  );
-
   if (!node.isSelectedValue) {
-    if (allChildrenUnselected) {
-      return [
-        { ...node, isSelectedValue: true },
-        ...setSelectedChildrenNodes(getAllChildrenNodes(node), true),
-      ];
-    }
-    if (allChildrenSelected) {
-      return [
-        { ...node, isSelectedValue: true },
-        ...setSelectedChildrenNodes(getAllChildrenNodes(node), false),
-      ];
-    }
-  } else if (node.isSelectedValue && allChildrenSelected) {
     return [
-      { ...node, isSelectedValue: false },
+      { ...node, isSelectedValue: true },
       ...setSelectedChildrenNodes(getAllChildrenNodes(node), true),
     ];
   }

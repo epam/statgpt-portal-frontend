@@ -552,34 +552,34 @@ describe('getFilterNodesBySelection', () => {
     expect(result.slice(1).every((n) => n.isSelectedValue)).toBe(true);
   });
 
-  it('deselects parent but keeps children selected when parent is selected and all children are selected', () => {
+  it('deselects parent and all children when parent is selected and all children are selected', () => {
     const node = makeNode('EUROPE', true, [
       makeNode('FR', true),
       makeNode('DE', true),
     ]);
     const result = getFilterNodesBySelection(node);
     expect(result[0]).toMatchObject({ id: 'EUROPE', isSelectedValue: false });
-    expect(result.slice(1).every((n) => n.isSelectedValue)).toBe(true);
+    expect(result.slice(1).every((n) => !n.isSelectedValue)).toBe(true);
   });
 
-  it('selects parent and deselects all children when parent is unselected and all children are selected', () => {
+  it('selects parent and all children when parent is unselected and all children are selected', () => {
     const node = makeNode('EUROPE', false, [
       makeNode('FR', true),
       makeNode('DE', true),
     ]);
     const result = getFilterNodesBySelection(node);
     expect(result[0]).toMatchObject({ id: 'EUROPE', isSelectedValue: true });
-    expect(result.slice(1).every((n) => !n.isSelectedValue)).toBe(true);
+    expect(result.slice(1).every((n) => n.isSelectedValue)).toBe(true);
   });
 
-  it('deselects parent and all children when parent is unselected but children are mixed', () => {
+  it('selects parent and all children when parent is unselected but children are mixed', () => {
     const node = makeNode('EUROPE', false, [
       makeNode('FR', true),
       makeNode('DE', false),
     ]);
     const result = getFilterNodesBySelection(node);
-    expect(result[0]).toMatchObject({ id: 'EUROPE', isSelectedValue: false });
-    expect(result.slice(1).every((n) => !n.isSelectedValue)).toBe(true);
+    expect(result[0]).toMatchObject({ id: 'EUROPE', isSelectedValue: true });
+    expect(result.slice(1).every((n) => n.isSelectedValue)).toBe(true);
   });
 });
 
