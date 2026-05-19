@@ -9,18 +9,15 @@ import {
   sortConversationsByUpdatedAt,
 } from '../../utils/conversations-grouping';
 import ConversationItem from '../ConversationItem/ConversationItem';
-import {
-  ConversationListActions,
-  ConversationStyles,
-} from '../../models/conversation-list';
+import { ConversationListActions } from '../../models/conversation-list';
 import { IconCaretRightFilled } from '@tabler/icons-react';
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
+import { useConversationStyles } from '../../context/ConversationStylesContext';
 
 interface Props {
   groupLabel: string;
   groupedConversations: ConversationInfo[];
   selectedConversationId?: string;
-  conversationStyles: ConversationStyles;
   actions: ConversationListActions;
   locale: string;
   isDisabled?: boolean;
@@ -33,12 +30,12 @@ const ConversationsGroup: FC<Props> = ({
   actions,
   selectedConversationId,
   groupLabel,
-  conversationStyles,
   groupedConversations,
   shareConversationProps,
   locale,
   isDisabled,
 }) => {
+  const { titles } = useConversationStyles();
   const [isGroupCollapsed, setIsGroupCollapsed] = useState<boolean>(false);
 
   const toggleGroupCollapse = useCallback(() => {
@@ -58,7 +55,7 @@ const ConversationsGroup: FC<Props> = ({
           )}
         />
         <span className="body-3 conversation-group-items-title-text">
-          {getLabelByGroup(groupLabel, conversationStyles?.titles)}
+          {getLabelByGroup(groupLabel, titles)}
         </span>
       </div>
       {!isGroupCollapsed && (
@@ -74,7 +71,6 @@ const ConversationsGroup: FC<Props> = ({
                 locale={locale}
                 isDisabled={isDisabled}
                 key={conversation.id || conversation.name}
-                conversationStyles={conversationStyles}
                 conversation={conversation}
                 selectedConversationId={selectedConversationId}
                 onConversationClick={handleConversationClick}

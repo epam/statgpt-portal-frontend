@@ -10,7 +10,6 @@ import { getZippedFile } from '../../utils/compress-zip';
 import { triggerDownload } from '../../utils/download';
 import ShareConversationModal from '@statgpt/share-conversation/src/components/ShareConversation/ShareConversationModal';
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
-import { ConversationStyles } from '../../models/conversation-list';
 import {
   Dropdown,
   DropdownItem,
@@ -20,10 +19,10 @@ import { ActionMenuItem } from '../../types/action-menu-item';
 import ConversationRename from '../ConversationRename/ConversationRename';
 import { ONBOARDING_MODEL_POSTFIX } from '@epam/statgpt-shared-toolkit';
 import classNames from 'classnames';
+import { useConversationStyles } from '../../context/ConversationStylesContext';
 
 interface Props {
   conversation: ConversationInfo;
-  conversationStyles: ConversationStyles;
   shareConversationProps?: ShareConversationProps;
   onConversationDelete: (conversation: ConversationInfo) => void;
   getConversation: (conversationId: string) => Promise<Conversation>;
@@ -36,7 +35,6 @@ interface Props {
 
 export const ActionMenu: FC<Props> = ({
   conversation,
-  conversationStyles,
   shareConversationProps,
   onConversationDelete,
   getConversation,
@@ -46,6 +44,7 @@ export const ActionMenu: FC<Props> = ({
   locale,
   isDisabled,
 }) => {
+  const conversationStyles = useConversationStyles();
   const items: DropdownItem[] = useMemo(() => {
     const baseActions = [
       {
@@ -155,10 +154,7 @@ export const ActionMenu: FC<Props> = ({
 
       {deleteModalState === PopUpState.Opened && (
         <ConversationDelete
-          titles={conversationStyles.titles}
           locale={locale}
-          disableModalDividers={conversationStyles.disableModalDividers}
-          isSmallButton={conversationStyles.isSmallModalButton}
           deleteConversation={deleteConversation}
           onCloseModal={onCloseDeleteModal}
         />
@@ -177,11 +173,8 @@ export const ActionMenu: FC<Props> = ({
         <ConversationRename
           conversation={conversation}
           locale={locale}
-          titles={conversationStyles.titles}
           renameConversation={onRenameConversation}
           onCloseModal={onCloseRenameModal}
-          disableModalDividers={conversationStyles.disableModalDividers}
-          isSmallButton={conversationStyles.isSmallModalButton}
         />
       )}
     </>

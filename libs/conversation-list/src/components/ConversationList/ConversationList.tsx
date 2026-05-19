@@ -28,6 +28,7 @@ import {
   ConversationStyles,
   GroupedConversations,
 } from '../../models/conversation-list';
+import { ConversationStylesContext } from '../../context/ConversationStylesContext';
 import { getConversationsGroupedByDate } from '../../utils/conversations-grouping';
 import { ConversationInfo } from '@epam/ai-dial-shared';
 import {
@@ -210,7 +211,7 @@ export const ConversationList: FC<Props> = ({
   return isLoading ? (
     <Loader />
   ) : (
-    <>
+    <ConversationStylesContext.Provider value={conversationStyles}>
       {!isCollapsed && (
         <div
           className={classNames(
@@ -225,8 +226,6 @@ export const ConversationList: FC<Props> = ({
           )}
           <ConversationsSearchField
             searchQuery={searchQuery}
-            searchIcon={conversationStyles.searchIcon}
-            titles={conversationStyles.titles}
             isExpandedSearch={isExpandedSearch}
             onSearchConversations={onSearchConversations}
             toggleSearchField={toggleSearchField}
@@ -243,11 +242,10 @@ export const ConversationList: FC<Props> = ({
           <>
             {conversations?.length === 0 &&
             sharedConversations?.length === 0 ? (
-              <NoConversations titles={conversationStyles.titles} />
+              <NoConversations />
             ) : isSearchConversations ? (
               <ConversationsSearchResult
                 locale={locale}
-                conversationStyles={conversationStyles}
                 conversations={[...sharedConversations, ...conversations]}
                 searchQuery={searchQuery}
                 selectedConversationId={selectedConversationId}
@@ -269,7 +267,6 @@ export const ConversationList: FC<Props> = ({
                       isDisabled={isStreaming}
                       key={groupLabel}
                       groupLabel={groupLabel}
-                      conversationStyles={conversationStyles}
                       groupedConversations={conversations}
                       handleConversationClick={handleConversationClick}
                       actions={{
@@ -287,6 +284,6 @@ export const ConversationList: FC<Props> = ({
         ) : null}
       </div>
       {children}
-    </>
+    </ConversationStylesContext.Provider>
   );
 };

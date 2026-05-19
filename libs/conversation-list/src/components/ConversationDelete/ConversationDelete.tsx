@@ -2,12 +2,9 @@
 
 import { Button, Popup, PopUpSize } from '@epam/statgpt-ui-components';
 import { FC } from 'react';
-import { ConversationListTitles } from '../../models/titles';
+import { useConversationStyles } from '../../context/ConversationStylesContext';
 
 interface Props {
-  disableModalDividers?: boolean;
-  isSmallButton?: boolean;
-  titles: ConversationListTitles;
   locale: string;
   onCloseModal: () => void;
   deleteConversation: () => void;
@@ -15,12 +12,11 @@ interface Props {
 
 const ConversationDelete: FC<Props> = ({
   onCloseModal,
-  disableModalDividers,
   deleteConversation,
-  isSmallButton,
-  titles,
   locale,
 }) => {
+  const { titles, disableModalDividers, isSmallModalButton } =
+    useConversationStyles();
   return (
     <Popup
       heading={titles?.deleteTitle ?? 'Delete conversation'}
@@ -39,7 +35,7 @@ const ConversationDelete: FC<Props> = ({
         <Button
           buttonClassName="cancel-button"
           title={titles?.cancel ?? 'Cancel'}
-          isSmallButton={isSmallButton}
+          isSmallButton={isSmallModalButton}
           onClick={(e) => {
             e.stopPropagation();
             onCloseModal();
@@ -48,7 +44,7 @@ const ConversationDelete: FC<Props> = ({
         <Button
           buttonClassName="text-button-primary text-button-primary-error"
           title={titles?.delete ?? 'Delete'}
-          isSmallButton={isSmallButton}
+          isSmallButton={isSmallModalButton}
           onClick={(e) => {
             e.stopPropagation();
             deleteConversation();
