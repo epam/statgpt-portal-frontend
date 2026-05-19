@@ -35,10 +35,10 @@ export const CollapsedChatPanel: FC<Props> = ({
   onExpand,
 }) => {
   return (
-    <div className="border-neutrals-400 flex h-full w-[51px] shrink-0 flex-col items-center border bg-white">
+    <div className="flex h-full w-[51px] shrink-0 flex-col items-center border border-neutrals-400 bg-white">
       <button
         type="button"
-        className="text-primary mt-[84px] flex size-9 items-center justify-center"
+        className="mt-[84px] flex size-9 items-center justify-center text-primary"
         aria-label={expandTitle}
         title={expandTitle}
         onClick={onExpand}
@@ -47,7 +47,7 @@ export const CollapsedChatPanel: FC<Props> = ({
       </button>
       <div className="flex min-h-0 flex-1 flex-col items-center overflow-hidden pb-[88px] pt-[72px]">
         <span
-          className="h3 min-h-0 flex-1 text-neutrals-1000 text-center [writing-mode:vertical-rl] rotate-180 truncate"
+          className="h3 min-h-0 flex-1 rotate-180 truncate text-center text-neutrals-1000 [writing-mode:vertical-rl]"
           title={conversationName}
         >
           {conversationName}

@@ -40,7 +40,7 @@ const ConversationViewHeader: FC<Props> = ({
         >
           {conversation?.name}
         </span>
-        <div className="flex gap-4 items-center ml-3">
+        <div className="ml-3 flex items-center gap-4">
           {!isOpenedAdvancedView && isShowShareButton && (
             <div className="flex gap-x-2">
               <ShareConversation
