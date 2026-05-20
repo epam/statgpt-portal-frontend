@@ -29,11 +29,11 @@ import {
 import { buildMarkdownAttachments } from '../utils/attachments/markdown-attachments';
 import { invokePythonAttachment } from '../utils/attachments/python-attachment';
 import { Attachment } from '@epam/ai-dial-shared';
-import { useConversationViewStyles } from './ConversationViewStylesContext';
 import {
   ChartingStyles,
   useDatasetDimensionsMetadataMap,
 } from '@epam/statgpt-conversation-view';
+import { ConversationViewTitles } from '../models/titles';
 import { buildCrossDatasetGridAttachment } from '../utils/attachments/cross-dataset-grid/build-cross-dataset-grid-attachment';
 import { MetadataSettings } from '../models/metadata';
 import { CrossDatasetGridViewMode } from '../components/AdvancedView/TableSettings/types';
@@ -64,6 +64,7 @@ export function useAttachmentsDataMultipleQueries(
   initialActiveDatasetUrns?: string[],
   onCodeAttachmentUpdated?: (attachment: Attachment) => void,
   gridViewMode: CrossDatasetGridViewMode = CrossDatasetGridViewMode.Compact,
+  titles?: ConversationViewTitles,
 ) {
   const normalizedInitialActiveDatasetUrns = Array.isArray(
     initialActiveDatasetUrns,
@@ -72,7 +73,6 @@ export function useAttachmentsDataMultipleQueries(
     : undefined;
   const [structureDataMaps, setStructureDataMaps] =
     useState<StructureDataMaps>();
-  const { titles } = useConversationViewStyles();
   const [datasetDimensionsSchemesMap, setDatasetDimensionsSchemesMap] =
     useState<Map<string, DatasetDimensionsScheme | undefined>>();
   const [isLoadingGridData, setIsLoadingGridData] = useState(false);

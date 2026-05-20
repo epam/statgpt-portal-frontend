@@ -190,6 +190,8 @@ const Message: FC<Props> = ({
     message.custom_content?.attachments,
     restoredActiveDatasetUrns,
     handleCodeAttachmentUpdated,
+    undefined,
+    titles,
   );
   const { isOpenedAdvancedView } = useAdvancedView();
   const {

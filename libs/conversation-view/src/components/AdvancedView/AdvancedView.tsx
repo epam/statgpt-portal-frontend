@@ -187,6 +187,7 @@ export const AdvancedView: FC<Props> = ({
     initialActiveDatasetUrns,
     handleCodeAttachmentUpdated,
     gridViewMode,
+    titles,
   );
 
   useEffect(() => {
