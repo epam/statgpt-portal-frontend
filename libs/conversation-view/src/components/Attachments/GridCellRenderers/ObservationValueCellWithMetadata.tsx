@@ -7,6 +7,7 @@ import { getObsAttributesFromParams } from '../../../utils/attachments/metadata'
 import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
 import { useConversationViewSidePanelOptional } from '../../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import { useAdvancedView } from '../../../context/AdvancedViewContext';
+import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
 import {
   getObservationMetadataContent,
   ObservationMetadataContent,
@@ -23,6 +24,7 @@ interface ObservationValueCellWithMetadataProps {
 const ObservationValueCellWithMetadata: FC<
   ObservationValueCellWithMetadataProps
 > = ({ params, obsAttributes }) => {
+  const { titles } = useConversationViewStyles();
   const [metadataContent, setMetadataContent] =
     useState<ObservationMetadataContent | null>(null);
   const { isOpenedAdvancedView } = useAdvancedView();
@@ -38,11 +40,10 @@ const ObservationValueCellWithMetadata: FC<
       sidePanel.openPanel({
         id: METADATA_SIDE_PANEL_ID,
         scope: isOpenedAdvancedView ? 'advanced' : 'conversation',
-        title: params.titles?.metadata || 'Metadata',
+        title: titles?.metadata || 'Metadata',
         bodyClassName: 'overflow-hidden',
         content: (
           <SidePanelMetadataContent
-            titles={params.titles}
             locale={params?.locale}
             metadata={content.metadata}
             datasetInfo={content.sidePanelDatasetInfo}
@@ -63,6 +64,7 @@ const ObservationValueCellWithMetadata: FC<
     obsAttributes,
     params,
     sidePanel,
+    titles,
   ]);
 
   const closeMetadata = useCallback(() => {
@@ -75,13 +77,12 @@ const ObservationValueCellWithMetadata: FC<
         {params?.valueFormatted || params?.value}
         <div
           className="metadata-indicator"
-          title={params.titles?.metadata || 'View details'}
+          title={titles?.metadata || 'View details'}
           onClick={openMetadata}
         ></div>
       </div>
       {metadataContent && (
         <Metadata
-          titles={params.titles}
           locale={params?.locale}
           metadata={metadataContent.metadata}
           metadataDescription={metadataContent.metadataDescription}

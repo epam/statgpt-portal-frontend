@@ -15,15 +15,9 @@ import {
   LikeState,
   Role,
 } from '@epam/ai-dial-shared';
+import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
 import classNames from 'classnames';
-import {
-  FC,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import AttachmentRenderer from '../../Attachments/AttachmentRenderer';
 import MessageContent from '../MessageContent';
@@ -31,24 +25,17 @@ import { useAttachmentsData } from '../../../context/AttachmentsData';
 import { useDatasets } from '../../../context/Datasets';
 import { useAdvancedView } from '../../../context/AdvancedViewContext';
 import { AttachmentsActions } from '../../../models/actions';
-import { AttachmentsStyles } from '../../../models/attachments-styles';
-import {
-  EditMessageTitles,
-  MessageActionIcons,
-  MessageStyles,
-} from '../../../models/message';
 import {
   isGridAttachment,
   parseMessageAttachments,
 } from '../../../utils/attachments/attachment-parser';
 import { getDataQueries } from '../../../utils/attachments/parse-data-query';
-import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
+import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import { MetadataSettings } from '../../../models/metadata';
-import { Loader, LimitMessages } from '@epam/statgpt-ui-components';
+import { Loader } from '@epam/statgpt-ui-components';
 import MessageStages from '../MessageStages/MessageStages';
-import { ConversationViewTitles } from '../../../models/titles';
-import { AttachmentInfo, AttachmentsConfig } from '../../../models/attachments';
+import { AttachmentInfo } from '../../../models/attachments';
 import { getAttachmentInfoList } from '../../../utils/attachments-details';
 import { AssistantActionsPanel } from '../AssistantActions/AssistantActions';
 import { RequestActionsPanel } from '../RequestActions/RequestActions';
@@ -70,56 +57,47 @@ interface Props {
   isCurrentMessageStreaming?: boolean;
   actions: AttachmentsActions;
   dataQuery?: DataQuery;
-  messageStyles?: MessageStyles;
-  attachmentsStyles?: AttachmentsStyles;
   showAdvancedView?: boolean;
-  formattingSettings?: FormatNumbersType;
   locale: string;
   metadataSettings?: MetadataSettings;
-  expandStagesIcon?: ReactNode;
-  titles?: ConversationViewTitles;
   onAdvancedViewOpen?: () => void;
   regenerateMessage?: (message: MessageType) => void;
   selectMessageToSend: (message?: string, choiceId?: string) => void;
   editMessage?: (message: MessageType) => void;
-  messageActionsIcons?: MessageActionIcons;
   rateResponse: (responseId: string, rate: LikeState) => void;
-  editMessageTitles: EditMessageTitles;
   isReadOnlyConversation?: boolean;
   isLastNotUserMessage?: boolean;
-  limitMessages: LimitMessages;
-  attachmentsConfig?: AttachmentsConfig;
   onCodeAttachmentUpdated?: (messageId: string, attachment: Attachment) => void;
 }
 
 const Message: FC<Props> = ({
   message,
   previousMessage,
-  titles,
   actions,
   dataQuery,
   isStreaming = false,
   isCurrentMessageStreaming = false,
-  messageStyles,
-  attachmentsStyles,
   showAdvancedView,
-  formattingSettings,
   locale,
   metadataSettings,
-  expandStagesIcon,
   onAdvancedViewOpen,
   regenerateMessage,
   selectMessageToSend,
-  messageActionsIcons,
   rateResponse,
   editMessage,
-  editMessageTitles,
   isReadOnlyConversation,
   isLastNotUserMessage,
-  limitMessages,
-  attachmentsConfig,
   onCodeAttachmentUpdated,
 }) => {
+  const {
+    messageStyles,
+    attachmentsStyles,
+    formattingSettings,
+    messageActionsIcons,
+    editMessageTitles,
+    expandStagesIcon,
+    titles,
+  } = useConversationViewStyles();
   const [attachmentsDataQueries, setAttachmentsDataQueries] = useState<
     DataQuery[] | undefined
   >();
@@ -212,6 +190,8 @@ const Message: FC<Props> = ({
     message.custom_content?.attachments,
     restoredActiveDatasetUrns,
     handleCodeAttachmentUpdated,
+    undefined,
+    titles,
   );
   const { isOpenedAdvancedView } = useAdvancedView();
   const {
@@ -371,7 +351,6 @@ const Message: FC<Props> = ({
     () => (
       <AttachmentRenderer
         actions={actions}
-        titles={titles}
         attachments={
           isDataSetAttachments
             ? isCrossDatasetModeOn
@@ -383,8 +362,6 @@ const Message: FC<Props> = ({
         isDataSetAttachments={isDataSetAttachments}
         datasets={datasets}
         initialSelectedDatasetUrn={initialSelectedDatasetUrn}
-        messageStyles={messageStyles}
-        attachmentsStyles={attachmentsStyles}
         showAdvancedView={showAdvancedView}
         isSystemAttachments={isSystem}
         isDataLoading={isDataLoading}
@@ -394,21 +371,16 @@ const Message: FC<Props> = ({
         locale={locale}
         dimensions={dimensions}
         selectDataset={onSelectDataset}
-        limitMessages={limitMessages}
-        attachmentsConfig={attachmentsConfig}
       />
     ),
     [
       actions,
-      titles,
       isDataSetAttachments,
       dataSetAttachments,
       baseGridAttachments,
       visibleCrossDatasetAttachments,
       datasets,
       initialSelectedDatasetUrn,
-      messageStyles,
-      attachmentsStyles,
       showAdvancedView,
       isSystem,
       isDataLoading,
@@ -419,8 +391,6 @@ const Message: FC<Props> = ({
       dimensions,
       onSelectDataset,
       onAdvancedViewOpen,
-      limitMessages,
-      attachmentsConfig,
       isCrossDatasetModeOn,
     ],
   );

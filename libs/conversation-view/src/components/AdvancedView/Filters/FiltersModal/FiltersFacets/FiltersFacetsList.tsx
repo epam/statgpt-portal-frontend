@@ -18,7 +18,6 @@ import {
   FilterValuesProps,
   HierarchyState,
 } from '../../../../../models/filters';
-import { ConversationViewTitles } from '../../../../../models/titles';
 import FiltersFacetItem from './FiltersFacetItem';
 import { getFilterIdentity } from '../../../../../utils/filters';
 import {
@@ -38,7 +37,6 @@ interface Props {
   isDisableValues?: boolean;
   isValuesLoading?: boolean;
   timeRangeOptions?: TimeRangeOptions[];
-  titles?: ConversationViewTitles;
   initialConstraints?: DataConstraints[];
   initialConstraintsMap?: Map<string, DataConstraints[] | undefined>;
   datasetIcon?: ReactNode;
@@ -83,7 +81,6 @@ const FiltersFacetsList: FC<Props> = ({
   onTimePeriodChange,
   selectFilterValue,
   selectHierarchicalNodes,
-  titles,
   expandHierarchicalValue,
   hierarchyStateMap,
   onSelectHierarchy,
@@ -125,7 +122,6 @@ const FiltersFacetsList: FC<Props> = ({
 
             <FiltersFacetItem
               filtersList={filtersList}
-              titles={titles}
               locale={locale}
               filter={filter}
               onSelectFilter={onSelectFilter}

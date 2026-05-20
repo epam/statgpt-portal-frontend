@@ -22,7 +22,7 @@ import {
 import FiltersFacetsList from './FiltersFacets/FiltersFacetsList';
 import FiltersValuesPanel from './FiltersValuesPanel/FiltersValuesPanel';
 import classNames from 'classnames';
-import { ConversationViewTitles } from '../../../../models/titles';
+import { useConversationViewStyles } from '../../../../context/ConversationViewStylesContext';
 import {
   getFilterIdentity,
   isSharedFilter,
@@ -43,7 +43,6 @@ interface Props {
   locale?: string;
   isDisableValues?: boolean;
   isValuesLoading?: boolean;
-  titles?: ConversationViewTitles;
   timeSeriesCount?: string;
   timeRangeOptions?: TimeRangeOptions[];
   modalProps?: FiltersModalProps;
@@ -66,7 +65,6 @@ interface Props {
 
 const FilterSettings: FC<Props> = ({
   filtersList,
-  titles,
   selectedFilter,
   modalProps,
   locale,
@@ -90,6 +88,7 @@ const FilterSettings: FC<Props> = ({
   onExpandHierarchyNode,
   dataQueries,
 }) => {
+  const { titles } = useConversationViewStyles();
   const hierarchyState = hierarchyStateMap?.get(
     getFilterIdentity(selectedFilter) as string,
   );
@@ -307,7 +306,6 @@ const FilterSettings: FC<Props> = ({
           filtersList={filtersList}
           hideFacetCounterByDefault={modalProps?.isHideFacetCounterByDefault}
           locale={locale}
-          titles={titles}
           onSelectFilter={onSelectFilter}
           onSelectDisplayMode={onSelectDisplayMode}
           onDeleteFilter={onDeleteFilter}
@@ -338,7 +336,6 @@ const FilterSettings: FC<Props> = ({
           filtersList={filtersList}
           selectedFilter={selectedFilter}
           locale={locale}
-          titles={titles}
           isDisableValues={isDisableValues}
           isValuesLoading={isValuesLoading}
           timeRangeOptions={timeRangeOptions}

@@ -36,9 +36,10 @@ export {
 } from './context/DatasetDimensionsMetadataMapContext';
 
 export {
-  ConversationViewTitlesProvider,
-  useConversationViewTitles,
-} from './context/ConversationViewTitlesContext';
+  ConversationViewStylesProvider,
+  useConversationViewStyles,
+} from './context/ConversationViewStylesContext';
+export type { ConversationViewStyles } from './context/ConversationViewStylesContext';
 
 export {
   ConversationViewSidePanelProvider,

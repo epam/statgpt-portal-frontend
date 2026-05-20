@@ -8,19 +8,10 @@
 
 'use client';
 
-import {
-  FC,
-  Fragment,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { Attachment, LikeState, Role } from '@epam/ai-dial-shared';
 import {
   useDebounce,
-  LimitMessages,
   InlineAlert,
   InlineAlertType,
 } from '@epam/statgpt-ui-components';
@@ -29,54 +20,33 @@ import {
   ERROR_CONTEXT_KIND,
   Message as MessageType,
 } from '@epam/statgpt-dial-toolkit';
-import {
-  DataQuery,
-  FormatNumbersType,
-  linkifyText,
-} from '@epam/statgpt-shared-toolkit';
+import { DataQuery, linkifyText } from '@epam/statgpt-shared-toolkit';
 import Message from './Message/Message';
-import {
-  EditMessageTitles,
-  MessageActionIcons,
-  MessageStyles,
-} from '../../models/message';
 import { AttachmentsActions } from '../../models/actions';
-import { AttachmentsStyles } from '../../models/attachments-styles';
 import { MetadataSettings } from '../../models/metadata';
-import { ConversationViewTitles } from '../../models/titles';
 import {
   getLastMessageWithAttachmentIndex,
   getPreviousMessageWithAttachment,
 } from '../../utils/messages';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 import classNames from 'classnames';
-import { AttachmentsConfig } from '../../models/attachments';
 import { IconExternalLink } from '@tabler/icons-react';
 import { useConversationViewSidePanelOptional } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
+import { useConversationViewStyles } from '../../context/ConversationViewStylesContext';
 
 interface Props {
   messages: MessageType[];
   isStreaming?: boolean;
   isReadOnly?: boolean;
   actions: AttachmentsActions;
-  messageStyles?: MessageStyles;
-  attachmentsStyles?: AttachmentsStyles;
-  formattingSettings?: FormatNumbersType;
   locale: string;
   metadataSettings?: MetadataSettings;
-  expandStagesIcon?: ReactNode;
-  titles?: ConversationViewTitles;
   dataQuery?: DataQuery;
   regenerateMessage?: (message: MessageType) => void;
   editMessage?: (message: MessageType) => void;
   selectMessageToSend: (message?: string, choiceId?: string) => void;
-  messageActionsIcons?: MessageActionIcons;
   rateResponse: (responseId: string, rate: LikeState) => void;
-  editMessageTitles: EditMessageTitles;
-  scrollBottomIcon?: ReactNode;
   isReadOnlyConversation?: boolean;
-  limitMessages: LimitMessages;
-  attachmentsConfig?: AttachmentsConfig;
   conversationViewState?: CustomViewState;
   onCodeAttachmentUpdated?: (messageId: string, attachment: Attachment) => void;
 }
@@ -85,10 +55,10 @@ const ChatMessages: FC<Props> = ({
   messages,
   isStreaming = false,
   isReadOnly,
-  scrollBottomIcon,
   conversationViewState,
   ...props
 }) => {
+  const { scrollBottomIcon } = useConversationViewStyles();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { isOpenedAdvancedView } = useAdvancedView();

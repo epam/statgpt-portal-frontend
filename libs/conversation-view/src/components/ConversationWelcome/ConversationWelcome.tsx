@@ -29,6 +29,7 @@ import { getCreateConversationRequest } from '../../utils/conversation-request';
 import { generateOnboardingConversation } from '../../utils/generate-onboarding-conversation';
 import { InputMessageStyles } from '../../models/message';
 import { ConversationViewTitles } from '../../models/titles';
+import { ConversationViewStylesProvider } from '../../context/ConversationViewStylesContext';
 import { ConversationOnboarding } from '../ConversationOnboarding/ConversationOnboarding';
 import { ChatOnboardingFooter } from '../ChatOnboardingFooter/ChatOnboardingFooter';
 import { useOnboarding } from '../../context/OnboardingContext';
@@ -276,50 +277,50 @@ export const ConversationWelcome: FC<Props> = ({
   };
 
   return (
-    <div className="flex size-full flex-col">
-      {isCreatingConversation || (prompt && isBucketLoading) ? (
-        <Loader />
-      ) : isShowOnboarding ? (
-        <ConversationOnboarding
-          titles={titles}
-          messageContent={
-            onboardingMessageSchema?.properties?.choice?.description || ''
-          }
-          choiceButtons={
-            onboardingMessageSchema?.properties?.choice?.oneOf || []
-          }
-          disabled={!bucket}
-          handleOnboardingSkip={handleOnboardingSkip}
-          onClick={createConversation}
-        />
-      ) : (
-        <div className="flex h-full flex-col items-center justify-center sm:px-4">
-          <div
-            className={classNames(
-              'flex items-center max-w-full sm-min:px-4',
-              isBottomInputPosition ? 'mt-auto mb-8' : 'mb-6',
-            )}
-          >
-            {titleIcon}
-            <h1 className="sm:h2 text-center text-hues-800">
-              {welcomeText ?? titles?.welcomeTitle ?? 'How can I help you?'}
-            </h1>
+    <ConversationViewStylesProvider styles={{ titles }}>
+      <div className="flex size-full flex-col">
+        {isCreatingConversation || (prompt && isBucketLoading) ? (
+          <Loader />
+        ) : isShowOnboarding ? (
+          <ConversationOnboarding
+            messageContent={
+              onboardingMessageSchema?.properties?.choice?.description || ''
+            }
+            choiceButtons={
+              onboardingMessageSchema?.properties?.choice?.oneOf || []
+            }
+            disabled={!bucket}
+            handleOnboardingSkip={handleOnboardingSkip}
+            onClick={createConversation}
+          />
+        ) : (
+          <div className="flex h-full flex-col items-center justify-center sm:px-4">
+            <div
+              className={classNames(
+                'flex items-center max-w-full sm-min:px-4',
+                isBottomInputPosition ? 'mt-auto mb-8' : 'mb-6',
+              )}
+            >
+              {titleIcon}
+              <h1 className="sm:h2 text-center text-hues-800">
+                {welcomeText ?? titles?.welcomeTitle ?? 'How can I help you?'}
+              </h1>
+            </div>
+            {getContent()}
           </div>
-          {getContent()}
-        </div>
-      )}
-      {isShowOnboarding && (
-        <ChatOnboardingFooter
-          titles={titles}
-          openNewConversation={() => setIsShowOnboarding(false)}
-        />
-      )}
-      {!isShowOnboarding && (
-        <ChatFooter
-          firstLine={titles.footerFirstLine}
-          secondLine={titles.footerSecondLine}
-        />
-      )}
-    </div>
+        )}
+        {isShowOnboarding && (
+          <ChatOnboardingFooter
+            openNewConversation={() => setIsShowOnboarding(false)}
+          />
+        )}
+        {!isShowOnboarding && (
+          <ChatFooter
+            firstLine={titles.footerFirstLine}
+            secondLine={titles.footerSecondLine}
+          />
+        )}
+      </div>
+    </ConversationViewStylesProvider>
   );
 };
