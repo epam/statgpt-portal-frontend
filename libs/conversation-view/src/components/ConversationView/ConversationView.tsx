@@ -141,6 +141,7 @@ interface Props {
   isFinalMessage?: boolean;
   limitMessages: LimitMessages;
   attachmentsConfig?: AttachmentsConfig;
+  headerRightSlot?: ReactNode;
   children?: ReactNode;
 }
 
@@ -172,6 +173,7 @@ export const ConversationView: FC<Props> = ({
   isFinalMessage,
   limitMessages,
   attachmentsConfig,
+  headerRightSlot,
   children,
 }) => {
   const [conversationSignal, setConversationSignal] =
@@ -916,6 +918,7 @@ export const ConversationView: FC<Props> = ({
             isOpenedAdvancedView={isOpenedAdvancedView}
             isShowShareButton={!isReadonlyConversation && !isShowOnboarding}
             shareConversationProps={shareConversationProps}
+            rightSlot={headerRightSlot}
           />
         )}
         <div className="flex min-h-0 w-full flex-1">

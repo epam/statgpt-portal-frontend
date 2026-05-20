@@ -24,6 +24,7 @@ export { AdvancedView } from './components/AdvancedView/AdvancedView';
 export { ConversationView } from './components/ConversationView/ConversationView';
 export { ChatFooter } from './components/ChatFooter/ChatFooter';
 export { ChatOnboardingFooter } from './components/ChatOnboardingFooter/ChatOnboardingFooter';
+export { CollapsedChatPanel } from './components/CollapsedChatPanel/CollapsedChatPanel';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 export type { ShareConversationProps } from '../../share-conversation/src/models/share-conversation';
 export type { DatasetInfoOptions } from './components/AdvancedView/DatasetInfo';
