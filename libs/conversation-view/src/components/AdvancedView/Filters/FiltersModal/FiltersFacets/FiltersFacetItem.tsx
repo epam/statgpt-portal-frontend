@@ -3,19 +3,9 @@
 import { FC, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import ChevronSolidDownIcon from '../../../../../assets/icons/chevron-solid-down.svg';
-import { DataConstraints, Hierarchy } from '@epam/statgpt-sdmx-toolkit';
-import {
-  DataQuery,
-  TimeRange,
-  TimeRangeOptions,
-} from '@epam/statgpt-shared-toolkit';
+import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
 import { Dropdown, IconButton, useIsMobile } from '@epam/statgpt-ui-components';
-import {
-  Filter,
-  FilterTreeNodeProps,
-  FilterValuesProps,
-  HierarchyState,
-} from '../../../../../models/filters';
+import { Filter, HierarchyState } from '../../../../../models/filters';
 import ClearIcon from '../../../../../assets/icons/clear.svg';
 import SettingsListIcon from '../../../../../assets/icons/settings-list.svg';
 import { getDateString } from '../../../../../utils/attachments/time-period';
@@ -26,40 +16,17 @@ import {
 import { FilterDisplayMode } from '../../../../../constants/filter-display-mode';
 import FiltersValuesPanel from '../FiltersValuesPanel/FiltersValuesPanel';
 import { useConversationViewStyles } from '../../../../../context/ConversationViewStylesContext';
+import { useFiltersModal } from '../../../../../context/FiltersModalContext';
 
 interface Props {
   filtersList?: Filter[];
   filter: Filter;
-  locale?: string;
   hideFacetCounterByDefault?: boolean;
   onSelectFilter: (filter?: Filter) => void;
   onSelectDisplayMode?: (filter?: Filter, displayMode?: string) => void;
   onDeleteFilter?: (filter?: Filter) => void;
-  filterValuesProps?: FilterValuesProps;
-  isDisableValues?: boolean;
-  isValuesLoading?: boolean;
-  timeRangeOptions?: TimeRangeOptions[];
   initialConstraints?: DataConstraints[];
-  onTimePeriodChange: (
-    timeRange: TimeRange | null,
-    selectedOption: string | number,
-  ) => void;
-  selectFilterValue: (
-    id: string,
-    isSelectedValue?: boolean,
-    filter?: Filter,
-  ) => void;
-  selectHierarchicalNodes: (
-    nodes?: FilterTreeNodeProps[],
-    filter?: Filter,
-  ) => void;
-  expandHierarchicalValue: (
-    value?: FilterTreeNodeProps,
-    filter?: Filter,
-  ) => void;
   hierarchyState?: HierarchyState;
-  onSelectHierarchy?: (filter?: Filter, hierarchy?: Hierarchy | null) => void;
-  dataQueries?: DataQuery[];
 }
 
 const FiltersFacetItem: FC<Props> = ({
@@ -68,22 +35,12 @@ const FiltersFacetItem: FC<Props> = ({
   onSelectFilter,
   onSelectDisplayMode,
   onDeleteFilter,
-  locale,
   initialConstraints,
   hideFacetCounterByDefault,
-  filterValuesProps,
-  isDisableValues,
-  isValuesLoading,
-  timeRangeOptions,
-  onTimePeriodChange,
-  selectFilterValue,
-  selectHierarchicalNodes,
-  expandHierarchicalValue,
   hierarchyState,
-  onSelectHierarchy,
-  dataQueries,
 }) => {
   const { titles } = useConversationViewStyles();
+  const { locale, onSelectHierarchy } = useFiltersModal();
   const isMobile = useIsMobile();
 
   const [selectedValuesLength, setSelectedValuesLength] = useState<number>(0);
@@ -240,18 +197,8 @@ const FiltersFacetItem: FC<Props> = ({
         <FiltersValuesPanel
           filtersList={filtersList}
           selectedFilter={filter}
-          locale={locale}
-          isDisableValues={isDisableValues}
-          isValuesLoading={isValuesLoading}
-          timeRangeOptions={timeRangeOptions}
-          selectFilterValue={selectFilterValue}
-          selectHierarchicalNodes={selectHierarchicalNodes}
-          expandHierarchicalValue={expandHierarchicalValue}
-          onTimePeriodChange={onTimePeriodChange}
-          filterValuesProps={filterValuesProps}
           initialConstraints={initialConstraints}
           hierarchyState={hierarchyState}
-          dataQueries={dataQueries}
         />
       )}
     </div>
