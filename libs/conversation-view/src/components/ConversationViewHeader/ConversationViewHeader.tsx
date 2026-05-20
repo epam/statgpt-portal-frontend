@@ -1,7 +1,7 @@
 /* eslint-disable @nx/enforce-module-boundaries */
 import { Conversation } from '@epam/ai-dial-shared';
 import classNames from 'classnames';
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 
 import ShareConversation from '@statgpt/share-conversation/src/components/ShareConversation/ShareConversation';
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
@@ -12,6 +12,7 @@ interface Props {
   isOpenedAdvancedView?: boolean;
   isShowShareButton?: boolean;
   shareConversationProps?: ShareConversationProps;
+  rightSlot?: ReactNode;
 }
 
 const ConversationViewHeader: FC<Props> = ({
@@ -20,6 +21,7 @@ const ConversationViewHeader: FC<Props> = ({
   isOpenedAdvancedView,
   isShowShareButton,
   shareConversationProps,
+  rightSlot,
 }) => {
   return (
     <>
@@ -38,7 +40,7 @@ const ConversationViewHeader: FC<Props> = ({
         >
           {conversation?.name}
         </span>
-        <div className="flex gap-4">
+        <div className="ml-3 flex items-center gap-4">
           {!isOpenedAdvancedView && isShowShareButton && (
             <div className="flex gap-x-2">
               <ShareConversation
@@ -48,6 +50,7 @@ const ConversationViewHeader: FC<Props> = ({
               />
             </div>
           )}
+          {rightSlot}
         </div>
       </header>
     </>
