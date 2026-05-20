@@ -12,6 +12,7 @@ import { Tooltip } from '../../../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
 import { OnboardingElements } from '../../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../../context/OnboardingContext';
+import { useConversationViewStyles } from '../../../../context/ConversationViewStylesContext';
 
 const DatasetTabsDefaultMode: FC<DatasetTabsProps> = ({
   datasets,
@@ -21,8 +22,8 @@ const DatasetTabsDefaultMode: FC<DatasetTabsProps> = ({
   initialSelectedDatasetUrn,
   selectDataset,
   onOpenAdvancedView,
-  titles,
 }) => {
+  const { titles } = useConversationViewStyles();
   const { isOpenedAdvancedView } = useAdvancedView();
   const [selectedDatasetUrn, setSelectedDatasetUrn] = useState<string>();
 

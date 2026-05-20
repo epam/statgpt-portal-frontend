@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import ShareConversation from '@statgpt/share-conversation/src/components/ShareConversation/ShareConversation';
 import { CloseButton } from '@epam/statgpt-ui-components';
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
-import { ConversationViewTitles } from '../../models/titles';
+import { useConversationViewStyles } from '../../context/ConversationViewStylesContext';
 import { getTooltipDataByElement } from '../../utils/get-tooltip-data.by-element';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { OnboardingElements } from '../../constants/onboarding-elements';
@@ -16,16 +16,11 @@ import { useOnboarding } from '../../context/OnboardingContext';
 interface Props {
   isShowShare?: boolean;
   locale?: string;
-  titles?: ConversationViewTitles;
   shareConversationProps?: ShareConversationProps;
 }
 
-const Header: FC<Props> = ({
-  titles,
-  locale,
-  isShowShare,
-  shareConversationProps,
-}) => {
+const Header: FC<Props> = ({ locale, isShowShare, shareConversationProps }) => {
+  const { titles } = useConversationViewStyles();
   const { setIsOpenedAdvancedView } = useAdvancedView();
 
   const iconRef = useRef<HTMLDivElement | null>(null);

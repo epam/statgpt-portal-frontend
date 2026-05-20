@@ -13,8 +13,9 @@ import {
   getDatasetInfoData,
   getStructureComponentsValues,
 } from '../../../utils/attachments/metadata';
-import { ConversationViewTitles } from '../../../models/titles';
 import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
+import { ConversationViewTitles } from '../../../models/titles';
+import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
 import { useConversationViewSidePanelOptional } from '../../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import { useAdvancedView } from '../../../context/AdvancedViewContext';
 import { getDateFormattedValue } from '../../../utils/date-format';
@@ -34,7 +35,6 @@ interface MergedDimensionCellRendererParams extends ICellRendererParams {
   datasetDimensionsSchemesMap: Map<string, DatasetDimensionsScheme | undefined>;
   colId: string;
   locale: string;
-  titles?: ConversationViewTitles;
 }
 
 function getDimKeysForColumn(
@@ -62,6 +62,7 @@ const METADATA_SIDE_PANEL_ID = 'merged-dimension-metadata-side-panel';
 const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
   params,
 ) => {
+  const { titles } = useConversationViewStyles();
   const { isOpenedAdvancedView } = useAdvancedView();
   const sidePanel = useConversationViewSidePanelOptional();
   const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
@@ -121,13 +122,8 @@ const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
       getLastUpdatedTime(dataflow),
       params.locale,
     );
-    return getDatasetInfoData(
-      dataflow,
-      lastUpdatedDate,
-      params.locale,
-      params.titles,
-    );
-  }, [structures, params.locale, params.titles]);
+    return getDatasetInfoData(dataflow, lastUpdatedDate, params.locale, titles);
+  }, [structures, params.locale, titles]);
 
   const showTriangle =
     isMetadataInSidePanel &&
@@ -140,11 +136,10 @@ const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
     sidePanel.openPanel({
       id: METADATA_SIDE_PANEL_ID,
       scope: isOpenedAdvancedView ? 'advanced' : 'conversation',
-      title: getPanelTitle(params.colId, params.titles),
+      title: getPanelTitle(params.colId, titles),
       bodyClassName: 'overflow-hidden',
       content: (
         <SidePanelMetadataContent
-          titles={params.titles}
           locale={params.locale}
           metadata={metadata}
           datasetInfo={datasetInfo}
@@ -156,7 +151,7 @@ const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
     sidePanel,
     isOpenedAdvancedView,
     params.colId,
-    params.titles,
+    titles,
     params.locale,
     metadata,
     datasetInfo,
@@ -169,7 +164,7 @@ const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
       {showTriangle && (
         <div
           className="metadata-indicator"
-          title={params.titles?.metadata || 'View details'}
+          title={titles?.metadata || 'View details'}
           onClick={openMetadata}
         />
       )}

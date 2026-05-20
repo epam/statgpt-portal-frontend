@@ -31,7 +31,7 @@ import {
 import { MetadataSettings } from '../../models/metadata';
 import Metadata from './Metadata/Metadata';
 import SidePanelMetadataContent from './Metadata/SidePanel/SidePanelMetadataContent';
-import { ConversationViewTitles } from '../../models/titles';
+import { useConversationViewStyles } from '../../context/ConversationViewStylesContext';
 import { StructureComponentValue } from '../../models/structure-component';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../utils/get-tooltip-data.by-element';
@@ -61,7 +61,6 @@ interface Props extends DatasetInfoOptions {
   metadataSettings?: MetadataSettings;
   locale: string;
   externalLink?: string;
-  titles?: ConversationViewTitles;
   getDatasetUpdatedTime?: (
     attributes: StructureComponentValue[],
   ) => string | null;
@@ -75,7 +74,6 @@ const DatasetInfo: FC<Props> = ({
   structures,
   metadataSettings,
   locale,
-  titles,
   getDatasetUpdatedTime,
   externalLink,
   datasetIcon,
@@ -86,6 +84,7 @@ const DatasetInfo: FC<Props> = ({
   infoSegmentHeaderClassName,
   nameAndMetadataContainerClassName,
 }) => {
+  const { titles } = useConversationViewStyles();
   const METADATA_SIDE_PANEL_ID = 'dataset-metadata-side-panel';
 
   const [lastUpdatedDate, setLastUpdatedDate] = useState<string>('');
@@ -148,7 +147,6 @@ const DatasetInfo: FC<Props> = ({
         bodyClassName: 'overflow-hidden',
         content: (
           <SidePanelMetadataContent
-            titles={titles}
             locale={locale}
             metadata={datasetMetadata}
             metadataDescription={datasetDescription}
@@ -172,7 +170,6 @@ const DatasetInfo: FC<Props> = ({
     isOpenedAdvancedView,
     locale,
     sidePanel,
-    titles,
   ]);
 
   const closeMetadata = useCallback(() => {
@@ -298,7 +295,6 @@ const DatasetInfo: FC<Props> = ({
       )}
       {isOpenMetadata && (
         <Metadata
-          titles={titles}
           locale={locale}
           metadata={datasetMetadata}
           metadataDescription={datasetDescription}

@@ -4,7 +4,7 @@ import { FC, useCallback, useEffect, useState } from 'react';
 
 import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
 import { StructureComponentValue } from '../../../models/structure-component';
-import { ConversationViewTitles } from '../../../models/titles';
+import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
 import MetadataContent from './MetadataContent';
 
 interface Props {
@@ -12,7 +12,6 @@ interface Props {
   metadataDescription?: StructureComponentValue[];
   isOpenMetadata?: boolean;
   onCloseMetadata?: () => void;
-  titles?: ConversationViewTitles;
   locale: string;
 }
 
@@ -21,9 +20,9 @@ const Metadata: FC<Props> = ({
   metadataDescription = [],
   isOpenMetadata,
   onCloseMetadata,
-  titles,
   locale,
 }) => {
+  const { titles } = useConversationViewStyles();
   const [modalState, setModalState] = useState(PopUpState.Closed);
 
   useEffect(() => {
@@ -56,7 +55,6 @@ const Metadata: FC<Props> = ({
           closeButtonTitle={titles?.close || 'Close'}
         >
           <MetadataContent
-            titles={titles}
             locale={locale}
             metadata={metadata}
             metadataDescription={metadataDescription}

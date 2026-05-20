@@ -47,6 +47,7 @@ import { getHierarchyRequestContextForFilter } from '../../../utils/hierarchy-re
 import { StructureDataMaps } from '../../../models/structure-data';
 import { useHierarchyState } from '../../../utils/use-hierarchy-state';
 import { useDatasetDimensionsMetadataMapOptional } from '../../../context/DatasetDimensionsMetadataMapContext';
+import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
 
 const MultiDatasetFilters: FC<FiltersProps> = ({
   actions,
@@ -57,7 +58,6 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   onMultipleDataFiltersChange,
   locale,
   timeRangeOptions,
-  titles,
   datasetIcon,
   conversationKey,
   conversation,
@@ -67,6 +67,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   limitMessages,
   filterIconClassName,
 }) => {
+  const { titles } = useConversationViewStyles();
   const datasetDimensionsMetadata = useDatasetDimensionsMetadataMapOptional();
   const [modalState, setModalState] = useState(PopUpState.Closed);
   const [modalFilters, setModalFilters] = useState<Filter[]>([]);
@@ -648,7 +649,6 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         )}
         isLoading={isConstraintsLoading}
         setModalState={setModalState}
-        titles={titles}
         isModalClosed={isModalClosed}
         warningIcon={limitMessages?.warningIcon}
         filterIconClassName={filterIconClassName}
@@ -666,7 +666,6 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
           >
             <FilterSettings
               locale={locale}
-              titles={titles}
               timeRangeOptions={timeRangeOptions}
               filtersList={modalFilters}
               selectedFilter={selectedFilter}
@@ -689,7 +688,6 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               dataQueries={dataQueries}
             />
             <ModalFooter
-              titles={titles}
               onApply={onApply}
               onClose={onCloseModal}
               onClearAllFilters={onClearAllFilters}
