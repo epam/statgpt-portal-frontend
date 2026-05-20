@@ -15,7 +15,6 @@ import {
 } from '../../models/attachments';
 import AttachmentTabs from './Tabs/AttachmentTabs/AttachmentTabs';
 import { AttachmentsStyles } from '../../models/attachments-styles';
-import { ConversationViewTitles } from '../../models/titles';
 import { IconSettings } from '@tabler/icons-react';
 import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
@@ -29,7 +28,6 @@ interface Props {
   selectedAttachmentIndex: number;
   selectedAttachment: Attachment | null;
   attachmentsStyles?: AttachmentsStyles;
-  titles?: ConversationViewTitles;
   externalLink?: string;
   isExternalLinkIncludeFilters?: boolean;
   limitMessages?: LimitMessages;
@@ -45,7 +43,6 @@ const AttachmentsViewModePanel: FC<Props> = ({
   selectedAttachmentIndex,
   selectedAttachment,
   attachmentsStyles,
-  titles,
   externalLink,
   isExternalLinkIncludeFilters,
   limitMessages,
@@ -92,7 +89,6 @@ const AttachmentsViewModePanel: FC<Props> = ({
         selectedAttachmentIndex={selectedAttachmentIndex}
         showTabIcon={attachmentsStyles?.showTabIcon}
         onSelectedAttachmentChange={onSelectedAttachmentChange}
-        titles={titles}
       />
       <div className="attachments-buttons flex w-fit flex-wrap items-center justify-end gap-x-3">
         {selectedAttachment &&

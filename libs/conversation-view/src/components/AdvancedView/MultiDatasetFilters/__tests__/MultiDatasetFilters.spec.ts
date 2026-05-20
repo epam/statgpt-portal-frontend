@@ -202,6 +202,10 @@ jest.mock('../../../../context/ConversationViewFeatureTogglesContext', () => ({
   })),
 }));
 
+jest.mock('../../../../context/ConversationViewStylesContext', () => ({
+  useConversationViewStyles: jest.fn(() => ({})),
+}));
+
 jest.mock('../../../../utils/hierarchy-view', () => ({
   hierarchyNodesToFilterTreeProps: jest.fn(() => []),
 }));

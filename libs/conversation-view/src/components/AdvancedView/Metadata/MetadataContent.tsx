@@ -4,21 +4,20 @@ import { FC } from 'react';
 import { StructureComponentValue } from '../../../models/structure-component';
 import MetadataDescriptionItem from './MetadataDescriptionItem';
 import MetadataItem from './MetadataItem';
-import { ConversationViewTitles } from '../../../models/titles';
+import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
 
 interface Props {
   metadata?: StructureComponentValue[];
   metadataDescription?: StructureComponentValue[];
-  titles?: ConversationViewTitles;
   locale: string;
 }
 
 const MetadataContent: FC<Props> = ({
   metadata,
   metadataDescription = [],
-  titles,
   locale,
 }) => {
+  const { titles } = useConversationViewStyles();
   return (
     <div className="metadata-content h-full overflow-hidden">
       {metadataDescription?.length > 0 && (

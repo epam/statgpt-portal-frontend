@@ -9,13 +9,14 @@ import {
   TABLE_SETTINGS_SIDE_PANEL_ID,
   TableSettingsPanel,
 } from './TableSettings/TableSettingsPanel';
+import { useConversationViewStyles } from '../../context/ConversationViewStylesContext';
 
 type AttachmentRendererProps = ComponentProps<typeof AttachmentRenderer>;
 
-export const AdvancedAttachmentRenderer: FC<AttachmentRendererProps> = ({
-  attachmentsStyles,
-  ...props
-}) => {
+export const AdvancedAttachmentRenderer: FC<AttachmentRendererProps> = (
+  props,
+) => {
+  const { attachmentsStyles } = useConversationViewStyles();
   const { onGridApiReady } = useTableSettingsContext();
   const sidePanel = useConversationViewSidePanelOptional();
 
@@ -36,7 +37,6 @@ export const AdvancedAttachmentRenderer: FC<AttachmentRendererProps> = ({
   return (
     <AttachmentRenderer
       {...props}
-      attachmentsStyles={attachmentsStyles}
       isTableSettingsOpen={
         sidePanel?.isPanelOpen(TABLE_SETTINGS_SIDE_PANEL_ID) ?? false
       }

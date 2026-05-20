@@ -10,7 +10,6 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import {
-  LimitMessages,
   Loader,
   PopUpState,
   RequestLimitMessage,
@@ -22,7 +21,6 @@ import {
 } from '../../utils/attachments/attachment-parser';
 import {
   AttachmentInfo,
-  AttachmentsConfig,
   CrossDatasetGridAttachmentType,
   CustomChartAttachmentType,
   CustomGridAttachment,
@@ -32,13 +30,11 @@ import classNames from 'classnames';
 import AttachmentDetails from './AttachmentDetails/AttachmentDetails';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 import AttachmentCollapsed from './AttachmentCollapsed';
-import { MessageStyles } from '../../models/message';
 import { AttachmentsActions } from '../../models/actions';
 import { AllCommunityModule, GridApi, ModuleRegistry } from 'ag-grid-community';
-import { AttachmentsStyles } from '../../models/attachments-styles';
 import DownloadSettings from '@statgpt/download-panel/src/components/DownloadSettings/DownloadSettings';
 import { DownloadDatasetItem } from '@statgpt/download-panel/src/models/download-dataset-item';
-import { ConversationViewTitles } from '../../models/titles';
+import { useConversationViewStyles } from '../../context/ConversationViewStylesContext';
 import DatasetTabs from './Tabs/DatasetTabs/DatasetTabs';
 import { getExternalLink } from '../../utils/attachments-details';
 import AttachmentsViewModePanel from './AttachmentsViewModePanel';
@@ -54,11 +50,9 @@ interface Props {
     | CustomChartAttachmentType
   )[];
   actions: AttachmentsActions;
-  messageStyles?: MessageStyles;
   isSystemAttachments?: boolean;
   isShowAttachments?: boolean;
   showAdvancedView?: boolean;
-  attachmentsStyles?: AttachmentsStyles;
   currentDataQuery?: DataQuery;
   dataQueries?: DataQuery[];
   attachmentInfoList?: AttachmentInfo[];
@@ -69,11 +63,8 @@ interface Props {
   locale?: string;
   dimensions?: Dimension[];
   filters?: DatasetQueryFilters;
-  titles?: ConversationViewTitles;
   selectDataset?: (datasetUrn?: string) => void;
   onAdvancedViewOpen?: () => void;
-  limitMessages?: LimitMessages;
-  attachmentsConfig?: AttachmentsConfig;
   isTableSettingsOpen?: boolean;
   onTableSettingsOpen?: () => void;
   onTableSettingsClose?: () => void;
@@ -83,9 +74,6 @@ interface Props {
 const AttachmentRenderer: FC<Props> = ({
   attachments,
   actions,
-  titles,
-  messageStyles,
-  attachmentsStyles,
   isSystemAttachments,
   isShowAttachments,
   showAdvancedView,
@@ -101,13 +89,18 @@ const AttachmentRenderer: FC<Props> = ({
   filters,
   selectDataset,
   onAdvancedViewOpen,
-  limitMessages,
-  attachmentsConfig,
   isTableSettingsOpen,
   onTableSettingsOpen,
   onTableSettingsClose,
   onGridApiReady,
 }) => {
+  const {
+    titles,
+    messageStyles,
+    attachmentsStyles,
+    limitMessages,
+    attachmentsConfig,
+  } = useConversationViewStyles();
   const [selectedAttachmentIndex, setSelectedAttachmentIndex] =
     useState<number>(0);
   const [selectedAttachment, setSelectedAttachment] =
@@ -274,7 +267,6 @@ const AttachmentRenderer: FC<Props> = ({
                     datasets={datasets}
                     initialSelectedDatasetUrn={initialSelectedDatasetUrn}
                     locale={locale}
-                    titles={titles}
                     isHideAdvancedViewButton={!showAdvancedView}
                     openAdvancedViewIcon={
                       attachmentsStyles?.openAdvancedViewIcon
@@ -309,7 +301,6 @@ const AttachmentRenderer: FC<Props> = ({
                     selectedAttachmentIndex={selectedAttachmentIndex}
                     selectedAttachment={selectedAttachment}
                     attachmentsStyles={attachmentsStyles}
-                    titles={titles}
                     externalLink={externalLink}
                     isExternalLinkIncludeFilters={isExternalLinkIncludeFilters}
                     limitMessages={limitMessages}

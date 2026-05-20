@@ -25,7 +25,7 @@ import {
 } from '../../../../../utils/filters';
 import { FilterDisplayMode } from '../../../../../constants/filter-display-mode';
 import FiltersValuesPanel from '../FiltersValuesPanel/FiltersValuesPanel';
-import { ConversationViewTitles } from '../../../../../models/titles';
+import { useConversationViewStyles } from '../../../../../context/ConversationViewStylesContext';
 
 interface Props {
   filtersList?: Filter[];
@@ -39,7 +39,6 @@ interface Props {
   isDisableValues?: boolean;
   isValuesLoading?: boolean;
   timeRangeOptions?: TimeRangeOptions[];
-  titles?: ConversationViewTitles;
   initialConstraints?: DataConstraints[];
   onTimePeriodChange: (
     timeRange: TimeRange | null,
@@ -70,7 +69,6 @@ const FiltersFacetItem: FC<Props> = ({
   onSelectDisplayMode,
   onDeleteFilter,
   locale,
-  titles,
   initialConstraints,
   hideFacetCounterByDefault,
   filterValuesProps,
@@ -85,6 +83,7 @@ const FiltersFacetItem: FC<Props> = ({
   onSelectHierarchy,
   dataQueries,
 }) => {
+  const { titles } = useConversationViewStyles();
   const isMobile = useIsMobile();
 
   const [selectedValuesLength, setSelectedValuesLength] = useState<number>(0);
@@ -240,7 +239,6 @@ const FiltersFacetItem: FC<Props> = ({
       {isSelected && (
         <FiltersValuesPanel
           filtersList={filtersList}
-          titles={titles}
           selectedFilter={filter}
           locale={locale}
           isDisableValues={isDisableValues}
