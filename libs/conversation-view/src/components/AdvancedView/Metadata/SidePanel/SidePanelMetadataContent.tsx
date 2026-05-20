@@ -2,7 +2,7 @@
 
 import { FC, useCallback, useMemo } from 'react';
 import { StructureComponentValue } from '../../../../models/structure-component';
-import { ConversationViewTitles } from '../../../../models/titles';
+import { useConversationViewStyles } from '../../../../context/ConversationViewStylesContext';
 import { DATASET_DESCRIPTION_ITEM_IDS } from '../../../../constants/metadata';
 import DatasetInfoDetails from './DatasetInfoDetails';
 import { DatasetInfoData } from '../../../../models/metadata';
@@ -12,7 +12,6 @@ interface Props {
   metadataDescription?: StructureComponentValue[];
   datasetInfo?: DatasetInfoData;
   externalLink?: string;
-  titles?: ConversationViewTitles;
   locale: string;
 }
 
@@ -27,9 +26,9 @@ const SidePanelMetadataContent: FC<Props> = ({
   metadataDescription = [],
   datasetInfo,
   externalLink,
-  titles,
   locale,
 }) => {
+  const { titles } = useConversationViewStyles();
   const formatValue = useCallback(
     (value: StructureComponentValue['value']) => {
       if (Array.isArray(value)) {

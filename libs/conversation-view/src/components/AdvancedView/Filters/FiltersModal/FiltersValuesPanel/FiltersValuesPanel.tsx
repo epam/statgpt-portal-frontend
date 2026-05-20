@@ -25,7 +25,7 @@ import TimePeriodFacet from './TimePeriodFacet';
 import FilterValues from './FilterValues';
 import { FilterDisplayMode } from '../../../../../constants/filter-display-mode';
 import classNames from 'classnames';
-import { ConversationViewTitles } from '../../../../../models/titles';
+import { useConversationViewStyles } from '../../../../../context/ConversationViewStylesContext';
 import { useConversationViewFeatureToggles } from '../../../../../context/ConversationViewFeatureTogglesContext';
 import { getFilterIdentity, isSameFilter } from '../../../../../utils/filters';
 import {
@@ -63,7 +63,6 @@ interface Props {
     value?: FilterTreeNodeProps,
     filter?: Filter,
   ) => void;
-  titles?: ConversationViewTitles;
   selectedTimeOption?: string | number;
   hierarchyState?: HierarchyState;
   dataQueries?: DataQuery[];
@@ -79,7 +78,6 @@ const FiltersValuesPanel: FC<Props> = ({
   timeRangeOptions,
   onTimePeriodChange,
   selectFilterValue,
-  titles,
   initialConstraints,
   structuresMap,
   selectHierarchicalNodes,
@@ -88,6 +86,7 @@ const FiltersValuesPanel: FC<Props> = ({
   hierarchyState,
   dataQueries,
 }) => {
+  const { titles } = useConversationViewStyles();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isInputFocused, setIsInputFocused] = useState(false);
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
@@ -223,7 +222,6 @@ const FiltersValuesPanel: FC<Props> = ({
     <>
       {selectedFilter?.isTimeDimension && initialConstraints ? (
         <TimePeriodFacet
-          titles={titles}
           initialConstraints={initialConstraints}
           calendarResolution={CalendarResolution.DAY}
           timeRange={selectedFilter?.timeRange || null}

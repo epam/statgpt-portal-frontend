@@ -22,7 +22,6 @@ import CustomDataGridAttachment from './CustomAttachments/CustomGridAttachment';
 import CustomChartAttachment from './CustomAttachments/CustomChartAttachment';
 import { CodeAttachment } from './CustomAttachments/CodeAttachment';
 import { AttachmentsActions } from '../../models/actions';
-import { useConversationViewTitles } from '../../context/ConversationViewTitlesContext';
 import CrossDatasetGridAttachment from './CustomAttachments/CrossDatasetGridAttachment';
 
 interface Props {
@@ -50,7 +49,6 @@ const AttachmentsContentRenderer: FC<Props> = ({
   showLimitMessage,
   onGridApiReady,
 }) => {
-  const titles = useConversationViewTitles();
   return (
     <div className="flex min-h-0 w-full flex-1 justify-center">
       {isFileAttachment(selectedAttachment) && (
@@ -73,7 +71,6 @@ const AttachmentsContentRenderer: FC<Props> = ({
           isDataLoading={isDataLoading}
           isChartColumnVisible={isOpenedAdvancedView}
           fixHeight={!isOpenedAdvancedView}
-          titles={titles}
           showLimitMessage={showLimitMessage}
           onApiReady={onGridApiReady}
           externalLink={externalLink}
@@ -93,7 +90,6 @@ const AttachmentsContentRenderer: FC<Props> = ({
       )}
       {isCustomChartAttachment(selectedAttachment) && (
         <CustomChartAttachment
-          titles={titles}
           isDataLoading={isDataLoading}
           attachment={selectedAttachment}
           icons={attachmentsStyles?.chartingIcons}

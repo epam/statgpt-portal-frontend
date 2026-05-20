@@ -5,24 +5,23 @@ import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
 import { ChartUnit } from '../../models/charting';
 import ReactECharts from 'echarts-for-react';
 import ChartSidebar from './CustomAttachments/ChartSidebar';
-import { ConversationViewTitles } from '../../models/titles';
+import { useConversationViewStyles } from '../../context/ConversationViewStylesContext';
 import DatasetIcon from '../../assets/icons/dataset.svg';
 
 interface Props {
   chart: ChartUnit;
   isOpen?: boolean;
-  titles?: ConversationViewTitles;
   datasetTitle?: string;
   onClose?: () => void;
 }
 
 const SingleLineChart: FC<Props> = ({
-  titles,
   chart,
   isOpen,
   onClose,
   datasetTitle,
 }) => {
+  const { titles } = useConversationViewStyles();
   const [modalState, setModalState] = useState(PopUpState.Closed);
 
   useEffect(() => {

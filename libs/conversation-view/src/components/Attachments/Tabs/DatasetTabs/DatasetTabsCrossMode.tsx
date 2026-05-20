@@ -11,6 +11,7 @@ import { Tooltip } from '../../../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
 import { OnboardingElements } from '../../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../../context/OnboardingContext';
+import { useConversationViewStyles } from '../../../../context/ConversationViewStylesContext';
 
 const MAX_TABS_COUNT = 3;
 
@@ -20,8 +21,8 @@ const DatasetTabsCrossMode: FC<DatasetTabsProps> = ({
   isHideAdvancedViewButton,
   openAdvancedViewIcon,
   onOpenAdvancedView,
-  titles,
 }) => {
+  const { titles } = useConversationViewStyles();
   const { isOpenedAdvancedView } = useAdvancedView();
 
   const iconRef = useRef<HTMLDivElement | null>(null);

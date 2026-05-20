@@ -5,8 +5,8 @@ import { ICellRendererParams } from 'ag-grid-community';
 import { StructuralData, getLastUpdatedTime } from '@epam/statgpt-sdmx-toolkit';
 import SidePanelMetadataContent from '../../AdvancedView/Metadata/SidePanel/SidePanelMetadataContent';
 import { getDatasetInfoData } from '../../../utils/attachments/metadata';
-import { ConversationViewTitles } from '../../../models/titles';
 import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
+import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
 import { useConversationViewSidePanelOptional } from '../../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import { useAdvancedView } from '../../../context/AdvancedViewContext';
 import { getDateFormattedValue } from '../../../utils/date-format';
@@ -15,7 +15,6 @@ import { getExternalLinkFromContext } from './helpers/get-external-link-from-con
 interface DatasetDetailCellRendererParams extends ICellRendererParams {
   structuresMap: Map<string, StructuralData | undefined>;
   locale: string;
-  titles?: ConversationViewTitles;
 }
 
 const METADATA_SIDE_PANEL_ID = 'dataset-detail-metadata-side-panel';
@@ -23,6 +22,7 @@ const METADATA_SIDE_PANEL_ID = 'dataset-detail-metadata-side-panel';
 const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
   params,
 ) => {
+  const { titles } = useConversationViewStyles();
   const { isOpenedAdvancedView } = useAdvancedView();
   const sidePanel = useConversationViewSidePanelOptional();
   const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
@@ -38,13 +38,8 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
       getLastUpdatedTime(dataflow),
       params.locale,
     );
-    return getDatasetInfoData(
-      dataflow,
-      lastUpdatedDate,
-      params.locale,
-      params.titles,
-    );
-  }, [structures, params.locale, params.titles]);
+    return getDatasetInfoData(dataflow, lastUpdatedDate, params.locale, titles);
+  }, [structures, params.locale, titles]);
 
   const showIndicator = isMetadataInSidePanel && !!sidePanel && !!params.value;
 
@@ -53,11 +48,10 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
     sidePanel.openPanel({
       id: METADATA_SIDE_PANEL_ID,
       scope: isOpenedAdvancedView ? 'advanced' : 'conversation',
-      title: params.titles?.datasetMetadataPanel || 'Dataset Metadata',
+      title: titles?.datasetMetadataPanel || 'Dataset Metadata',
       bodyClassName: 'overflow-hidden',
       content: (
         <SidePanelMetadataContent
-          titles={params.titles}
           locale={params.locale}
           metadata={[]}
           datasetInfo={datasetInfo}
@@ -70,7 +64,7 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
     isOpenedAdvancedView,
     datasetInfo,
     externalLink,
-    params.titles,
+    titles,
     params.locale,
   ]);
 
@@ -80,7 +74,7 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
       {showIndicator && (
         <div
           className="metadata-indicator"
-          title={params.titles?.metadata || 'View details'}
+          title={titles?.metadata || 'View details'}
           onClick={openMetadata}
         />
       )}

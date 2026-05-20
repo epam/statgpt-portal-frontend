@@ -4,7 +4,6 @@ import { Dataflow } from '@epam/statgpt-sdmx-toolkit';
 import { FC, ReactNode } from 'react';
 import DatasetTabsDefaultMode from './DatasetTabsDefaultMode';
 import DatasetTabsCrossMode from './DatasetTabsCrossMode';
-import { ConversationViewTitles } from '../../../../models/titles';
 import { useConversationViewFeatureToggles } from '../../../../context/ConversationViewFeatureTogglesContext';
 
 export interface DatasetTabsProps {
@@ -13,7 +12,6 @@ export interface DatasetTabsProps {
   isHideAdvancedViewButton?: boolean;
   openAdvancedViewIcon?: ReactNode;
   initialSelectedDatasetUrn?: string;
-  titles?: ConversationViewTitles;
   selectDataset?: (datasetUrn?: string) => void;
   onOpenAdvancedView?: () => void;
 }
@@ -26,7 +24,6 @@ const DatasetTabs: FC<DatasetTabsProps> = ({
   initialSelectedDatasetUrn,
   selectDataset,
   onOpenAdvancedView,
-  titles,
 }) => {
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   if (isCrossDatasetModeOn) {
@@ -37,7 +34,6 @@ const DatasetTabs: FC<DatasetTabsProps> = ({
         isHideAdvancedViewButton={isHideAdvancedViewButton}
         openAdvancedViewIcon={openAdvancedViewIcon}
         onOpenAdvancedView={onOpenAdvancedView}
-        titles={titles}
       />
     );
   }
@@ -51,7 +47,6 @@ const DatasetTabs: FC<DatasetTabsProps> = ({
       initialSelectedDatasetUrn={initialSelectedDatasetUrn}
       selectDataset={selectDataset}
       onOpenAdvancedView={onOpenAdvancedView}
-      titles={titles}
     />
   );
 };
