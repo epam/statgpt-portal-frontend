@@ -1,15 +1,13 @@
 'use client';
 
-import { FC, ReactNode } from 'react';
+import { FC } from 'react';
 import { IconSearch, IconX } from '@tabler/icons-react';
 import { Button, IconButton, InputWithIcon } from '@epam/statgpt-ui-components';
-import { ConversationListTitles } from '../../models/titles';
+import { useConversationStyles } from '../../context/ConversationStylesContext';
 
 interface Props {
   searchQuery?: string;
   isExpandedSearch?: boolean;
-  titles?: ConversationListTitles;
-  searchIcon?: ReactNode;
   onSearchConversations?: (search: string) => void;
   toggleSearchField?: () => void;
 }
@@ -17,11 +15,10 @@ interface Props {
 const ConversationsSearchField: FC<Props> = ({
   searchQuery,
   isExpandedSearch,
-  titles,
-  searchIcon,
   onSearchConversations,
   toggleSearchField,
 }) => {
+  const { titles, searchIcon } = useConversationStyles();
   return (
     <>
       {isExpandedSearch ? (

@@ -4,14 +4,12 @@
 import { FC, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { ConversationInfo } from '@epam/ai-dial-shared';
-import {
-  ConversationListActions,
-  ConversationStyles,
-} from '../../models/conversation-list';
+import { ConversationListActions } from '../../models/conversation-list';
 import { HighlightText } from '@epam/statgpt-ui-components';
 import { ActionMenu } from '../ActionMenu/ActionMenu';
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { getClearedConversationName } from '@epam/statgpt-shared-toolkit';
+import { useConversationStyles } from '../../context/ConversationStylesContext';
 
 interface Props {
   conversation: ConversationInfo;
@@ -20,7 +18,6 @@ interface Props {
   searchQuery?: string;
   isDisabled?: boolean;
   locale: string;
-  conversationStyles: ConversationStyles;
   onConversationClick: (folder: string, conversationId: string) => void;
   actions: ConversationListActions;
 }
@@ -33,9 +30,9 @@ const ConversationItem: FC<Props> = ({
   actions,
   locale,
   isDisabled,
-  conversationStyles,
   shareConversationProps,
 }) => {
+  const { titles, conversationItemIcon } = useConversationStyles();
   const conversationItemRef = useRef<HTMLDivElement | null>(null);
   const conversationName = getClearedConversationName(conversation?.name);
 
@@ -85,16 +82,10 @@ const ConversationItem: FC<Props> = ({
         !isDisabled &&
         onConversationClick(conversation.folderId, conversation?.id)
       }
-      title={
-        isDisabled
-          ? conversationStyles?.titles?.noActionsAllowed
-          : conversationName
-      }
+      title={isDisabled ? titles?.noActionsAllowed : conversationName}
     >
       <div className="flex min-w-0 flex-1 items-center">
-        {conversationStyles.conversationItemIcon
-          ? conversationStyles.conversationItemIcon
-          : null}
+        {conversationItemIcon ? conversationItemIcon : null}
 
         <h3
           className={classNames(
@@ -104,11 +95,7 @@ const ConversationItem: FC<Props> = ({
               ? 'conversation-item-text-active'
               : '',
           )}
-          title={
-            isDisabled
-              ? conversationStyles?.titles?.noActionsAllowed
-              : conversationName
-          }
+          title={isDisabled ? titles?.noActionsAllowed : conversationName}
         >
           {searchQuery?.length ? (
             <HighlightText
@@ -122,7 +109,6 @@ const ConversationItem: FC<Props> = ({
       </div>
       <ActionMenu
         locale={locale}
-        conversationStyles={conversationStyles}
         conversation={conversation}
         onConversationDelete={actions.deleteConversation}
         getConversation={actions.getConversation}
