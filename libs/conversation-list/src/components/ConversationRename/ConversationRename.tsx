@@ -4,13 +4,10 @@ import { ConversationInfo } from '@epam/ai-dial-shared';
 import { getClearedConversationName } from '@epam/statgpt-shared-toolkit';
 import { Button, Input, Popup, PopUpSize } from '@epam/statgpt-ui-components';
 import { FC, useState } from 'react';
-import { ConversationListTitles } from '../../models/titles';
+import { useConversationStyles } from '../../context/ConversationStylesContext';
 
 interface Props {
   conversation: ConversationInfo;
-  disableModalDividers?: boolean;
-  isSmallButton?: boolean;
-  titles: ConversationListTitles;
   locale: string;
   onCloseModal: () => void;
   renameConversation: (conversationId: string, name: string) => void;
@@ -21,10 +18,9 @@ const ConversationRename: FC<Props> = ({
   onCloseModal,
   renameConversation,
   locale,
-  disableModalDividers,
-  titles,
-  isSmallButton,
 }) => {
+  const { titles, disableModalDividers, isSmallModalButton } =
+    useConversationStyles();
   const [value, setValue] = useState<string>(conversation?.name || '');
   const onInputChange = (value: string) => {
     setValue(value);
@@ -60,7 +56,7 @@ const ConversationRename: FC<Props> = ({
         <Button
           buttonClassName="cancel-button"
           title={titles?.cancel ?? 'Cancel'}
-          isSmallButton={isSmallButton}
+          isSmallButton={isSmallModalButton}
           onClick={(e) => {
             e.stopPropagation();
             onCloseModal();
@@ -69,7 +65,7 @@ const ConversationRename: FC<Props> = ({
         <Button
           buttonClassName="text-button-primary text-button-primary"
           title={titles?.save ?? 'Rename'}
-          isSmallButton={isSmallButton}
+          isSmallButton={isSmallModalButton}
           disabled={!value}
           onClick={(e) => {
             e.stopPropagation();

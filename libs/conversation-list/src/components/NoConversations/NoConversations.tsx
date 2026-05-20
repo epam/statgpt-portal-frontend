@@ -1,13 +1,10 @@
 'use client';
 
 import { FC } from 'react';
-import { ConversationListTitles } from '../../models/titles';
+import { useConversationStyles } from '../../context/ConversationStylesContext';
 
-interface Props {
-  titles?: ConversationListTitles;
-}
-
-const NoConversations: FC<Props> = ({ titles }) => {
+const NoConversations: FC = () => {
+  const { titles } = useConversationStyles();
   return (
     <div className="flex flex-col p-8 text-center">
       <p className="text-neutrals-800">
