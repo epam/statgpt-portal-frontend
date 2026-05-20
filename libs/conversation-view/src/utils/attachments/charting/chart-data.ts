@@ -112,7 +112,12 @@ export function buildUnit(
   locale: string,
   styles?: ChartingStyles,
 ): ChartUnit {
-  const dimensions = getDimensionsInfo(unit.rows, structures, locale);
+  const dimensions = getDimensionsInfo(
+    unit.rows,
+    structures,
+    dataQuery,
+    locale,
+  );
   const frequencyDimensionId = dimensions?.find((dimension) =>
     FREQUENCY_DIMENSION_ID.includes(dimension?.id),
   )?.id;
@@ -201,11 +206,13 @@ function getTimePeriodRowValue(dimKey: string, row: GridData): unknown {
 function getDimensionsInfo(
   rows: GridData[],
   structures: StructuralData,
+  dataQuery: DataQuery | undefined,
   locale: string,
 ): DimensionInfo[] {
+  const countryDimensionId = dataQuery?.metadata?.countryDimension;
   return (getDimensions(structures)?.dimensions || [])
     .map((dim) => {
-      if (dim.id == null) {
+      if (dim.id == null || dim.id === countryDimensionId) {
         return;
       }
       return {
