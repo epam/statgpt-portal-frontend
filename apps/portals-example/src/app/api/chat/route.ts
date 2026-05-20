@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { conversationApi } from '../api';
 import { chatLogger } from '../../../core/logger';
 import { withAuth } from '../../../utils/auth/withAuth';
+import { createErrorResponse } from '../../../utils/api/create-error-response';
 
 // Enable streaming for this route
 export const runtime = 'nodejs';
@@ -160,11 +161,7 @@ export const POST = withAuth(
         },
       });
     } catch (error) {
-      chatLogger.error('Chat API error', { error });
-      return NextResponse.json(
-        { error: 'Failed to process chat request' },
-        { status: 500 },
-      );
+      return createErrorResponse(error, 'chat');
     }
   },
 );

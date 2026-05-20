@@ -78,6 +78,10 @@ export class ConversationApi {
       });
     } catch (error) {
       if (isError(error)) {
+        console.warn('[ConversationApi] 404 — resource not found', {
+          endpoint,
+          error,
+        });
         return [];
       }
       throw error;
@@ -95,6 +99,10 @@ export class ConversationApi {
       );
     } catch (error) {
       if (isError(error)) {
+        console.warn('[ConversationApi] 404 — resource not found', {
+          endpoint: CONVERSATION_URL(id),
+          error,
+        });
         return null;
       }
       throw error;
@@ -110,6 +118,10 @@ export class ConversationApi {
       return await this.client.getRequest(endpoint, token);
     } catch (error) {
       if (isError(error)) {
+        console.warn('[ConversationApi] 404 — resource not found', {
+          filePath,
+          error,
+        });
         return null;
       }
       throw error;
@@ -146,6 +158,10 @@ export class ConversationApi {
       });
     } catch (error) {
       if (isError(error)) {
+        console.warn('[ConversationApi] 404 — resource not found', {
+          filePath,
+          error,
+        });
         return null;
       }
       throw error;
@@ -161,6 +177,10 @@ export class ConversationApi {
       return await this.client.getRequest(endpoint, token);
     } catch (error) {
       if (isError(error)) {
+        console.warn('[ConversationApi] 404 — resource not found', {
+          filePath,
+          error,
+        });
         return null;
       }
       throw error;
@@ -173,6 +193,10 @@ export class ConversationApi {
       return await this.client.requestBlob(endpoint, token, { method: 'GET' });
     } catch (error) {
       if (isError(error)) {
+        console.warn('[ConversationApi] 404 — resource not found', {
+          filePath,
+          error,
+        });
         return null;
       }
       throw error;
@@ -185,6 +209,10 @@ export class ConversationApi {
       await this.client.request(endpoint, token, { method: 'DELETE' });
     } catch (error) {
       if (isError(error)) {
+        console.warn('[ConversationApi] 404 — resource not found', {
+          filePath,
+          error,
+        });
         return;
       }
       throw error;
@@ -206,6 +234,10 @@ export class ConversationApi {
       });
     } catch (error) {
       if (isError(error)) {
+        console.warn('[ConversationApi] 404 — resource not found', {
+          filePath,
+          error,
+        });
         return;
       }
       throw error;

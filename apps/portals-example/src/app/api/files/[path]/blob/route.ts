@@ -1,8 +1,8 @@
-import { apiLogger } from './../../../../../core/logger';
 import { AuthParams } from './../../../../../models/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { conversationApi } from '../../../api';
 import { withAuth } from '../../../../../utils/auth/withAuth';
+import { createErrorResponse } from '../../../../../utils/api/create-error-response';
 
 export const GET = withAuth(
   async (
@@ -36,11 +36,7 @@ export const GET = withAuth(
         },
       });
     } catch (error) {
-      apiLogger.error('Files blob API error:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch file blob' },
-        { status: 500 },
-      );
+      return createErrorResponse(error, 'get-file-blob');
     }
   },
 );

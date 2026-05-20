@@ -1,9 +1,9 @@
-import { apiLogger } from './../../../core/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { dialApiClient, DEFAULT_MODEL_ID } from '../api';
 import { withAuth } from '../../../utils/auth/withAuth';
 import { AuthParams } from '../../../models/auth';
 import { DIAL_API_ROUTES } from '@epam/statgpt-dial-toolkit';
+import { createErrorResponse } from '../../../utils/api/create-error-response';
 
 export const POST = withAuth(
   async (req: NextRequest, { token }: AuthParams) => {
@@ -18,11 +18,7 @@ export const POST = withAuth(
 
       return NextResponse.json(result);
     } catch (error) {
-      apiLogger.error('Python attachment API error:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch python attachment' },
-        { status: 500 },
-      );
+      return createErrorResponse(error, 'get-python-attachment');
     }
   },
 );

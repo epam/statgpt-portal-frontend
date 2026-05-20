@@ -1,8 +1,8 @@
-import { apiLogger } from '../../../../core/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { availabilityApi } from '../../api';
 import { withAuth } from '../../../../utils/auth/withAuth';
 import { AuthParams } from '../../../../models/auth';
+import { createErrorResponse } from '../../../../utils/api/create-error-response';
 
 export const POST = withAuth(
   async (
@@ -28,11 +28,7 @@ export const POST = withAuth(
 
       return NextResponse.json(constraints);
     } catch (error) {
-      apiLogger.error('Constraints API error:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch constraints' },
-        { status: 500 },
-      );
+      return createErrorResponse(error, 'get-constraints');
     }
   },
 );

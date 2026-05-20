@@ -1,8 +1,8 @@
-import { apiLogger } from './../../../../core/logger';
 import { AuthParams } from './../../../../models/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { conversationApi } from '../../api';
 import { withAuth } from '../../../../utils/auth/withAuth';
+import { createErrorResponse } from '../../../../utils/api/create-error-response';
 
 export const POST = withAuth(
   async (req: NextRequest, { token }: AuthParams) => {
@@ -16,11 +16,7 @@ export const POST = withAuth(
 
       return NextResponse.json(conversations);
     } catch (error) {
-      apiLogger.error('Get shared conversations API error:', error);
-      return NextResponse.json(
-        { error: 'Failed to get shared conversations' },
-        { status: 500 },
-      );
+      return createErrorResponse(error, 'list-shared-conversations');
     }
   },
 );

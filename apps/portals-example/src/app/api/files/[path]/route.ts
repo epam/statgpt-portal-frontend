@@ -1,8 +1,8 @@
-import { apiLogger } from './../../../../core/logger';
 import { AuthParams } from './../../../../models/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { conversationApi } from '../../api';
 import { withAuth } from '../../../../utils/auth/withAuth';
+import { createErrorResponse } from '../../../../utils/api/create-error-response';
 
 export const GET = withAuth(
   async (
@@ -28,11 +28,7 @@ export const GET = withAuth(
 
       return NextResponse.json(file);
     } catch (error) {
-      apiLogger.error('Files API error:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch file' },
-        { status: 500 },
-      );
+      return createErrorResponse(error, 'get-file');
     }
   },
 );
@@ -72,11 +68,7 @@ export const PUT = withAuth(
 
       return NextResponse.json({ success: true });
     } catch (error) {
-      apiLogger.error('Files API error:', error);
-      return NextResponse.json(
-        { error: 'Failed to create file' },
-        { status: 500 },
-      );
+      return createErrorResponse(error, 'upload-file');
     }
   },
 );
@@ -102,11 +94,7 @@ export const DELETE = withAuth(
 
       return NextResponse.json({ success: true });
     } catch (error) {
-      apiLogger.error('Files API error:', error);
-      return NextResponse.json(
-        { error: 'Failed to delete file' },
-        { status: 500 },
-      );
+      return createErrorResponse(error, 'delete-file');
     }
   },
 );
