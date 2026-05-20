@@ -74,16 +74,14 @@ beforeEach(() => {
   jest.mocked(getDimensions).mockReturnValue({ dimensions: [] } as any);
   jest.mocked(getLocalizedName).mockReturnValue(undefined);
   jest.mocked(getTimePeriods).mockReturnValue([]);
-  jest.mocked(sortPeriods).mockImplementation((a: string, b: string) =>
-    a.localeCompare(b),
-  );
+  jest
+    .mocked(sortPeriods)
+    .mockImplementation((a: string, b: string) => a.localeCompare(b));
   jest.mocked(isMonthly).mockReturnValue(false);
   jest.mocked(isQuarterly).mockReturnValue(false);
   jest.mocked(isYearly).mockReturnValue(false);
   jest.mocked(getRowsData).mockReturnValue([]);
-  jest
-    .mocked(buildChartConfig)
-    .mockReturnValue({ marker: 'config' } as any);
+  jest.mocked(buildChartConfig).mockReturnValue({ marker: 'config' } as any);
   jest
     .mocked(getDimensionsUniquenessByValues)
     .mockReturnValue({ nonUniqDimensions: [], uniqDimensions: [] } as any);
@@ -109,12 +107,10 @@ describe('buildChartData', () => {
     jest
       .mocked(buildSortedNonRegionDimensionsList)
       .mockReturnValue(['FREQ', 'INDICATOR']);
-    jest
-      .mocked(getDimensionsUniquenessByValues)
-      .mockReturnValue({
-        nonUniqDimensions: ['INDICATOR'],
-        uniqDimensions: ['FREQ'],
-      } as any);
+    jest.mocked(getDimensionsUniquenessByValues).mockReturnValue({
+      nonUniqDimensions: ['INDICATOR'],
+      uniqDimensions: ['FREQ'],
+    } as any);
     jest.mocked(splitForUnits).mockReturnValue([unitRows]);
 
     const result = buildChartData(structures, data, dataQuery, 'en');
@@ -135,11 +131,7 @@ describe('buildChartData', () => {
       ['FREQ', 'INDICATOR'],
       rows,
     );
-    expect(splitForUnits).toHaveBeenCalledWith(
-      rows,
-      ['INDICATOR'],
-      structures,
-    );
+    expect(splitForUnits).toHaveBeenCalledWith(rows, ['INDICATOR'], structures);
     expect(result.units).toHaveLength(1);
     expect(result.units[0].rows).toBe(rows);
     expect(buildChartConfig).toHaveBeenCalledWith(
@@ -350,9 +342,7 @@ describe('buildUnit', () => {
       dimensions: [{ id: 'FREQ' }],
     } as any);
     jest.mocked(buildSerieKeyTitle).mockReturnValue('M');
-    jest
-      .mocked(isMonthly)
-      .mockImplementation((p: string) => p.includes('-'));
+    jest.mocked(isMonthly).mockImplementation((p: string) => p.includes('-'));
 
     buildUnit(
       { rows: [{ FREQ: 'M' } as any] },
@@ -398,9 +388,7 @@ describe('buildUnit', () => {
       dimensions: [{ id: 'FREQ' }],
     } as any);
     jest.mocked(buildSerieKeyTitle).mockReturnValue('A');
-    jest
-      .mocked(isYearly)
-      .mockImplementation((p: string) => !p.includes('-'));
+    jest.mocked(isYearly).mockImplementation((p: string) => !p.includes('-'));
 
     buildUnit(
       { rows: [{ FREQ: 'A' } as any] },
