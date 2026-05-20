@@ -1,8 +1,8 @@
-import { apiLogger } from './../../../../core/logger';
 import { AuthParams } from './../../../../models/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { conversationApi } from '../../api';
 import { withAuth } from '../../../../utils/auth/withAuth';
+import { createErrorResponse } from '../../../../utils/api/create-error-response';
 
 export const POST = withAuth(
   async (req: NextRequest, { token }: AuthParams) => {
@@ -25,11 +25,7 @@ export const POST = withAuth(
 
       return NextResponse.json({ success: true });
     } catch (error) {
-      apiLogger.error('Rename conversation API error:', error);
-      return NextResponse.json(
-        { error: 'Failed to rename conversation' },
-        { status: 500 },
-      );
+      return createErrorResponse(error, 'rename-conversation');
     }
   },
 );

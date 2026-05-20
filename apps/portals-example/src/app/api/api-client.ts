@@ -12,24 +12,54 @@ interface CustomRequestOptions {
   headers?: HeadersInit;
 }
 
+async function handleErrorResponse(
+  response: Response,
+  errorMessage: string,
+): Promise<{
+  success: false;
+  data: undefined;
+  statusCode: number;
+  message?: string;
+} | null> {
+  if (response.ok) return null;
+
+  if (response.status === HTTP_ERROR_CODES.UNAUTHORIZED) {
+    return {
+      success: false,
+      data: undefined,
+      statusCode: HTTP_ERROR_CODES.UNAUTHORIZED,
+    };
+  }
+
+  const errorText = await response.text();
+  let errorDetails: unknown = errorText;
+  try {
+    const parsed = JSON.parse(errorText) as Record<string, unknown>;
+    errorDetails = parsed?.error ?? parsed;
+  } catch {
+    // keep raw text if body is not JSON
+  }
+
+  console.error('[API Error]', {
+    operation: errorMessage,
+    status: response.status,
+    error: errorDetails,
+  });
+
+  return {
+    success: false,
+    data: undefined,
+    statusCode: response.status,
+    message: `${errorMessage}: ${response.status} ${response.statusText}`,
+  };
+}
+
 async function handleResponse<T>(
   response: Response,
   errorMessage: string,
 ): Promise<ApiResponse<T>> {
-  if (!response.ok) {
-    if (response.status === HTTP_ERROR_CODES.UNAUTHORIZED) {
-      return {
-        success: false,
-        data: undefined,
-        statusCode: HTTP_ERROR_CODES.UNAUTHORIZED,
-      };
-    }
-    const errorText = await response.text();
-    throw new Error(
-      `${errorMessage}: ${response.status} ${response.statusText} - ${errorText.substring(0, 100)}`,
-    );
-  }
-
+  const errorResult = await handleErrorResponse(response, errorMessage);
+  if (errorResult) return errorResult;
   const data = await response.json();
   return { success: true, data };
 }
@@ -38,20 +68,8 @@ async function handleVoidResponse(
   response: Response,
   errorMessage: string,
 ): Promise<ApiResponse<void>> {
-  if (!response.ok) {
-    if (response.status === HTTP_ERROR_CODES.UNAUTHORIZED) {
-      return {
-        success: false,
-        data: undefined,
-        statusCode: HTTP_ERROR_CODES.UNAUTHORIZED,
-      };
-    }
-    const errorText = await response.text();
-    throw new Error(
-      `${errorMessage}: ${response.status} ${response.statusText} - ${errorText.substring(0, 100)}`,
-    );
-  }
-
+  const errorResult = await handleErrorResponse(response, errorMessage);
+  if (errorResult) return errorResult;
   return { success: true, data: undefined };
 }
 
@@ -98,21 +116,8 @@ export async function apiRequestBlob(
   errorMessage: string,
 ): Promise<ApiResponse<Blob>> {
   const response = await fetch(url);
-
-  if (!response.ok) {
-    if (response.status === HTTP_ERROR_CODES.UNAUTHORIZED) {
-      return {
-        success: false,
-        data: undefined,
-        statusCode: HTTP_ERROR_CODES.UNAUTHORIZED,
-      };
-    }
-    const errorText = await response.text();
-    throw new Error(
-      `${errorMessage}: ${response.status} ${response.statusText} - ${errorText.substring(0, 100)}`,
-    );
-  }
-
+  const errorResult = await handleErrorResponse(response, errorMessage);
+  if (errorResult) return errorResult;
   const data = await response.blob();
   return { success: true, data };
 }

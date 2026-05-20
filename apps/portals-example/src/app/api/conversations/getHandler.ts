@@ -1,8 +1,8 @@
-import { apiLogger } from './../../../core/logger';
 import { AuthParams } from './../../../models/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { conversationApi, dialApiClient } from '../api';
 import { DIAL_API_ROUTES } from '@epam/statgpt-dial-toolkit';
+import { createErrorResponse } from '../../../utils/api/create-error-response';
 
 export const getHandler = async (req: NextRequest, { token }: AuthParams) => {
   try {
@@ -28,10 +28,6 @@ export const getHandler = async (req: NextRequest, { token }: AuthParams) => {
 
     return NextResponse.json(conversations);
   } catch (error) {
-    apiLogger.error('Conversations API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch conversations' },
-      { status: 500 },
-    );
+    return createErrorResponse(error, 'get-conversations');
   }
 };
