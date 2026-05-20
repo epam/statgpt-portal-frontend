@@ -32,7 +32,7 @@ import { CrossDatasetGridViewMode } from './TableSettings/types';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 import { ConversationViewSidePanelOutlet } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
-import { ConversationViewTitlesProvider } from '../../context/ConversationViewTitlesContext';
+import { ConversationViewStylesProvider } from '../../context/ConversationViewStylesContext';
 import { useCrossDatasetAttachments } from '../../context/CrossDatasetAttachmentsContext';
 import { useDatasetDimensionsMetadataMap } from '../../context/DatasetDimensionsMetadataMapContext';
 import {
@@ -70,6 +70,7 @@ export const AdvancedView: FC<Props> = ({
   getDatasetUpdatedTime,
   attachmentsConfig,
   datasetInfoOptions,
+  limitMessages,
   ...props
 }) => {
   const currentUrn = useMemo(
@@ -280,7 +281,15 @@ export const AdvancedView: FC<Props> = ({
   );
 
   return (
-    <ConversationViewTitlesProvider titles={titles}>
+    <ConversationViewStylesProvider
+      styles={{
+        titles,
+        attachmentsStyles: attachmentsProps.styles,
+        formattingSettings,
+        limitMessages,
+        attachmentsConfig,
+      }}
+    >
       <TableSettingsProvider
         currentUrn={currentUrn}
         structuresMap={structureDataMaps?.structuresMap}
@@ -303,7 +312,6 @@ export const AdvancedView: FC<Props> = ({
       >
         <div className="advanced-view flex h-full min-w-0 flex-1 flex-col">
           <Header
-            titles={titles}
             locale={locale}
             shareConversationProps={shareConversationProps}
             isShowShare={advanceViewStyles?.isShowShare}
@@ -330,7 +338,6 @@ export const AdvancedView: FC<Props> = ({
                   {shouldShowDatasetInfo && (
                     <DatasetInfo
                       {...datasetInfoOptions}
-                      titles={titles}
                       locale={locale}
                       dataset={dataset}
                       data={dataMessage?.data}
@@ -354,7 +361,6 @@ export const AdvancedView: FC<Props> = ({
                     >
                       <DataDetails
                         {...props}
-                        titles={titles}
                         actions={actions}
                         attachments={
                           isCrossDatasetModeOn
@@ -364,7 +370,6 @@ export const AdvancedView: FC<Props> = ({
                         attachmentsDataQuery={attachmentsProps.currentDataQuery}
                         dataQueries={attachmentsProps?.dataQueries}
                         dimensions={dimensions}
-                        attachmentsStyles={attachmentsProps.styles}
                         isDataLoading={isDataLoading}
                         locale={locale}
                         filtersProps={{
@@ -378,7 +383,6 @@ export const AdvancedView: FC<Props> = ({
                           initialConstraints: constraints,
                         }}
                         setIsFiltering={setIsFiltering}
-                        attachmentsConfig={attachmentsConfig}
                         filters={filters}
                         onFiltersChange={handleFiltersChange}
                       />
@@ -393,6 +397,6 @@ export const AdvancedView: FC<Props> = ({
           )}
         </div>
       </TableSettingsProvider>
-    </ConversationViewTitlesProvider>
+    </ConversationViewStylesProvider>
   );
 };

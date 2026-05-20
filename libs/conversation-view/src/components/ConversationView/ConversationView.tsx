@@ -86,7 +86,7 @@ import {
 } from '@epam/statgpt-ui-components';
 import { MetadataSettings } from '../../models/metadata';
 import { ConversationViewTitles } from '../../models/titles';
-import { ConversationViewTitlesProvider } from '../../context/ConversationViewTitlesContext';
+import { ConversationViewStylesProvider } from '../../context/ConversationViewStylesContext';
 import { getRedirectConversationPath } from '../../utils/get-conversation-path';
 import { generateConversation } from '../../utils/generate-conversation';
 import { duplicateConversationAttachments } from '../../utils/duplicate-conversation-attachments';
@@ -887,7 +887,20 @@ export const ConversationView: FC<Props> = ({
   };
 
   return (
-    <ConversationViewTitlesProvider titles={titles}>
+    <ConversationViewStylesProvider
+      styles={{
+        titles,
+        messageStyles,
+        attachmentsStyles,
+        formattingSettings,
+        messageActionsIcons,
+        editMessageTitles,
+        expandStagesIcon,
+        scrollBottomIcon,
+        limitMessages,
+        attachmentsConfig,
+      }}
+    >
       <div
         className={classNames(
           'h-full flex flex-col bg-white conversation-view-wrapper',
@@ -918,14 +931,9 @@ export const ConversationView: FC<Props> = ({
                 actions={messageServerActions}
                 isStreaming={isStreaming}
                 isReadOnly={isReadonlyConversation}
-                messageStyles={messageStyles}
-                attachmentsStyles={attachmentsStyles}
-                formattingSettings={formattingSettings}
                 metadataSettings={metadataSettings}
-                expandStagesIcon={expandStagesIcon}
                 dataQuery={dataQuery}
                 locale={locale}
-                titles={titles}
                 regenerateMessage={(message: Message) =>
                   regenerateMessage(message, conversation)
                 }
@@ -936,18 +944,13 @@ export const ConversationView: FC<Props> = ({
                     choiceId as string,
                   )
                 }
-                messageActionsIcons={messageActionsIcons}
                 rateResponse={rateResponse}
                 editMessage={(message: Message) =>
                   editMessage(message, conversation)
                 }
-                editMessageTitles={editMessageTitles}
-                scrollBottomIcon={scrollBottomIcon}
                 isReadOnlyConversation={
                   isReadonlyConversation || isShowOnboarding
                 }
-                limitMessages={limitMessages}
-                attachmentsConfig={attachmentsConfig}
                 conversationViewState={conversationViewState}
                 onCodeAttachmentUpdated={handleCodeAttachmentUpdated}
               />
@@ -985,6 +988,6 @@ export const ConversationView: FC<Props> = ({
           )}
         </div>
       </div>
-    </ConversationViewTitlesProvider>
+    </ConversationViewStylesProvider>
   );
 };

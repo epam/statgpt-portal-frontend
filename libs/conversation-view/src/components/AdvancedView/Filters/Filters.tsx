@@ -44,6 +44,7 @@ import {
 } from 'react';
 import ModalFooter from './FiltersModal/ModalFooter';
 import FilterButton from './FilterButton/FilterButton';
+import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
 import { updateMessagesWithSystemMessage } from '../../../utils/system-message';
 import { getUpdatedDataQueries } from '../../../utils/get-updated-data-queries';
 import { useHierarchyState } from '../../../utils/use-hierarchy-state';
@@ -66,7 +67,6 @@ const Filters: FC<FiltersProps> = ({
   onFiltersChange,
   locale,
   timeRangeOptions,
-  titles,
   conversationKey,
   conversation,
   setConversation,
@@ -75,6 +75,7 @@ const Filters: FC<FiltersProps> = ({
   limitMessages,
   filterIconClassName,
 }) => {
+  const { titles } = useConversationViewStyles();
   const [modalState, setModalState] = useState(PopUpState.Closed);
   const [modalFilters, setModalFilters] = useState<Filter[]>([]);
   const [appliedFilters, setAppliedFilters] = useState<Filter[]>([]);
@@ -586,7 +587,6 @@ const Filters: FC<FiltersProps> = ({
         )}
         isLoading={isConstraintsLoading}
         setModalState={setModalState}
-        titles={titles}
         isModalClosed={isModalClosed}
         warningIcon={limitMessages?.warningIcon}
         filterIconClassName={filterIconClassName}
@@ -605,7 +605,6 @@ const Filters: FC<FiltersProps> = ({
           >
             <FilterSettings
               locale={locale}
-              titles={titles}
               timeRangeOptions={timeRangeOptions}
               filtersList={modalFilters}
               selectedFilter={selectedFilter}
@@ -629,7 +628,6 @@ const Filters: FC<FiltersProps> = ({
               }
             />
             <ModalFooter
-              titles={titles}
               onApply={onApply}
               onClose={onCloseModal}
               onClearAllFilters={onClearAllFilters}

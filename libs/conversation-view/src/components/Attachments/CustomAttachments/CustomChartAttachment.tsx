@@ -10,8 +10,8 @@ import ChartSidebar from './ChartSidebar';
 import Slider from './Slider';
 import ChartLimitationInfo from './ChartLimitationInfo';
 import classNames from 'classnames';
-import { ConversationViewTitles } from '../../../models/titles';
 import { useOnboarding } from '../../../context/OnboardingContext';
+import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
 import {
   getOnboardingInfoForAdvancedView,
   getOnboardingInfoForChartsView,
@@ -26,7 +26,6 @@ interface Props {
   openAdvancedView?: () => void;
   isDataLoading?: boolean;
   fixHeight?: boolean;
-  titles?: ConversationViewTitles;
   limitationInfoPrefixIcon?: ReactNode;
   limitationInfoContentClassName?: string;
 }
@@ -42,10 +41,10 @@ const CustomChartAttachment: FC<Props> = ({
   isDataLoading,
   openAdvancedView,
   fixHeight = true,
-  titles,
   limitationInfoPrefixIcon,
   limitationInfoContentClassName,
 }) => {
+  const { titles } = useConversationViewStyles();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [chartingData, setChartingData] = useState<ChartingData>();
   const [flatUnits, setFlatUnits] = useState<FlatChartUnit[]>([]);
@@ -201,7 +200,6 @@ const CustomChartAttachment: FC<Props> = ({
                       <ChartLimitationInfo
                         limitAmount={selectedUnit.limitedByRowsAmountTo}
                         openAdvancedView={openAdvancedView}
-                        titles={titles}
                         prefixIcon={limitationInfoPrefixIcon}
                         contentClassName={limitationInfoContentClassName}
                       />
@@ -211,7 +209,6 @@ const CustomChartAttachment: FC<Props> = ({
                         icons={icons}
                         currentIndex={chartIndex}
                         totalCount={flatUnits.length}
-                        titles={titles}
                         onNext={nextChart}
                         onPrev={prevChart}
                       ></Slider>

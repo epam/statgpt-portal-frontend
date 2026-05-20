@@ -29,7 +29,7 @@ import {
 import { buildMarkdownAttachments } from '../utils/attachments/markdown-attachments';
 import { invokePythonAttachment } from '../utils/attachments/python-attachment';
 import { Attachment } from '@epam/ai-dial-shared';
-import { useConversationViewTitles } from './ConversationViewTitlesContext';
+import { useConversationViewStyles } from './ConversationViewStylesContext';
 import {
   ChartingStyles,
   useDatasetDimensionsMetadataMap,
@@ -72,7 +72,7 @@ export function useAttachmentsDataMultipleQueries(
     : undefined;
   const [structureDataMaps, setStructureDataMaps] =
     useState<StructureDataMaps>();
-  const titles = useConversationViewTitles();
+  const { titles } = useConversationViewStyles();
   const [datasetDimensionsSchemesMap, setDatasetDimensionsSchemesMap] =
     useState<Map<string, DatasetDimensionsScheme | undefined>>();
   const [isLoadingGridData, setIsLoadingGridData] = useState(false);

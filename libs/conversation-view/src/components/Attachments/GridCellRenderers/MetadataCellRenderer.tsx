@@ -26,7 +26,7 @@ import {
 } from '../../../utils/attachments/metadata';
 import { MetadataSettings } from '../../../models/metadata';
 import { getDimensionGroupAttributes } from '../../../utils/attachments/group-attributes';
-import { ConversationViewTitles } from '../../../models/titles';
+import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
 import { Tooltip } from '../../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
 import { OnboardingElements } from '../../../constants/onboarding-elements';
@@ -42,10 +42,10 @@ interface MetadataCellRendererParams extends ICellRendererParams {
   structuresMap?: Map<string, StructuralData | undefined>;
   locale: Locale;
   metadataSettings?: MetadataSettings;
-  titles: ConversationViewTitles;
 }
 
 const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
+  const { titles } = useConversationViewStyles();
   const METADATA_SIDE_PANEL_ID = 'grid-metadata-side-panel';
 
   const [isOpenMetadata, setIsOpenMetadata] = useState<boolean>(false);
@@ -78,7 +78,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
       getDatasetNameItem(
         resolvedDataSetData?.dataflows?.[0],
         params?.locale,
-        params.titles,
+        titles,
       ),
       ...getStructureComponentsValues(
         getDimensionsFromParams(params, structureComponentsMap),
@@ -98,7 +98,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
         params?.locale,
       ),
     ],
-    [params, resolvedDataSetData, structureComponentsMap],
+    [params, resolvedDataSetData, structureComponentsMap, titles],
   );
   const metadataDescription = useMemo(
     () =>
@@ -106,11 +106,11 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
         resolvedDataSetData,
         params?.locale,
         params?.valueFormatted || params?.value,
-        params.titles,
+        titles,
         params?.colDef,
         params?.data,
       ),
-    [params, resolvedDataSetData],
+    [params, resolvedDataSetData, titles],
   );
   const sidePanelDatasetInfo = useMemo(() => {
     const dataset = resolvedDataSetData?.dataflows?.[0];
@@ -119,24 +119,18 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
       params?.locale,
     );
 
-    return getDatasetInfoData(
-      dataset,
-      lastUpdatedDate,
-      params?.locale,
-      params.titles,
-    );
-  }, [resolvedDataSetData, params?.locale, params.titles]);
+    return getDatasetInfoData(dataset, lastUpdatedDate, params?.locale, titles);
+  }, [resolvedDataSetData, params?.locale, titles]);
 
   const openMetadata = useCallback(() => {
     if (isMetadataInSidePanel && sidePanel) {
       sidePanel.openPanel({
         id: METADATA_SIDE_PANEL_ID,
         scope: isOpenedAdvancedView ? 'advanced' : 'conversation',
-        title: params.titles?.timeseriesMetadataPanel || 'Timeseries Metadata',
+        title: titles?.timeseriesMetadataPanel || 'Timeseries Metadata',
         bodyClassName: 'overflow-hidden',
         content: (
           <SidePanelMetadataContent
-            titles={params.titles}
             locale={params?.locale}
             metadata={metadata}
             datasetInfo={sidePanelDatasetInfo}
@@ -164,7 +158,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
     externalLink,
     params?.locale,
     params?.metadataSettings?.isMetadataDescription,
-    params.titles,
+    titles,
     sidePanel,
   ]);
 
@@ -177,12 +171,12 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
     if (isShowOnboarding) {
       const { title, description } = getTooltipDataByElement(
         OnboardingElements.METADATA_PER_SERIES,
-        params.titles,
+        titles,
       );
       setTooltipTitle(title);
       setTooltipDescription(description);
     }
-  }, [params.titles, isShowOnboarding]);
+  }, [titles, isShowOnboarding]);
 
   useEffect(() => {
     if (isShowOnboarding) {
@@ -211,7 +205,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
     <>
       <div ref={iconRef}>
         <IconButton
-          title={params.titles?.metadata || 'View details'}
+          title={titles?.metadata || 'View details'}
           buttonClassName="!text-neutrals-1000 !border-none !p-1"
           icon={<MetadataIcon className="size-5" />}
           onClick={openMetadata}
@@ -228,7 +222,6 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
       )}
       {isOpenMetadata && (
         <Metadata
-          titles={params.titles}
           locale={params?.locale}
           metadata={metadata}
           metadataDescription={

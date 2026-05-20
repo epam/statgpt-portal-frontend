@@ -20,7 +20,7 @@ import {
   getRangedTimePeriod,
   getTimeRangeFromDataQueries,
 } from '../../../../../utils/attachments/time-period';
-import { ConversationViewTitles } from '../../../../../models/titles';
+import { useConversationViewStyles } from '../../../../../context/ConversationViewStylesContext';
 
 interface Props {
   calendarResolution: CalendarResolution;
@@ -36,7 +36,6 @@ interface Props {
   ) => void;
   calendarIcon?: ReactNode;
   dateFormat?: string;
-  titles?: ConversationViewTitles;
   defaultTimeOption?: string | number;
   dataQueries?: DataQuery[];
 }
@@ -52,10 +51,10 @@ const TimePeriodFacet: FC<Props> = ({
   onValueChange,
   calendarIcon,
   dateFormat,
-  titles,
   defaultTimeOption,
   dataQueries,
 }) => {
+  const { titles } = useConversationViewStyles();
   // workaround for specific case for datasets without time period constraints
   const rawInitialTimeRange = getMergedInitialConstraints(
     getAnnotationPeriod(initialConstraints?.[0]?.annotations),

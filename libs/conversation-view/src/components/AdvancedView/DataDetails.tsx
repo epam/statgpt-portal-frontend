@@ -7,17 +7,14 @@ import {
   Dimension,
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
-import { LimitMessages } from '@epam/statgpt-ui-components';
 import Filters from './Filters/Filters';
 import { AdvancedAttachmentRenderer } from './AdvancedAttachmentRenderer';
 import { Filter, FiltersProps } from '../../models/filters';
 import { FC, useEffect } from 'react';
 import { AdvancedViewActions } from '../../models/actions';
-import { AttachmentsStyles } from '../../models/attachments-styles';
-import { ConversationViewTitles } from '../../models/titles';
-import { AttachmentsConfig } from '../../models/attachments';
 import MultiDatasetFilters from './MultiDatasetFilters/MultiDatasetFilters';
 import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
+import { useConversationViewStyles } from '../../context/ConversationViewStylesContext';
 
 interface Props {
   filtersProps: FiltersProps;
@@ -27,12 +24,8 @@ interface Props {
   dataQueries?: DataQuery[];
   dimensions?: Dimension[];
   locale?: string;
-  attachmentsStyles?: AttachmentsStyles;
   isDataLoading?: boolean;
-  titles?: ConversationViewTitles;
   setIsFiltering?: (isFiltering: boolean) => void;
-  limitMessages?: LimitMessages;
-  attachmentsConfig?: AttachmentsConfig;
   filters?: DatasetQueryFilters;
   onFiltersChange: (
     filterParams: DatasetQueryFilters,
@@ -49,15 +42,12 @@ const DataDetails: FC<Props> = ({
   dataQueries,
   dimensions,
   locale,
-  attachmentsStyles,
   isDataLoading,
   setIsFiltering,
-  titles,
-  limitMessages,
-  attachmentsConfig,
   filters,
   onFiltersChange,
 }) => {
+  const { titles, limitMessages } = useConversationViewStyles();
   const constraintAction = {
     getConstraints: actions.getConstraints,
     getAvailableHierarchies: filtersProps.actions?.getAvailableHierarchies,
@@ -84,7 +74,6 @@ const DataDetails: FC<Props> = ({
               locale={locale}
               actions={constraintAction}
               dimensions={dimensions}
-              titles={titles}
               {...filtersProps}
               onFiltersChange={onFiltersChange}
               limitMessages={limitMessages}
@@ -97,7 +86,6 @@ const DataDetails: FC<Props> = ({
               locale={locale}
               actions={constraintAction}
               dimensions={dimensions}
-              titles={titles}
               {...filtersProps}
               onFiltersChange={onFiltersChange}
               limitMessages={limitMessages}
@@ -106,9 +94,7 @@ const DataDetails: FC<Props> = ({
         </div>
         <div className="advanced-view-attachments-container min-h-0 flex-1">
           <AdvancedAttachmentRenderer
-            titles={titles}
             attachments={attachments}
-            attachmentsStyles={attachmentsStyles}
             currentDataQuery={attachmentsDataQuery}
             dataQueries={dataQueries}
             dimensions={dimensions}
@@ -118,8 +104,6 @@ const DataDetails: FC<Props> = ({
             isDataLoading={isDataLoading}
             locale={locale}
             filters={filters}
-            limitMessages={limitMessages}
-            attachmentsConfig={attachmentsConfig}
           />
         </div>
       </div>
