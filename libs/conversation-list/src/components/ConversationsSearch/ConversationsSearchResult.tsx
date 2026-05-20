@@ -5,20 +5,17 @@ import { ConversationInfo } from '@epam/ai-dial-shared';
 import { FC, useEffect, useState } from 'react';
 
 import ConversationItem from '../ConversationItem/ConversationItem';
-import {
-  ConversationListActions,
-  ConversationStyles,
-} from '../../models/conversation-list';
+import { ConversationListActions } from '../../models/conversation-list';
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { getClearedConversationName } from '@epam/statgpt-shared-toolkit';
 import { sortConversationsByUpdatedAt } from '../../utils/conversations-grouping';
+import { useConversationStyles } from '../../context/ConversationStylesContext';
 
 interface Props {
   conversations: ConversationInfo[];
   selectedConversationId?: string;
   searchQuery?: string;
   locale: string;
-  conversationStyles: ConversationStyles;
   actions: ConversationListActions;
   shareConversationProps?: ShareConversationProps;
   handleConversationClick: (folder: string, conversationId: string) => void;
@@ -29,13 +26,13 @@ const ConversationsSearchResult: FC<Props> = ({
   conversations,
   selectedConversationId,
   searchQuery,
-  conversationStyles,
   handleConversationClick,
   actions,
   locale,
   shareConversationProps,
   isDisabled,
 }) => {
+  const { titles } = useConversationStyles();
   const [filteredConversations, setFilteredConversations] = useState<
     ConversationInfo[]
   >([]);
@@ -56,14 +53,13 @@ const ConversationsSearchResult: FC<Props> = ({
     <>
       {!filteredConversations?.length ? (
         <h3 className="text-neutrals-800">
-          {conversationStyles?.titles?.noConversation ?? 'No conversations yet'}
+          {titles?.noConversation ?? 'No conversations yet'}
         </h3>
       ) : (
         filteredConversations.map((conversation) => (
           <ConversationItem
             locale={locale}
             key={conversation.id}
-            conversationStyles={conversationStyles}
             conversation={conversation}
             searchQuery={searchQuery}
             selectedConversationId={selectedConversationId}
