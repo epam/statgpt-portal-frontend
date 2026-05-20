@@ -3,13 +3,12 @@
 
 import { IconDotsVertical } from '@tabler/icons-react';
 import { FC, ReactNode, useCallback, useMemo, useState } from 'react';
-import { ConversationInfo, Conversation } from '@epam/ai-dial-shared';
+import { ConversationInfo } from '@epam/ai-dial-shared';
 
 import ConversationDelete from '../ConversationDelete/ConversationDelete';
 import { getZippedFile } from '../../utils/compress-zip';
 import { triggerDownload } from '../../utils/download';
 import ShareConversationModal from '@statgpt/share-conversation/src/components/ShareConversation/ShareConversationModal';
-import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import {
   Dropdown,
   DropdownItem,
@@ -20,31 +19,28 @@ import ConversationRename from '../ConversationRename/ConversationRename';
 import { ONBOARDING_MODEL_POSTFIX } from '@epam/statgpt-shared-toolkit';
 import classNames from 'classnames';
 import { useConversationStyles } from '../../context/ConversationStylesContext';
+import { useConversationListActions } from '../../context/ConversationListActionsContext';
 
 interface Props {
   conversation: ConversationInfo;
-  shareConversationProps?: ShareConversationProps;
-  onConversationDelete: (conversation: ConversationInfo) => void;
-  getConversation: (conversationId: string) => Promise<Conversation>;
-  getFileBlob: (path: string) => Promise<Blob>;
-  renameConversation: (n: string, b: string) => Promise<unknown>;
   triggerButton?: ReactNode;
-  locale: string;
   isDisabled?: boolean;
 }
 
 export const ActionMenu: FC<Props> = ({
   conversation,
-  shareConversationProps,
-  onConversationDelete,
-  getConversation,
-  getFileBlob,
-  renameConversation,
   triggerButton,
-  locale,
   isDisabled,
 }) => {
   const conversationStyles = useConversationStyles();
+  const {
+    locale,
+    deleteConversation: onConversationDelete,
+    renameConversation,
+    getConversation,
+    getFileBlob,
+    shareConversationProps,
+  } = useConversationListActions();
   const items: DropdownItem[] = useMemo(() => {
     const baseActions = [
       {

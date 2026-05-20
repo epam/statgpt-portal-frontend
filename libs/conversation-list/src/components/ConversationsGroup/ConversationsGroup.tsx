@@ -9,30 +9,22 @@ import {
   sortConversationsByUpdatedAt,
 } from '../../utils/conversations-grouping';
 import ConversationItem from '../ConversationItem/ConversationItem';
-import { ConversationListActions } from '../../models/conversation-list';
 import { IconCaretRightFilled } from '@tabler/icons-react';
-import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { useConversationStyles } from '../../context/ConversationStylesContext';
 
 interface Props {
   groupLabel: string;
   groupedConversations: ConversationInfo[];
   selectedConversationId?: string;
-  actions: ConversationListActions;
-  locale: string;
   isDisabled?: boolean;
-  shareConversationProps?: ShareConversationProps;
   handleConversationClick: (folder: string, conversationId: string) => void;
 }
 
 const ConversationsGroup: FC<Props> = ({
   handleConversationClick,
-  actions,
   selectedConversationId,
   groupLabel,
   groupedConversations,
-  shareConversationProps,
-  locale,
   isDisabled,
 }) => {
   const { titles } = useConversationStyles();
@@ -68,14 +60,11 @@ const ConversationsGroup: FC<Props> = ({
           {sortConversationsByUpdatedAt(groupedConversations).map(
             (conversation) => (
               <ConversationItem
-                locale={locale}
                 isDisabled={isDisabled}
                 key={conversation.id || conversation.name}
                 conversation={conversation}
                 selectedConversationId={selectedConversationId}
                 onConversationClick={handleConversationClick}
-                actions={actions}
-                shareConversationProps={shareConversationProps}
               />
             ),
           )}

@@ -29,6 +29,7 @@ import {
   GroupedConversations,
 } from '../../models/conversation-list';
 import { ConversationStylesContext } from '../../context/ConversationStylesContext';
+import { ConversationListActionsProvider } from '../../context/ConversationListActionsContext';
 import { getConversationsGroupedByDate } from '../../utils/conversations-grouping';
 import { ConversationInfo } from '@epam/ai-dial-shared';
 import {
@@ -211,79 +212,76 @@ export const ConversationList: FC<Props> = ({
   return isLoading ? (
     <Loader />
   ) : (
-    <ConversationStylesContext.Provider value={conversationStyles}>
-      {!isCollapsed && (
+    <ConversationListActionsProvider
+      value={{
+        locale,
+        deleteConversation: handleDeleteConversation,
+        renameConversation: handleRenameConversation,
+        getConversation: actions.getConversation,
+        getFileBlob: actions.getFileBlob,
+        shareConversationProps,
+      }}
+    >
+      <ConversationStylesContext.Provider value={conversationStyles}>
+        {!isCollapsed && (
+          <div
+            className={classNames(
+              'flex justify-between items-center',
+              isExpandedSearch ? ' pt-4 pb-0 sm:pt-10' : ' pt-6 pb-2 sm:pt-10',
+            )}
+          >
+            {!isExpandedSearch && (
+              <h3 className="sm:body-2 text-neutrals-700">
+                {conversationStyles?.titles?.allChats ?? 'All Chats'}
+              </h3>
+            )}
+            <ConversationsSearchField
+              searchQuery={searchQuery}
+              isExpandedSearch={isExpandedSearch}
+              onSearchConversations={onSearchConversations}
+              toggleSearchField={toggleSearchField}
+            />
+          </div>
+        )}
         <div
           className={classNames(
-            'flex justify-between items-center',
-            isExpandedSearch ? ' pt-4 pb-0 sm:pt-10' : ' pt-6 pb-2 sm:pt-10',
+            'scroll-hidden-container flex flex-col mt-4 flex-1 min-h-0 pr-2',
+            isSearchConversations ? 'gap-y-1' : 'gap-y-6',
           )}
         >
-          {!isExpandedSearch && (
-            <h3 className="sm:body-2 text-neutrals-700">
-              {conversationStyles?.titles?.allChats ?? 'All Chats'}
-            </h3>
-          )}
-          <ConversationsSearchField
-            searchQuery={searchQuery}
-            isExpandedSearch={isExpandedSearch}
-            onSearchConversations={onSearchConversations}
-            toggleSearchField={toggleSearchField}
-          />
+          {!isCollapsed ? (
+            <>
+              {conversations?.length === 0 &&
+              sharedConversations?.length === 0 ? (
+                <NoConversations />
+              ) : isSearchConversations ? (
+                <ConversationsSearchResult
+                  conversations={[...sharedConversations, ...conversations]}
+                  searchQuery={searchQuery}
+                  selectedConversationId={selectedConversationId}
+                  handleConversationClick={handleConversationClick}
+                  isDisabled={isStreaming}
+                />
+              ) : (
+                Object.entries(groupedConversations).map(
+                  ([groupLabel, conversations]) =>
+                    conversations?.length > 0 && (
+                      <ConversationsGroup
+                        isDisabled={isStreaming}
+                        key={groupLabel}
+                        groupLabel={groupLabel}
+                        groupedConversations={conversations}
+                        handleConversationClick={handleConversationClick}
+                        selectedConversationId={selectedConversationId}
+                      />
+                    ),
+                )
+              )}
+            </>
+          ) : null}
         </div>
-      )}
-      <div
-        className={classNames(
-          'scroll-hidden-container flex flex-col mt-4 flex-1 min-h-0 pr-2',
-          isSearchConversations ? 'gap-y-1' : 'gap-y-6',
-        )}
-      >
-        {!isCollapsed ? (
-          <>
-            {conversations?.length === 0 &&
-            sharedConversations?.length === 0 ? (
-              <NoConversations />
-            ) : isSearchConversations ? (
-              <ConversationsSearchResult
-                locale={locale}
-                conversations={[...sharedConversations, ...conversations]}
-                searchQuery={searchQuery}
-                selectedConversationId={selectedConversationId}
-                handleConversationClick={handleConversationClick}
-                shareConversationProps={shareConversationProps}
-                isDisabled={isStreaming}
-                actions={{
-                  ...actions,
-                  deleteConversation: handleDeleteConversation,
-                  renameConversation: handleRenameConversation,
-                }}
-              />
-            ) : (
-              Object.entries(groupedConversations).map(
-                ([groupLabel, conversations]) =>
-                  conversations?.length > 0 && (
-                    <ConversationsGroup
-                      locale={locale}
-                      isDisabled={isStreaming}
-                      key={groupLabel}
-                      groupLabel={groupLabel}
-                      groupedConversations={conversations}
-                      handleConversationClick={handleConversationClick}
-                      actions={{
-                        ...actions,
-                        deleteConversation: handleDeleteConversation,
-                        renameConversation: handleRenameConversation,
-                      }}
-                      shareConversationProps={shareConversationProps}
-                      selectedConversationId={selectedConversationId}
-                    />
-                  ),
-              )
-            )}
-          </>
-        ) : null}
-      </div>
-      {children}
-    </ConversationStylesContext.Provider>
+        {children}
+      </ConversationStylesContext.Provider>
+    </ConversationListActionsProvider>
   );
 };
