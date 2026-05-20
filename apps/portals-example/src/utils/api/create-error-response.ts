@@ -6,17 +6,21 @@ export function createErrorResponse(
   error: unknown,
   operation: string,
 ): NextResponse {
-  const status = isHttpError(error) ? error.status : 500;
-  const message = isHttpError(error)
-    ? error.message
-    : error instanceof Error
-      ? error.message
-      : 'Internal Server Error';
-  const code = isHttpError(error) ? error.code : undefined;
+  const httpErr = isHttpError(error) ? error : null;
+  const status = httpErr?.status ?? 500;
+  const message =
+    httpErr?.message ??
+    (error instanceof Error ? error.message : 'Internal Server Error');
+  const code = httpErr?.code;
 
   if (status === 401) {
-    apiLogger.warn(
-      `[BFF] Forwarding upstream 401 for ${operation} — user token may be invalid at upstream`,
+    apiLogger.warn(`[BFF] Forwarding upstream 401 for ${operation}`, {
+      status: 401,
+      operation,
+    });
+    return NextResponse.json(
+      { error: { message, status, code, operation } },
+      { status },
     );
   }
 

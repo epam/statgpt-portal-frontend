@@ -35,7 +35,7 @@ describe('handleErrorResponse', () => {
     consoleSpy.mockRestore();
   });
 
-  it('returns null (success path) when response.ok is true', async () => {
+  it('returns { success: true, data } when response.ok is true', async () => {
     mockFetch.mockResolvedValue(makeResponse(200, '{"value":1}'));
     const result = await apiRequest<{ value: number }>(
       '/api/test',
@@ -117,14 +117,16 @@ describe('handleErrorResponse', () => {
 // ---------------------------------------------------------------------------
 
 describe('buildFetchOptions', () => {
+  let consoleSpy: jest.SpyInstance;
+
   beforeEach(() => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockFetch.mockReset();
     mockFetch.mockResolvedValue(makeResponse(200, '{}'));
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    consoleSpy.mockRestore();
   });
 
   it('sends Content-Type: application/json and serialized body when body is present', async () => {
@@ -200,13 +202,15 @@ describe('apiRequestVoid', () => {
 // ---------------------------------------------------------------------------
 
 describe('apiRequestBlob', () => {
+  let consoleSpy: jest.SpyInstance;
+
   beforeEach(() => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockFetch.mockReset();
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    consoleSpy.mockRestore();
   });
 
   it('returns { success: true, data: Blob } on ok response', async () => {
@@ -214,6 +218,7 @@ describe('apiRequestBlob', () => {
     const result = await apiRequestBlob('/api/file', 'fetch blob');
     expect(result.success).toBe(true);
     expect(result.data).toBeInstanceOf(Blob);
+    expect(consoleSpy).not.toHaveBeenCalled();
   });
 
   it('returns 401 short-circuit on unauthorized response', async () => {
@@ -224,6 +229,7 @@ describe('apiRequestBlob', () => {
       data: undefined,
       statusCode: 401,
     });
+    expect(consoleSpy).not.toHaveBeenCalled();
   });
 
   it('returns success: false with message on non-ok non-401 response', async () => {
@@ -234,6 +240,11 @@ describe('apiRequestBlob', () => {
       data: undefined,
       statusCode: 404,
       message: 'fetch blob: 404 Error',
+    });
+    expect(consoleSpy).toHaveBeenCalledWith('[API Error]', {
+      operation: 'fetch blob',
+      status: 404,
+      error: 'Not Found',
     });
   });
 });
