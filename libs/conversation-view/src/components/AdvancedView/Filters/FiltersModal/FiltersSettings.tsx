@@ -32,6 +32,7 @@ import {
 } from '../../../../utils/filters';
 import { useConversationViewFeatureToggles } from '../../../../context/ConversationViewFeatureTogglesContext';
 import { getInitialConstraints } from '../../../../utils/multiple-filters';
+import { FiltersModalProvider } from '../../../../context/FiltersModalContext';
 import {
   mapHierarchyNodeIdToFilterValueId,
   mapHierarchyNodesToFilterValueIds,
@@ -277,86 +278,83 @@ const FilterSettings: FC<Props> = ({
   };
 
   return (
-    <div
-      className={classNames(
-        'flex flex-row gap-5 flex-1 min-h-0 sm:p-0',
-        'filters-settings',
-      )}
+    <FiltersModalProvider
+      value={{
+        locale,
+        isDisableValues,
+        isValuesLoading,
+        timeRangeOptions,
+        filterValuesProps: modalProps?.filterValuesProps,
+        dataQueries,
+        onSelectHierarchy,
+        selectFilterValue: onSelectFilterValue,
+        selectHierarchicalNodes: onSelectHierarchicalNodes,
+        expandHierarchicalValue: onExpandHierarchicalValue,
+        onTimePeriodChange: onSelectTimePeriodValue,
+      }}
     >
       <div
         className={classNames(
-          'h-full sm:w-full',
-          modalProps?.isShowTimeSeriesCount && 'flex flex-col justify-between',
+          'flex flex-row gap-5 flex-1 min-h-0 sm:p-0',
+          'filters-settings',
         )}
       >
-        {isCrossDatasetModeOn && (
-          <div className="mb-4 flex items-center justify-between gap-x-4">
-            <span className="body-3 text-neutrals-900">
-              {titles?.appliedFilters ?? 'Applied filters'}: {allAppliedFilters}
-            </span>
-            <Button
-              buttonClassName="text-button-tertiary p-0"
-              title={titles?.clearAll ?? 'Clear All'}
-              onClick={onClearAllFilters}
-              isSmallButton={isMobile}
-            />
-          </div>
-        )}
-        <FiltersFacetsList
-          filtersList={filtersList}
-          hideFacetCounterByDefault={modalProps?.isHideFacetCounterByDefault}
-          locale={locale}
-          onSelectFilter={onSelectFilter}
-          onSelectDisplayMode={onSelectDisplayMode}
-          onDeleteFilter={onDeleteFilter}
-          isDisableValues={isDisableValues}
-          isValuesLoading={isValuesLoading}
-          initialConstraints={initialConstraints}
-          initialConstraintsMap={initialConstraintsMap}
-          datasetIcon={datasetIcon}
-          structuresMap={structuresMap}
-          timeRangeOptions={timeRangeOptions}
-          selectFilterValue={onSelectFilterValue}
-          selectHierarchicalNodes={onSelectHierarchicalNodes}
-          expandHierarchicalValue={onExpandHierarchicalValue}
-          onTimePeriodChange={onSelectTimePeriodValue}
-          filterValuesProps={modalProps?.filterValuesProps}
-          hierarchyStateMap={hierarchyStateMap}
-          onSelectHierarchy={onSelectHierarchy}
-          dataQueries={dataQueries}
-        />
-        {modalProps?.isShowTimeSeriesCount && timeSeriesCount ? (
-          <h4 className="my-4 text-neutrals-800">
-            {titles?.timeSeries ?? 'Timeseries'}: {timeSeriesCount}
-          </h4>
-        ) : null}
-      </div>
-      {!isMobile && (
-        <FiltersValuesPanel
-          filtersList={filtersList}
-          selectedFilter={selectedFilter}
-          locale={locale}
-          isDisableValues={isDisableValues}
-          isValuesLoading={isValuesLoading}
-          timeRangeOptions={timeRangeOptions}
-          selectFilterValue={onSelectFilterValue}
-          selectHierarchicalNodes={onSelectHierarchicalNodes}
-          expandHierarchicalValue={onExpandHierarchicalValue}
-          onTimePeriodChange={onSelectTimePeriodValue}
-          filterValuesProps={modalProps?.filterValuesProps}
-          structuresMap={structuresMap}
-          initialConstraints={getInitialConstraints(
-            isCrossDatasetModeOn,
-            selectedFilter,
-            initialConstraints,
-            initialConstraintsMap,
+        <div
+          className={classNames(
+            'h-full sm:w-full',
+            modalProps?.isShowTimeSeriesCount &&
+              'flex flex-col justify-between',
           )}
-          selectedTimeOption={selectedTimeOption}
-          hierarchyState={hierarchyState}
-          dataQueries={dataQueries}
-        />
-      )}
-    </div>
+        >
+          {isCrossDatasetModeOn && (
+            <div className="mb-4 flex items-center justify-between gap-x-4">
+              <span className="body-3 text-neutrals-900">
+                {titles?.appliedFilters ?? 'Applied filters'}:{' '}
+                {allAppliedFilters}
+              </span>
+              <Button
+                buttonClassName="text-button-tertiary p-0"
+                title={titles?.clearAll ?? 'Clear All'}
+                onClick={onClearAllFilters}
+                isSmallButton={isMobile}
+              />
+            </div>
+          )}
+          <FiltersFacetsList
+            filtersList={filtersList}
+            hideFacetCounterByDefault={modalProps?.isHideFacetCounterByDefault}
+            onSelectFilter={onSelectFilter}
+            onSelectDisplayMode={onSelectDisplayMode}
+            onDeleteFilter={onDeleteFilter}
+            initialConstraints={initialConstraints}
+            initialConstraintsMap={initialConstraintsMap}
+            datasetIcon={datasetIcon}
+            structuresMap={structuresMap}
+            hierarchyStateMap={hierarchyStateMap}
+          />
+          {modalProps?.isShowTimeSeriesCount && timeSeriesCount ? (
+            <h4 className="my-4 text-neutrals-800">
+              {titles?.timeSeries ?? 'Timeseries'}: {timeSeriesCount}
+            </h4>
+          ) : null}
+        </div>
+        {!isMobile && (
+          <FiltersValuesPanel
+            filtersList={filtersList}
+            selectedFilter={selectedFilter}
+            structuresMap={structuresMap}
+            initialConstraints={getInitialConstraints(
+              isCrossDatasetModeOn,
+              selectedFilter,
+              initialConstraints,
+              initialConstraintsMap,
+            )}
+            selectedTimeOption={selectedTimeOption}
+            hierarchyState={hierarchyState}
+          />
+        )}
+      </div>
+    </FiltersModalProvider>
   );
 };
 
