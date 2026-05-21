@@ -65,6 +65,13 @@ No Redux or Zustand. State is managed via **React Context + useState** only. Ser
 
 Chat responses use SSE (Server-Sent Events). `ChatMessagesContext` tracks the `isStreaming` flag. The `/api/chat` route proxies streaming responses from the DIAL API.
 
+### Documentation
+
+Specs for the filter / dataset-merging / chart-rendering system live in
+`specs/filters/`. See `specs/filters/README.md` for the index. When editing files
+covered by those specs, update the relevant spec in the same change — see
+`.claude/rules/spec-conventions.md`.
+
 ### Styling
 
 Tailwind CSS 3.4 with a custom CSS-variable-based color system defined in `tailwind.config.js`. The compiled stylesheet is output to `dist/libs/ui-components/index.css` via `npm run build:styles`.
