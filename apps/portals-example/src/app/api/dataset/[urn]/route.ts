@@ -1,8 +1,8 @@
-import { apiLogger } from './../../../../core/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { datasetApi } from '../../api';
 import { withAuth } from '../../../../utils/auth/withAuth';
 import { AuthParams } from '../../../../models/auth';
+import { createErrorResponse } from '../../../../utils/api/create-error-response';
 
 export const GET = withAuth(
   async (
@@ -30,11 +30,7 @@ export const GET = withAuth(
 
       return NextResponse.json(data);
     } catch (error) {
-      apiLogger.error('Dataset API error:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch dataset' },
-        { status: 500 },
-      );
+      return createErrorResponse(error, 'get-dataset');
     }
   },
 );
@@ -63,11 +59,7 @@ export const POST = withAuth(
 
       return NextResponse.json(data);
     } catch (error) {
-      apiLogger.error('Dataset data API error:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch dataset data' },
-        { status: 500 },
-      );
+      return createErrorResponse(error, 'get-dataset-data');
     }
   },
 );

@@ -42,6 +42,13 @@ import {
 const CONVERSATION_URL = (id: string) =>
   `/v1/conversations/${encodeApiUrl(id)}`;
 
+function logSuppressedError(context: Record<string, unknown>): void {
+  console.warn(
+    '[ConversationApi] suppressed error, returning empty result',
+    context,
+  );
+}
+
 interface Entity extends DialEntity {
   url?: string;
   parentPath: string;
@@ -78,6 +85,7 @@ export class ConversationApi {
       });
     } catch (error) {
       if (isError(error)) {
+        logSuppressedError({ endpoint, error });
         return [];
       }
       throw error;
@@ -95,6 +103,7 @@ export class ConversationApi {
       );
     } catch (error) {
       if (isError(error)) {
+        logSuppressedError({ endpoint: CONVERSATION_URL(id), error });
         return null;
       }
       throw error;
@@ -110,6 +119,7 @@ export class ConversationApi {
       return await this.client.getRequest(endpoint, token);
     } catch (error) {
       if (isError(error)) {
+        logSuppressedError({ filePath, error });
         return null;
       }
       throw error;
@@ -146,6 +156,7 @@ export class ConversationApi {
       });
     } catch (error) {
       if (isError(error)) {
+        logSuppressedError({ filePath, error });
         return null;
       }
       throw error;
@@ -161,6 +172,7 @@ export class ConversationApi {
       return await this.client.getRequest(endpoint, token);
     } catch (error) {
       if (isError(error)) {
+        logSuppressedError({ filePath, error });
         return null;
       }
       throw error;
@@ -173,6 +185,7 @@ export class ConversationApi {
       return await this.client.requestBlob(endpoint, token, { method: 'GET' });
     } catch (error) {
       if (isError(error)) {
+        logSuppressedError({ filePath, error });
         return null;
       }
       throw error;
@@ -185,6 +198,7 @@ export class ConversationApi {
       await this.client.request(endpoint, token, { method: 'DELETE' });
     } catch (error) {
       if (isError(error)) {
+        logSuppressedError({ filePath, error });
         return;
       }
       throw error;
@@ -206,6 +220,7 @@ export class ConversationApi {
       });
     } catch (error) {
       if (isError(error)) {
+        logSuppressedError({ filePath, error });
         return;
       }
       throw error;

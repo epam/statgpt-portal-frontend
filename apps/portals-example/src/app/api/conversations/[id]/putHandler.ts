@@ -1,7 +1,7 @@
-import { apiLogger } from './../../../../core/logger';
 import { AuthParams } from './../../../../models/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { conversationApi } from '../../api';
+import { createErrorResponse } from '../../../../utils/api/create-error-response';
 
 export const putHandler = async (
   req: NextRequest,
@@ -21,10 +21,6 @@ export const putHandler = async (
 
     return NextResponse.json(conversation);
   } catch (error) {
-    apiLogger.error('Update conversation API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to update conversation' },
-      { status: 500 },
-    );
+    return createErrorResponse(error, 'update-conversation');
   }
 };

@@ -1,9 +1,9 @@
-import { apiLogger } from '../../../../core/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { hierarchyApi } from '../../api';
 import { withAuth } from '../../../../utils/auth/withAuth';
 import { AuthParams } from '../../../../models/auth';
 import { X_SOURCE_ARTEFACT_URN_HEADER } from '@epam/statgpt-shared-toolkit';
+import { createErrorResponse } from '../../../../utils/api/create-error-response';
 
 export const GET = withAuth(
   async (
@@ -27,11 +27,7 @@ export const GET = withAuth(
       );
       return NextResponse.json(data);
     } catch (error) {
-      apiLogger.error('Codelist API error:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch hierarchies' },
-        { status: 500 },
-      );
+      return createErrorResponse(error, 'get-codelist');
     }
   },
 );
