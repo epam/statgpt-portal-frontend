@@ -1,23 +1,9 @@
 'use client';
 
-import {
-  DataConstraints,
-  Hierarchy,
-  StructuralData,
-} from '@epam/statgpt-sdmx-toolkit';
-import {
-  DataQuery,
-  TimeRange,
-  TimeRangeOptions,
-} from '@epam/statgpt-shared-toolkit';
+import { DataConstraints, StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import classNames from 'classnames';
 import { FC, ReactNode } from 'react';
-import {
-  Filter,
-  FilterTreeNodeProps,
-  FilterValuesProps,
-  HierarchyState,
-} from '../../../../../models/filters';
+import { Filter, HierarchyState } from '../../../../../models/filters';
 import FiltersFacetItem from './FiltersFacetItem';
 import { getFilterIdentity } from '../../../../../utils/filters';
 import {
@@ -29,62 +15,27 @@ import { useConversationViewFeatureToggles } from '../../../../../context/Conver
 interface Props {
   filtersList: Filter[];
   hideFacetCounterByDefault?: boolean;
-  locale?: string;
   onSelectFilter: (filter?: Filter) => void;
   onDeleteFilter?: (filter?: Filter) => void;
   onSelectDisplayMode?: (filter?: Filter, displayMode?: string) => void;
-  filterValuesProps?: FilterValuesProps;
-  isDisableValues?: boolean;
-  isValuesLoading?: boolean;
-  timeRangeOptions?: TimeRangeOptions[];
   initialConstraints?: DataConstraints[];
   initialConstraintsMap?: Map<string, DataConstraints[] | undefined>;
   datasetIcon?: ReactNode;
   structuresMap?: Map<string, StructuralData | undefined>;
-  onTimePeriodChange: (
-    timeRange: TimeRange | null,
-    selectedOption: string | number,
-  ) => void;
-  selectFilterValue: (
-    id: string,
-    isSelectedValue?: boolean,
-    filter?: Filter,
-  ) => void;
-  selectHierarchicalNodes: (
-    nodes?: FilterTreeNodeProps[],
-    filter?: Filter,
-  ) => void;
-  expandHierarchicalValue: (
-    value?: FilterTreeNodeProps,
-    filter?: Filter,
-  ) => void;
   hierarchyStateMap?: Map<string, HierarchyState>;
-  onSelectHierarchy?: (filter?: Filter, hierarchy?: Hierarchy | null) => void;
-  dataQueries?: DataQuery[];
 }
 
 const FiltersFacetsList: FC<Props> = ({
   filtersList,
   hideFacetCounterByDefault,
-  locale,
   onSelectFilter,
   onDeleteFilter,
   onSelectDisplayMode,
-  filterValuesProps,
-  isDisableValues,
-  isValuesLoading,
-  timeRangeOptions,
   initialConstraints,
   initialConstraintsMap,
   datasetIcon,
   structuresMap,
-  onTimePeriodChange,
-  selectFilterValue,
-  selectHierarchicalNodes,
-  expandHierarchicalValue,
   hierarchyStateMap,
-  onSelectHierarchy,
-  dataQueries,
 }) => {
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const datasetCount = new Set(
@@ -122,20 +73,11 @@ const FiltersFacetsList: FC<Props> = ({
 
             <FiltersFacetItem
               filtersList={filtersList}
-              locale={locale}
               filter={filter}
               onSelectFilter={onSelectFilter}
               onSelectDisplayMode={onSelectDisplayMode}
               onDeleteFilter={onDeleteFilter}
               hideFacetCounterByDefault={hideFacetCounterByDefault}
-              isDisableValues={isDisableValues}
-              isValuesLoading={isValuesLoading}
-              timeRangeOptions={timeRangeOptions}
-              selectFilterValue={selectFilterValue}
-              selectHierarchicalNodes={selectHierarchicalNodes}
-              expandHierarchicalValue={expandHierarchicalValue}
-              onTimePeriodChange={onTimePeriodChange}
-              filterValuesProps={filterValuesProps}
               initialConstraints={getInitialConstraints(
                 isCrossDatasetModeOn,
                 filter,
@@ -145,8 +87,6 @@ const FiltersFacetsList: FC<Props> = ({
               hierarchyState={hierarchyStateMap?.get(
                 getFilterIdentity(filter) ?? '',
               )}
-              onSelectHierarchy={onSelectHierarchy}
-              dataQueries={dataQueries}
             />
           </div>
         );
