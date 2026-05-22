@@ -686,6 +686,9 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               onSelectHierarchy={onSelectHierarchy}
               onExpandHierarchyNode={onExpandHierarchyNode}
               dataQueries={dataQueries}
+              disabledDatasetUrns={new Set()}
+              onToggleDataset={() => void 0}
+              onClearAllDatasets={() => void 0}
             />
             <ModalFooter
               onApply={onApply}

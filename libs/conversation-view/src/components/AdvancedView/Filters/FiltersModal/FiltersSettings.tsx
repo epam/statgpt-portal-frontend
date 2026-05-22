@@ -11,7 +11,7 @@ import {
   TimeRangeOptions,
 } from '@epam/statgpt-shared-toolkit';
 import { Button, useIsMobile } from '@epam/statgpt-ui-components';
-import { FC, ReactNode, useCallback } from 'react';
+import { FC, ReactNode, useCallback, useState } from 'react';
 import {
   Filter,
   FiltersModalProps,
@@ -21,6 +21,7 @@ import {
 } from '../../../../models/filters';
 import FiltersFacetsList from './FiltersFacets/FiltersFacetsList';
 import FiltersValuesPanel from './FiltersValuesPanel/FiltersValuesPanel';
+import { DatasetValuesPanel } from './FiltersValuesPanel/DatasetValuesPanel';
 import classNames from 'classnames';
 import { useConversationViewStyles } from '../../../../context/ConversationViewStylesContext';
 import {
@@ -61,6 +62,9 @@ interface Props {
   onSelectHierarchy?: (filter?: Filter, hierarchy?: Hierarchy | null) => void;
   onExpandHierarchyNode?: (filterKey: string, nodeId: string) => void;
   dataQueries?: DataQuery[];
+  disabledDatasetUrns: Set<string>;
+  onToggleDataset: (urn: string, enabled: boolean) => void;
+  onClearAllDatasets: () => void;
 }
 
 const FilterSettings: FC<Props> = ({
@@ -87,6 +91,9 @@ const FilterSettings: FC<Props> = ({
   onSelectHierarchy,
   onExpandHierarchyNode,
   dataQueries,
+  disabledDatasetUrns,
+  onToggleDataset,
+  onClearAllDatasets,
 }) => {
   const { titles } = useConversationViewStyles();
   const hierarchyState = hierarchyStateMap?.get(
@@ -94,12 +101,19 @@ const FilterSettings: FC<Props> = ({
   );
   const isMobile = useIsMobile();
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
-  const allAppliedFilters = getTotalSelectedValuesLength(
-    getSelectedFilterValues(filtersList),
-  );
+  const [isDatasetFacetSelected, setIsDatasetFacetSelected] = useState(true);
+  const allAppliedFilters =
+    getTotalSelectedValuesLength(getSelectedFilterValues(filtersList)) +
+    disabledDatasetUrns.size;
+
+  const onSelectDatasetFacet = useCallback(() => {
+    setIsDatasetFacetSelected(true);
+    setSelectedFilter(void 0);
+  }, [setSelectedFilter]);
 
   const onSelectFilter = useCallback(
     (currentFilter?: Filter) => {
+      setIsDatasetFacetSelected(false);
       const foundFilter = filtersList?.find((filter) =>
         isSameFilter(filter, currentFilter),
       );
@@ -324,6 +338,10 @@ const FilterSettings: FC<Props> = ({
           hierarchyStateMap={hierarchyStateMap}
           onSelectHierarchy={onSelectHierarchy}
           dataQueries={dataQueries}
+          disabledDatasetUrns={disabledDatasetUrns}
+          isDatasetFacetSelected={isDatasetFacetSelected}
+          onSelectDatasetFacet={onSelectDatasetFacet}
+          onClearAllDatasets={onClearAllDatasets}
         />
         {modalProps?.isShowTimeSeriesCount && timeSeriesCount ? (
           <h4 className="my-4 text-neutrals-800">
@@ -332,29 +350,37 @@ const FilterSettings: FC<Props> = ({
         ) : null}
       </div>
       {!isMobile && (
-        <FiltersValuesPanel
-          filtersList={filtersList}
-          selectedFilter={selectedFilter}
-          locale={locale}
-          isDisableValues={isDisableValues}
-          isValuesLoading={isValuesLoading}
-          timeRangeOptions={timeRangeOptions}
-          selectFilterValue={onSelectFilterValue}
-          selectHierarchicalNodes={onSelectHierarchicalNodes}
-          expandHierarchicalValue={onExpandHierarchicalValue}
-          onTimePeriodChange={onSelectTimePeriodValue}
-          filterValuesProps={modalProps?.filterValuesProps}
-          structuresMap={structuresMap}
-          initialConstraints={getInitialConstraints(
-            isCrossDatasetModeOn,
-            selectedFilter,
-            initialConstraints,
-            initialConstraintsMap,
-          )}
-          selectedTimeOption={selectedTimeOption}
-          hierarchyState={hierarchyState}
-          dataQueries={dataQueries}
-        />
+        isDatasetFacetSelected ? (
+          <DatasetValuesPanel
+            dataQueries={dataQueries ?? []}
+            disabledDatasetUrns={disabledDatasetUrns}
+            onToggleDataset={onToggleDataset}
+          />
+        ) : (
+          <FiltersValuesPanel
+            filtersList={filtersList}
+            selectedFilter={selectedFilter}
+            locale={locale}
+            isDisableValues={isDisableValues}
+            isValuesLoading={isValuesLoading}
+            timeRangeOptions={timeRangeOptions}
+            selectFilterValue={onSelectFilterValue}
+            selectHierarchicalNodes={onSelectHierarchicalNodes}
+            expandHierarchicalValue={onExpandHierarchicalValue}
+            onTimePeriodChange={onSelectTimePeriodValue}
+            filterValuesProps={modalProps?.filterValuesProps}
+            structuresMap={structuresMap}
+            initialConstraints={getInitialConstraints(
+              isCrossDatasetModeOn,
+              selectedFilter,
+              initialConstraints,
+              initialConstraintsMap,
+            )}
+            selectedTimeOption={selectedTimeOption}
+            hierarchyState={hierarchyState}
+            dataQueries={dataQueries}
+          />
+        )
       )}
     </div>
   );

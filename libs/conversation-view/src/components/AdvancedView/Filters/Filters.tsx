@@ -626,6 +626,9 @@ const Filters: FC<FiltersProps> = ({
               dataQueries={
                 attachmentsDataQuery ? [attachmentsDataQuery] : undefined
               }
+              disabledDatasetUrns={new Set()}
+              onToggleDataset={() => void 0}
+              onClearAllDatasets={() => void 0}
             />
             <ModalFooter
               onApply={onApply}
