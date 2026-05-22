@@ -2,19 +2,19 @@
 
 ## When specs must be updated
 
-Any edit to a file listed in `specs/filters/README.md` under **Key Source Files**
+Any edit to a file listed in `specs/system/filters/README.md` under **Key Source Files**
 must be accompanied by a corresponding update to the relevant spec in the same
 change. Spec drift is a defect — treat it the same as a failing test.
 
 The relevant spec for a given file is identified by:
 1. The "Key files" section at the top of each spec, or
-2. The spec table in `specs/filters/README.md`
+2. The spec table in `specs/system/filters/README.md`
 
 ## Scope
 
-`specs/filters/` covers the full lifecycle of filters, dataset merging, constraints,
+`specs/system/filters/` covers the full lifecycle of filters, dataset merging, constraints,
 persistence, grids, Python attachment, applied-filters display, and chart attachments.
-Read `specs/filters/README.md` for the full index and file-to-spec mapping.
+Read `specs/system/filters/README.md` for the full index and file-to-spec mapping.
 
 ## What counts as a spec-impacting change
 

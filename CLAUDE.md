@@ -67,10 +67,21 @@ Chat responses use SSE (Server-Sent Events). `ChatMessagesContext` tracks the `i
 
 ### Documentation
 
-Specs for the filter / dataset-merging / chart-rendering system live in
-`specs/filters/`. See `specs/filters/README.md` for the index. When editing files
-covered by those specs, update the relevant spec in the same change — see
-`.claude/rules/spec-conventions.md`.
+Specs live in `specs/`:
+
+- `specs/system/` — reference documentation describing how the application works.
+  Each subfolder covers one subsystem and is kept in sync with the code.
+  - `specs/system/filters/` — full lifecycle of filters, dataset merging, SDMX
+    constraints, system-message persistence, grids, Python attachment, applied-filters
+    display, and chart attachments. See `specs/system/filters/README.md` for the index
+    and file-to-spec mapping.
+
+- `specs/changes/` — design specs for in-progress or planned features. Each file is
+  a time-stamped design document produced during brainstorming before implementation
+  begins.
+
+When editing files covered by a system spec, update the relevant spec in the same
+change — see `.claude/rules/spec-conventions.md`.
 
 ### Styling
 
