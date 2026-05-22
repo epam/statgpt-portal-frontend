@@ -18,6 +18,7 @@ import {
   FilterValuesProps,
   HierarchyState,
 } from '../../../../../models/filters';
+import { DatasetSelectorFacet } from './DatasetSelectorFacet';
 import FiltersFacetItem from './FiltersFacetItem';
 import { getFilterIdentity } from '../../../../../utils/filters';
 import {
@@ -61,6 +62,10 @@ interface Props {
   hierarchyStateMap?: Map<string, HierarchyState>;
   onSelectHierarchy?: (filter?: Filter, hierarchy?: Hierarchy | null) => void;
   dataQueries?: DataQuery[];
+  disabledDatasetUrns?: Set<string>;
+  isDatasetFacetSelected?: boolean;
+  onSelectDatasetFacet?: () => void;
+  onClearAllDatasets?: () => void;
 }
 
 const FiltersFacetsList: FC<Props> = ({
@@ -85,6 +90,10 @@ const FiltersFacetsList: FC<Props> = ({
   hierarchyStateMap,
   onSelectHierarchy,
   dataQueries,
+  disabledDatasetUrns = new Set<string>(),
+  isDatasetFacetSelected = false,
+  onSelectDatasetFacet,
+  onClearAllDatasets,
 }) => {
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const datasetCount = new Set(
@@ -99,8 +108,26 @@ const FiltersFacetsList: FC<Props> = ({
         'overflow-y-auto advanced-view-filters-list min-w-[320px] pr-3 h-full sm:w-full',
       )}
     >
-      {filtersList.map((filter, index) => {
-        const previousFilter = filtersList[index - 1];
+      {dataQueries && dataQueries.length > 0 && (
+        <DatasetSelectorFacet
+          dataQueries={dataQueries}
+          disabledDatasetUrns={disabledDatasetUrns}
+          isSelected={isDatasetFacetSelected}
+          onSelect={onSelectDatasetFacet ?? (() => {})}
+          onClearAll={onClearAllDatasets ?? (() => {})}
+        />
+      )}
+      {filtersList
+        .filter(
+          (filter) =>
+            !(
+              filter.filterType === 'dataset' &&
+              filter.datasetUrn &&
+              disabledDatasetUrns.has(filter.datasetUrn)
+            ),
+        )
+        .map((filter, index, filteredList) => {
+        const previousFilter = filteredList[index - 1];
         const shouldRenderDatasetTitle =
           filter.filterType === 'dataset' &&
           datasetCount > 1 &&
