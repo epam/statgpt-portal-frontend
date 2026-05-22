@@ -37,29 +37,31 @@ export function buildCrossDatasetChartingData(
   locale: string,
   chartStyles?: ChartingStyles,
 ): ChartingData {
-  const groups = dataQueries.filter((q) => !q.disabled).flatMap((dataQuery) => {
-    const structures = structuresMap.get(dataQuery.urn);
-    const dataMessage = dataMessagesMap.get(dataQuery.urn);
+  const groups = dataQueries
+    .filter((q) => !q.disabled)
+    .flatMap((dataQuery) => {
+      const structures = structuresMap.get(dataQuery.urn);
+      const dataMessage = dataMessagesMap.get(dataQuery.urn);
 
-    if (!structures || !dataMessage) {
-      return [];
-    }
+      if (!structures || !dataMessage) {
+        return [];
+      }
 
-    const datasetName = getLocalizedName(structures.dataflows?.[0], locale);
+      const datasetName = getLocalizedName(structures.dataflows?.[0], locale);
 
-    return [
-      {
-        title: datasetName,
-        units: buildChartData(
-          structures,
-          dataMessage,
-          dataQuery,
-          locale,
-          chartStyles,
-        ).units,
-      },
-    ];
-  });
+      return [
+        {
+          title: datasetName,
+          units: buildChartData(
+            structures,
+            dataMessage,
+            dataQuery,
+            locale,
+            chartStyles,
+          ).units,
+        },
+      ];
+    });
 
   return {
     units: groups.flatMap((group) => group.units),

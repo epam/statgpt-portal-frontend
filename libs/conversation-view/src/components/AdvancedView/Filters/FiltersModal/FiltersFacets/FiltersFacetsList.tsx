@@ -127,57 +127,57 @@ const FiltersFacetsList: FC<Props> = ({
             ),
         )
         .map((filter, index, filteredList) => {
-        const previousFilter = filteredList[index - 1];
-        const shouldRenderDatasetTitle =
-          filter.filterType === 'dataset' &&
-          datasetCount > 1 &&
-          filter.datasetUrn !== previousFilter?.datasetUrn;
-        const datasetName = shouldRenderDatasetTitle
-          ? getDatasetNameFromFilters(filter, structuresMap)
-          : undefined;
+          const previousFilter = filteredList[index - 1];
+          const shouldRenderDatasetTitle =
+            filter.filterType === 'dataset' &&
+            datasetCount > 1 &&
+            filter.datasetUrn !== previousFilter?.datasetUrn;
+          const datasetName = shouldRenderDatasetTitle
+            ? getDatasetNameFromFilters(filter, structuresMap)
+            : undefined;
 
-        return (
-          <div key={getFilterIdentity(filter)}>
-            {datasetName && (
-              <h4 className="filters-facet-dataset-name">
-                <span className="filters-facet-dataset-icon">
-                  {datasetIcon}
-                </span>
-                {datasetName}
-              </h4>
-            )}
+          return (
+            <div key={getFilterIdentity(filter)}>
+              {datasetName && (
+                <h4 className="filters-facet-dataset-name">
+                  <span className="filters-facet-dataset-icon">
+                    {datasetIcon}
+                  </span>
+                  {datasetName}
+                </h4>
+              )}
 
-            <FiltersFacetItem
-              filtersList={filtersList}
-              locale={locale}
-              filter={filter}
-              onSelectFilter={onSelectFilter}
-              onSelectDisplayMode={onSelectDisplayMode}
-              onDeleteFilter={onDeleteFilter}
-              hideFacetCounterByDefault={hideFacetCounterByDefault}
-              isDisableValues={isDisableValues}
-              isValuesLoading={isValuesLoading}
-              timeRangeOptions={timeRangeOptions}
-              selectFilterValue={selectFilterValue}
-              selectHierarchicalNodes={selectHierarchicalNodes}
-              expandHierarchicalValue={expandHierarchicalValue}
-              onTimePeriodChange={onTimePeriodChange}
-              filterValuesProps={filterValuesProps}
-              initialConstraints={getInitialConstraints(
-                isCrossDatasetModeOn,
-                filter,
-                initialConstraints,
-                initialConstraintsMap,
-              )}
-              hierarchyState={hierarchyStateMap?.get(
-                getFilterIdentity(filter) ?? '',
-              )}
-              onSelectHierarchy={onSelectHierarchy}
-              dataQueries={dataQueries}
-            />
-          </div>
-        );
-      })}
+              <FiltersFacetItem
+                filtersList={filtersList}
+                locale={locale}
+                filter={filter}
+                onSelectFilter={onSelectFilter}
+                onSelectDisplayMode={onSelectDisplayMode}
+                onDeleteFilter={onDeleteFilter}
+                hideFacetCounterByDefault={hideFacetCounterByDefault}
+                isDisableValues={isDisableValues}
+                isValuesLoading={isValuesLoading}
+                timeRangeOptions={timeRangeOptions}
+                selectFilterValue={selectFilterValue}
+                selectHierarchicalNodes={selectHierarchicalNodes}
+                expandHierarchicalValue={expandHierarchicalValue}
+                onTimePeriodChange={onTimePeriodChange}
+                filterValuesProps={filterValuesProps}
+                initialConstraints={getInitialConstraints(
+                  isCrossDatasetModeOn,
+                  filter,
+                  initialConstraints,
+                  initialConstraintsMap,
+                )}
+                hierarchyState={hierarchyStateMap?.get(
+                  getFilterIdentity(filter) ?? '',
+                )}
+                onSelectHierarchy={onSelectHierarchy}
+                dataQueries={dataQueries}
+              />
+            </div>
+          );
+        })}
     </div>
   );
 };

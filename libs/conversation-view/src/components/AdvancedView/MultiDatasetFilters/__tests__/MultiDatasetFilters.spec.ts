@@ -666,10 +666,12 @@ describe('MultiDatasetFilters', () => {
       const onMultipleDataFiltersChange = jest.fn();
 
       await act(async () => {
-        render(createElement(MultiDatasetFilters, {
-          ...defaultProps,
-          onMultipleDataFiltersChange,
-        }));
+        render(
+          createElement(MultiDatasetFilters, {
+            ...defaultProps,
+            onMultipleDataFiltersChange,
+          }),
+        );
       });
 
       await act(async () => {
@@ -685,8 +687,11 @@ describe('MultiDatasetFilters', () => {
         await Promise.resolve();
       });
 
-      const calledDataQueries = onMultipleDataFiltersChange.mock.calls[0][2] as DataQuery[];
-      const disabledDataset = calledDataQueries?.find((q) => q.urn === DATASET_A_URN);
+      const calledDataQueries = onMultipleDataFiltersChange.mock
+        .calls[0][2] as DataQuery[];
+      const disabledDataset = calledDataQueries?.find(
+        (q) => q.urn === DATASET_A_URN,
+      );
       expect(disabledDataset?.disabled).toBe(true);
     });
   });

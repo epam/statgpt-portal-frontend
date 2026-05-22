@@ -16,30 +16,32 @@ export function buildCrossDatasetGridData(
   chartStyles?: ChartingStyles,
 ): GridData[] {
   const rows: GridData[] = [];
-  dataQueries.filter((q) => !q.disabled).forEach((dataQuery) => {
-    const urn = dataQuery.urn;
-    const dataMessage = dataMessagesMap.get(urn);
-    const structures = structuresMap.get(urn);
-    if (dataMessage == null || structures == null) {
-      return;
-    }
-    const dsRows = getRowsData(
-      dataMessage,
-      structures,
-      dataQuery,
-      locale,
-      chartStyles,
-    );
-    const datasetTitle = getLocalizedName(structures.dataflows?.[0], locale);
-    rows.push(
-      ...dsRows.map((row) => ({
-        ...row,
-        dataset: {
-          urn: urn,
-        },
-        datasetTitle,
-      })),
-    );
-  });
+  dataQueries
+    .filter((q) => !q.disabled)
+    .forEach((dataQuery) => {
+      const urn = dataQuery.urn;
+      const dataMessage = dataMessagesMap.get(urn);
+      const structures = structuresMap.get(urn);
+      if (dataMessage == null || structures == null) {
+        return;
+      }
+      const dsRows = getRowsData(
+        dataMessage,
+        structures,
+        dataQuery,
+        locale,
+        chartStyles,
+      );
+      const datasetTitle = getLocalizedName(structures.dataflows?.[0], locale);
+      rows.push(
+        ...dsRows.map((row) => ({
+          ...row,
+          dataset: {
+            urn: urn,
+          },
+          datasetTitle,
+        })),
+      );
+    });
   return rows;
 }

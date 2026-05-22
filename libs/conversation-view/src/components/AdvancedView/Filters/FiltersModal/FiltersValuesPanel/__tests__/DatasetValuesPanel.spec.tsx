@@ -93,7 +93,9 @@ describe('DatasetValuesPanel', () => {
         onToggleDataset={jest.fn()}
       />,
     );
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Dataset A' } });
+    fireEvent.change(screen.getByRole('textbox'), {
+      target: { value: 'Dataset A' },
+    });
     expect(screen.getByTestId('checkbox-urn:A')).toBeInTheDocument();
     expect(screen.queryByTestId('checkbox-urn:B')).not.toBeInTheDocument();
   });

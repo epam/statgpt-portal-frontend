@@ -46,7 +46,8 @@ export const getAttachmentInfoList = (
   locale: string,
   datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): AttachmentInfo[] => {
-  const enabledDataQueries = currentDataQueries?.filter((q) => !q.disabled) ?? [];
+  const enabledDataQueries =
+    currentDataQueries?.filter((q) => !q.disabled) ?? [];
   const currentValuesByFilterId = new Map<string, string[]>();
   enabledDataQueries?.forEach((dataQuery) => {
     const { conceptSchemes, codelists, dimensions } =

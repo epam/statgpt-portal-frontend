@@ -5,7 +5,9 @@ import { DataQuery } from '@epam/statgpt-shared-toolkit';
 
 jest.mock('@epam/statgpt-ui-components', () => ({
   IconButton: ({ onClick, title }: any) => (
-    <button onClick={onClick} aria-label={title}>clear</button>
+    <button onClick={onClick} aria-label={title}>
+      clear
+    </button>
   ),
 }));
 
@@ -60,7 +62,9 @@ describe('DatasetSelectorFacet', () => {
         onClearAll={jest.fn()}
       />,
     );
-    expect(screen.queryByRole('button', { name: /reset/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /reset/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('calls onSelect when the row is clicked', () => {

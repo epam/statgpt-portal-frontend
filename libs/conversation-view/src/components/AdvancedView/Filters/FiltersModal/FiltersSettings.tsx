@@ -349,8 +349,8 @@ const FilterSettings: FC<Props> = ({
           </h4>
         ) : null}
       </div>
-      {!isMobile && (
-        isDatasetFacetSelected ? (
+      {!isMobile &&
+        (isDatasetFacetSelected ? (
           <DatasetValuesPanel
             dataQueries={dataQueries ?? []}
             disabledDatasetUrns={disabledDatasetUrns}
@@ -380,8 +380,7 @@ const FilterSettings: FC<Props> = ({
             hierarchyState={hierarchyState}
             dataQueries={dataQueries}
           />
-        )
-      )}
+        ))}
     </div>
   );
 };

@@ -564,16 +564,13 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     [handleFiltersDelete, modalFilters, dataQueries],
   );
 
-  const onToggleDataset = useCallback(
-    (urn: string, enabled: boolean) => {
-      setDisabledDatasetUrns((prev) => {
-        const next = new Set(prev);
-        enabled ? next.delete(urn) : next.add(urn);
-        return next;
-      });
-    },
-    [],
-  );
+  const onToggleDataset = useCallback((urn: string, enabled: boolean) => {
+    setDisabledDatasetUrns((prev) => {
+      const next = new Set(prev);
+      enabled ? next.delete(urn) : next.add(urn);
+      return next;
+    });
+  }, []);
 
   const onCloseModal = useCallback(() => {
     constraintsMapRef.current = initialModalConstraintsMap;
@@ -638,7 +635,9 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     onMultipleDataFiltersChange?.(
       filtersParamsMap,
       constraintsMapRef.current,
-      updatedDataQueries?.filter((q) => compatibleUrns.has(q.urn) || q.disabled),
+      updatedDataQueries?.filter(
+        (q) => compatibleUrns.has(q.urn) || q.disabled,
+      ),
       appliedFiltersMap,
       appliedFilters,
     );
