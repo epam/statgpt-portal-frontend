@@ -4,21 +4,21 @@ import { FC, useState } from 'react';
 import classNames from 'classnames';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import { Checkbox } from '@epam/statgpt-ui-components';
-import { IconSearch } from '@tabler/icons-react';
-import { useConversationViewStyles } from '../../../../../context/ConversationViewStylesContext';
+import { FiltersSearchInput } from './FiltersSearchInput';
 
 interface Props {
   dataQueries: DataQuery[];
   disabledDatasetUrns: Set<string>;
   onToggleDataset: (urn: string, enabled: boolean) => void;
+  searchIconSize?: number;
 }
 
 const DatasetValuesPanel: FC<Props> = ({
   dataQueries,
   disabledDatasetUrns,
   onToggleDataset,
+  searchIconSize,
 }) => {
-  const { titles } = useConversationViewStyles();
   const [searchQuery, setSearchQuery] = useState('');
 
   const normalizedSearch = searchQuery.trim().toLowerCase();
@@ -29,18 +29,13 @@ const DatasetValuesPanel: FC<Props> = ({
   const enabledCount = dataQueries.length - disabledDatasetUrns.size;
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="relative mb-3">
-        <IconSearch className="absolute left-2 top-1/2 size-4 -translate-y-1/2 text-neutrals-500" />
-        <input
-          type="text"
-          className="filters-search-input w-full pl-8"
-          placeholder={titles?.searchPlaceholder ?? 'Search'}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-      <div className="flex-1 overflow-y-auto">
+    <div className="filter-values-container flex h-full min-w-0 flex-1 flex-col py-2 sm:border-0">
+      <FiltersSearchInput
+        value={searchQuery}
+        onChange={(value) => setSearchQuery(value)}
+        searchIconSize={searchIconSize}
+      />
+      <div className="body-2 mt-3 flex min-h-0 flex-1 flex-col overflow-auto">
         {filtered.map((q) => {
           const isChecked = !disabledDatasetUrns.has(q.urn);
           const isLastEnabled = isChecked && enabledCount === 1;

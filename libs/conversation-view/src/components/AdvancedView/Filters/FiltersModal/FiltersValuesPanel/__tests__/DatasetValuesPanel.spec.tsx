@@ -16,6 +16,15 @@ jest.mock('@epam/statgpt-ui-components', () => ({
       {label}
     </label>
   ),
+  InputWithIcon: ({ value, onChange, placeholder }: any) => (
+    <input
+      type="text"
+      role="textbox"
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+    />
+  ),
 }));
 
 jest.mock('@tabler/icons-react', () => ({
@@ -25,6 +34,13 @@ jest.mock('@tabler/icons-react', () => ({
 jest.mock('../../../../../../context/ConversationViewStylesContext', () => ({
   useConversationViewStyles: () => ({ titles: {} }),
 }));
+
+jest.mock(
+  '../../../../../../context/ConversationViewFeatureTogglesContext',
+  () => ({
+    useConversationViewFeatureToggles: () => ({ isCrossDatasetModeOn: false }),
+  }),
+);
 
 const makeQuery = (urn: string, title: string): DataQuery => ({
   urn,

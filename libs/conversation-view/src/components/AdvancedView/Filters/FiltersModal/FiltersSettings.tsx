@@ -355,6 +355,7 @@ const FilterSettings: FC<Props> = ({
             dataQueries={dataQueries ?? []}
             disabledDatasetUrns={disabledDatasetUrns}
             onToggleDataset={onToggleDataset}
+            searchIconSize={modalProps?.filterValuesProps?.searchIconSize}
           />
         ) : (
           <FiltersValuesPanel

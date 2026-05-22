@@ -11,9 +11,7 @@ import {
   TimeRange,
   TimeRangeOptions,
 } from '@epam/statgpt-shared-toolkit';
-import { InputWithIcon } from '@epam/statgpt-ui-components';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { IconSearch } from '@tabler/icons-react';
 import {
   Filter,
   FilterTreeNodeProps,
@@ -22,6 +20,7 @@ import {
   HierarchyState,
 } from '../../../../../models/filters';
 import TimePeriodFacet from './TimePeriodFacet';
+import { FiltersSearchInput } from './FiltersSearchInput';
 import FilterValues from './FilterValues';
 import { FilterDisplayMode } from '../../../../../constants/filter-display-mode';
 import classNames from 'classnames';
@@ -88,7 +87,6 @@ const FiltersValuesPanel: FC<Props> = ({
 }) => {
   const { titles } = useConversationViewStyles();
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [isInputFocused, setIsInputFocused] = useState(false);
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const isHierarchicalView =
     selectedFilter?.displayMode === FilterDisplayMode.HIERARCHY;
@@ -101,11 +99,6 @@ const FiltersValuesPanel: FC<Props> = ({
     : !!normalizedSearchQuery;
   const shouldUseGlobalSearch =
     hasSearchQuery && isCrossDatasetModeOn && !isSharedSelectedFilter;
-  const showSearchCaption =
-    isCrossDatasetModeOn &&
-    isInputFocused &&
-    normalizedSearchQuery.length < MIN_CROSS_DATASET_SEARCH_CHARS;
-
   const getFilteredValues = useCallback(
     (filter?: Filter) => {
       if (!filter?.dimensionValues) {
@@ -208,7 +201,6 @@ const FiltersValuesPanel: FC<Props> = ({
 
   useEffect(() => {
     setSearchQuery('');
-    setIsInputFocused(false);
   }, [selectedFilterIdentity]);
 
   const onSearchQueryChange = useCallback(
@@ -242,33 +234,11 @@ const FiltersValuesPanel: FC<Props> = ({
             'filter-values-container',
           )}
         >
-          <InputWithIcon
-            inputId="filters-search-input"
-            containerClasses={'gap-2 items-center filters-search-input'}
-            cssClass="filters-search-input-text"
-            placeholder={titles?.searchPlaceholder ?? 'Search'}
+          <FiltersSearchInput
             value={searchQuery}
             onChange={onSearchQueryChange}
-            onFocus={() => setIsInputFocused(true)}
-            onBlur={() => setIsInputFocused(false)}
-            iconBeforeInput={
-              <IconSearch
-                width={filterValuesProps?.searchIconSize}
-                height={filterValuesProps?.searchIconSize}
-                className="text-primary"
-              />
-            }
+            searchIconSize={filterValuesProps?.searchIconSize}
           />
-          {isCrossDatasetModeOn && (
-            <span
-              className={classNames('caption text-neutrals-800 mt-1', {
-                invisible: !showSearchCaption,
-              })}
-            >
-              {titles?.searchMinCharsCaption ??
-                'Enter at least 2 characters to start searching'}
-            </span>
-          )}
           <div className="body-2 mt-3 flex min-h-0 flex-1 flex-col overflow-auto">
             {shouldUseGlobalSearch ? (
               <>
