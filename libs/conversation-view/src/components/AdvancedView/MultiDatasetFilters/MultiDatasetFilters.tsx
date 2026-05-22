@@ -388,9 +388,10 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
 
   const addSystemMessage = useCallback(
     async (filtersMap: Map<string, Filter[]>) => {
-      const updatedDataQueries = dataQueries?.map((q) =>
-        disabledDatasetUrns.has(q.urn) ? { ...q, disabled: true as const } : q,
-      );
+      const updatedDataQueries = dataQueries?.map((q) => ({
+        ...q,
+        disabled: disabledDatasetUrns.has(q.urn),
+      }));
       const dataQueryFiltersMap = setDataQueryFiltersMap(
         updatedDataQueries,
         filtersMap,
@@ -590,9 +591,10 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   }, [handleFiltersDelete, modalFilters, dataQueries, setDisabledDatasetUrns]);
 
   const onApply = useCallback(() => {
-    const updatedDataQueries = dataQueries?.map((q) =>
-      disabledDatasetUrns.has(q.urn) ? { ...q, disabled: true as const } : q,
-    );
+    const updatedDataQueries = dataQueries?.map((q) => ({
+      ...q,
+      disabled: disabledDatasetUrns.has(q.urn),
+    }));
     const appliedFiltersMap = buildFiltersMap(
       modalFilters,
       constraintsMapRef.current,

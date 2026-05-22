@@ -512,7 +512,7 @@ describe('MultiDatasetFilters', () => {
       expect(onMultipleDataFiltersChange).toHaveBeenCalledWith(
         queryFiltersMap,
         expect.anything(),
-        defaultProps.dataQueries,
+        defaultProps.dataQueries.map((q) => ({ ...q, disabled: false })),
         expect.any(Map),
         [sharedCountryFilter],
       );

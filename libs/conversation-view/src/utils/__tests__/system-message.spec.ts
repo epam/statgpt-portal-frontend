@@ -31,7 +31,7 @@ describe('prepareSystemMessage', () => {
       expect(data.disabled).toBe(true);
     });
 
-    it('omits disabled field from attachment JSON when DataQuery.disabled is undefined', () => {
+    it('includes disabled:false in attachment JSON when DataQuery.disabled is not set', () => {
       const dataQueries: DataQuery[] = [
         { urn: 'TEST:DS(1.0)', metadata: BASE_METADATA },
       ];
@@ -41,7 +41,7 @@ describe('prepareSystemMessage', () => {
         (message.custom_content!.attachments![0] as any).data,
       );
 
-      expect('disabled' in data).toBe(false);
+      expect(data.disabled).toBe(false);
     });
   });
 });
