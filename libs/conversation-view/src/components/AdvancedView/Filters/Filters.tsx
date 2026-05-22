@@ -54,6 +54,8 @@ import {
   isRequestCached,
 } from '../../../utils/request-cache';
 
+const EMPTY_DISABLED_SET = new Set<string>();
+
 const Filters: FC<FiltersProps> = ({
   actions,
   dimensions,
@@ -626,9 +628,9 @@ const Filters: FC<FiltersProps> = ({
               dataQueries={
                 attachmentsDataQuery ? [attachmentsDataQuery] : undefined
               }
-              disabledDatasetUrns={new Set()}
-              onToggleDataset={() => void 0}
-              onClearAllDatasets={() => void 0}
+              disabledDatasetUrns={EMPTY_DISABLED_SET}
+              onToggleDataset={() => {}}
+              onClearAllDatasets={() => {}}
             />
             <ModalFooter
               onApply={onApply}
