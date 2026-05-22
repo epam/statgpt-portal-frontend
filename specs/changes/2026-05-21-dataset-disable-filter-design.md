@@ -21,11 +21,11 @@ Add one optional field:
 ```ts
 interface DataQuery {
   // ... existing fields unchanged ...
-  disabled?: boolean; // true = excluded from query/display; undefined means enabled
+  disabled?: boolean; // true = excluded; false = enabled; undefined = enabled (legacy conversations)
 }
 ```
 
-`undefined` is treated as `false` everywhere. Existing conversations that lack the field are fully enabled — no migration needed.
+In active code `disabled` is always set to an explicit `true` or `false` — never left as `undefined`. Conversations restored from JSON may carry `undefined` (field absent) for datasets that were never touched; this is treated as `false`. No migration is needed.
 
 The same field is added to `JsonDataQuery` (the backward-compat interface for older conversations).
 
@@ -73,6 +73,7 @@ Rendering:
 - Search input at the top (filters the dataset list in real time).
 - Checkbox row per dataset (dataset title as label). A dataset is checked when its URN is not in `disabledDatasetUrns`.
 - A checkbox is `disabled` when it is the only currently enabled dataset: `!disabledDatasetUrns.has(urn) && disabledDatasetUrns.size === dataQueries.length - 1`.
+- When a checkbox is `disabled`, only the checkbox icon is visually dimmed — the label text remains at full opacity so the user can still read which dataset cannot be deselected.
 
 ### Changes to `FiltersFacetsList`
 
@@ -107,21 +108,12 @@ const [disabledDatasetUrns, setDisabledDatasetUrns] = useState<Set<string>>(new 
   ```ts
   const updatedDataQueries = dataQueries.map(q => ({
     ...q,
-    disabled: disabledDatasetUrns.has(q.urn) || undefined,
+    disabled: disabledDatasetUrns.has(q.urn),
   }));
   ```
-  Disabled datasets are included in `updatedDataQueries` with `disabled: true` — the compatible/incompatible URN filtering that also runs in `onApply` is for cross-dataset dimension compatibility and is unrelated to disabled state.
+  Every dataset receives an explicit `true` or `false`. Re-enabling a dataset (removing its URN from `disabledDatasetUrns`) must explicitly set `disabled: false` — returning the original stored object is wrong because it may carry a stale `disabled: true` from a previous apply. Disabled datasets are included in `updatedDataQueries` — the compatible/incompatible URN filtering that also runs in `onApply` is for cross-dataset dimension compatibility and is unrelated to disabled state.
 
-`addSystemMessage` closes over `disabledDatasetUrns` and computes `updatedDataQueries` internally:
-```ts
-const addSystemMessage = useCallback(async (filtersMap) => {
-  const updatedDataQueries = dataQueries.map(q => ({
-    ...q,
-    disabled: disabledDatasetUrns.has(q.urn) || undefined,
-  }));
-  // updatedDataQueries replaces dataQueries in all calls below
-}, [...existingDeps, disabledDatasetUrns]);
-```
+`addSystemMessage` closes over `disabledDatasetUrns` and computes `updatedDataQueries` with the same logic internally, adding `disabledDatasetUrns` to its `useCallback` dependency array.
 
 New handlers:
 ```ts
@@ -160,16 +152,18 @@ const totalApplied = allAppliedFilters + disabledDatasetUrns.size;
 
 ### Write path (`system-message.ts → prepareSystemMessage`)
 
-`disabled` is serialized only when truthy, keeping existing conversation payloads unchanged:
+`disabled` is always serialized as an explicit boolean:
 
 ```ts
 data: JSON.stringify({
   urn: dataQuery.urn,
   metadata: dataQuery.metadata,
   filters: ...,
-  ...(dataQuery.disabled ? { disabled: true } : {}),
+  disabled: !!dataQuery?.disabled,
 })
 ```
+
+Existing conversations that pre-date this field will restore with `disabled` absent from JSON; the restore path treats absence as `false`.
 
 ### Restore path
 
@@ -195,15 +189,25 @@ dataQueries.filter(q => !q.disabled).forEach((dataQuery) => { ... })
 
 Series construction is skipped for disabled datasets. Series belonging to a disabled dataset's URN are excluded from the chart units array.
 
-### Chat view system message display (`attachments-details.ts`)
+### Chat view system message display
 
-`getAttachmentInfoList` processes only enabled datasets:
+**Excluded from diff summary:** `getAttachmentInfoList` in `attachments-details.ts` processes only enabled datasets before building the filter-change summary. Disabled datasets produce no rows.
 
-```ts
-const enabledDataQueries = currentDataQueries.filter(q => !q.disabled);
+**"Dataset set to" section (`AttachmentDetails`):** When any dataset is disabled, a new section appears at the top of the filter-change summary — before Country, Frequency, and other filter rows — showing the active (enabled) dataset names as pill chips:
+
+```
+Dataset set to  [WEO chip]  [Production Indexes chip]  ...
 ```
 
-Disabled datasets do not appear as dataset tags or in the filter-change summary.
+This section is absent when all datasets are enabled (the default state).
+
+**Per-dataset filter rows (`AttachmentDetailsItem`):** When a per-dataset indicator filter changes (e.g. "Production index set to ABC"), the dataset name chip appears inline at the end of that row rather than as a standalone header above it:
+
+```
+Production index set to ABC  [Production Indexes chip]
+```
+
+Shared filters (Country, Frequency, Time Period) never carry a dataset chip since they apply across all datasets.
 
 ### Filter panel visibility
 
@@ -241,6 +245,11 @@ Per-dataset `DatasetFilter` items for disabled datasets are hidden from the left
 | `libs/conversation-view/src/utils/system-message.ts` | Serialize `disabled` in `prepareSystemMessage` |
 | `libs/conversation-view/src/utils/attachments-details.ts` | Filter disabled datasets from chat display |
 | `libs/conversation-view/src/utils/attachments/charting/cross-dataset-chart-data.ts` | Skip disabled dataset series |
+| `libs/conversation-view/src/components/Attachments/AttachmentDetails/AttachmentDetails.tsx` | Add "Dataset set to" section when datasets are disabled |
+| `libs/conversation-view/src/components/Attachments/AttachmentDetails/AttachmentDetailsItem.tsx` | Move dataset chip inline after filter values; remove standalone chip header |
+| `libs/conversation-view/src/components/Attachments/AttachmentRenderer.tsx` | Pass `dataQueries` to `AttachmentDetails` |
+| `libs/conversation-view/src/components/AdvancedView/Filters/FiltersModal/FiltersValuesPanel/FiltersSearchInput.tsx` | **New** — shared search input used by both `FiltersValuesPanel` and `DatasetValuesPanel` |
+| `libs/ui-components/src/components/Checkbox/Checkbox.tsx` | Add `disabledScope` prop to control whether disabled styling applies to icon only or full label |
 | `libs/conversation-view/src/models/filters.ts` | No changes |
 | `libs/conversation-view/src/components/AdvancedView/MultiDatasetFilters/MultiDatasetFilters.tsx` | Add `disabledDatasetUrns` state, `onToggleDataset`, updated `onClearAllFilters`, `onApply`, `addSystemMessage` |
 | `libs/conversation-view/src/components/AdvancedView/Filters/Filters.tsx` | Pass `disabledDatasetUrns` and no-op `onToggleDataset` to `FilterSettings` |
