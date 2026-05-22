@@ -35,4 +35,93 @@ describe('Checkbox', () => {
     );
     expect(container.textContent).toContain('ICON');
   });
+
+  describe('disabledScope', () => {
+    it('applies opacity-50 to the label when disabled with default disabledScope', () => {
+      const { container } = render(
+        <Checkbox id="disabled-full" checked={false} disabled label="Label" />,
+      );
+      const label = container.querySelector('label');
+      expect(label?.className).toContain('opacity-50');
+    });
+
+    it('applies opacity-50 to the label when disabled with disabledScope="full"', () => {
+      const { container } = render(
+        <Checkbox
+          id="disabled-full-explicit"
+          checked={false}
+          disabled
+          disabledScope="full"
+          label="Label"
+        />,
+      );
+      const label = container.querySelector('label');
+      expect(label?.className).toContain('opacity-50');
+    });
+
+    it('does not apply opacity-50 to the label when disabled with disabledScope="icon"', () => {
+      const { container } = render(
+        <Checkbox
+          id="disabled-icon"
+          checked={false}
+          disabled
+          disabledScope="icon"
+          label="Label"
+        />,
+      );
+      const label = container.querySelector('label');
+      expect(label?.className).not.toContain('opacity-50');
+    });
+
+    it('applies opacity-50 to the checkbox icon span when disabled with disabledScope="icon"', () => {
+      const { container } = render(
+        <Checkbox
+          id="disabled-icon-span"
+          checked={false}
+          disabled
+          disabledScope="icon"
+        />,
+      );
+      const iconSpan = container.querySelector('.checkbox-button');
+      expect(iconSpan?.className).toContain('opacity-50');
+    });
+
+    it('does not apply opacity-50 to the checkbox icon span when disabled with disabledScope="full"', () => {
+      const { container } = render(
+        <Checkbox
+          id="disabled-full-span"
+          checked={false}
+          disabled
+          disabledScope="full"
+        />,
+      );
+      const iconSpan = container.querySelector('.checkbox-button');
+      expect(iconSpan?.className).not.toContain('opacity-50');
+    });
+
+    it('applies cursor-not-allowed to the label for both disabledScope values', () => {
+      const { container: fullContainer } = render(
+        <Checkbox
+          id="cursor-full"
+          checked={false}
+          disabled
+          disabledScope="full"
+        />,
+      );
+      const { container: iconContainer } = render(
+        <Checkbox
+          id="cursor-icon"
+          checked={false}
+          disabled
+          disabledScope="icon"
+        />,
+      );
+      expect(fullContainer.querySelector('label')?.className).toContain(
+        'cursor-not-allowed',
+      );
+      expect(iconContainer.querySelector('label')?.className).toContain(
+        'cursor-not-allowed',
+      );
+    });
+  });
 });
