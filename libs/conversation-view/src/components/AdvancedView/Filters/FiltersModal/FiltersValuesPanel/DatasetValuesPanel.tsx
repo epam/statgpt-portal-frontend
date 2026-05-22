@@ -44,7 +44,7 @@ const DatasetValuesPanel: FC<Props> = ({
               key={q.urn}
               className={classNames(
                 'py-1',
-                isLastEnabled && 'opacity-50 pointer-events-none',
+                isLastEnabled && 'pointer-events-none',
               )}
             >
               <Checkbox
@@ -52,6 +52,7 @@ const DatasetValuesPanel: FC<Props> = ({
                 label={q.title ?? q.urn}
                 checked={isChecked}
                 disabled={isLastEnabled}
+                disabledScope="icon"
                 onChange={(id, checked) => onToggleDataset(q.urn, !!checked)}
               />
             </div>

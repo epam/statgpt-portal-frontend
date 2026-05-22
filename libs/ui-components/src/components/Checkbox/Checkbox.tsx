@@ -10,6 +10,7 @@ interface Props {
   checkboxIcon?: ReactNode;
   onChange?: (id: string, isChecked?: boolean) => void;
   disabled?: boolean;
+  disabledScope?: 'full' | 'icon';
   className?: string;
   stopPropagation?: boolean;
 }
@@ -21,6 +22,7 @@ export const Checkbox: FC<Props> = ({
   checkboxIcon,
   onChange,
   disabled = false,
+  disabledScope = 'full',
   className,
   stopPropagation = true,
 }) => {
@@ -56,13 +58,16 @@ export const Checkbox: FC<Props> = ({
       onClick={handleClick}
       className={mergeClasses(
         'flex min-w-0 items-center py-1 shrink-0',
-        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+        disabled
+          ? `cursor-not-allowed${disabledScope === 'full' ? ' opacity-50' : ''}`
+          : 'cursor-pointer',
         className,
       )}
     >
       <span
         className={classNames(
           'checkbox-button relative flex size-[14px] items-center justify-center',
+          disabled && disabledScope === 'icon' && 'opacity-50',
         )}
         aria-hidden
       >
