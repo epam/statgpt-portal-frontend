@@ -35,7 +35,7 @@ const DatasetValuesPanel: FC<Props> = ({
         <input
           type="text"
           className="filters-search-input w-full pl-8"
-          placeholder={titles?.search ?? 'Search'}
+          placeholder={titles?.searchPlaceholder ?? 'Search'}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
