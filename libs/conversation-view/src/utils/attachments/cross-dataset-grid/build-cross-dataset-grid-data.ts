@@ -16,7 +16,7 @@ export function buildCrossDatasetGridData(
   chartStyles?: ChartingStyles,
 ): GridData[] {
   const rows: GridData[] = [];
-  dataQueries.forEach((dataQuery) => {
+  dataQueries.filter((q) => !q.disabled).forEach((dataQuery) => {
     const urn = dataQuery.urn;
     const dataMessage = dataMessagesMap.get(urn);
     const structures = structuresMap.get(urn);
