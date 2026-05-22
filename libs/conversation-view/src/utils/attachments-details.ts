@@ -46,8 +46,9 @@ export const getAttachmentInfoList = (
   locale: string,
   datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): AttachmentInfo[] => {
+  const enabledDataQueries = currentDataQueries?.filter((q) => !q.disabled) ?? [];
   const currentValuesByFilterId = new Map<string, string[]>();
-  currentDataQueries?.forEach((dataQuery) => {
+  enabledDataQueries?.forEach((dataQuery) => {
     const { conceptSchemes, codelists, dimensions } =
       getStructurePartsForDataQuery(dataQuery, datasetStructuresMap);
     getQueryFiltersDetails(
@@ -71,7 +72,7 @@ export const getAttachmentInfoList = (
     });
   });
 
-  return currentDataQueries?.map((dataQuery) => {
+  return enabledDataQueries?.map((dataQuery) => {
     const previousDataQuery = previousDataQueries?.find(
       (previousDataQuery) => previousDataQuery?.urn === dataQuery?.urn,
     );
