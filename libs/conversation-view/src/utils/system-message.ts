@@ -29,6 +29,7 @@ export const prepareSystemMessage = (
               filters: queryFiltersMap
                 ? queryFiltersMap?.get(dataQuery?.urn)
                 : singleDataQueryFilters,
+              ...(dataQuery?.disabled ? { disabled: true } : {}),
             }),
           };
         }) || [],
