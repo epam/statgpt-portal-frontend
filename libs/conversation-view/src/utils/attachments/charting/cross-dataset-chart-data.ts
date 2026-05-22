@@ -37,7 +37,7 @@ export function buildCrossDatasetChartingData(
   locale: string,
   chartStyles?: ChartingStyles,
 ): ChartingData {
-  const groups = dataQueries.flatMap((dataQuery) => {
+  const groups = dataQueries.filter((q) => !q.disabled).flatMap((dataQuery) => {
     const structures = structuresMap.get(dataQuery.urn);
     const dataMessage = dataMessagesMap.get(dataQuery.urn);
 

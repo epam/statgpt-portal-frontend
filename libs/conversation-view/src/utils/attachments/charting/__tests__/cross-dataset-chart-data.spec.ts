@@ -68,4 +68,33 @@ describe('cross-dataset chart data', () => {
     expect(firstResult).toBe(secondResult);
     expect(buildChartData).toHaveBeenCalledTimes(1);
   });
+
+  it('excludes disabled datasets from chart groups', () => {
+    const enabledQuery = { urn: 'urn:1' };
+    const disabledQuery = { urn: 'urn:2', disabled: true };
+    const structures = { dataflows: [{ id: 'flow-1' }] };
+    const dataMessage = {};
+    const structuresMap = new Map([
+      ['urn:1', structures],
+      ['urn:2', structures],
+    ]);
+    const dataMessagesMap = new Map([
+      ['urn:1', dataMessage],
+      ['urn:2', dataMessage],
+    ]);
+    const chartUnit = { config: {}, dimensions: [], rows: [] };
+
+    jest.mocked(getLocalizedName).mockReturnValue('Dataset 1');
+    jest.mocked(buildChartData).mockReturnValue({ units: [chartUnit] });
+
+    const result = buildCrossDatasetChartingData(
+      structuresMap,
+      dataMessagesMap,
+      [enabledQuery, disabledQuery],
+      'en',
+    );
+
+    expect(result.groups).toHaveLength(1);
+    expect(result.groups![0].title).toBe('Dataset 1');
+  });
 });
