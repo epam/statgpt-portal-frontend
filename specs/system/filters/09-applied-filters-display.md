@@ -39,10 +39,14 @@ previousMessage.attachments → DataQuery[]   (what filters looked like before t
 systemMessage.attachments   → DataQuery[]   (what filters look like after the change)
 ```
 
-`getAttachmentInfoList()` in `attachments-details.ts` iterates the current
-DataQuery array and for each dataset looks up the corresponding previous DataQuery
-by URN. `getUpdatedQueryFiltersDetails()` then compares the two filter lists
-to find only the dimensions that changed:
+`getAttachmentInfoList()` in `attachments-details.ts` first filters `currentDataQueries`
+to exclude disabled entries (`filter(q => !q.disabled)`) before building the display
+list. Disabled datasets do not appear as dataset tags or in the filter-change summary —
+they are invisible in this layer regardless of what their `QueryFilter[]` contains.
+
+The function then iterates the remaining enabled DataQuery array and for each dataset
+looks up the corresponding previous DataQuery by URN. `getUpdatedQueryFiltersDetails()`
+then compares the two filter lists to find only the dimensions that changed:
 
 - A filter is considered **changed** if its value set differs from the previous set.
   Comparison uses `isEqual()` on sorted `values` arrays — order of selection does

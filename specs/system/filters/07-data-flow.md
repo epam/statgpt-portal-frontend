@@ -108,6 +108,14 @@ For multi-dataset, `onApply()` in `MultiDatasetFilters.tsx` first calls
 `getCompatibleDatasetUrns()` to exclude datasets whose filter selections are
 incompatible. Incompatible datasets' filters are marked `isExcluded: true`.
 
+After compatibility filtering, `onApply()` merges `disabledDatasetUrns` — the
+in-modal working `Set<string>` tracking which datasets the user has toggled off —
+into `updatedDataQueries`. Each `DataQuery` whose `urn` is in the set has
+`disabled: true` written onto it; all others have the field absent. This merge
+happens before both `onMultipleDataFiltersChange` and `addSystemMessage` are called.
+`addSystemMessage` computes `updatedDataQueries` internally by closing over the
+current value of `disabledDatasetUrns` at call time.
+
 ### Step 2 — Build and persist the system message
 
 `onFiltersChange` / `onMultipleDataFiltersChange` is called with the serialised

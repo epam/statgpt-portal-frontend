@@ -115,6 +115,11 @@ collects the rebuilt queries into an array before calling `invokePythonAttachmen
 The API call itself is identical; the difference is only how many `DataQuery` objects
 are merged and passed.
 
+`invokePythonAttachment` passes `dataQueries` to the Python API without transformation
+with respect to the `disabled` flag — the flag is included in the payload automatically
+if it is set. The caller (`onApply` in `MultiDatasetFilters`) supplies the updated
+`dataQueries` with `disabled` flags already set before calling `invokePythonAttachment`.
+
 ---
 
 ## Invariants

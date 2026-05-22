@@ -24,6 +24,9 @@ interface DataQuery {
     datasetUrl?: string;
   };
   filters?: QueryFilter[];      // The user's dimension selections, serialised
+  disabled?: boolean;           // When true, this dataset is excluded from data loading and display.
+                                // undefined means enabled; no migration is needed for existing
+                                // conversations that lack this field — they are treated as enabled.
 }
 ```
 

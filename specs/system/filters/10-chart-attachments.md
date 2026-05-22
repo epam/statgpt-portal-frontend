@@ -157,9 +157,13 @@ frequency. The filtered periods become the x-axis categories in `buildChartConfi
 
 ## Cross-Dataset Variant
 
-`buildCrossDatasetChartingData()` (`cross-dataset-chart-data.ts`) iterates
-`dataQueries` and calls `buildChartData()` per dataset. Each dataset's units are
-wrapped in a `ChartUnitGroup`:
+`buildCrossDatasetChartingData()` (`cross-dataset-chart-data.ts`) filters out
+disabled datasets (`filter(q => !q.disabled)`) before iterating `dataQueries`.
+Disabled datasets are excluded from the chart units array entirely — they contribute
+neither `units` nor `groups` entries to the returned `ChartingData`.
+
+The function then iterates the remaining enabled queries and calls `buildChartData()`
+per dataset. Each dataset's units are wrapped in a `ChartUnitGroup`:
 
 ```ts
 interface ChartUnitGroup {
