@@ -89,6 +89,9 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   const [isFilterValuesLoading, setIsFilterValuesLoading] = useState(false);
   const filterValuesLoadingRequestsRef = useRef(0);
   const [isModalClosed, setIsModalClosed] = useState(false);
+  const [disabledDatasetUrns, setDisabledDatasetUrns] = useState<Set<string>>(
+    new Set(),
+  );
 
   const startFilterValuesLoading = useCallback(() => {
     filterValuesLoadingRequestsRef.current += 1;
@@ -344,11 +347,14 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       setSelectedTimeOption(void 0);
       setSelectedFilter({ ...appliedFilters?.[0], isSelectedFilter: true });
       setModalFilters(appliedFilters);
+      setDisabledDatasetUrns(
+        new Set(dataQueries?.filter((q) => q.disabled).map((q) => q.urn)),
+      );
     }
     if (modalState === PopUpState.Closed) {
       setSelectedFilter(void 0);
     }
-  }, [appliedFilters, modalState]);
+  }, [appliedFilters, dataQueries, modalState]);
 
   // Load available hierarchies when selected filter changes
   useEffect(() => {
@@ -382,8 +388,11 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
 
   const addSystemMessage = useCallback(
     async (filtersMap: Map<string, Filter[]>) => {
+      const updatedDataQueries = dataQueries?.map((q) =>
+        disabledDatasetUrns.has(q.urn) ? { ...q, disabled: true as const } : q,
+      );
       const dataQueryFiltersMap = setDataQueryFiltersMap(
-        dataQueries,
+        updatedDataQueries,
         filtersMap,
       );
       const updatedConversationWithSystemMessage = conversation
@@ -391,7 +400,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
             ...conversation,
             messages: updateMessagesWithSystemMessage(
               conversation?.messages,
-              dataQueries,
+              updatedDataQueries,
               dataQueryFiltersMap,
             ),
           }
@@ -400,7 +409,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       setConversation?.(updatedConversationWithSystemMessage);
 
       updateDataQueries?.(
-        getUpdatedDataQueries(dataQueries, dataQueryFiltersMap),
+        getUpdatedDataQueries(updatedDataQueries, dataQueryFiltersMap),
       );
 
       await updateConversation(decodeURI(conversationKey), {
@@ -412,6 +421,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       conversation,
       conversationKey,
       dataQueries,
+      disabledDatasetUrns,
       setConversation,
       updateConversation,
       updateDataQueries,
@@ -554,6 +564,17 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     [handleFiltersDelete, modalFilters, dataQueries],
   );
 
+  const onToggleDataset = useCallback(
+    (urn: string, enabled: boolean) => {
+      setDisabledDatasetUrns((prev) => {
+        const next = new Set(prev);
+        enabled ? next.delete(urn) : next.add(urn);
+        return next;
+      });
+    },
+    [],
+  );
+
   const onCloseModal = useCallback(() => {
     constraintsMapRef.current = initialModalConstraintsMap;
     setModalState(PopUpState.Closed);
@@ -564,9 +585,13 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     const filtersAfterClear = getFiltersAfterClear(modalFilters);
 
     handleFiltersDelete(filtersAfterClear, dataQueries);
-  }, [handleFiltersDelete, modalFilters, dataQueries]);
+    setDisabledDatasetUrns(new Set());
+  }, [handleFiltersDelete, modalFilters, dataQueries, setDisabledDatasetUrns]);
 
   const onApply = useCallback(() => {
+    const updatedDataQueries = dataQueries?.map((q) =>
+      disabledDatasetUrns.has(q.urn) ? { ...q, disabled: true as const } : q,
+    );
     const appliedFiltersMap = buildFiltersMap(
       modalFilters,
       constraintsMapRef.current,
@@ -613,7 +638,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     onMultipleDataFiltersChange?.(
       filtersParamsMap,
       constraintsMapRef.current,
-      dataQueries?.filter((q) => compatibleUrns.has(q.urn)),
+      updatedDataQueries?.filter((q) => compatibleUrns.has(q.urn) || q.disabled),
       appliedFiltersMap,
       appliedFilters,
     );
@@ -633,6 +658,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     datasetDimensionsMetadata.map,
     onMultipleDataFiltersChange,
     dataQueries,
+    disabledDatasetUrns,
     addSystemMessage,
   ]);
 
@@ -686,9 +712,9 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               onSelectHierarchy={onSelectHierarchy}
               onExpandHierarchyNode={onExpandHierarchyNode}
               dataQueries={dataQueries}
-              disabledDatasetUrns={new Set()}
-              onToggleDataset={() => void 0}
-              onClearAllDatasets={() => void 0}
+              disabledDatasetUrns={disabledDatasetUrns}
+              onToggleDataset={onToggleDataset}
+              onClearAllDatasets={() => setDisabledDatasetUrns(new Set())}
             />
             <ModalFooter
               onApply={onApply}
