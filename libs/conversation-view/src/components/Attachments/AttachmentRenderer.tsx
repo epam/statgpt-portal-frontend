@@ -258,6 +258,7 @@ const AttachmentRenderer: FC<Props> = ({
                   }}
                   datasetIcon={attachmentsStyles?.datasetIcon}
                   attachmentInfoList={attachmentInfoList}
+                  dataQueries={dataQueries}
                 />
               )}
               {!isOpenedAdvancedView &&

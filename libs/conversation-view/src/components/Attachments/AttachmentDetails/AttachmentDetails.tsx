@@ -13,12 +13,14 @@ interface Props {
   };
   attachmentInfoList?: AttachmentInfo[];
   datasetIcon?: ReactNode;
+  dataQueries?: { disabled?: boolean }[];
 }
 
 const AttachmentDetails: FC<Props> = ({
   titles,
   attachmentInfoList,
   datasetIcon,
+  dataQueries,
 }) => {
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
 
@@ -71,6 +73,12 @@ const AttachmentDetails: FC<Props> = ({
     };
   }, [isCrossDatasetModeOn, attachmentInfoList]);
 
+  const hasDisabledDatasets = dataQueries?.some((q) => q.disabled) ?? false;
+  const enabledDatasetNames = hasDisabledDatasets
+    ? (attachmentInfoList?.map((info) => info.datasetName).filter(Boolean) ??
+      [])
+    : [];
+
   return (
     <div className="attachment-details flex flex-col">
       <p
@@ -84,6 +92,22 @@ const AttachmentDetails: FC<Props> = ({
         {titles?.queryUpdatedManuallyTitle ??
           'Query has been updated manually.'}
       </p>
+      {hasDisabledDatasets && enabledDatasetNames.length > 0 && (
+        <div className="body-1 mb-2 flex flex-wrap items-center gap-1">
+          <span>Dataset{titles?.setToTitle ?? ' set to '}</span>
+          {enabledDatasetNames.map((name) => (
+            <span
+              key={name}
+              className="attachment-dataset-name caption !mb-0 inline-flex items-center"
+            >
+              <span className="attachment-dataset-icon mr-1">
+                {datasetIcon}
+              </span>
+              {name}
+            </span>
+          ))}
+        </div>
+      )}
       {isCrossDatasetModeOn ? (
         <>
           {sharedFilterDetails.length > 0 && (
