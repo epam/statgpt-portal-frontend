@@ -39,7 +39,7 @@ const DatasetSelectorFacet: FC<Props> = ({
         <span className="truncate">Dataset</span>
       </h3>
       <div className="ml-2 flex items-center gap-2 text-neutrals-800">
-        <span className="px-2 text-center filters-facet-item-counter">
+        <span className="filters-facet-item-counter px-2 text-center">
           {`${enabledCount}/${dataQueries.length}`}
         </span>
         {hasClear && (

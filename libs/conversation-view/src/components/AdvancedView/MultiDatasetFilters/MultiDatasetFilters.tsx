@@ -567,7 +567,11 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   const onToggleDataset = useCallback((urn: string, enabled: boolean) => {
     setDisabledDatasetUrns((prev) => {
       const next = new Set(prev);
-      enabled ? next.delete(urn) : next.add(urn);
+      if (enabled) {
+        next.delete(urn);
+      } else {
+        next.add(urn);
+      }
       return next;
     });
   }, []);

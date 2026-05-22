@@ -29,9 +29,9 @@ const DatasetValuesPanel: FC<Props> = ({
   const enabledCount = dataQueries.length - disabledDatasetUrns.size;
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="mb-3 relative">
-        <IconSearch className="absolute left-2 top-1/2 -translate-y-1/2 text-neutrals-500 w-4 h-4" />
+    <div className="flex h-full flex-col">
+      <div className="relative mb-3">
+        <IconSearch className="absolute left-2 top-1/2 size-4 -translate-y-1/2 text-neutrals-500" />
         <input
           type="text"
           className="filters-search-input w-full pl-8"
@@ -40,7 +40,7 @@ const DatasetValuesPanel: FC<Props> = ({
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
-      <div className="overflow-y-auto flex-1">
+      <div className="flex-1 overflow-y-auto">
         {filtered.map((q) => {
           const isChecked = !disabledDatasetUrns.has(q.urn);
           const isLastEnabled = isChecked && enabledCount === 1;
