@@ -58,9 +58,8 @@ export const Checkbox: FC<Props> = ({
       onClick={handleClick}
       className={mergeClasses(
         'flex min-w-0 items-center py-1 shrink-0',
-        disabled
-          ? `cursor-not-allowed${disabledScope === 'full' ? ' opacity-50' : ''}`
-          : 'cursor-pointer',
+        disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+        disabled && disabledScope === 'full' && 'opacity-50',
         className,
       )}
     >

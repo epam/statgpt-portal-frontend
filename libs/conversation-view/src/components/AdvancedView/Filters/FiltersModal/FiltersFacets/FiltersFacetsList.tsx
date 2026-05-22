@@ -27,6 +27,8 @@ import {
 } from '../../../../../utils/multiple-filters';
 import { useConversationViewFeatureToggles } from '../../../../../context/ConversationViewFeatureTogglesContext';
 
+const EMPTY_DISABLED_SET = new Set<string>();
+
 interface Props {
   filtersList: Filter[];
   hideFacetCounterByDefault?: boolean;
@@ -90,7 +92,7 @@ const FiltersFacetsList: FC<Props> = ({
   hierarchyStateMap,
   onSelectHierarchy,
   dataQueries,
-  disabledDatasetUrns = new Set<string>(),
+  disabledDatasetUrns = EMPTY_DISABLED_SET,
   isDatasetFacetSelected = false,
   onSelectDatasetFacet,
   onClearAllDatasets,

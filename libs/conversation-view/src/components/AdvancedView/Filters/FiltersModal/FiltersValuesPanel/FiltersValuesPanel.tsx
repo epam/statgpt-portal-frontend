@@ -230,7 +230,7 @@ const FiltersValuesPanel: FC<Props> = ({
       ) : (
         <div
           className={classNames(
-            'flex flex-col pt-2 pb-2 h-full flex-1 min-w-0 sm:border-0',
+            'flex flex-col py-2 h-full flex-1 min-w-0 sm:border-0',
             'filter-values-container',
           )}
         >

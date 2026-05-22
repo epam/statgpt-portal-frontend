@@ -565,6 +565,10 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     [handleFiltersDelete, modalFilters, dataQueries],
   );
 
+  const onClearAllDatasets = useCallback(() => {
+    setDisabledDatasetUrns(new Set());
+  }, []);
+
   const onToggleDataset = useCallback((urn: string, enabled: boolean) => {
     setDisabledDatasetUrns((prev) => {
       const next = new Set(prev);
@@ -588,7 +592,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
 
     handleFiltersDelete(filtersAfterClear, dataQueries);
     setDisabledDatasetUrns(new Set());
-  }, [handleFiltersDelete, modalFilters, dataQueries, setDisabledDatasetUrns]);
+  }, [handleFiltersDelete, modalFilters, dataQueries]);
 
   const onApply = useCallback(() => {
     const updatedDataQueries = dataQueries?.map((q) => ({
@@ -719,7 +723,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               dataQueries={dataQueries}
               disabledDatasetUrns={disabledDatasetUrns}
               onToggleDataset={onToggleDataset}
-              onClearAllDatasets={() => setDisabledDatasetUrns(new Set())}
+              onClearAllDatasets={onClearAllDatasets}
             />
             <ModalFooter
               onApply={onApply}

@@ -32,7 +32,7 @@ const DatasetValuesPanel: FC<Props> = ({
     <div className="filter-values-container flex h-full min-w-0 flex-1 flex-col py-2 sm:border-0">
       <FiltersSearchInput
         value={searchQuery}
-        onChange={(value) => setSearchQuery(value)}
+        onChange={setSearchQuery}
         searchIconSize={searchIconSize}
       />
       <div className="body-2 mt-3 flex min-h-0 flex-1 flex-col overflow-auto">
