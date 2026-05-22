@@ -358,7 +358,7 @@ const Filters: FC<FiltersProps> = ({
 
   useEffect(() => {
     if (modalState === PopUpState.Opened) {
-      setSelectedFilter({ ...appliedFilters?.[0], isSelectedFilter: true });
+      setSelectedFilter(void 0);
       setModalFilters(appliedFilters);
     }
     if (modalState === PopUpState.Closed) {
