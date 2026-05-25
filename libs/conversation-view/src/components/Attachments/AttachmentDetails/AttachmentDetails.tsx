@@ -74,10 +74,8 @@ const AttachmentDetails: FC<Props> = ({
   }, [isCrossDatasetModeOn, attachmentInfoList]);
 
   const hasDisabledDatasets = dataQueries?.some((q) => q.disabled) ?? false;
-  const enabledDatasetNames = hasDisabledDatasets
-    ? (attachmentInfoList?.map((info) => info.datasetName).filter(Boolean) ??
-      [])
-    : [];
+  const enabledDatasetNames =
+    attachmentInfoList?.map((info) => info.datasetName).filter(Boolean) ?? [];
 
   return (
     <div className="attachment-details flex flex-col">
