@@ -608,6 +608,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       constraintsMapRef.current,
       false,
       datasetDimensionsMetadata.map,
+      disabledDatasetUrns, // disabled datasets are omitted from filtersParamsMap; their filters are preserved via updatedDataQueries spread
     );
     const appliedFilters = getFiltersByConstraints(
       appliedFiltersMap,

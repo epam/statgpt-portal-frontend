@@ -507,6 +507,7 @@ describe('MultiDatasetFilters', () => {
         defaultProps.structureDataMaps.constraintsMap,
         false,
         expect.any(Object),
+        expect.any(Set),
       );
 
       expect(onMultipleDataFiltersChange).toHaveBeenCalledWith(
