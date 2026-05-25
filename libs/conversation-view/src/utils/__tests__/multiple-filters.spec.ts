@@ -2370,4 +2370,70 @@ describe('filterSharedValuesForEnabledDatasets', () => {
       expect((result[0] as SharedFilter).timeRange).toEqual(originalRange);
     });
   });
+
+  describe('buildFiltersMap — disabledDatasetUrns', () => {
+    it('includes all datasets when disabledDatasetUrns is empty', () => {
+      const filter = makeSharedFilter({
+        sourceDatasetUrns: ['urn-A', 'urn-B'],
+        dimensionValues: [makeFilterValue('france', ['urn-A', 'urn-B'], true)],
+      });
+
+      const result = buildFiltersMap([filter], undefined, false, undefined, new Set());
+
+      expect(result.has('urn-A')).toBe(true);
+      expect(result.has('urn-B')).toBe(true);
+    });
+
+    it('omits disabled datasets for Country/Frequency SharedFilters', () => {
+      const filter = makeSharedFilter({
+        sourceDatasetUrns: ['urn-A', 'urn-B'],
+        dimensionValues: [makeFilterValue('france', ['urn-A', 'urn-B'], true)],
+      });
+
+      const result = buildFiltersMap(
+        [filter],
+        undefined,
+        false,
+        undefined,
+        new Set(['urn-B']),
+      );
+
+      expect(result.has('urn-A')).toBe(true);
+      expect(result.has('urn-B')).toBe(false);
+    });
+
+    it('omits disabled datasets for Time Period SharedFilters', () => {
+      const filter = makeTimeFilter(['urn-A', 'urn-B'], {
+        startPeriod: new Date('2020-01-01'),
+        endPeriod: new Date('2025-12-31'),
+      });
+
+      const result = buildFiltersMap(
+        [filter],
+        undefined,
+        false,
+        undefined,
+        new Set(['urn-B']),
+      );
+
+      expect(result.has('urn-A')).toBe(true);
+      expect(result.has('urn-B')).toBe(false);
+    });
+
+    it('omits disabled datasets that appear via DatasetFilter entries', () => {
+      // DatasetFilter for a disabled dataset must also be removed so
+      // onMultipleDataFiltersChange does not overwrite that dataset's saved filters
+      const df: DatasetFilter = { id: 'INDICATOR', filterType: 'dataset', datasetUrn: 'urn-B' };
+
+      const result = buildFiltersMap(
+        [df],
+        undefined,
+        false,
+        undefined,
+        new Set(['urn-B']),
+      );
+
+      expect(result.has('urn-B')).toBe(false);
+    });
+  });
 });

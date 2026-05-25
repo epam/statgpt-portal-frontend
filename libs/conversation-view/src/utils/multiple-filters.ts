@@ -766,8 +766,9 @@ export const buildFiltersMap = (
   constraintsMap?: Map<string, DataConstraints[] | undefined>,
   applySharedFallback = false,
   datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+  disabledDatasetUrns: Set<string> = new Set(),
 ): Map<string, Filter[]> => {
-  return filters
+  const result = filters
     ?.flatMap((filter) =>
       expandSharedFilter(
         filter,
@@ -788,6 +789,16 @@ export const buildFiltersMap = (
 
       return filterMap;
     }, new Map<string, Filter[]>());
+
+  // Remove disabled datasets so their DataQuery.filters survive the Apply cycle
+  // untouched (they are preserved via the `...q` spread in updatedDataQueries).
+  if (disabledDatasetUrns.size > 0) {
+    for (const urn of disabledDatasetUrns) {
+      result.delete(urn);
+    }
+  }
+
+  return result;
 };
 
 export const getCompatibleDatasetUrns = (
