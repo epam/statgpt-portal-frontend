@@ -2326,9 +2326,9 @@ describe('filterSharedValuesForEnabledDatasets', () => {
       expect(resultFilter.timeRange?.endPeriod).toEqual(new Date('2020-12-31'));
     });
 
-    it('widens end date when multiple enabled datasets extend beyond user selection', () => {
-      // A: 2010–2022, C: 2018–2024. User selected 2015–2020. Union end = 2024.
-      // Clip: start max(2015, 2010) = 2015; end min(2020, 2024) = 2020.
+    it('does not expand endPeriod beyond user selection when union range is wider', () => {
+      // A: 2010–2022, C: 2018–2024. User selected 2015–2020. Union end = 2024 (wider than user).
+      // Clip: start max(2015, 2010) = 2015; end min(2020, 2024) = 2020 (user end preserved).
       const filter = makeTimeFilter(
         ['urn-A', 'urn-B', 'urn-C'],
         { startPeriod: new Date('2015-01-01'), endPeriod: new Date('2020-01-01') },

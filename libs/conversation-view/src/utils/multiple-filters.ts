@@ -1552,10 +1552,10 @@ const filterTimeDimensionForEnabledDatasets = (
   }
 
   const availableStart = new Date(
-    Math.min(...periods.map((p) => (p.startPeriod as Date).getTime())),
+    Math.min(...periods.map((p) => p.startPeriod.getTime())),
   );
   const availableEnd = new Date(
-    Math.max(...periods.map((p) => (p.endPeriod as Date).getTime())),
+    Math.max(...periods.map((p) => p.endPeriod.getTime())),
   );
 
   const currentStart = filter.timeRange.startPeriod as Date | undefined;
