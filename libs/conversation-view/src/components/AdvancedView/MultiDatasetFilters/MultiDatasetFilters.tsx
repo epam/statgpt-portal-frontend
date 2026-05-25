@@ -92,6 +92,10 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   const [disabledDatasetUrns, setDisabledDatasetUrns] = useState<Set<string>>(
     new Set(),
   );
+  const conversationRef = useRef(conversation);
+  useEffect(() => {
+    conversationRef.current = conversation;
+  }, [conversation]);
 
   const startFilterValuesLoading = useCallback(() => {
     filterValuesLoadingRequestsRef.current += 1;
@@ -388,6 +392,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
 
   const addSystemMessage = useCallback(
     async (filtersMap: Map<string, Filter[]>) => {
+      const currentConversation = conversationRef.current;
       const updatedDataQueries = dataQueries?.map((q) => ({
         ...q,
         disabled: disabledDatasetUrns.has(q.urn),
@@ -396,11 +401,11 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         updatedDataQueries,
         filtersMap,
       );
-      const updatedConversationWithSystemMessage = conversation
+      const updatedConversationWithSystemMessage = currentConversation
         ? {
-            ...conversation,
+            ...currentConversation,
             messages: updateMessagesWithSystemMessage(
-              conversation?.messages,
+              currentConversation.messages,
               updatedDataQueries,
               dataQueryFiltersMap,
             ),
@@ -419,7 +424,6 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       });
     },
     [
-      conversation,
       conversationKey,
       dataQueries,
       disabledDatasetUrns,
