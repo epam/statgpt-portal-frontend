@@ -1,4 +1,7 @@
-import { prepareSystemMessage, updateMessagesWithSystemMessage } from '../system-message';
+import {
+  prepareSystemMessage,
+  updateMessagesWithSystemMessage,
+} from '../system-message';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 
 jest.mock('@epam/ai-dial-shared', () => ({
@@ -92,9 +95,7 @@ describe('updateMessagesWithSystemMessage', () => {
     const messages = [SYSTEM_MESSAGE()];
     const result = updateMessagesWithSystemMessage(messages, DATA_QUERIES);
     const attachments = result[0].custom_content!.attachments!;
-    const python = attachments.find(
-      (a: any) => a.type === 'text/markdown',
-    );
+    const python = attachments.find((a: any) => a.type === 'text/markdown');
     expect(python).toBeUndefined();
   });
 
