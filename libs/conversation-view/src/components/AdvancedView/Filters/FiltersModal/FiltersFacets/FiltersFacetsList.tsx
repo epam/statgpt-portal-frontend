@@ -61,7 +61,7 @@ const FiltersFacetsList: FC<Props> = ({
   return (
     <div
       className={classNames(
-        'overflow-y-auto advanced-view-filters-list min-w-[320px] pr-3 h-full sm:w-full',
+        'overflow-y-auto advanced-view-filters-list min-w-[320px] max-w-[338px] pr-3 h-full sm:max-w-full sm:w-full',
       )}
     >
       {dataQueries && dataQueries.length > 0 && (
@@ -93,13 +93,15 @@ const FiltersFacetsList: FC<Props> = ({
             : undefined;
 
           return (
-            <div key={getFilterIdentity(filter)}>
+            <div key={getFilterIdentity(filter)} className="min-w-0 shrink-0">
               {datasetName && (
-                <h4 className="filters-facet-dataset-name">
+                <h4 className="filters-facet-dataset-name !flex">
                   <span className="filters-facet-dataset-icon">
                     {datasetIcon}
                   </span>
-                  {datasetName}
+                  <span className="truncate min-w-0" title={datasetName}>
+                    {datasetName}
+                  </span>
                 </h4>
               )}
 
