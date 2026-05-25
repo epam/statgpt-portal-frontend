@@ -5,7 +5,7 @@ import { Locale } from '@epam/statgpt-shared-toolkit';
 import { IconButton } from '@epam/statgpt-ui-components';
 import ChartIcon from '../../../assets/icons/chart.svg';
 import { ICellRendererParams } from 'ag-grid-community';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChartUnit, ChartUnitValue } from '../../../models/charting';
 import { Tooltip } from '../../Tooltip/Tooltip';
 import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-element';
@@ -33,10 +33,15 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const [isChartClosed, setIsChartClosed] = useState(false);
 
+  const resolvedChart = useMemo(
+    () => getChartUnit(params.value),
+    [params.value],
+  );
+
   const openChart = useCallback(() => {
-    setChart((currentChart) => currentChart ?? getChartUnit(params.value));
+    setChart((currentChart) => currentChart ?? resolvedChart);
     setIsOpenChart(true);
-  }, [params.value]);
+  }, [resolvedChart]);
 
   const closeChart = useCallback(() => {
     setIsOpenChart(false);
@@ -70,6 +75,10 @@ const ChartCellRenderer = (params: ChartCellRendererParams) => {
   useEffect(() => {
     setChart(undefined);
   }, [params.value]);
+
+  if (resolvedChart && !resolvedChart.isPlottable) {
+    return null;
+  }
 
   return (
     <>

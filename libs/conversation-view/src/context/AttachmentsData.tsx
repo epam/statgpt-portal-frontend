@@ -36,7 +36,10 @@ import {
   getTimeQueryFilterFromAttachment,
 } from '../utils/query-filters';
 import { AttachmentType } from '@epam/statgpt-dial-toolkit';
-import { createChartDataResolver } from '../utils/attachments/charting/chart-data';
+import {
+  createChartDataResolver,
+  isChartingDataPlottable,
+} from '../utils/attachments/charting/chart-data';
 import { ChartingStyles } from '../models/attachments-styles';
 import { MetadataSettings } from '../models/metadata';
 import { ConversationViewTitles } from '../models/titles';
@@ -87,6 +90,7 @@ export function useAttachmentsData(
     useState<CustomChartAttachmentType>(
       createInitialChartAttachment(titles?.chart),
     );
+  const [isChartPlottable, setIsChartPlottable] = useState(false);
   const [codeAttachments, setCodeAttachments] = useState<
     CustomCodeAttachment[]
   >([]);
@@ -337,19 +341,30 @@ export function useAttachmentsData(
   ]);
 
   useEffect(() => {
-    if (structures != null && dataMessage != null) {
-      setCustomChartAttachment((prev) => ({
-        ...prev,
-        charting_data: undefined,
-        getChartingData: createChartDataResolver(
-          structures,
-          dataMessage,
-          dataQuery,
-          locale,
-          chartStyles,
-        ),
-      }));
+    if (structures == null || dataMessage == null) {
+      return undefined;
     }
+    const resolver = createChartDataResolver(
+      structures,
+      dataMessage,
+      dataQuery,
+      locale,
+      chartStyles,
+    );
+    setCustomChartAttachment((prev) => ({
+      ...prev,
+      charting_data: undefined,
+      getChartingData: resolver,
+    }));
+    setIsChartPlottable(false);
+    return scheduleDeferredWork(() => {
+      try {
+        setIsChartPlottable(isChartingDataPlottable(resolver()));
+      } catch (err) {
+        console.error('Error evaluating chart plottability', err as object);
+        setIsChartPlottable(false);
+      }
+    });
   }, [structures, dataMessage, dataQuery, locale, chartStyles]);
 
   useEffect(() => {
@@ -367,8 +382,17 @@ export function useAttachmentsData(
   }, [rawAttachments, titles, dataQuery]);
 
   const attachments = useMemo(
-    () => [customGridAttachment, customChartAttachment, ...codeAttachments],
-    [customGridAttachment, customChartAttachment, codeAttachments],
+    () => [
+      customGridAttachment,
+      ...(isChartPlottable ? [customChartAttachment] : []),
+      ...codeAttachments,
+    ],
+    [
+      customGridAttachment,
+      customChartAttachment,
+      codeAttachments,
+      isChartPlottable,
+    ],
   );
 
   return {
