@@ -1517,8 +1517,11 @@ export const setDataQueryFiltersMap = (
 };
 
 /**
- * Private helper — Time Period path. Implemented fully in Task 2.
- * Stub here so the Country/Frequency path compiles.
+ * Filters a Time Period SharedFilter for enabled datasets.
+ * Already handles: filtering sourceDatasetUrns to enabled ones, hiding the
+ * facet entirely when all source datasets are disabled.
+ * Task 2 completes: recomputing the available range from enabled datasets'
+ * constraints and clipping the user's timeRange selection accordingly.
  */
 const filterTimeDimensionForEnabledDatasets = (
   filter: SharedFilter,
@@ -1538,27 +1541,28 @@ const filterTimeDimensionForEnabledDatasets = (
  * no remaining visible values is omitted entirely (facet hidden).
  * DatasetFilter entries are passed through unchanged.
  *
- * Does NOT mutate `modalFilters`. Call this in a useMemo for display only.
+ * Does NOT mutate `filters`. Call this in a useMemo for display only.
  */
 export const filterSharedValuesForEnabledDatasets = (
   filters: Filter[],
   disabledDatasetUrns: Set<string>,
-  constraintsMap?: Map<string, DataConstraints[] | undefined>,
+  constraintsMap?: Map<string, DataConstraints[] | undefined>, // used by the Time Period path
 ): Filter[] => {
   if (disabledDatasetUrns.size === 0) return filters;
 
   return filters.flatMap((filter): Filter[] => {
     if (filter.filterType !== 'shared') return [filter];
 
-    if ((filter as SharedFilter).isTimeDimension) {
+    if (filter.isTimeDimension) {
       return filterTimeDimensionForEnabledDatasets(
-        filter as SharedFilter,
+        filter,
         disabledDatasetUrns,
         constraintsMap,
       );
     }
 
     const filteredValues = (filter.dimensionValues ?? []).filter((value) =>
+      // datasetUrn absent (structurally incomplete source) → treat as enabled (not in disabled set)
       value.sourceValues?.some(
         (sv) => !disabledDatasetUrns.has(sv.datasetUrn ?? ''),
       ),

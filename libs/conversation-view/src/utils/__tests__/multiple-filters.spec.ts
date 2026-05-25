@@ -2176,6 +2176,7 @@ const makeDatasetFilter = (datasetUrn: string): DatasetFilter => ({
   datasetUrn,
 });
 
+// Used by the Time Period tests added in Task 2 and the buildFiltersMap tests in Task 3.
 const makeTimeFilter = (
   sourceDatasetUrns: string[],
   timeRange?: { startPeriod: Date; endPeriod: Date },
