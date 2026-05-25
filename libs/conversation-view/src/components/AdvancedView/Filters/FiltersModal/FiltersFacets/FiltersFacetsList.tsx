@@ -150,7 +150,7 @@ const FiltersFacetsList: FC<Props> = ({
               )}
 
               <FiltersFacetItem
-                filtersList={filtersList}
+                filtersList={filteredList}
                 locale={locale}
                 filter={filter}
                 onSelectFilter={onSelectFilter}

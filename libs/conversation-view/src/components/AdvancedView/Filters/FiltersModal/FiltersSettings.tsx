@@ -102,6 +102,14 @@ const FilterSettings: FC<Props> = ({
   const isMobile = useIsMobile();
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const [isDatasetFacetSelected, setIsDatasetFacetSelected] = useState(true);
+  const visibleFiltersList = filtersList.filter(
+    (filter) =>
+      !(
+        filter.filterType === 'dataset' &&
+        filter.datasetUrn &&
+        disabledDatasetUrns.has(filter.datasetUrn)
+      ),
+  );
   const allAppliedFilters =
     getTotalSelectedValuesLength(getSelectedFilterValues(filtersList)) +
     disabledDatasetUrns.size;
@@ -359,7 +367,7 @@ const FilterSettings: FC<Props> = ({
           />
         ) : (
           <FiltersValuesPanel
-            filtersList={filtersList}
+            filtersList={visibleFiltersList}
             selectedFilter={selectedFilter}
             locale={locale}
             isDisableValues={isDisableValues}
