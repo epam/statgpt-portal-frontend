@@ -11,7 +11,7 @@ import {
   TimeRangeOptions,
 } from '@epam/statgpt-shared-toolkit';
 import { Button, useIsMobile } from '@epam/statgpt-ui-components';
-import { FC, ReactNode, useCallback, useState } from 'react';
+import { FC, ReactNode, useCallback, useMemo, useState } from 'react';
 import {
   Filter,
   FiltersModalProps,
@@ -32,7 +32,10 @@ import {
   isSameFilter,
 } from '../../../../utils/filters';
 import { useConversationViewFeatureToggles } from '../../../../context/ConversationViewFeatureTogglesContext';
-import { getInitialConstraints } from '../../../../utils/multiple-filters';
+import {
+  filterSharedValuesForEnabledDatasets,
+  getInitialConstraints,
+} from '../../../../utils/multiple-filters';
 import { FiltersModalProvider } from '../../../../context/FiltersModalContext';
 import {
   mapHierarchyNodeIdToFilterValueId,
@@ -103,13 +106,35 @@ const FilterSettings: FC<Props> = ({
   const isMobile = useIsMobile();
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const [isDatasetFacetSelected, setIsDatasetFacetSelected] = useState(true);
-  const visibleFiltersList = filtersList.filter(
-    (filter) =>
-      !(
-        filter.filterType === 'dataset' &&
-        filter.datasetUrn &&
-        disabledDatasetUrns.has(filter.datasetUrn)
+  // Combines: (1) hide disabled-dataset DatasetFilter facets (existing),
+  //           (2) hide SharedFilter values whose sources are all disabled (new),
+  //           (3) clip Time Period range to enabled datasets (new).
+  const displayFilters = useMemo(
+    () =>
+      filterSharedValuesForEnabledDatasets(
+        filtersList.filter(
+          (filter) =>
+            !(
+              filter.filterType === 'dataset' &&
+              filter.datasetUrn &&
+              disabledDatasetUrns.has(filter.datasetUrn)
+            ),
+        ),
+        disabledDatasetUrns,
+        initialConstraintsMap,
       ),
+    [filtersList, disabledDatasetUrns, initialConstraintsMap],
+  );
+
+  // Display-only version of the selected filter — filtered dimensionValues and
+  // clipped timeRange. State update callbacks still close over the full
+  // `selectedFilter` prop so hidden values are never lost.
+  const displaySelectedFilter = useMemo(
+    () =>
+      selectedFilter
+        ? displayFilters.find((f) => isSameFilter(f, selectedFilter))
+        : undefined,
+    [selectedFilter, displayFilters],
   );
   const allAppliedFilters =
     getTotalSelectedValuesLength(getSelectedFilterValues(filtersList)) +
@@ -343,7 +368,7 @@ const FilterSettings: FC<Props> = ({
             </div>
           )}
           <FiltersFacetsList
-            filtersList={filtersList}
+            filtersList={displayFilters}
             hideFacetCounterByDefault={modalProps?.isHideFacetCounterByDefault}
             onSelectFilter={onSelectFilter}
             onSelectDisplayMode={onSelectDisplayMode}
@@ -375,8 +400,8 @@ const FilterSettings: FC<Props> = ({
             />
           ) : (
             <FiltersValuesPanel
-              filtersList={visibleFiltersList}
-              selectedFilter={selectedFilter}
+              filtersList={displayFilters}
+              selectedFilter={displaySelectedFilter}
               structuresMap={structuresMap}
               initialConstraints={getInitialConstraints(
                 isCrossDatasetModeOn,
