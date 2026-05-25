@@ -10,6 +10,7 @@ export interface ChartUnit extends ChartUnitRows {
   config: EChartsOption;
   dimensions: DimensionInfo[];
   limitedByRowsAmountTo: number | undefined;
+  isPlottable: boolean;
 }
 
 export type ChartUnitValue = ChartUnit | (() => ChartUnit);

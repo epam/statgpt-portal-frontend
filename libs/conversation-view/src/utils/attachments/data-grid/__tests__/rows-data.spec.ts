@@ -36,7 +36,13 @@ describe('getRowsData', () => {
     const chartStyles = {};
     const timeSeries = [{ name: 'A.US' }];
     const rows = [{ FREQ: 'A', REF_AREA: 'US' }];
-    const chartUnit = { config: {}, dimensions: [], rows };
+    const chartUnit = {
+      config: {},
+      dimensions: [],
+      rows,
+      limitedByRowsAmountTo: undefined,
+      isPlottable: false,
+    };
 
     jest.mocked(getParsedResponse).mockReturnValue(timeSeries);
     jest.mocked(getDimensions).mockReturnValue({
