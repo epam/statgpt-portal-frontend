@@ -66,8 +66,8 @@ interface Props {
   dataQueries?: DataQuery[];
   disabledDatasetUrns?: Set<string>;
   isDatasetFacetSelected?: boolean;
-  onSelectDatasetFacet?: () => void;
-  onClearAllDatasets?: () => void;
+  onSelectDatasetFacet: () => void;
+  onClearAllDatasets: () => void;
 }
 
 const FiltersFacetsList: FC<Props> = ({
@@ -115,8 +115,8 @@ const FiltersFacetsList: FC<Props> = ({
           dataQueries={dataQueries}
           disabledDatasetUrns={disabledDatasetUrns}
           isSelected={isDatasetFacetSelected}
-          onSelect={onSelectDatasetFacet ?? (() => {})}
-          onClearAll={onClearAllDatasets ?? (() => {})}
+          onSelect={onSelectDatasetFacet}
+          onClearAll={onClearAllDatasets}
         />
       )}
       {filtersList
