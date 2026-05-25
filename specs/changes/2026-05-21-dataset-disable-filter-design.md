@@ -253,8 +253,130 @@ Per-dataset `DatasetFilter` items for disabled datasets are hidden from the left
 | `libs/conversation-view/src/models/filters.ts` | No changes |
 | `libs/conversation-view/src/components/AdvancedView/MultiDatasetFilters/MultiDatasetFilters.tsx` | Add `disabledDatasetUrns` state, `onToggleDataset`, updated `onClearAllFilters`, `onApply`, `addSystemMessage` |
 | `libs/conversation-view/src/components/AdvancedView/Filters/Filters.tsx` | Pass `disabledDatasetUrns` and no-op `onToggleDataset` to `FilterSettings` |
-| `libs/conversation-view/src/components/AdvancedView/Filters/FiltersModal/FiltersSettings.tsx` | Add `isDatasetFacetSelected` state, right-panel switch, new props |
+| `libs/conversation-view/src/components/AdvancedView/Filters/FiltersModal/FiltersSettings.tsx` | Add `isDatasetFacetSelected` state, right-panel switch, new props; add `displayFilters` derived via `useMemo` (Section 9) |
 | `libs/conversation-view/src/components/AdvancedView/Filters/FiltersModal/FiltersFacets/FiltersFacetsList.tsx` | Render `DatasetSelectorFacet` first, hide disabled-dataset filters |
 | `libs/conversation-view/src/components/AdvancedView/Filters/FiltersModal/FiltersFacets/DatasetSelectorFacet.tsx` | **New** |
 | `libs/conversation-view/src/components/AdvancedView/Filters/FiltersModal/FiltersValuesPanel/DatasetValuesPanel.tsx` | **New** |
 | `libs/conversation-view/src/utils/attachments/cross-dataset-grid/build-cross-dataset-grid-data.ts` | Filter rows from disabled datasets |
+| `libs/conversation-view/src/utils/multiple-filters.ts` | Add `filterSharedValuesForEnabledDatasets`; add `disabledDatasetUrns` param to `expandSharedTimeFilter` and `mapSharedDimensionValuesByDataset` (Section 9) |
+
+---
+
+## 9. Shared Filter Value Filtering
+
+**Date added:** 2026-05-25
+
+Section 2 of this spec hides dataset-specific facets when a dataset is disabled. This section closes the remaining gap: shared filters (Country, Frequency, Time Period) must also react — hiding values that belong exclusively to disabled datasets, and updating the Time Period range.
+
+---
+
+### 9.1 Design Decisions
+
+**Country / Frequency — preserve selections internally:**
+When a value's only source datasets are all disabled, the value is hidden from the display but its `isSelectedValue` flag is preserved untouched in `modalFilters`. When the dataset is re-enabled, the value reappears with its selection intact. This is consistent with the existing pattern for dataset-specific filters (Section 2) and with how `DataQuery.filters` are preserved for disabled datasets.
+
+The side-effect is intentional: if the user's only Frequency selection was "Daily" (from a now-disabled dataset), the visible Frequency facet becomes empty — meaning "all frequencies" for the remaining enabled datasets. This is the correct widened result, not a bug.
+
+**Time Period — clip display, preserve original range:**
+Time Period is a continuous range, not discrete values. Two things happen when a dataset is disabled:
+
+1. **Available range updates**: the calendar's bounds are recomputed using only enabled datasets' constraints (union of enabled `sourceDatasetUrns` ranges). The calendar no longer lets the user pick dates in the dead zone.
+2. **Selected range clips**: if the user's current `timeRange` selection extends beyond the new available bounds, it is clipped to fit — but only in `displayFilters`. `modalFilters` preserves the original wide range.
+
+Re-enabling restores the original range: the disabled dataset's `DataQuery.filters` (which carry the original time selection) are preserved across Apply (see Section 9.3), so `getFiltersPreselectedByDataQueries` reads them back and the merged range widens again.
+
+**Facet visibility:**
+A shared filter facet is hidden entirely when all its contributing `sourceDatasetUrns` are disabled — the same rule applied to individual values. An empty facet with no visible values serves no purpose.
+
+---
+
+### 9.2 Data Flow: `displayFilters` in `FilterSettings`
+
+`FilterSettings` derives a `displayFilters` list via `useMemo` and passes it to both panels instead of `modalFilters`:
+
+```ts
+const displayFilters = useMemo(
+  () => filterSharedValuesForEnabledDatasets(modalFilters, disabledDatasetUrns, constraintsMap),
+  [modalFilters, disabledDatasetUrns, constraintsMap],
+);
+```
+
+- `FiltersFacetsList` (left panel) receives `displayFilters` — facet counters and visibility are correct.
+- `FiltersValuesPanel` (right panel) receives `displayFilters` — checkboxes and time picker show only relevant values/range.
+- `modalFilters` state is never mutated by this derivation — it remains the full source of truth for Apply.
+
+`constraintsMap` is needed for Time Period range clipping and is already available in `FilterSettings`.
+
+---
+
+### 9.3 New Utility: `filterSharedValuesForEnabledDatasets`
+
+Location: `libs/conversation-view/src/utils/multiple-filters.ts`
+
+```ts
+export const filterSharedValuesForEnabledDatasets = (
+  filters: Filter[],
+  disabledDatasetUrns: Set<string>,
+  constraintsMap?: Map<string, DataConstraints[] | undefined>,
+): Filter[]
+```
+
+Returns early with `filters` unchanged when `disabledDatasetUrns.size === 0`.
+
+**`DatasetFilter` entries:** passed through unchanged — they are already handled by the existing disabled-dataset filter in `FiltersFacetsList`.
+
+**`SharedFilter` — Country / Frequency (discrete values):**
+
+```ts
+const filteredValues = filter.dimensionValues?.filter(value =>
+  value.sourceValues?.some(sv => !disabledDatasetUrns.has(sv.datasetUrn ?? ''))
+) ?? [];
+```
+
+- Values with at least one enabled `sourceValue.datasetUrn` are kept.
+- If `filteredValues` is empty → omit this filter from the returned array (facet hidden).
+- Otherwise return the filter with trimmed `dimensionValues`.
+
+**`SharedFilter` — Time Period (`isTimeDimension: true`):**
+
+1. Compute `enabledSourceUrns = sourceDatasetUrns.filter(urn => !disabledDatasetUrns.has(urn))`.
+2. If `enabledSourceUrns` is empty → omit this filter from the returned array (facet hidden).
+3. Recompute the available range using the existing `getMergedSharedTimeRange` logic, restricted to the enabled source datasets' constraints from `constraintsMap`.
+4. Clip the filter's `timeRange` (user selection) to the new available bounds — same clamping logic as `limitTimeRangeByConstraints`.
+5. Return the filter with updated `sourceDatasetUrns` (enabled only) and clipped `timeRange`.
+
+---
+
+### 9.4 Apply Path: Skip Disabled Datasets During Expansion
+
+**Problem:** `expandSharedTimeFilter` and `mapSharedDimensionValuesByDataset` currently expand a SharedFilter to ALL `sourceDatasetUrns`, including disabled ones. This overwrites disabled datasets' saved `DataQuery.filters` on every Apply — losing the original selections.
+
+**Fix:** Both functions receive `disabledDatasetUrns` and filter before expanding:
+
+```ts
+// expandSharedTimeFilter — time period
+(filter.sourceDatasetUrns ?? [])
+  .filter(urn => !disabledDatasetUrns.has(urn))
+  .map(urn => toDatasetFilter(filter, urn, ...))
+
+// mapSharedDimensionValuesByDataset — country / frequency
+// Only build entries for enabled dataset URNs
+```
+
+**Result:**
+
+| Dataset state | In `filtersParamsMap` on Apply | `DataQuery.filters` after Apply |
+|---|---|---|
+| Enabled | ✅ Updated with current selections | Fresh selections saved |
+| Disabled | ❌ Absent | Original selections preserved via `...q` spread in `updatedDataQueries` |
+
+**Implementation guard:** Verify that `onMultipleDataFiltersChange` treats a dataset absent from `filtersParamsMap` as "preserve existing filters" rather than "clear to empty." Add a guard if needed.
+
+---
+
+### 9.5 Spec Updates Required After Implementation
+
+| Spec file | What to update |
+|---|---|
+| `specs/system/filters/03-shared-filters-merging.md` | Document that disabled datasets are skipped during SharedFilter expansion in `expandSharedTimeFilter` and `mapSharedDimensionValuesByDataset` |
+| `specs/system/filters/07-data-flow.md` | Add the `filterSharedValuesForEnabledDatasets` display-filter step and the disabled-dataset skip in the Apply sequence |
