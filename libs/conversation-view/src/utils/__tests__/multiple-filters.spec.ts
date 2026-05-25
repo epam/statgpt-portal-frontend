@@ -3,6 +3,7 @@ import {
   COMMON_FREQUENCY_FILTER_ID,
   COMMON_TIME_PERIOD_FILTER_ID,
   buildFiltersMap,
+  filterSharedValuesForEnabledDatasets,
   getConstraintsMap,
   getConstraintsMapFromSettledResults,
   getConstraintsRequests,
@@ -21,6 +22,7 @@ import {
   mergeConstraintsMaps,
 } from '../multiple-filters';
 import type { Filter, SharedFilter } from '../../models/filters';
+import { DatasetFilter, FilterValue } from '../../models/filters';
 import { DataQuery, QueryFilterType } from '@epam/statgpt-shared-toolkit';
 
 const mockFindCodelistByDimension = jest.fn();
@@ -2144,5 +2146,116 @@ describe('getDataQueriesWithExpandedSharedDimensionFilters', () => {
         DATASET_DIMENSIONS_METADATA_MAP,
       ),
     ).toBe(dataQueries);
+  });
+});
+
+// ─── Shared factory helpers ───────────────────────────────────────────────────
+
+const makeSharedFilter = (overrides: Partial<SharedFilter> = {}): SharedFilter => ({
+  id: COMMON_COUNTRY_FILTER_ID,
+  filterType: 'shared',
+  dimensionValues: [],
+  sourceDatasetUrns: [],
+  ...overrides,
+});
+
+const makeFilterValue = (
+  id: string,
+  sourceUrns: string[],
+  isSelectedValue = false,
+): FilterValue => ({
+  id,
+  name: id,
+  isSelectedValue,
+  sourceValues: sourceUrns.map((urn) => ({ datasetUrn: urn, id, name: id })),
+});
+
+const makeDatasetFilter = (datasetUrn: string): DatasetFilter => ({
+  id: 'INDICATOR',
+  filterType: 'dataset',
+  datasetUrn,
+});
+
+const makeTimeFilter = (
+  sourceDatasetUrns: string[],
+  timeRange?: { startPeriod: Date; endPeriod: Date },
+): SharedFilter => ({
+  id: COMMON_TIME_PERIOD_FILTER_ID,
+  filterType: 'shared',
+  isTimeDimension: true,
+  sourceDatasetUrns,
+  timeRange,
+});
+
+// ─── filterSharedValuesForEnabledDatasets ────────────────────────────────────
+
+describe('filterSharedValuesForEnabledDatasets', () => {
+  describe('Country / Frequency (discrete values)', () => {
+    it('returns filters unchanged when disabledDatasetUrns is empty', () => {
+      const value = makeFilterValue('france', ['urn-A']);
+      const filter = makeSharedFilter({ dimensionValues: [value] });
+      expect(filterSharedValuesForEnabledDatasets([filter], new Set())).toEqual([filter]);
+    });
+
+    it('passes DatasetFilter entries through unchanged', () => {
+      const df = makeDatasetFilter('urn-A');
+      expect(filterSharedValuesForEnabledDatasets([df], new Set(['urn-A']))).toEqual([df]);
+    });
+
+    it('keeps values that have at least one enabled source dataset', () => {
+      const france = makeFilterValue('france', ['urn-A', 'urn-B']); // A enabled, B disabled
+      const germany = makeFilterValue('germany', ['urn-A']);        // A enabled
+      const filter = makeSharedFilter({ dimensionValues: [france, germany] });
+
+      const result = filterSharedValuesForEnabledDatasets([filter], new Set(['urn-B']));
+
+      const resultFilter = result[0] as SharedFilter;
+      expect(resultFilter.dimensionValues).toHaveLength(2);
+      expect(resultFilter.dimensionValues?.map((v) => v.id)).toEqual(['france', 'germany']);
+    });
+
+    it('hides values whose every source dataset is disabled', () => {
+      const france = makeFilterValue('france', ['urn-A']);       // A enabled
+      const daily = makeFilterValue('daily', ['urn-B']);         // B disabled
+      const filter = makeSharedFilter({
+        id: COMMON_FREQUENCY_FILTER_ID,
+        dimensionValues: [france, daily],
+      });
+
+      const result = filterSharedValuesForEnabledDatasets([filter], new Set(['urn-B']));
+
+      const resultFilter = result[0] as SharedFilter;
+      expect(resultFilter.dimensionValues).toHaveLength(1);
+      expect(resultFilter.dimensionValues?.[0].id).toBe('france');
+    });
+
+    it('hides the entire SharedFilter facet when all values come from disabled datasets', () => {
+      const daily = makeFilterValue('daily', ['urn-A']); // A disabled
+      const filter = makeSharedFilter({ dimensionValues: [daily] });
+
+      const result = filterSharedValuesForEnabledDatasets([filter], new Set(['urn-A']));
+
+      expect(result).toHaveLength(0);
+    });
+
+    it('preserves isSelectedValue on visible values', () => {
+      const selected = makeFilterValue('france', ['urn-A'], true); // selected, A enabled
+      const filter = makeSharedFilter({ dimensionValues: [selected] });
+
+      const result = filterSharedValuesForEnabledDatasets([filter], new Set(['urn-B']));
+
+      expect((result[0] as SharedFilter).dimensionValues?.[0].isSelectedValue).toBe(true);
+    });
+
+    it('does not mutate the original filter', () => {
+      const daily = makeFilterValue('daily', ['urn-B']);
+      const france = makeFilterValue('france', ['urn-A']);
+      const filter = makeSharedFilter({ dimensionValues: [france, daily] });
+      const originalLength = filter.dimensionValues?.length;
+
+      filterSharedValuesForEnabledDatasets([filter], new Set(['urn-B']));
+
+      expect(filter.dimensionValues).toHaveLength(originalLength!);
+    });
   });
 });
