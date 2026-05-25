@@ -39,6 +39,7 @@ import { MetadataSettings } from '../models/metadata';
 import { CrossDatasetGridViewMode } from '../components/AdvancedView/TableSettings/types';
 import { StructureDataMaps } from '../models/structure-data';
 import { createCrossDatasetChartingDataResolver } from '../utils/attachments/charting/cross-dataset-chart-data';
+import { isChartingDataPlottable } from '../utils/attachments/charting/chart-data';
 import { scheduleDeferredWork } from '../utils/deferred-work';
 import {
   filterDataQueriesByActiveDatasetUrns,
@@ -97,6 +98,8 @@ export function useAttachmentsDataMultipleQueries(
     );
   const [crossDatasetChartAttachment, setCrossDatasetChartAttachment] =
     useState(createInitialChartAttachment(titles?.chart));
+  const [isCrossDatasetChartPlottable, setIsCrossDatasetChartPlottable] =
+    useState(false);
   const [codeAttachments, setCodeAttachments] = useState<
     CustomCodeAttachment[]
   >([]);
@@ -368,18 +371,32 @@ export function useAttachmentsDataMultipleQueries(
         activeDatasetUrns,
       );
 
+      const resolver = createCrossDatasetChartingDataResolver(
+        visibleStructuresMap,
+        visibleDataMessagesMap,
+        visibleDataQueries,
+        locale,
+        chartStyles,
+      );
       setCrossDatasetChartAttachment((prev) => ({
         ...prev,
         charting_data: undefined,
-        getChartingData: createCrossDatasetChartingDataResolver(
-          visibleStructuresMap,
-          visibleDataMessagesMap,
-          visibleDataQueries,
-          locale,
-          chartStyles,
-        ),
+        getChartingData: resolver,
       }));
+      setIsCrossDatasetChartPlottable(false);
+      return scheduleDeferredWork(() => {
+        try {
+          setIsCrossDatasetChartPlottable(isChartingDataPlottable(resolver()));
+        } catch (err) {
+          console.error(
+            'Error evaluating cross-dataset chart plottability',
+            err as object,
+          );
+          setIsCrossDatasetChartPlottable(false);
+        }
+      });
     }
+    return undefined;
   }, [
     structureDataMaps,
     compatibleDataQueries,
@@ -392,10 +409,15 @@ export function useAttachmentsDataMultipleQueries(
   const crossDatasetAttachments = useMemo(
     () => [
       crossDatasetGridAttachment,
-      crossDatasetChartAttachment,
+      ...(isCrossDatasetChartPlottable ? [crossDatasetChartAttachment] : []),
       ...codeAttachments,
     ],
-    [crossDatasetGridAttachment, crossDatasetChartAttachment, codeAttachments],
+    [
+      crossDatasetGridAttachment,
+      crossDatasetChartAttachment,
+      codeAttachments,
+      isCrossDatasetChartPlottable,
+    ],
   );
 
   const onMultipleDataFiltersChange = useCallback(

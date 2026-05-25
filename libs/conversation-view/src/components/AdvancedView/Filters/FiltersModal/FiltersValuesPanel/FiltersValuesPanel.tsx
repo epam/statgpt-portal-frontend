@@ -5,18 +5,11 @@ import {
   getFilteredItemsWithParents,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
-import {
-  CalendarResolution,
-  DataQuery,
-  TimeRange,
-  TimeRangeOptions,
-} from '@epam/statgpt-shared-toolkit';
+import { CalendarResolution } from '@epam/statgpt-shared-toolkit';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Filter,
-  FilterTreeNodeProps,
   FilterValue,
-  FilterValuesProps,
   HierarchyState,
 } from '../../../../../models/filters';
 import TimePeriodFacet from './TimePeriodFacet';
@@ -32,60 +25,40 @@ import {
   filterHierarchyNodes,
   getSelectedHierarchyNodeIds,
 } from '../../../../../utils/hierarchy-view';
+import { useFiltersModal } from '../../../../../context/FiltersModalContext';
 
 const MIN_CROSS_DATASET_SEARCH_CHARS = 2;
 
 interface Props {
   filtersList?: Filter[];
   selectedFilter?: Filter;
-  filterValuesProps?: FilterValuesProps;
-  locale?: string;
-  isDisableValues?: boolean;
-  isValuesLoading?: boolean;
-  timeRangeOptions?: TimeRangeOptions[];
   initialConstraints?: DataConstraints[];
   structuresMap?: Map<string, StructuralData | undefined>;
-  onTimePeriodChange: (
-    timeRange: TimeRange | null,
-    selectedOption: string | number,
-  ) => void;
-  selectFilterValue: (
-    id: string,
-    isSelectedValue?: boolean,
-    filter?: Filter,
-  ) => void;
-  selectHierarchicalNodes: (
-    nodes?: FilterTreeNodeProps[],
-    filter?: Filter,
-  ) => void;
-  expandHierarchicalValue: (
-    value?: FilterTreeNodeProps,
-    filter?: Filter,
-  ) => void;
   selectedTimeOption?: string | number;
   hierarchyState?: HierarchyState;
-  dataQueries?: DataQuery[];
 }
 
 const FiltersValuesPanel: FC<Props> = ({
   filtersList,
   selectedFilter,
-  filterValuesProps,
-  locale,
-  isDisableValues,
-  isValuesLoading,
-  timeRangeOptions,
-  onTimePeriodChange,
-  selectFilterValue,
   initialConstraints,
   structuresMap,
-  selectHierarchicalNodes,
-  expandHierarchicalValue,
   selectedTimeOption,
   hierarchyState,
-  dataQueries,
 }) => {
   const { titles } = useConversationViewStyles();
+  const {
+    locale,
+    isDisableValues,
+    isValuesLoading,
+    timeRangeOptions,
+    filterValuesProps,
+    dataQueries,
+    selectFilterValue,
+    selectHierarchicalNodes,
+    expandHierarchicalValue,
+    onTimePeriodChange,
+  } = useFiltersModal();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const isHierarchicalView =

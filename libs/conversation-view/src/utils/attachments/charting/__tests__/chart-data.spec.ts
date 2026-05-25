@@ -14,6 +14,7 @@ import {
   buildSingleLineUnit,
   buildUnit,
   createChartDataResolver,
+  isChartingDataPlottable,
 } from '../chart-data';
 import { getDimensionsUniquenessByValues } from '../data-uniqueness';
 import { buildSerieKeyTitle } from '../serie-title';
@@ -440,5 +441,168 @@ describe('buildUnit', () => {
       expect.any(Array),
       styles,
     );
+  });
+
+  it('marks the unit as plottable when at least one series has two or more non-null points', () => {
+    const row = {
+      '2020': { value: [{ value: 100 }] },
+      '2021': { value: [{ value: 200 }] },
+    } as any;
+
+    const unit = buildUnit(
+      { rows: [row] },
+      makeStructures(),
+      makeDataQuery(),
+      ['2020', '2021', '2022'],
+      'en',
+    );
+
+    expect(unit.isPlottable).toBe(true);
+  });
+
+  it('marks the unit as not plottable when every series has fewer than two non-null points', () => {
+    const row = { '2020': { value: [{ value: 100 }] } } as any;
+
+    const unit = buildUnit(
+      { rows: [row] },
+      makeStructures(),
+      makeDataQuery(),
+      ['2020', '2021', '2022'],
+      'en',
+    );
+
+    expect(unit.isPlottable).toBe(false);
+  });
+
+  it('treats non-numeric time-period values as unfilled points', () => {
+    const row = {
+      '2020': { value: [{ value: 'n/a' }] },
+      '2021': { value: [{ value: 'pending' }] },
+      '2022': { value: [{ value: 42 }] },
+    } as any;
+
+    const unit = buildUnit(
+      { rows: [row] },
+      makeStructures(),
+      makeDataQuery(),
+      ['2020', '2021', '2022'],
+      'en',
+    );
+
+    expect(unit.isPlottable).toBe(false);
+  });
+
+  it('treats numeric string time-period values as filled points', () => {
+    const row = {
+      '2020': { value: [{ value: '42' }] },
+      '2021': { value: [{ value: '3.14' }] },
+    } as any;
+
+    const unit = buildUnit(
+      { rows: [row] },
+      makeStructures(),
+      makeDataQuery(),
+      ['2020', '2021', '2022'],
+      'en',
+    );
+
+    expect(unit.isPlottable).toBe(true);
+  });
+
+  it('treats empty and whitespace-only strings as unfilled points', () => {
+    const row = {
+      '2020': { value: [{ value: '' }] },
+      '2021': { value: [{ value: '   ' }] },
+      '2022': { value: [{ value: 7 }] },
+    } as any;
+
+    const unit = buildUnit(
+      { rows: [row] },
+      makeStructures(),
+      makeDataQuery(),
+      ['2020', '2021', '2022'],
+      'en',
+    );
+
+    expect(unit.isPlottable).toBe(false);
+  });
+
+  it('treats Infinity as an unfilled point', () => {
+    const row = {
+      '2020': { value: [{ value: Infinity }] },
+      '2021': { value: [{ value: 1 }] },
+    } as any;
+
+    const unit = buildUnit(
+      { rows: [row] },
+      makeStructures(),
+      makeDataQuery(),
+      ['2020', '2021'],
+      'en',
+    );
+
+    expect(unit.isPlottable).toBe(false);
+  });
+
+  it('marks the unit as plottable when any series in a multi-row unit has two or more points', () => {
+    const rowWithOne = { '2020': { value: [{ value: 1 }] } } as any;
+    const rowWithTwo = {
+      '2020': { value: [{ value: 10 }] },
+      '2021': { value: [{ value: 20 }] },
+    } as any;
+
+    const unit = buildUnit(
+      { rows: [rowWithOne, rowWithTwo] },
+      makeStructures(),
+      makeDataQuery(),
+      ['2020', '2021'],
+      'en',
+    );
+
+    expect(unit.isPlottable).toBe(true);
+  });
+});
+
+describe('isChartingDataPlottable', () => {
+  const makeUnit = (isPlottable: boolean) =>
+    ({
+      rows: [],
+      config: {},
+      dimensions: [],
+      limitedByRowsAmountTo: undefined,
+      isPlottable,
+    }) as any;
+
+  it('returns true when any unit in the top-level units array is plottable', () => {
+    expect(
+      isChartingDataPlottable({
+        units: [makeUnit(false), makeUnit(true)],
+      }),
+    ).toBe(true);
+  });
+
+  it('returns true when any unit inside a group is plottable', () => {
+    expect(
+      isChartingDataPlottable({
+        units: [],
+        groups: [
+          { title: 'a', units: [makeUnit(false)] },
+          { title: 'b', units: [makeUnit(true)] },
+        ],
+      }),
+    ).toBe(true);
+  });
+
+  it('returns false when no unit is plottable', () => {
+    expect(
+      isChartingDataPlottable({
+        units: [makeUnit(false), makeUnit(false)],
+        groups: [{ title: 'a', units: [makeUnit(false)] }],
+      }),
+    ).toBe(false);
+  });
+
+  it('returns false for empty charting data', () => {
+    expect(isChartingDataPlottable({ units: [] })).toBe(false);
   });
 });

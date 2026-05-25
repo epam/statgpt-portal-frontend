@@ -32,6 +32,22 @@ import { getDimRelatedStructures } from '../localized-value';
 
 const LINE_TYPE = 'line';
 const MAX_LINES_PER_UNIT = 10;
+const MIN_POINTS_PER_LINE = 2;
+
+function isFilledPoint(value: unknown): boolean {
+  if (typeof value === 'number') {
+    return Number.isFinite(value);
+  }
+  if (typeof value === 'string' && value.trim() !== '') {
+    return Number.isFinite(Number(value));
+  }
+  return false;
+}
+
+export function isChartingDataPlottable(data: ChartingData): boolean {
+  const groupUnits = (data.groups ?? []).flatMap((group) => group.units);
+  return [...data.units, ...groupUnits].some((unit) => unit.isPlottable);
+}
 
 export function buildChartData(
   structures: StructuralData,
@@ -121,6 +137,11 @@ export function buildUnit(
   const frequencyDimensionId = dimensions?.find((dimension) =>
     FREQUENCY_DIMENSION_ID.includes(dimension?.id),
   )?.id;
+  const filteredTimePeriods = filterTimePeriodsByFrequency(
+    timePeriods,
+    unit?.rows?.[0],
+    frequencyDimensionId,
+  );
   const series = buildChartSeries(
     unit.rows.length > MAX_LINES_PER_UNIT
       ? unit.rows.slice(0, MAX_LINES_PER_UNIT)
@@ -128,11 +149,7 @@ export function buildUnit(
     structures,
     dataQuery,
     locale,
-    filterTimePeriodsByFrequency(
-      timePeriods,
-      unit?.rows?.[0],
-      frequencyDimensionId,
-    ),
+    filteredTimePeriods,
   );
 
   return {
@@ -140,16 +157,15 @@ export function buildUnit(
     limitedByRowsAmountTo:
       unit.rows.length > MAX_LINES_PER_UNIT ? MAX_LINES_PER_UNIT : undefined,
     dimensions,
-    config: buildChartConfig(
-      filterTimePeriodsByFrequency(
-        timePeriods,
-        unit?.rows?.[0],
-        frequencyDimensionId,
-      ),
-      series,
-      styles,
-    ),
+    config: buildChartConfig(filteredTimePeriods, series, styles),
+    isPlottable: hasPlottableSeries(series),
   };
+}
+
+function hasPlottableSeries(series: { data: unknown[] }[]): boolean {
+  return series.some(
+    (s) => s.data.filter(isFilledPoint).length >= MIN_POINTS_PER_LINE,
+  );
 }
 
 function filterTimePeriodsByFrequency(

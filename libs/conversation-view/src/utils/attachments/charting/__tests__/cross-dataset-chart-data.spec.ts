@@ -24,7 +24,13 @@ describe('cross-dataset chart data', () => {
     const dataQuery = { urn: 'urn:1' };
     const structuresMap = new Map([['urn:1', structures]]);
     const dataMessagesMap = new Map([['urn:1', dataMessage]]);
-    const chartUnit = { config: {}, dimensions: [], rows: [] };
+    const chartUnit = {
+      config: {},
+      dimensions: [],
+      rows: [],
+      limitedByRowsAmountTo: undefined,
+      isPlottable: false,
+    };
 
     jest.mocked(getLocalizedName).mockReturnValue('Dataset 1');
     jest.mocked(buildChartData).mockReturnValue({ units: [chartUnit] });
@@ -48,7 +54,13 @@ describe('cross-dataset chart data', () => {
     const dataQuery = { urn: 'urn:1' };
     const structuresMap = new Map([['urn:1', structures]]);
     const dataMessagesMap = new Map([['urn:1', dataMessage]]);
-    const chartUnit = { config: {}, dimensions: [], rows: [] };
+    const chartUnit = {
+      config: {},
+      dimensions: [],
+      rows: [],
+      limitedByRowsAmountTo: undefined,
+      isPlottable: false,
+    };
 
     jest.mocked(getLocalizedName).mockReturnValue('Dataset 1');
     jest.mocked(buildChartData).mockReturnValue({ units: [chartUnit] });

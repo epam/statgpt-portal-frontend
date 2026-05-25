@@ -4,22 +4,17 @@
 import { FC, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { ConversationInfo } from '@epam/ai-dial-shared';
-import { ConversationListActions } from '../../models/conversation-list';
 import { HighlightText } from '@epam/statgpt-ui-components';
 import { ActionMenu } from '../ActionMenu/ActionMenu';
-import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { getClearedConversationName } from '@epam/statgpt-shared-toolkit';
 import { useConversationStyles } from '../../context/ConversationStylesContext';
 
 interface Props {
   conversation: ConversationInfo;
   selectedConversationId?: string;
-  shareConversationProps?: ShareConversationProps;
   searchQuery?: string;
   isDisabled?: boolean;
-  locale: string;
   onConversationClick: (folder: string, conversationId: string) => void;
-  actions: ConversationListActions;
 }
 
 const ConversationItem: FC<Props> = ({
@@ -27,10 +22,7 @@ const ConversationItem: FC<Props> = ({
   selectedConversationId,
   searchQuery,
   onConversationClick,
-  actions,
-  locale,
   isDisabled,
-  shareConversationProps,
 }) => {
   const { titles, conversationItemIcon } = useConversationStyles();
   const conversationItemRef = useRef<HTMLDivElement | null>(null);
@@ -107,16 +99,7 @@ const ConversationItem: FC<Props> = ({
           )}
         </h3>
       </div>
-      <ActionMenu
-        locale={locale}
-        conversation={conversation}
-        onConversationDelete={actions.deleteConversation}
-        getConversation={actions.getConversation}
-        getFileBlob={actions.getFileBlob}
-        renameConversation={actions.renameConversation}
-        shareConversationProps={shareConversationProps}
-        isDisabled={isDisabled}
-      />
+      <ActionMenu conversation={conversation} isDisabled={isDisabled} />
     </div>
   );
 };
