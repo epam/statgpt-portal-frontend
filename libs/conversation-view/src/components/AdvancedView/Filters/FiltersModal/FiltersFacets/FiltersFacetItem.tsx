@@ -108,7 +108,7 @@ const FiltersFacetItem: FC<Props> = ({
     <div className="flex flex-col">
       <div
         className={classNames(
-          'flex justify-between items-center px-2 py-2 hover:bg-hues-100 sm:py-4 sm:hover:bg-white rounded',
+          'flex justify-between items-center px-2 h-10 hover:bg-hues-100 sm:h-14 sm:hover:bg-white rounded',
           'filters-facet-item cursor-pointer',
           filter?.isSelectedFilter && !isMobile && 'bg-hues-100',
           filter?.isDisabled &&

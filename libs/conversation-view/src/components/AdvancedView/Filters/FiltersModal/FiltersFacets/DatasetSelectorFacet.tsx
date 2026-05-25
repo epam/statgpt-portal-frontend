@@ -29,7 +29,7 @@ const DatasetSelectorFacet: FC<Props> = ({
   return (
     <div
       className={classNames(
-        'flex justify-between items-center px-2 py-2 hover:bg-hues-100 rounded',
+        'flex justify-between items-center px-2 h-10 hover:bg-hues-100 rounded',
         'filters-facet-item cursor-pointer',
         isSelected && 'bg-hues-100',
       )}
