@@ -1518,21 +1518,63 @@ export const setDataQueryFiltersMap = (
 
 /**
  * Filters a Time Period SharedFilter for enabled datasets.
- * Already handles: filtering sourceDatasetUrns to enabled ones, hiding the
- * facet entirely when all source datasets are disabled.
- * Task 2 completes: recomputing the available range from enabled datasets'
- * constraints and clipping the user's timeRange selection accordingly.
+ * Handles: filtering sourceDatasetUrns to enabled ones, hiding the
+ * facet entirely when all source datasets are disabled, recomputing the
+ * available range from enabled datasets' constraints and clipping the
+ * user's timeRange selection accordingly.
  */
 const filterTimeDimensionForEnabledDatasets = (
   filter: SharedFilter,
   disabledDatasetUrns: Set<string>,
-  _constraintsMap?: Map<string, DataConstraints[] | undefined>,
+  constraintsMap?: Map<string, DataConstraints[] | undefined>,
 ): Filter[] => {
   const enabledSourceUrns = (filter.sourceDatasetUrns ?? []).filter(
     (urn) => !disabledDatasetUrns.has(urn),
   );
+
   if (enabledSourceUrns.length === 0) return [];
-  return [{ ...filter, sourceDatasetUrns: enabledSourceUrns }];
+
+  if (!constraintsMap || !filter.timeRange) {
+    return [{ ...filter, sourceDatasetUrns: enabledSourceUrns }];
+  }
+
+  // Compute the union of available ranges from enabled datasets' constraints
+  const periods = enabledSourceUrns
+    .map((urn) => getAnnotationPeriod(constraintsMap.get(urn)?.[0]?.annotations))
+    .filter(
+      (p): p is { startPeriod: Date; endPeriod: Date } =>
+        !!(p?.startPeriod) && !!(p?.endPeriod),
+    );
+
+  if (periods.length === 0) {
+    // Constraints not available yet — keep filter with enabled URNs, no clipping
+    return [{ ...filter, sourceDatasetUrns: enabledSourceUrns }];
+  }
+
+  const availableStart = new Date(
+    Math.min(...periods.map((p) => (p.startPeriod as Date).getTime())),
+  );
+  const availableEnd = new Date(
+    Math.max(...periods.map((p) => (p.endPeriod as Date).getTime())),
+  );
+
+  const currentStart = filter.timeRange.startPeriod as Date | undefined;
+  const currentEnd = filter.timeRange.endPeriod as Date | undefined;
+
+  return [
+    {
+      ...filter,
+      sourceDatasetUrns: enabledSourceUrns,
+      timeRange: {
+        startPeriod: currentStart
+          ? new Date(Math.max(currentStart.getTime(), availableStart.getTime()))
+          : availableStart,
+        endPeriod: currentEnd
+          ? new Date(Math.min(currentEnd.getTime(), availableEnd.getTime()))
+          : availableEnd,
+      },
+    },
+  ];
 };
 
 /**

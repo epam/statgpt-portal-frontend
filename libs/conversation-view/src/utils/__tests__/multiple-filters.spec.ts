@@ -38,12 +38,14 @@ const mockGetFiltersPreselectedByDataQuery = jest.fn(
 const mockGetFilledFilters = jest.fn((filters: Filter[]) => filters);
 const mockGetQueryFilters = jest.fn(() => ({}));
 const mockGetSeriesFilterDto = jest.fn(() => [] as any[]);
+const mockGetAnnotationPeriod = jest.fn(() => ({ startPeriod: null, endPeriod: null }));
 
 jest.mock('@epam/statgpt-sdmx-toolkit', () => ({
   findCodelistByDimension: (...args: any[]) =>
     (mockFindCodelistByDimension as any)(...args),
   generateShortUrn: (...args: any[]) => (mockGenerateShortUrn as any)(...args),
-  getAnnotationPeriod: jest.fn(() => ({ startPeriod: null, endPeriod: null })),
+  getAnnotationPeriod: (...args: any[]) =>
+    (mockGetAnnotationPeriod as any)(...args),
   getAvailableCodesFromConstrains: (...args: any[]) =>
     (mockGetAvailableCodesFromConstrains as any)(...args),
   TIME_PERIOD: 'TIME_PERIOD',
@@ -2257,6 +2259,115 @@ describe('filterSharedValuesForEnabledDatasets', () => {
       filterSharedValuesForEnabledDatasets([filter], new Set(['urn-B']));
 
       expect(filter.dimensionValues).toHaveLength(originalLength!);
+    });
+  });
+
+  describe('Time Period (continuous range)', () => {
+    it('hides the Time Period facet when all source datasets are disabled', () => {
+      const filter = makeTimeFilter(['urn-A', 'urn-B']);
+
+      const result = filterSharedValuesForEnabledDatasets(
+        [filter],
+        new Set(['urn-A', 'urn-B']),
+      );
+
+      expect(result).toHaveLength(0);
+    });
+
+    it('keeps the Time Period facet when at least one source dataset is enabled', () => {
+      const filter = makeTimeFilter(['urn-A', 'urn-B']);
+
+      const result = filterSharedValuesForEnabledDatasets(
+        [filter],
+        new Set(['urn-B']), // only B disabled; A enabled
+      );
+
+      expect(result).toHaveLength(1);
+    });
+
+    it('filters sourceDatasetUrns to only enabled datasets', () => {
+      const filter = makeTimeFilter(['urn-A', 'urn-B', 'urn-C']);
+
+      const result = filterSharedValuesForEnabledDatasets(
+        [filter],
+        new Set(['urn-B']),
+      );
+
+      expect((result[0] as SharedFilter).sourceDatasetUrns).toEqual(['urn-A', 'urn-C']);
+    });
+
+    it('clips the user timeRange to the union of enabled datasets available bounds', () => {
+      // A covers 2010–2020. B is disabled (covered 2018–2030).
+      // User selected 2015–2025. After disabling B: clip to 2015–2020.
+      const filter = makeTimeFilter(
+        ['urn-A', 'urn-B'],
+        { startPeriod: new Date('2015-01-01'), endPeriod: new Date('2025-01-01') },
+      );
+
+      const constraintsMap = new Map([
+        ['urn-A', [{}] as any], // content doesn't matter — getAnnotationPeriod is mocked
+      ]);
+
+      mockGetAnnotationPeriod.mockReturnValueOnce({
+        startPeriod: new Date('2010-01-01'),
+        endPeriod: new Date('2020-12-31'),
+      });
+
+      const result = filterSharedValuesForEnabledDatasets(
+        [filter],
+        new Set(['urn-B']),
+        constraintsMap,
+      );
+
+      const resultFilter = result[0] as SharedFilter;
+      // start: max(2015, 2010) = 2015
+      expect(resultFilter.timeRange?.startPeriod).toEqual(new Date('2015-01-01'));
+      // end: min(2025, 2020) = 2020
+      expect(resultFilter.timeRange?.endPeriod).toEqual(new Date('2020-12-31'));
+    });
+
+    it('widens end date when multiple enabled datasets extend beyond user selection', () => {
+      // A: 2010–2022, C: 2018–2024. User selected 2015–2020. Union end = 2024.
+      // Clip: start max(2015, 2010) = 2015; end min(2020, 2024) = 2020.
+      const filter = makeTimeFilter(
+        ['urn-A', 'urn-B', 'urn-C'],
+        { startPeriod: new Date('2015-01-01'), endPeriod: new Date('2020-01-01') },
+      );
+
+      const constraintsMap = new Map([
+        ['urn-A', [{}] as any],
+        ['urn-C', [{}] as any],
+      ]);
+
+      mockGetAnnotationPeriod
+        .mockReturnValueOnce({ startPeriod: new Date('2010-01-01'), endPeriod: new Date('2022-12-31') })
+        .mockReturnValueOnce({ startPeriod: new Date('2018-01-01'), endPeriod: new Date('2024-12-31') });
+
+      const result = filterSharedValuesForEnabledDatasets(
+        [filter],
+        new Set(['urn-B']),
+        constraintsMap,
+      );
+
+      const resultFilter = result[0] as SharedFilter;
+      expect(resultFilter.timeRange?.startPeriod).toEqual(new Date('2015-01-01'));
+      expect(resultFilter.timeRange?.endPeriod).toEqual(new Date('2020-01-01'));
+    });
+
+    it('does not clip timeRange when no constraintsMap provided', () => {
+      const originalRange = {
+        startPeriod: new Date('2015-01-01'),
+        endPeriod: new Date('2025-01-01'),
+      };
+      const filter = makeTimeFilter(['urn-A', 'urn-B'], originalRange);
+
+      const result = filterSharedValuesForEnabledDatasets(
+        [filter],
+        new Set(['urn-B']),
+        undefined,
+      );
+
+      expect((result[0] as SharedFilter).timeRange).toEqual(originalRange);
     });
   });
 });
