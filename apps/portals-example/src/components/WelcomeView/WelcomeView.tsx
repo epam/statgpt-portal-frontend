@@ -4,7 +4,6 @@ import {
   ConversationWelcome,
   ConversationViewTitles,
 } from '@epam/statgpt-conversation-view';
-import WelcomeTitleIcon from '../../../public/images/logo-small.svg';
 import { getBucketApi } from '../../app/api/bucket/client';
 import {
   createConversationApi,
@@ -36,7 +35,12 @@ const WelcomeView = () => {
   const router = useRouter();
   const { setConversations, setSharedConversations } = useConversationList();
   const locale = useCurrentLocale();
-  const { suggestionsList, welcomeText } = useDeploymentConfig();
+  const {
+    suggestionsList,
+    welcomeText,
+    welcomeDescription,
+    welcomeInputPlaceholder,
+  } = useDeploymentConfig();
 
   const authHandler = useCallback(
     function <Args extends any[], T>(
@@ -81,7 +85,8 @@ const WelcomeView = () => {
       titles={conversationViewTitles}
       suggestionsList={suggestionsList}
       welcomeText={welcomeText}
-      titleIcon={<WelcomeTitleIcon className="mr-4 size-9" />}
+      welcomeDescription={welcomeDescription}
+      welcomeInputPlaceholder={welcomeInputPlaceholder}
       handleConversationClick={handleConversationSelect}
       actions={serverActions}
       inputMessageStyles={{

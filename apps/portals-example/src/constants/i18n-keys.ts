@@ -6,6 +6,7 @@
 export enum AppI18nKeys {
   TITLE_GLOBAL = 'app.titleGlobal',
   TITLE = 'app.title',
+  SUBTITLE = 'app.subtitle',
   FOOTER = 'app.footer',
   EXPAND = 'app.expand',
   COLLAPSE = 'app.collapse',

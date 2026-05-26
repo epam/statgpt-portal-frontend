@@ -25,7 +25,12 @@ export async function getDeploymentConfiguration(): Promise<
     return {
       data: {
         suggestionsList: result?.properties.starter.oneOf || [],
-        welcomeText: result?.properties.starter?.description || '',
+        welcomeText: result?.properties.starter?.title || '',
+        welcomeDescription: result?.properties.starter?.description || '',
+        welcomeInputPlaceholder:
+          ((result?.properties.starter as unknown as Record<string, unknown>)?.[
+            'statgpt:inputPlaceholder'
+          ] as string) || '',
       },
       success: true,
     };

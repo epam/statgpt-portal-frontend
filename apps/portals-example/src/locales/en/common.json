@@ -2,6 +2,7 @@
   "app": {
     "titleGlobal": " ",
     "title": "Portals Example",
+    "subtitle": "",
     "footer": "Powered by StatGPT Portals.",
     "collapse": "Collapse",
     "expand": "Expand",
