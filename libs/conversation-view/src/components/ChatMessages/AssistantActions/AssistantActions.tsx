@@ -1,18 +1,15 @@
 import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import classNames from 'classnames';
 import { FC, useEffect, useRef, useState } from 'react';
-import {
-  MessageActionIcons,
-  MessageActionTitles,
-} from '../../../models/message';
+import { MessageActionIcons } from '../../../models/message';
 import { LikeState } from '@epam/ai-dial-shared';
 import { useAgentAvailability } from '@epam/statgpt-ui-components';
+import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
 
 interface Props {
   message: MessageType;
   regenerateMessage?: (message: MessageType) => void;
   messageActionsIcons?: MessageActionIcons;
-  messageActionsTitles?: MessageActionTitles;
   rateResponse: (responseId: string, rate: LikeState) => void;
   isStreaming?: boolean;
   isReadOnly?: boolean;
@@ -25,12 +22,12 @@ export const AssistantActionsPanel: FC<Props> = ({
   message,
   regenerateMessage,
   messageActionsIcons,
-  messageActionsTitles,
   rateResponse,
   isStreaming = false,
   isReadOnly = false,
   isRegenerateAvailable = false,
 }) => {
+  const { messageActionsTitles } = useConversationViewStyles();
   const copy = messageActionsIcons?.copy;
   const copied = messageActionsIcons?.copied;
   const regenerate = messageActionsIcons?.regenerate;
