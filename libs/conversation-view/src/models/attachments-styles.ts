@@ -7,6 +7,7 @@ export interface AttachmentsStyles {
   showTabIcon?: boolean;
   showChevronIcon?: boolean;
   openAdvancedViewIcon?: ReactNode;
+  advancedViewTitle?: string;
   chartingStyles?: ChartingStyles;
   chartingIcons: Record<ChartingIcon, ReactNode>;
   downloadIcon?: ReactNode;

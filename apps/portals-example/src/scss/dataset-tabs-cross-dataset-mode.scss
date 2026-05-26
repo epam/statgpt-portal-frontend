@@ -25,9 +25,3 @@
     @apply text-neutrals-1000 font-semibold text-[14px] leading-[16px] shrink-0 cursor-pointer ml-2;
   }
 }
-
-.advanced-view {
-  &-button-cross-dataset-mode {
-    @apply border-hues-400 w-[32px] h-[32px] p-0 ml-4;
-  }
-}

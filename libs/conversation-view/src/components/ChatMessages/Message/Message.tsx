@@ -94,6 +94,7 @@ const Message: FC<Props> = ({
     attachmentsStyles,
     formattingSettings,
     messageActionsIcons,
+    messageActionsTitles,
     editMessageTitles,
     expandStagesIcon,
     titles,
@@ -413,6 +414,7 @@ const Message: FC<Props> = ({
     return (
       <AssistantActionsPanel
         messageActionsIcons={messageActionsIcons}
+        messageActionsTitles={messageActionsTitles}
         message={message}
         isStreaming={isStreaming}
         regenerateMessage={regenerateMessage}

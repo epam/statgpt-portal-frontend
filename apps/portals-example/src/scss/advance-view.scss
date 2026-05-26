@@ -1,6 +1,15 @@
 .advanced-view {
   &-button {
-    @apply border-neutrals-500 w-[40px] h-[24px];
+    @apply border border-primary text-primary rounded-[100px];
+    @apply h-8 px-3 py-0;
+
+    svg {
+      @apply text-primary;
+    }
+  }
+
+  &-button-divider {
+    @apply bg-neutrals-400 w-px h-5;
   }
 
   &-filters {

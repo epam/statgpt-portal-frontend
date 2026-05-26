@@ -27,6 +27,10 @@
     "createLink": "Create Link",
     "copyLink": "Copy Link",
     "copy": "Copy",
+    "copyText": "Copy text",
+    "regenerateResponse": "Regenerate response",
+    "like": "Like",
+    "dislike": "Dislike",
     "duplicateChat": "Duplicate Chat",
     "copied": "Copied",
     "removeAccessToUsers": "Remove access to all users",
@@ -40,6 +44,7 @@
   },
   "advancedView": {
     "title": "Advanced view",
+    "advancedView": "Advanced view",
     "dataset": "Dataset",
     "agency": "Agency",
     "lastUpdated": "Last Updated",

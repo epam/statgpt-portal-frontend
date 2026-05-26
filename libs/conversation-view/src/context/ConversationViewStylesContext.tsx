@@ -3,6 +3,7 @@ import { createContext, ReactNode, useContext } from 'react';
 import {
   MessageStyles,
   MessageActionIcons,
+  MessageActionTitles,
   EditMessageTitles,
 } from '../models/message';
 import { AttachmentsStyles } from '../models/attachments-styles';
@@ -17,6 +18,7 @@ export interface ConversationViewStyles {
   attachmentsStyles?: AttachmentsStyles;
   formattingSettings?: FormatNumbersType;
   messageActionsIcons?: MessageActionIcons;
+  messageActionsTitles?: MessageActionTitles;
   editMessageTitles?: EditMessageTitles;
   expandStagesIcon?: ReactNode;
   scrollBottomIcon?: ReactNode;

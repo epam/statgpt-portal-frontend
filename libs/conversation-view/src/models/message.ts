@@ -16,11 +16,19 @@ export interface InputMessageStyles {
 
 export interface MessageActionIcons {
   copy?: ReactNode;
+  copied?: ReactNode;
   regenerate?: ReactNode;
   thumbUp?: ReactNode;
   thumbDown?: ReactNode;
   edit?: ReactNode;
   thumbPressed?: ReactNode;
+}
+
+export interface MessageActionTitles {
+  copy?: string;
+  regenerate?: string;
+  like?: string;
+  dislike?: string;
 }
 
 export interface EditMessageTitles {

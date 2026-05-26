@@ -34,6 +34,10 @@ export enum ChatI18nKeys {
   SHARE_CREATE_LINK = 'chat.createLink',
   SHARE_COPY_LINK = 'chat.copyLink',
   COPY = 'chat.copy',
+  COPY_TEXT = 'chat.copyText',
+  REGENERATE_RESPONSE = 'chat.regenerateResponse',
+  LIKE = 'chat.like',
+  DISLIKE = 'chat.dislike',
   SHARE_COPIED_LINK = 'chat.copied',
   SHARE_REMOVE_ACCESS_TO_USERS = 'chat.removeAccessToUsers',
   CHAT_NAME = 'chat.chatName',
@@ -58,6 +62,7 @@ export enum LogOutI18nKeys {
 
 export enum AdvancedViewI18nKeys {
   TITLE = 'advancedView.title',
+  ADVANCED_VIEW = 'advancedView.advancedView',
   DATASET = 'advancedView.dataset',
   AGENCY = 'advancedView.agency',
   LAST_UPDATED = 'advancedView.lastUpdated',
