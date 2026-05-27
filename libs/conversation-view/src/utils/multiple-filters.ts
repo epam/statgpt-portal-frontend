@@ -497,6 +497,32 @@ const getMergedSharedTimeRange = (filters: Filter[]): TimeRange | undefined => {
   };
 };
 
+const clipTimeRangeToBounds = (
+  currentStart: Date | null,
+  currentEnd: Date | null,
+  availableStart: Date,
+  availableEnd: Date,
+): TimeRange => {
+  if (currentEnd && currentEnd < availableStart)
+    return {
+      startPeriod: new Date(availableStart),
+      endPeriod: new Date(availableStart),
+    };
+  if (currentStart && currentStart > availableEnd)
+    return {
+      startPeriod: new Date(availableEnd),
+      endPeriod: new Date(availableEnd),
+    };
+  return {
+    startPeriod: currentStart
+      ? new Date(Math.max(currentStart.getTime(), availableStart.getTime()))
+      : new Date(availableStart),
+    endPeriod: currentEnd
+      ? new Date(Math.min(currentEnd.getTime(), availableEnd.getTime()))
+      : new Date(availableEnd),
+  };
+};
+
 const limitTimeRangeByConstraints = (
   filter: Filter,
   constraints?: DataConstraints[],
@@ -505,53 +531,22 @@ const limitTimeRangeByConstraints = (
     return filter;
   }
 
-  const annotationTimeRange = getAnnotationPeriod(
+  const { startPeriod: minPeriod, endPeriod: maxPeriod } = getAnnotationPeriod(
     constraints?.[0]?.annotations,
   );
-  const minPeriod = annotationTimeRange.startPeriod;
-  const maxPeriod = annotationTimeRange.endPeriod;
 
   if (!minPeriod || !maxPeriod) {
     return filter;
   }
 
-  const { startPeriod: requestedStart, endPeriod: requestedEnd } =
-    filter.timeRange;
-
-  const isBeforeAvailableRange = requestedEnd && requestedEnd < minPeriod;
-
-  if (isBeforeAvailableRange) {
-    return {
-      ...filter,
-      timeRange: {
-        startPeriod: new Date(minPeriod),
-        endPeriod: new Date(minPeriod),
-      },
-    };
-  }
-
-  const isAfterAvailableRange = requestedStart && requestedStart > maxPeriod;
-
-  if (isAfterAvailableRange) {
-    return {
-      ...filter,
-      timeRange: {
-        startPeriod: new Date(maxPeriod),
-        endPeriod: new Date(maxPeriod),
-      },
-    };
-  }
-
   return {
     ...filter,
-    timeRange: {
-      startPeriod: requestedStart
-        ? new Date(Math.max(requestedStart.getTime(), minPeriod.getTime()))
-        : new Date(minPeriod),
-      endPeriod: requestedEnd
-        ? new Date(Math.min(requestedEnd.getTime(), maxPeriod.getTime()))
-        : new Date(maxPeriod),
-    },
+    timeRange: clipTimeRangeToBounds(
+      filter.timeRange.startPeriod,
+      filter.timeRange.endPeriod,
+      minPeriod,
+      maxPeriod,
+    ),
   };
 };
 
@@ -1549,16 +1544,16 @@ const filterTimeDimensionForEnabledDatasets = (
     return [{ ...filter, sourceDatasetUrns: enabledSourceUrns }];
   }
 
-  // Compute the union of available ranges from enabled datasets' constraints
   const periods = enabledSourceUrns
-    .map((urn) => getAnnotationPeriod(constraintsMap.get(urn)?.[0]?.annotations))
+    .map((urn) =>
+      getAnnotationPeriod(constraintsMap.get(urn)?.[0]?.annotations),
+    )
     .filter(
       (p): p is { startPeriod: Date; endPeriod: Date } =>
-        !!(p?.startPeriod) && !!(p?.endPeriod),
+        !!p?.startPeriod && !!p?.endPeriod,
     );
 
   if (periods.length === 0) {
-    // Constraints not available yet — keep filter with enabled URNs, no clipping
     return [{ ...filter, sourceDatasetUrns: enabledSourceUrns }];
   }
 
@@ -1569,21 +1564,16 @@ const filterTimeDimensionForEnabledDatasets = (
     Math.max(...periods.map((p) => p.endPeriod.getTime())),
   );
 
-  const currentStart = filter.timeRange.startPeriod as Date | undefined;
-  const currentEnd = filter.timeRange.endPeriod as Date | undefined;
-
   return [
     {
       ...filter,
       sourceDatasetUrns: enabledSourceUrns,
-      timeRange: {
-        startPeriod: currentStart
-          ? new Date(Math.max(currentStart.getTime(), availableStart.getTime()))
-          : availableStart,
-        endPeriod: currentEnd
-          ? new Date(Math.min(currentEnd.getTime(), availableEnd.getTime()))
-          : availableEnd,
-      },
+      timeRange: clipTimeRangeToBounds(
+        filter.timeRange.startPeriod,
+        filter.timeRange.endPeriod,
+        availableStart,
+        availableEnd,
+      ),
     },
   ];
 };
