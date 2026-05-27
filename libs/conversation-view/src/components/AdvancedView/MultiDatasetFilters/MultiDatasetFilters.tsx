@@ -29,7 +29,6 @@ import {
   useState,
 } from 'react';
 import { updateMessagesWithSystemMessage } from '../../../utils/system-message';
-import { getUpdatedDataQueries } from '../../../utils/get-updated-data-queries';
 import FilterButton from '../Filters/FilterButton/FilterButton';
 import FilterSettings from '../Filters/FiltersModal/FiltersSettings';
 import ModalFooter from '../Filters/FiltersModal/ModalFooter';

@@ -2558,8 +2558,7 @@ describe('buildFiltersMap — limitTimeRangeByConstraints', () => {
     timeRange: { startPeriod, endPeriod },
   });
 
-  const makeConstraintsMap = (urn: string) =>
-    new Map([[urn, [{}] as any]]);
+  const makeConstraintsMap = (urn: string) => new Map([[urn, [{}] as any]]);
 
   it('clips startPeriod up to availableStart when selection starts before the range', () => {
     mockGetAnnotationPeriod.mockReturnValueOnce({

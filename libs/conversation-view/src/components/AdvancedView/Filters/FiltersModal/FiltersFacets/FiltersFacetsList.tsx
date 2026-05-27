@@ -99,7 +99,7 @@ const FiltersFacetsList: FC<Props> = ({
                   <span className="filters-facet-dataset-icon">
                     {datasetIcon}
                   </span>
-                  <span className="truncate min-w-0" title={datasetName}>
+                  <span className="min-w-0 truncate" title={datasetName}>
                     {datasetName}
                   </span>
                 </h4>

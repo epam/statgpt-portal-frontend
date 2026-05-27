@@ -38,7 +38,7 @@ const DatasetSelectorFacet: FC<Props> = ({
       <h3 className="w-full min-w-0 flex-1 truncate" title="Dataset">
         <span className="truncate">Dataset</span>
       </h3>
-      <div className="text-neutrals-800 ml-2 flex items-center gap-2">
+      <div className="ml-2 flex items-center gap-2 text-neutrals-800">
         <span className="filters-facet-item-counter px-2 text-center">
           {`${enabledCount}/${dataQueries.length}`}
         </span>
