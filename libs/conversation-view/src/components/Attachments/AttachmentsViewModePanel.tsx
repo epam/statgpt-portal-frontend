@@ -2,7 +2,7 @@
 
 import { Attachment } from '@epam/ai-dial-shared';
 import classNames from 'classnames';
-import { FC } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { Button, LimitMessages, CopyButton } from '@epam/statgpt-ui-components';
 import {
   isCrossDatasetGrid,
@@ -18,6 +18,11 @@ import { AttachmentsStyles } from '../../models/attachments-styles';
 import { IconSettings } from '@tabler/icons-react';
 import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
+import { useConversationViewStyles } from '../../context/ConversationViewStylesContext';
+import { useOnboarding } from '../../context/OnboardingContext';
+import { OnboardingElements } from '../../constants/onboarding-elements';
+import { getTooltipDataByElement } from '../../utils/get-tooltip-data.by-element';
+import { Tooltip } from '../Tooltip/Tooltip';
 
 interface Props {
   attachments: (
@@ -34,6 +39,7 @@ interface Props {
   onSelectedAttachmentChange: (index: number) => void;
   onDownloadClick: () => void;
   showAdvancedView?: boolean;
+  onOpenAdvancedView?: () => void;
   isTableSettingsOpen?: boolean;
   onTableSettingsOpen?: () => void;
 }
@@ -49,11 +55,46 @@ const AttachmentsViewModePanel: FC<Props> = ({
   onSelectedAttachmentChange,
   onDownloadClick,
   showAdvancedView,
+  onOpenAdvancedView,
   isTableSettingsOpen,
   onTableSettingsOpen,
 }) => {
   const { isTableSettingsFeatureEnabled } = useConversationViewFeatureToggles();
   const { isOpenedAdvancedView } = useAdvancedView();
+  const { titles } = useConversationViewStyles();
+  const { onboardingFileSchema, isShowOnboarding } = useOnboarding();
+
+  const advancedViewButtonRef = useRef<HTMLDivElement | null>(null);
+  const [tooltipTitle, setTooltipTitle] = useState<string>('');
+  const [tooltipDescription, setTooltipDescription] = useState<string>('');
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+
+  useEffect(() => {
+    if (isShowOnboarding) {
+      const { title, description } = getTooltipDataByElement(
+        OnboardingElements.OPEN_ADVANCED_VIEW,
+        titles,
+      );
+      setTooltipTitle(title);
+      setTooltipDescription(description);
+    }
+  }, [titles, isShowOnboarding]);
+
+  useEffect(() => {
+    if (isShowOnboarding) {
+      const isCurrent =
+        onboardingFileSchema?.lastDisplayedElement ===
+        OnboardingElements.OPEN_ADVANCED_VIEW;
+      setIsTooltipVisible(isCurrent);
+
+      if (isCurrent) {
+        advancedViewButtonRef?.current?.scrollIntoView({
+          block: 'center',
+          behavior: 'smooth',
+        });
+      }
+    }
+  }, [onboardingFileSchema?.lastDisplayedElement, isShowOnboarding]);
 
   const shouldShowColumnsButton =
     isTableSettingsFeatureEnabled &&
@@ -69,6 +110,9 @@ const AttachmentsViewModePanel: FC<Props> = ({
     !!selectedAttachment &&
     (isCustomGridAttachment(selectedAttachment) ||
       isCrossDatasetGrid(selectedAttachment));
+
+  const shouldShowAdvancedViewButton =
+    !!showAdvancedView && !isOpenedAdvancedView;
 
   const downloadIcon =
     isOpenedAdvancedView && attachmentsStyles?.hideDownloadIconInAdvancedView
@@ -114,6 +158,20 @@ const AttachmentsViewModePanel: FC<Props> = ({
             iconBefore={downloadIcon}
           />
         )}
+        {shouldShowDownloadButton && shouldShowAdvancedViewButton && (
+          <span className="advanced-view-button-divider" aria-hidden="true" />
+        )}
+        {shouldShowAdvancedViewButton && (
+          <div ref={advancedViewButtonRef}>
+            <Button
+              title={attachmentsStyles?.advancedViewTitle}
+              buttonClassName="advanced-view-button"
+              textClassName="ml-1 h4 md:hidden"
+              iconBefore={attachmentsStyles?.openAdvancedViewIcon}
+              onClick={onOpenAdvancedView}
+            />
+          </div>
+        )}
         {shouldShowColumnsButton && (
           <Button
             disabled={isTableSettingsOpen}
@@ -143,6 +201,15 @@ const AttachmentsViewModePanel: FC<Props> = ({
             />
           )}
       </div>
+      {isTooltipVisible && (
+        <Tooltip
+          reference={advancedViewButtonRef}
+          title={tooltipTitle}
+          description={tooltipDescription}
+          onReferenceClick={onOpenAdvancedView}
+          shouldCloseTooltip={isOpenedAdvancedView}
+        />
+      )}
     </div>
   );
 };

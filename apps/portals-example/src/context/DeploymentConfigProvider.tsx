@@ -12,21 +12,26 @@ interface DeploymentConfigProviderProps {
 }
 
 const EMPTY_SUGGESTIONS: FormSchemaButtonOption[] = [];
-const EMPTY_WELCOME = '';
+const EMPTY_STRING = '';
 
 export function DeploymentConfigProvider({
   children,
   config,
 }: DeploymentConfigProviderProps) {
   const suggestionsList = config?.suggestionsList ?? EMPTY_SUGGESTIONS;
-  const welcomeText = config?.welcomeText ?? EMPTY_WELCOME;
+  const welcomeText = config?.welcomeText ?? EMPTY_STRING;
+  const welcomeDescription = config?.welcomeDescription ?? EMPTY_STRING;
+  const welcomeInputPlaceholder =
+    config?.welcomeInputPlaceholder ?? EMPTY_STRING;
 
   const value = useMemo<DeploymentConfiguration>(
     () => ({
       suggestionsList,
       welcomeText,
+      welcomeDescription,
+      welcomeInputPlaceholder,
     }),
-    [suggestionsList, welcomeText],
+    [suggestionsList, welcomeText, welcomeDescription, welcomeInputPlaceholder],
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

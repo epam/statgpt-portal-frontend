@@ -328,7 +328,6 @@ export const AdvancedView: FC<Props> = ({
                     attachmentsProps?.currentDataQuery?.urn
                   }
                   locale={locale}
-                  isHideAdvancedViewButton={true}
                   selectDataset={onSelectDataset}
                 />
               )}

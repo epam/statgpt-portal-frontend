@@ -4,6 +4,7 @@ import { Button } from '@epam/statgpt-ui-components';
 import { signOut } from 'next-auth/react';
 import { TranslateI18nFn, useI18n } from '../locales/client';
 import {
+  AppI18nKeys,
   AuthI18nKeys,
   I18nKeys,
   StatusMessagesI18nKeys,
@@ -31,6 +32,12 @@ export const NoAccessView = ({
               {t(I18nKeys.App.TITLE_GLOBAL)}
             </p>
             <p className="inline">{t(I18nKeys.App.TITLE)}</p>
+            {t(I18nKeys.App.SUBTITLE) &&
+              t(I18nKeys.App.SUBTITLE) !== AppI18nKeys.SUBTITLE && (
+                <p className="logo-subtitle text-hues-800">
+                  {t(I18nKeys.App.SUBTITLE)}
+                </p>
+              )}
           </span>
         </div>
       </div>
