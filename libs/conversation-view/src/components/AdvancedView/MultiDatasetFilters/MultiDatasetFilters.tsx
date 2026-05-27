@@ -1,7 +1,11 @@
 'use client';
 
 import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
-import { DataQuery, Locale } from '@epam/statgpt-shared-toolkit';
+import {
+  DataQuery,
+  Locale,
+  QueryFilterType,
+} from '@epam/statgpt-shared-toolkit';
 import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
 import { Filter, FiltersProps } from '../../../models/filters';
 import {
@@ -313,9 +317,20 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       structureDataMaps,
       locale,
     );
+    const dataQueriesForMerge = dataQueries?.map((q) => {
+      if (!q.disabled) return q;
+      const emptySelectionFilters = (filledDatasetFiltersMap.get(q.urn) ?? [])
+        .filter((f) => f.filterType === 'dataset' && f.id && !f.isTimeDimension)
+        .map((f) => ({
+          componentCode: f.id!,
+          operator: QueryFilterType.IN,
+          values: [] as string[],
+        }));
+      return { ...q, filters: emptySelectionFilters };
+    });
     const filtersFromDataQuery = getFiltersPreselectedByDataQueries(
       filledDatasetFiltersMap,
-      dataQueries,
+      dataQueriesForMerge,
       structureDataMaps?.constraintsMap,
       datasetDimensionsMetadata.map,
     );
@@ -397,8 +412,9 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         ...q,
         disabled: disabledDatasetUrns.has(q.urn),
       }));
+      const enabledDataQueries = updatedDataQueries?.filter((q) => !q.disabled);
       const dataQueryFiltersMap = setDataQueryFiltersMap(
-        updatedDataQueries,
+        enabledDataQueries,
         filtersMap,
       );
       const updatedConversationWithSystemMessage = currentConversation
@@ -415,7 +431,12 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       setConversation?.(updatedConversationWithSystemMessage);
 
       updateDataQueries?.(
-        getUpdatedDataQueries(updatedDataQueries, dataQueryFiltersMap),
+        updatedDataQueries?.map((q) => ({
+          ...q,
+          filters: q.disabled
+            ? (q.filters ?? [])
+            : (dataQueryFiltersMap.get(q.urn) ?? []),
+        })) ?? [],
       );
 
       await updateConversation(decodeURI(conversationKey), {

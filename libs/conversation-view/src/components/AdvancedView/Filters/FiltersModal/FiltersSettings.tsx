@@ -165,14 +165,21 @@ const FilterSettings: FC<Props> = ({
     [filtersList, setSelectedFilter],
   );
 
+  const getFullFilter = (filter: Filter | undefined): Filter | undefined =>
+    filter ? filtersList?.find((f) => isSameFilter(f, filter)) : undefined;
+
   const onSelectFilterValue = (
     id: string,
     isSelectedValue?: boolean,
     targetFilter?: Filter,
   ) => {
-    const filterToUpdate = targetFilter || selectedFilter;
     const shouldUpdateSelectedFilter =
       !targetFilter || isSameFilter(targetFilter, selectedFilter);
+
+    const filterToUpdate =
+      getFullFilter(targetFilter ?? selectedFilter) ??
+      targetFilter ??
+      selectedFilter;
 
     if (!filterToUpdate) {
       return;
@@ -209,9 +216,13 @@ const FilterSettings: FC<Props> = ({
     nodes?: FilterTreeNodeProps[],
     targetFilter?: Filter,
   ) => {
-    const filterToUpdate = targetFilter || selectedFilter;
     const shouldUpdateSelectedFilter =
       !targetFilter || isSameFilter(targetFilter, selectedFilter);
+
+    const filterToUpdate =
+      getFullFilter(targetFilter ?? selectedFilter) ??
+      targetFilter ??
+      selectedFilter;
 
     if (!filterToUpdate) {
       return;
@@ -267,9 +278,13 @@ const FilterSettings: FC<Props> = ({
     node?: FilterTreeNodeProps,
     targetFilter?: Filter,
   ) => {
-    const filterToUpdate = targetFilter || selectedFilter;
     const shouldUpdateSelectedFilter =
       !targetFilter || isSameFilter(targetFilter, selectedFilter);
+
+    const filterToUpdate =
+      getFullFilter(targetFilter ?? selectedFilter) ??
+      targetFilter ??
+      selectedFilter;
 
     if (!filterToUpdate || !node?.id) {
       return;
