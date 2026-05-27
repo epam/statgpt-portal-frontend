@@ -1182,22 +1182,9 @@ const getConstraintFilters = (
   sourceFilters: Filter[],
   datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
 ): SeriesFilterDto[] => {
-  const hasMergedSharedFilters = sourceFilters.some(
-    (filter) => filter.filterType === 'shared',
-  );
-  const filtersForConstraint = hasMergedSharedFilters
-    ? sourceFilters.filter((filter) => {
-        const config = getSharedFilterConfigForFilter(
-          filter,
-          datasetDimensionsMetadataMap,
-        );
-        return !config || config.id === COMMON_TIME_PERIOD_FILTER_ID;
-      })
-    : sourceFilters;
-
   return normalizeConstraintFilters(
     getSeriesFilterDto(
-      filtersForConstraint,
+      sourceFilters,
       attachmentUrn,
       datasetDimensionsMetadataMap,
     ).filter((filter) => filter.componentCode !== TIME_PERIOD),
