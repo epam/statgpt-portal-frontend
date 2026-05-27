@@ -10,6 +10,7 @@ interface Props {
   titles: {
     queryUpdatedManuallyTitle?: string;
     setToTitle?: string;
+    datasetLabel?: string;
   };
   attachmentInfoList?: AttachmentInfo[];
   datasetIcon?: ReactNode;
@@ -92,7 +93,10 @@ const AttachmentDetails: FC<Props> = ({
       </p>
       {hasDisabledDatasets && enabledDatasetNames.length > 0 && (
         <div className="body-1 mb-2 flex flex-wrap items-center gap-1">
-          <span>Dataset{titles?.setToTitle ?? ' set to '}</span>
+          <span>
+            {titles?.datasetLabel ?? 'Dataset'}
+            {titles?.setToTitle ?? ' set to '}
+          </span>
           {enabledDatasetNames.map((name) => (
             <span
               key={name}

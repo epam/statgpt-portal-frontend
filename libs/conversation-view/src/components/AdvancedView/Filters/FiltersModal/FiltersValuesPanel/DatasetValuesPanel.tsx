@@ -22,8 +22,10 @@ const DatasetValuesPanel: FC<Props> = ({
   const [searchQuery, setSearchQuery] = useState('');
 
   const normalizedSearch = searchQuery.trim().toLowerCase();
-  const filtered = dataQueries.filter((q) =>
-    (q.title ?? q.urn).toLowerCase().includes(normalizedSearch),
+  const filtered = dataQueries.filter(
+    (q) =>
+      normalizedSearch.length < 2 ||
+      (q.title ?? q.urn).toLowerCase().includes(normalizedSearch),
   );
 
   const enabledCount = dataQueries.length - disabledDatasetUrns.size;

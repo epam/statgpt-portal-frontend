@@ -35,8 +35,11 @@ const DatasetSelectorFacet: FC<Props> = ({
       )}
       onClick={onSelect}
     >
-      <h3 className="w-full min-w-0 flex-1 truncate" title="Dataset">
-        <span className="truncate">Dataset</span>
+      <h3
+        className="w-full min-w-0 flex-1 truncate"
+        title={titles?.dataset ?? 'Dataset'}
+      >
+        <span className="truncate">{titles?.dataset ?? 'Dataset'}</span>
       </h3>
       <div className="ml-2 flex items-center gap-2 text-neutrals-800">
         <span className="filters-facet-item-counter px-2 text-center">

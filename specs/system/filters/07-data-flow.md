@@ -79,6 +79,16 @@ Once structure data is ready, `getFilledDatasetFiltersMap()` replaces skeleton
 (or the multi-dataset variant) applies the saved `QueryFilter[]` to mark the correct
 values as selected (see `02-single-dataset-filters.md` section 2).
 
+**Disabled-dataset preselection suppression (multi-dataset):** Before calling
+`getFiltersPreselectedByDataQueries()`, `MultiDatasetFilters` builds a
+`dataQueriesForMerge` list where every disabled dataset's `filters` are replaced with
+empty-selection `QueryFilter[]` for its indicator dimensions (all codes, none
+selected). This prevents a disabled dataset's saved filter selections from
+contaminating the shared filter display — for example, a Frequency value that only
+the disabled dataset had selected would otherwise appear pre-checked in the merged
+Frequency picker. The original `DataQuery.filters` are not mutated; they are
+preserved intact and used when the dataset is re-enabled.
+
 **One-time gate**: both `Filters.tsx` and `MultiDatasetFilters.tsx` guard
 preselection with a `useRef(false)` flag (`isPreselectedFromDataQuery`). Preselection
 runs exactly once — the first time structure data is ready. If dimensions or
@@ -131,8 +141,8 @@ spread in `updatedDataQueries` preserves the original saved selections.
 After compatibility filtering, `onApply()` merges `disabledDatasetUrns` — the
 in-modal working `Set<string>` tracking which datasets the user has toggled off —
 into `updatedDataQueries`. Each `DataQuery` whose `urn` is in the set has
-`disabled: true` written onto it; all others have the field absent. This merge
-happens before both `onMultipleDataFiltersChange` and `addSystemMessage` are called.
+`disabled: true` written onto it; all others have `disabled: false` written explicitly.
+This merge happens before both `onMultipleDataFiltersChange` and `addSystemMessage` are called.
 `addSystemMessage` computes `updatedDataQueries` internally by closing over the
 current value of `disabledDatasetUrns` at call time.
 

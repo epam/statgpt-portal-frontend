@@ -255,6 +255,7 @@ const AttachmentRenderer: FC<Props> = ({
                   titles={{
                     queryUpdatedManuallyTitle: titles?.queryUpdatedManually,
                     setToTitle: titles?.setTo,
+                    datasetLabel: titles?.dataset,
                   }}
                   datasetIcon={attachmentsStyles?.datasetIcon}
                   attachmentInfoList={attachmentInfoList}
