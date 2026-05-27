@@ -258,7 +258,7 @@ Per-dataset `DatasetFilter` items for disabled datasets are hidden from the left
 | `libs/conversation-view/src/components/AdvancedView/Filters/FiltersModal/FiltersFacets/DatasetSelectorFacet.tsx` | **New** |
 | `libs/conversation-view/src/components/AdvancedView/Filters/FiltersModal/FiltersValuesPanel/DatasetValuesPanel.tsx` | **New** |
 | `libs/conversation-view/src/utils/attachments/cross-dataset-grid/build-cross-dataset-grid-data.ts` | Filter rows from disabled datasets |
-| `libs/conversation-view/src/utils/multiple-filters.ts` | Add `filterSharedValuesForEnabledDatasets`; add `disabledDatasetUrns` param to `expandSharedTimeFilter` and `mapSharedDimensionValuesByDataset` (Section 9) |
+| `libs/conversation-view/src/utils/multiple-filters.ts` | Add `filterSharedValuesForEnabledDatasets` and private helpers `filterTimeDimensionForEnabledDatasets`, `clipTimeRangeToBounds`; add `disabledDatasetUrns` param to `buildFiltersMap` with post-processing removal (Section 9 — see §9.4 for implementation note) |
 
 ---
 
@@ -341,26 +341,25 @@ const filteredValues = filter.dimensionValues?.filter(value =>
 
 1. Compute `enabledSourceUrns = sourceDatasetUrns.filter(urn => !disabledDatasetUrns.has(urn))`.
 2. If `enabledSourceUrns` is empty → omit this filter from the returned array (facet hidden).
-3. Recompute the available range using the existing `getMergedSharedTimeRange` logic, restricted to the enabled source datasets' constraints from `constraintsMap`.
-4. Clip the filter's `timeRange` (user selection) to the new available bounds — same clamping logic as `limitTimeRangeByConstraints`.
+3. Recompute the available range as the union of enabled source datasets' annotation periods from `constraintsMap` (min of starts, max of ends).
+4. Clip the filter's `timeRange` (user selection) to the new available bounds using the shared `clipTimeRangeToBounds()` helper, which handles three cases: selection entirely before the available range → clamp to `{availableStart, availableStart}`; entirely after → clamp to `{availableEnd, availableEnd}`; overlap → standard `{max(start, available), min(end, available)}` clip. This prevents inverted ranges (`start > end`) that a naive min/max would produce.
 5. Return the filter with updated `sourceDatasetUrns` (enabled only) and clipped `timeRange`.
 
 ---
 
 ### 9.4 Apply Path: Skip Disabled Datasets During Expansion
 
-**Problem:** `expandSharedTimeFilter` and `mapSharedDimensionValuesByDataset` currently expand a SharedFilter to ALL `sourceDatasetUrns`, including disabled ones. This overwrites disabled datasets' saved `DataQuery.filters` on every Apply — losing the original selections.
+**Problem:** `expandSharedTimeFilter` and `mapSharedDimensionValuesByDataset` expand a SharedFilter to ALL `sourceDatasetUrns`, including disabled ones. If the result is written back as-is, disabled datasets' saved `DataQuery.filters` would be overwritten on every Apply — losing the original selections.
 
-**Fix:** Both functions receive `disabledDatasetUrns` and filter before expanding:
+**Actual implementation:** `expandSharedTimeFilter` and `mapSharedDimensionValuesByDataset` are left unchanged — they still expand all source datasets. Instead, `buildFiltersMap` accepts an optional `disabledDatasetUrns: Set<string>` parameter and removes those entries from the result map as a post-processing step after expansion:
 
 ```ts
-// expandSharedTimeFilter — time period
-(filter.sourceDatasetUrns ?? [])
-  .filter(urn => !disabledDatasetUrns.has(urn))
-  .map(urn => toDatasetFilter(filter, urn, ...))
-
-// mapSharedDimensionValuesByDataset — country / frequency
-// Only build entries for enabled dataset URNs
+// buildFiltersMap — after expand + limitTimeRangeByConstraints loop
+if (disabledDatasetUrns.size > 0) {
+  for (const urn of disabledDatasetUrns) {
+    result.delete(urn);
+  }
+}
 ```
 
 **Result:**
@@ -368,9 +367,9 @@ const filteredValues = filter.dimensionValues?.filter(value =>
 | Dataset state | In `filtersParamsMap` on Apply | `DataQuery.filters` after Apply |
 |---|---|---|
 | Enabled | ✅ Updated with current selections | Fresh selections saved |
-| Disabled | ❌ Absent | Original selections preserved via `...q` spread in `updatedDataQueries` |
+| Disabled | ❌ Absent (deleted from map) | Original selections preserved via `...q` spread in `updatedDataQueries` |
 
-**Implementation guard:** Verify that `onMultipleDataFiltersChange` treats a dataset absent from `filtersParamsMap` as "preserve existing filters" rather than "clear to empty." Add a guard if needed.
+Note: `onMultipleDataFiltersChange` treats a dataset absent from `filtersParamsMap` as "preserve existing filters" — this is the expected invariant and was confirmed during implementation.
 
 ---
 

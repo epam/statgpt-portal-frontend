@@ -64,11 +64,11 @@ For each `DataQuery` in `dataQueries`, the filter selection is resolved as follo
 - **Single-dataset**: `filters` if `currentDataQuery.urn === dataQuery.urn`; otherwise
   the existing `dataQuery.filters` — non-targeted datasets keep their saved selections
 
-The resolved filters are serialised as `{ urn, metadata, filters }` and stored in
-`attachment.data` as a JSON string. When a dataset has `disabled: true`, the flag is
-included in the serialised payload; `disabled` is omitted entirely when the dataset is
-enabled (falsy). Existing conversations that lack the field are treated as fully enabled
-on restore — no migration is needed.
+The resolved filters are serialised as `{ urn, metadata, filters, disabled }` and stored
+in `attachment.data` as a JSON string. `disabled` is always written as an explicit boolean
+(`!!dataQuery?.disabled`), so enabled datasets carry `disabled: false` in the payload.
+Existing conversations that pre-date this field will restore with `disabled` absent; the
+restore path treats absence as `false` — no migration is needed.
 
 ### `updateMessagesWithSystemMessage()`
 
@@ -153,7 +153,7 @@ This is described in detail in `02-single-dataset-filters.md` (section 2) and
 | Dataset URNs and metadata | Hierarchy expansion state |
 | `form_schema` from the last assistant message | Constraint responses (re-fetched on load) |
 | Dataset title | Disabled/enabled state of values |
-| `disabled` flag (when `true`; omitted when falsy) | — |
+| `disabled` flag (always serialized as explicit boolean) | — |
 
 Filter UI state (which panel is open, how values are displayed) is always reset on
 reload. Only the **selections** — which values the user picked — are restored.

@@ -167,15 +167,74 @@ SharedFilter "COUNTRY", selected: ["name:france"]
 
 ### `buildFiltersMap()`
 
-`buildFiltersMap(filters, constraintsMap, ...)` at `multiple-filters.ts:764`
+`buildFiltersMap(filters, constraintsMap, ..., disabledDatasetUrns)` at `multiple-filters.ts:759`
 
 The top-level expansion function. Takes the full UI `Filter[]` (which may contain
 both `SharedFilter` and `DatasetFilter` entries), expands all shared filters,
 and returns `Map<datasetUrn, Filter[]>` — ready to be serialised per dataset.
 
-Also applies `limitTimeRangeByConstraints()` on any time filter: clips the user's
-selected time range to the bounds the constraint says are available for that
-dataset.
+Also applies `limitTimeRangeByConstraints()` on any time filter, which delegates
+to the private `clipTimeRangeToBounds()` helper. That helper handles the boundary
+cases correctly — including when the selection lies entirely outside the available
+range — preventing the inverted range (`start > end`) that a naive min/max clip
+would produce.
+
+After expansion and time-range clipping, `buildFiltersMap` removes entries for any
+dataset URN in `disabledDatasetUrns` from the result map. Expansion itself still
+runs over all `sourceDatasetUrns` including disabled ones — the removal is a
+post-processing step. The practical effect: disabled datasets are absent from the result map, so their
+`DataQuery.filters` are not overwritten — the `...q` spread in
+`updatedDataQueries` preserves them untouched.
+
+---
+
+## Display-Safe Filtering: `filterSharedValuesForEnabledDatasets()`
+
+At `multiple-filters.ts:1589`. A **display-only** function — it never mutates
+filter state and is never called on the Apply path. `FilterSettings` derives a
+`displayFilters` list via `useMemo` from `filtersList`, `disabledDatasetUrns`, and
+`initialConstraintsMap`, and passes it to both the left facets panel and the right
+values panel instead of the raw `filtersList` state. The useMemo also pre-filters
+disabled-dataset `DatasetFilter` entries from `filtersList` before passing to this
+function, so the function itself only ever receives enabled-dataset `DatasetFilter`
+entries (which it passes through unchanged) and all `SharedFilter` entries.
+
+`filtersList` state is never mutated by this derivation — it remains the full
+source of truth for Apply. Mutation callbacks (`onSelectFilterValue`,
+`onSelectHierarchicalNodes`, `onExpandHierarchicalValue`) always resolve their
+target filter against the full `filtersList` via a `getFullFilter()` helper, not
+against `displayFilters`. Values hidden by the display filter are therefore never
+accidentally lost when the user interacts with a visible value.
+
+Returns `filters` unchanged when `disabledDatasetUrns.size === 0`.
+
+**`SharedFilter` — Country / Frequency (discrete values):**
+
+Values whose every `sourceValue.datasetUrn` is in `disabledDatasetUrns` are
+removed. If no values remain the filter is omitted entirely (facet hidden).
+The `isSelectedValue` flags on hidden values are preserved in `filtersList`; when a
+dataset is re-enabled the values reappear with their selections intact.
+
+The side-effect is intentional: if the user's only Frequency selection was "Daily"
+(from a now-disabled dataset), the visible Frequency facet becomes empty — meaning
+"all frequencies" for the remaining enabled datasets. This is the correct widened
+result, not a bug.
+
+**`SharedFilter` — Time Period (`isTimeDimension: true`):**
+
+Handled internally by the private `filterTimeDimensionForEnabledDatasets()` helper:
+
+1. Filter `sourceDatasetUrns` to enabled-only. If none remain, omit the filter
+   (facet hidden).
+2. Recompute the available range as the union of enabled source datasets' annotation
+   periods from `constraintsMap` (min of starts, max of ends).
+3. Clip the filter's `timeRange` to the recomputed bounds via `clipTimeRangeToBounds`
+   (same three-case logic used by `limitTimeRangeByConstraints`).
+4. Return the filter with updated `sourceDatasetUrns` and clipped `timeRange`.
+
+The clip is display-only: `filtersList` preserves the original wide range. If the
+user re-enables the dataset, `getFiltersPreselectedByDataQueries` reads back the
+preserved `DataQuery.filters` and the merged range widens again.
 
 ---
 
@@ -257,12 +316,17 @@ mergeSharedFilters()
   → [SharedFilter(COUNTRY), SharedFilter(FREQ), SharedFilter(TIME), DatasetFilter, ...]
                                                 (UI-facing: merged pickers + dataset-specific ones)
 
-User selects values in the merged pickers
-  ↓
-buildFiltersMap()
-  → Map<urn, DatasetFilter[]>                  (expanded back, with native IDs and codes)
+filterSharedValuesForEnabledDatasets()       ← display path only (useMemo in FilterSettings)
+  → displayFilters                             (values from disabled datasets hidden;
+                                               Time Period range clipped to enabled bounds)
 
-limitTimeRangeByConstraints() applied per dataset
+User selects values in the merged pickers (reads displayFilters; writes to filtersList)
+  ↓
+buildFiltersMap()                            ← apply path (called in onApply)
+  → Map<urn, DatasetFilter[]>                  (expanded back, with native IDs and codes;
+                                               disabled-dataset entries removed)
+
+limitTimeRangeByConstraints() / clipTimeRangeToBounds() applied per enabled dataset
   ↓
 setDataQueryFilters() per dataset
   → Map<urn, QueryFilter[]>                    (ready for persistence and API calls)
@@ -280,8 +344,21 @@ setDataQueryFilters() per dataset
 - Time period merging takes the **widest** time range (min of starts, max of ends)
   so the shared time picker shows the full range available across all datasets.
 - Time period expansion takes the **narrowest** range allowed by each dataset's
-  constraints.
+  constraints. `clipTimeRangeToBounds` correctly handles boundary cases where the
+  selection lies entirely outside the available range, preventing inverted ranges
+  (`start > end`) that a naive min/max clip would produce.
 - COUNTRY/FREQUENCY values are matched by name, not by code. Two datasets must use
   the same display name for the same concept to be merged. If names differ, each
   ends up as a separate entry in the shared filter.
+- `filterSharedValuesForEnabledDatasets` is display-only. The full `filtersList`
+  state — including values hidden by the display filter — is what gets serialised on
+  Apply. `buildFiltersMap` independently handles the disabled-dataset exclusion on
+  the apply path via its `disabledDatasetUrns` parameter.
+- `buildFiltersMap` expands SharedFilters across all `sourceDatasetUrns` including
+  disabled ones, then deletes disabled-dataset entries as a post-processing step.
+  Callers that invoke `buildFiltersMap` without `disabledDatasetUrns` (or that call
+  `expandSharedFilter` directly) will still produce entries for all source datasets.
+  This is intentional — for example, `getFiltersForQueryContext` calls
+  `buildFiltersMap` without `disabledDatasetUrns` because it is used for query
+  context building, not the Apply path.
 

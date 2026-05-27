@@ -88,6 +88,21 @@ overwriting any edits the user has already made in the modal.
 At this point the filter UI is ready: values are populated, prior selections are
 restored, and the modal can be opened.
 
+### Display filtering — `filterSharedValuesForEnabledDatasets`
+
+Once the filter modal is open, `FilterSettings` continuously derives `displayFilters`
+via `useMemo` from `filtersList`, `disabledDatasetUrns`, and `initialConstraintsMap`.
+This derivation runs on every change to any of those three values (e.g. when the user
+toggles a dataset on/off in the modal).
+
+`displayFilters` is a display-only copy that hides SharedFilter values whose source
+datasets are all disabled, hides the entire facet when no values remain, and clips the
+Time Period range to the union of enabled datasets' available bounds. `FiltersFacetsList`
+(left panel) and `FiltersValuesPanel` (right panel) consume `displayFilters`. The
+`filtersList` state is never mutated by this derivation — it remains the source of
+truth for Apply. See `03-shared-filters-merging.md` (Display-Safe Filtering) for the
+full algorithm.
+
 ---
 
 ## Sequence 2 — User Changes a Filter → Persisted
@@ -107,6 +122,11 @@ For multi-dataset, `onApply()` in `MultiDatasetFilters.tsx` first calls
 `buildFiltersMap()` to expand shared filters back to per-dataset native IDs, then
 `getCompatibleDatasetUrns()` to exclude datasets whose filter selections are
 incompatible. Incompatible datasets' filters are marked `isExcluded: true`.
+
+`buildFiltersMap` accepts `disabledDatasetUrns` and removes those entries from the
+result map after expansion. This means disabled datasets are absent from
+`filtersParamsMap`, so their `DataQuery.filters` are not overwritten — the `...q`
+spread in `updatedDataQueries` preserves the original saved selections.
 
 After compatibility filtering, `onApply()` merges `disabledDatasetUrns` — the
 in-modal working `Set<string>` tracking which datasets the user has toggled off —
