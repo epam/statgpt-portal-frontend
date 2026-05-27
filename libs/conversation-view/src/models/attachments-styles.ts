@@ -34,7 +34,6 @@ export interface AttachmentsStyles {
   downloadInProgressActionIcon?: ReactNode;
   downloadErrorActionIcon?: ReactNode;
   datasetIcon?: ReactNode;
-  isDisplayDatasetIcon?: boolean;
   isDownloadDescriptionVisible?: boolean;
   downloadTitles?: DownloadTitles;
   downloadCollapsible?: boolean;
