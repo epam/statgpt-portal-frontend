@@ -44,6 +44,7 @@ export enum ChatI18nKeys {
   CHAT_EXPIRATION = 'chat.chatExpiration',
   CHAT_EXPIRATION_DAYS = 'chat.chatExpirationDays',
   CHAT_WARNING = 'chat.chatWarning',
+  SHARE_ALERT_MESSAGE = 'chat.shareAlertMessage',
   DUPLICATE_CHAT = 'chat.duplicateChat',
   EXPLORE_DATA = 'chart.exploreData',
   CONVERSATION_ACCESS_ERROR_TITLE = 'chat.conversationAccessErrorTitle',
