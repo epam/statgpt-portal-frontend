@@ -1,9 +1,10 @@
 import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import classNames from 'classnames';
-import { FC, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { MessageActionIcons } from '../../../models/message';
 import { LikeState } from '@epam/ai-dial-shared';
 import { useAgentAvailability } from '@epam/statgpt-ui-components';
+import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
 
 interface Props {
   message: MessageType;
@@ -15,6 +16,8 @@ interface Props {
   isRegenerateAvailable?: boolean;
 }
 
+const COPIED_RESET_MS = 2000;
+
 export const AssistantActionsPanel: FC<Props> = ({
   message,
   regenerateMessage,
@@ -24,7 +27,9 @@ export const AssistantActionsPanel: FC<Props> = ({
   isReadOnly = false,
   isRegenerateAvailable = false,
 }) => {
+  const { messageActionsTitles } = useConversationViewStyles();
   const copy = messageActionsIcons?.copy;
+  const copied = messageActionsIcons?.copied;
   const regenerate = messageActionsIcons?.regenerate;
   const thumbUp = messageActionsIcons?.thumbUp;
   const thumbDown = messageActionsIcons?.thumbDown;
@@ -32,7 +37,17 @@ export const AssistantActionsPanel: FC<Props> = ({
   const [rate, setRate] = useState<LikeState>(
     message.like ?? LikeState.NoState,
   );
+  const [isCopied, setIsCopied] = useState(false);
+  const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { isAgentAvailable } = useAgentAvailability();
+
+  useEffect(() => {
+    return () => {
+      if (copiedTimeoutRef.current) {
+        clearTimeout(copiedTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleRateResponse = (rate: LikeState) => {
     if (message.responseId) {
@@ -41,11 +56,22 @@ export const AssistantActionsPanel: FC<Props> = ({
     }
   };
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(message.content);
+    setIsCopied(true);
+    if (copiedTimeoutRef.current) {
+      clearTimeout(copiedTimeoutRef.current);
+    }
+    copiedTimeoutRef.current = setTimeout(() => {
+      setIsCopied(false);
+    }, COPIED_RESET_MS);
+  };
+
   return (
     <div className={classNames('message-actions', 'flex gap-x-2 pt-2')}>
       {copy && (
-        <p onClick={() => navigator.clipboard.writeText(message.content)}>
-          {copy}
+        <p onClick={handleCopy} title={messageActionsTitles?.copy}>
+          {isCopied && copied ? copied : copy}
         </p>
       )}
       {isRegenerateAvailable && regenerate && !isReadOnly && !isStreaming && (
@@ -54,6 +80,7 @@ export const AssistantActionsPanel: FC<Props> = ({
             isAgentAvailable ? () => regenerateMessage?.(message) : undefined
           }
           aria-disabled={!isAgentAvailable}
+          title={messageActionsTitles?.regenerate}
           className={classNames(
             !isAgentAvailable &&
               'opacity-50 !cursor-not-allowed pointer-events-none',
@@ -66,19 +93,29 @@ export const AssistantActionsPanel: FC<Props> = ({
         !isReadOnly &&
         rate !== LikeState.Disliked &&
         (rate === LikeState.NoState ? (
-          <p onClick={() => handleRateResponse(LikeState.Liked)}>{thumbUp}</p>
+          <p
+            onClick={() => handleRateResponse(LikeState.Liked)}
+            title={messageActionsTitles?.like}
+          >
+            {thumbUp}
+          </p>
         ) : (
-          <p>{thumbPressed}</p>
+          <p title={messageActionsTitles?.like}>{thumbPressed}</p>
         ))}
       {thumbDown &&
         !isReadOnly &&
         rate !== LikeState.Liked &&
         (rate === LikeState.NoState ? (
-          <p onClick={() => handleRateResponse(LikeState.Disliked)}>
+          <p
+            onClick={() => handleRateResponse(LikeState.Disliked)}
+            title={messageActionsTitles?.dislike}
+          >
             {thumbDown}
           </p>
         ) : (
-          <p className="rotate-180">{thumbPressed}</p>
+          <p className="rotate-180" title={messageActionsTitles?.dislike}>
+            {thumbPressed}
+          </p>
         ))}
     </div>
   );

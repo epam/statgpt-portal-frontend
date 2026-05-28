@@ -56,6 +56,8 @@ interface Props {
   titles: ConversationViewTitles;
   suggestionsList: FormSchemaButtonOption[];
   welcomeText: string;
+  welcomeDescription?: string;
+  welcomeInputPlaceholder?: string;
   titleIcon?: ReactNode;
   inputMessageStyles: InputMessageStyles;
   isBottomInputPosition?: boolean;
@@ -70,6 +72,8 @@ interface Props {
 export const ConversationWelcome: FC<Props> = ({
   suggestionsList,
   welcomeText,
+  welcomeDescription,
+  welcomeInputPlaceholder,
   titleIcon,
   actions,
   titles,
@@ -248,7 +252,9 @@ export const ConversationWelcome: FC<Props> = ({
           )}
           inputClasses="mr-2"
           disabled={isConversationCreationDisabled}
-          placeholder={titles?.askAnything ?? 'Ask anything...'}
+          placeholder={
+            welcomeInputPlaceholder || titles?.askAnything || 'Ask anything...'
+          }
           sendMessageIcon={inputMessageStyles.sendMessageIcon}
           onSendMessage={createConversation}
         />
@@ -298,7 +304,11 @@ export const ConversationWelcome: FC<Props> = ({
             <div
               className={classNames(
                 'flex items-center max-w-full sm-min:px-4',
-                isBottomInputPosition ? 'mt-auto mb-8' : 'mb-6',
+                isBottomInputPosition
+                  ? 'mt-auto mb-8'
+                  : welcomeDescription
+                    ? 'mb-0'
+                    : 'mb-6',
               )}
             >
               {titleIcon}
@@ -306,6 +316,11 @@ export const ConversationWelcome: FC<Props> = ({
                 {welcomeText ?? titles?.welcomeTitle ?? 'How can I help you?'}
               </h1>
             </div>
+            {welcomeDescription && (
+              <p className="body-1 mb-6 mt-3 max-w-[784px] text-center text-neutrals-900">
+                {welcomeDescription}
+              </p>
+            )}
             {getContent()}
           </div>
         )}

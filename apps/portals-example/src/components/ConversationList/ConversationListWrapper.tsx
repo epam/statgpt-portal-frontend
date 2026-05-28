@@ -12,7 +12,7 @@ import {
   ActionMenuItem,
   ConversationListTitles,
 } from '@epam/statgpt-conversation-list';
-import MessageIcon from '../../../public/images/message-dots.svg';
+import MessageIcon from '../../../public/images/message.svg';
 import {
   useAdvancedView,
   useChatMessages,
@@ -254,6 +254,12 @@ const ConversationListWrapper = ({
                   {t(I18nKeys.App.TITLE_GLOBAL)}
                 </p>
                 <p className="inline">{t(I18nKeys.App.TITLE)}</p>
+                {t(I18nKeys.App.SUBTITLE) &&
+                  t(I18nKeys.App.SUBTITLE) !== AppI18nKeys.SUBTITLE && (
+                    <p className="logo-subtitle text-hues-800">
+                      {t(I18nKeys.App.SUBTITLE)}
+                    </p>
+                  )}
               </span>
             ) : null}
           </div>
@@ -315,7 +321,7 @@ const ConversationListWrapper = ({
               titles,
               isSmallModalButton: true,
               conversationItemIcon: (
-                <i className="mr-4 size-[20px]">
+                <i className="mr-3 size-[20px]">
                   <MessageIcon width={20} height={20} />
                 </i>
               ),

@@ -1581,7 +1581,7 @@ describe('getCompatibleDatasetUrns', () => {
 });
 
 describe('getConstraintsRequests', () => {
-  it('excludes shared non-time dimension filters from constraint requests in cross-dataset mode', async () => {
+  it('includes shared non-time dimension filters in constraint requests for each dataset', async () => {
     const sharedFrequencyFilter = {
       id: COMMON_FREQUENCY_FILTER_ID,
       filterType: 'shared',
@@ -1617,12 +1617,12 @@ describe('getConstraintsRequests', () => {
     );
 
     expect(mockGetSeriesFilterDto).toHaveBeenCalledWith(
-      [],
+      sourceFilters,
       DATASET_A_URN,
       DATASET_DIMENSIONS_METADATA_MAP,
     );
     expect(mockGetSeriesFilterDto).toHaveBeenCalledWith(
-      [],
+      sourceFilters,
       DATASET_B_URN,
       DATASET_DIMENSIONS_METADATA_MAP,
     );

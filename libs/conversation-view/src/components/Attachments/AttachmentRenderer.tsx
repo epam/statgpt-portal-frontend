@@ -269,12 +269,7 @@ const AttachmentRenderer: FC<Props> = ({
                     datasets={datasets}
                     initialSelectedDatasetUrn={initialSelectedDatasetUrn}
                     locale={locale}
-                    isHideAdvancedViewButton={!showAdvancedView}
-                    openAdvancedViewIcon={
-                      attachmentsStyles?.openAdvancedViewIcon
-                    }
                     selectDataset={selectDataset}
-                    onOpenAdvancedView={onOpenAdvancedView}
                   />
                 )}
               {showLimitMessage && (
@@ -309,6 +304,7 @@ const AttachmentRenderer: FC<Props> = ({
                     onSelectedAttachmentChange={selectAttachment}
                     onDownloadClick={() => setModalState(PopUpState.Opened)}
                     showAdvancedView={showAdvancedView}
+                    onOpenAdvancedView={onOpenAdvancedView}
                     isTableSettingsOpen={isTableSettingsOpen}
                     onTableSettingsOpen={onTableSettingsOpen}
                   />
@@ -343,8 +339,6 @@ const AttachmentRenderer: FC<Props> = ({
                 dimensions={dimensions}
                 filters={filters}
                 urn={currentDataQuery?.urn}
-                datasetIcon={attachmentsStyles?.datasetIcon}
-                isDisplayDatasetIcon={attachmentsStyles?.isDisplayDatasetIcon}
                 titles={attachmentsStyles?.downloadTitles}
                 rowCount={downloadRowCount}
                 collapsible={attachmentsStyles?.downloadCollapsible}

@@ -39,6 +39,7 @@ import {
   EditMessageTitles,
   InputMessageStyles,
   MessageActionIcons,
+  MessageActionTitles,
   MessageStyles,
 } from '../../models/message';
 // eslint-disable-next-line @nx/enforce-module-boundaries
@@ -136,6 +137,7 @@ interface Props {
   handleInvalidStreaming?: (error: HttpError) => void;
   onConversationNotFound?: () => void;
   messageActionsIcons?: MessageActionIcons;
+  messageActionsTitles?: MessageActionTitles;
   editMessageTitles: EditMessageTitles;
   scrollBottomIcon?: ReactNode;
   isFinalMessage?: boolean;
@@ -168,6 +170,7 @@ export const ConversationView: FC<Props> = ({
   setConversations,
   openUrl,
   messageActionsIcons,
+  messageActionsTitles,
   editMessageTitles,
   scrollBottomIcon,
   isFinalMessage,
@@ -896,6 +899,7 @@ export const ConversationView: FC<Props> = ({
         attachmentsStyles,
         formattingSettings,
         messageActionsIcons,
+        messageActionsTitles,
         editMessageTitles,
         expandStagesIcon,
         scrollBottomIcon,

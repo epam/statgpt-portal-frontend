@@ -1,4 +1,4 @@
-import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   DatasetQueryFilters,
@@ -34,8 +34,6 @@ import { DownloadDatasetItem } from '../../models/download-dataset-item';
 import { DownloadRequestConfig } from '../../models/download-request';
 
 interface Props {
-  datasetIcon: ReactNode;
-  isDisplayDatasetIcon?: boolean;
   datasetName: string;
   type: DownloadType | null;
   dataQuery?: DataQuery;
@@ -57,8 +55,6 @@ interface Props {
 
 const DownloadSettings: FC<Props> = ({
   dataQuery,
-  datasetIcon,
-  isDisplayDatasetIcon = true,
   datasetName,
   onCloseModal,
   type = DownloadType.FULL_DATASET,
@@ -224,24 +220,13 @@ const DownloadSettings: FC<Props> = ({
       onClose={onCloseModal}
       closeButtonTitle={titles?.close || 'Close'}
     >
-      {!downloadDatasets && (
-        <div className="download-info flex flex-col gap-1 px-6">
-          <div className="download-info-text flex gap-1">
-            <p className="body-3 text-neutrals-800">
-              {titles?.dataset || 'Dataset'}:
-            </p>
-            <span className="h4 flex min-w-0 flex-1 flex-row gap-x-1">
-              {isDisplayDatasetIcon && datasetIcon}
-              <p className="min-w-0 flex-1 truncate">{datasetName}</p>
-            </span>
-          </div>
-          {showLimitMessage && (
-            <RequestLimitMessage
-              limitMessages={limitMessages}
-              isDownload
-              query={externalLink}
-            />
-          )}
+      {!downloadDatasets && showLimitMessage && (
+        <div className="download-info flex flex-col gap-1 px-6 pt-5">
+          <RequestLimitMessage
+            limitMessages={limitMessages}
+            isDownload
+            query={externalLink}
+          />
         </div>
       )}
       <div className="download-settings flex flex-col overflow-auto p-6">

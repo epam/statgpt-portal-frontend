@@ -12,6 +12,7 @@ import {
   ChartingIcon,
   ConversationViewTitles,
   MessageActionIcons,
+  MessageActionTitles,
 } from '@epam/statgpt-conversation-view';
 import { openDownloadWindow, Dataflow } from '@epam/statgpt-sdmx-toolkit';
 import {
@@ -351,6 +352,7 @@ const ConversationViewWrapper: FC<Props> = ({
     }),
     openLinkTitle: t(AttachmentsI18nKeys.OPEN_URL),
     dataGridTitle: t(AttachmentsI18nKeys.DATA_GRID),
+    advancedViewTitle: t(AdvancedViewI18nKeys.ADVANCED_VIEW),
     errorDownloadIcon: <ErrorIcon className="size-6 text-semantic-error" />,
     datasetIcon: <Dataset className="size-5" />,
     chartingIcons,
@@ -420,10 +422,18 @@ const ConversationViewWrapper: FC<Props> = ({
   const messageActionsIcons: MessageActionIcons = {
     regenerate: <Regenerate width={20} height={20} />,
     copy: <Copy width={20} height={20} />,
+    copied: <CheckIcon width={20} height={20} />,
     thumbUp: <ThumbUp width={20} height={20} />,
     thumbDown: <ThumbDown width={20} height={20} />,
     edit: <Edit width={20} height={20} />,
     thumbPressed: <ThumbPressed width={20} height={20} />,
+  };
+
+  const messageActionsTitles: MessageActionTitles = {
+    copy: t(ChatI18nKeys.COPY_TEXT),
+    regenerate: t(ChatI18nKeys.REGENERATE_RESPONSE),
+    like: t(ChatI18nKeys.LIKE),
+    dislike: t(ChatI18nKeys.DISLIKE),
   };
 
   const limitMessages: LimitMessages = {
@@ -557,6 +567,7 @@ const ConversationViewWrapper: FC<Props> = ({
             setConversations={setConversations}
             openUrl={openUrl}
             messageActionsIcons={messageActionsIcons}
+            messageActionsTitles={messageActionsTitles}
             editMessageTitles={{
               cancel: t(ConversationI18nKeys.CANCEL),
               send: t(ConversationI18nKeys.SEND),

@@ -75,6 +75,12 @@ h5 {
 .logo {
   font-family: var(--font-inter);
   font-size: 15px;
-  font-weight: 500;
   line-height: 16px;
+  @apply font-bold;
+}
+
+.logo-subtitle {
+  font-family: var(--font-inter);
+  font-size: 13px;
+  @apply font-normal;
 }

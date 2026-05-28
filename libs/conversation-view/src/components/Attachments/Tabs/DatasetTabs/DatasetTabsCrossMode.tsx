@@ -2,61 +2,15 @@
 
 import { generateShortUrn, getLocalizedName } from '@epam/statgpt-sdmx-toolkit';
 import { Locale } from '@epam/statgpt-shared-toolkit';
-import { IconButton } from '@epam/statgpt-ui-components';
 import classNames from 'classnames';
-import { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useMemo } from 'react';
 import type { DatasetTabsProps } from './DatasetTabs';
 import { useAdvancedView } from '../../../../context/AdvancedViewContext';
-import { Tooltip } from '../../../Tooltip/Tooltip';
-import { getTooltipDataByElement } from '../../../../utils/get-tooltip-data.by-element';
-import { OnboardingElements } from '../../../../constants/onboarding-elements';
-import { useOnboarding } from '../../../../context/OnboardingContext';
-import { useConversationViewStyles } from '../../../../context/ConversationViewStylesContext';
 
 const MAX_TABS_COUNT = 3;
 
-const DatasetTabsCrossMode: FC<DatasetTabsProps> = ({
-  datasets,
-  locale,
-  isHideAdvancedViewButton,
-  openAdvancedViewIcon,
-  onOpenAdvancedView,
-}) => {
-  const { titles } = useConversationViewStyles();
+const DatasetTabsCrossMode: FC<DatasetTabsProps> = ({ datasets, locale }) => {
   const { isOpenedAdvancedView } = useAdvancedView();
-
-  const iconRef = useRef<HTMLDivElement | null>(null);
-  const [tooltipTitle, setTooltipTitle] = useState<string>('');
-  const [tooltipDescription, setTooltipDescription] = useState<string>('');
-  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
-  const { onboardingFileSchema, isShowOnboarding } = useOnboarding();
-
-  useEffect(() => {
-    if (isShowOnboarding) {
-      const { title, description } = getTooltipDataByElement(
-        OnboardingElements.OPEN_ADVANCED_VIEW,
-        titles,
-      );
-      setTooltipTitle(title);
-      setTooltipDescription(description);
-    }
-  }, [titles, isShowOnboarding]);
-
-  useEffect(() => {
-    if (isShowOnboarding) {
-      const isCurrent =
-        onboardingFileSchema?.lastDisplayedElement ===
-        OnboardingElements.OPEN_ADVANCED_VIEW;
-      setIsTooltipVisible(isCurrent);
-
-      if (isCurrent) {
-        iconRef?.current?.scrollIntoView({
-          block: 'center',
-          behavior: 'smooth',
-        });
-      }
-    }
-  }, [onboardingFileSchema?.lastDisplayedElement, isShowOnboarding]);
 
   const datasetItems = useMemo(
     () =>
@@ -89,10 +43,8 @@ const DatasetTabsCrossMode: FC<DatasetTabsProps> = ({
   return (
     <div
       className={classNames(
-        'cross-dataset-tabs flex justify-between items-center w-full',
-        isHideAdvancedViewButton &&
-          isOpenedAdvancedView &&
-          'hide-advance-button',
+        'cross-dataset-tabs flex w-full items-center justify-between',
+        isOpenedAdvancedView && 'hide-advance-button',
       )}
     >
       <div className="cross-dataset-tabs-list sm:w-[calc(100%-30px)]">
@@ -120,24 +72,6 @@ const DatasetTabsCrossMode: FC<DatasetTabsProps> = ({
           </span>
         )}
       </div>
-      {!isHideAdvancedViewButton && (
-        <div ref={iconRef}>
-          <IconButton
-            buttonClassName={'advanced-view-button-cross-dataset-mode'}
-            icon={openAdvancedViewIcon}
-            onClick={onOpenAdvancedView}
-          />
-        </div>
-      )}
-      {isTooltipVisible && (
-        <Tooltip
-          reference={iconRef}
-          title={tooltipTitle}
-          description={tooltipDescription}
-          onReferenceClick={onOpenAdvancedView}
-          shouldCloseTooltip={isOpenedAdvancedView}
-        />
-      )}
     </div>
   );
 };

@@ -7,6 +7,7 @@ export interface AttachmentsStyles {
   showTabIcon?: boolean;
   showChevronIcon?: boolean;
   openAdvancedViewIcon?: ReactNode;
+  advancedViewTitle?: string;
   chartingStyles?: ChartingStyles;
   chartingIcons: Record<ChartingIcon, ReactNode>;
   downloadIcon?: ReactNode;
@@ -33,7 +34,6 @@ export interface AttachmentsStyles {
   downloadInProgressActionIcon?: ReactNode;
   downloadErrorActionIcon?: ReactNode;
   datasetIcon?: ReactNode;
-  isDisplayDatasetIcon?: boolean;
   isDownloadDescriptionVisible?: boolean;
   downloadTitles?: DownloadTitles;
   downloadCollapsible?: boolean;
