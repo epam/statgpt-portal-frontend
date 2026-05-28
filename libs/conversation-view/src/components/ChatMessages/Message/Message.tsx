@@ -281,10 +281,13 @@ const Message: FC<Props> = ({
   }, [attachmentsDataQueries]);
 
   useEffect(() => {
-    if (dataQuery && dataQuery.urn) {
+    if (
+      dataQuery?.urn &&
+      attachmentsDataQueries?.some((q) => q?.urn === dataQuery.urn)
+    ) {
       setInitialSelectedDatasetUrn(dataQuery.urn);
     }
-  }, [dataQuery]);
+  }, [dataQuery, attachmentsDataQueries]);
 
   useEffect(() => {
     if (message?.role === Role.System && previousMessage) {
