@@ -226,7 +226,7 @@ export const ConversationList: FC<Props> = ({
         {!isCollapsed && (
           <div
             className={classNames(
-              'flex justify-between items-center',
+              'flex justify-between items-center pr-6',
               isExpandedSearch ? ' pt-4 pb-0 sm:pt-10' : ' pt-6 pb-2 sm:pt-10',
             )}
           >
@@ -243,14 +243,14 @@ export const ConversationList: FC<Props> = ({
             />
           </div>
         )}
-        <div
-          className={classNames(
-            'scroll-hidden-container flex flex-col mt-4 flex-1 min-h-0 pr-2',
-            isSearchConversations ? 'gap-y-1' : 'gap-y-6',
-          )}
-        >
+        <div className="scroll-hidden-container flex flex-col mt-4 flex-1 min-h-0">
           {!isCollapsed ? (
-            <>
+            <div
+              className={classNames(
+                'flex flex-col pr-4',
+                isSearchConversations ? 'gap-y-1' : 'gap-y-6',
+              )}
+            >
               {conversations?.length === 0 &&
               sharedConversations?.length === 0 ? (
                 <NoConversations />
@@ -277,7 +277,7 @@ export const ConversationList: FC<Props> = ({
                     ),
                 )
               )}
-            </>
+            </div>
           ) : null}
         </div>
         {children}
