@@ -1,4 +1,4 @@
-import { IconCheck, IconCopy } from '@tabler/icons-react';
+import { IconCheck, IconCopy, IconInfoCircle } from '@tabler/icons-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -10,6 +10,8 @@ import {
 } from '@epam/statgpt-dial-toolkit';
 import {
   Button,
+  InlineAlert,
+  InlineAlertType,
   InputWithIcon,
   Loader,
   Popup,
@@ -53,6 +55,7 @@ const ShareConversationModal: FC<Props> = ({
   id,
   clientSharedPage,
   clientSharedProp,
+  shareAlertMessage,
 }) => {
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
   const [sharedConversation, setSharedConversation] =
@@ -253,6 +256,14 @@ const ShareConversationModal: FC<Props> = ({
         </div>
       ) : (
         <div className="share flex flex-col gap-y-4 overflow-auto px-6 pb-6 sm:p-0">
+          {shareAlertMessage ? (
+            <InlineAlert
+              type={InlineAlertType.Note}
+              icon={<IconInfoCircle width={16} height={16} />}
+            >
+              {shareAlertMessage}
+            </InlineAlert>
+          ) : null}
           {conversation?.name ? (
             <div className="share-info flex w-full">
               <p className="share-info-title body-1 mr-1 text-neutrals-800">

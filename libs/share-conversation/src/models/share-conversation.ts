@@ -38,4 +38,5 @@ export interface ShareConversationProps {
   id?: string[];
   clientSharedPage?: string;
   clientSharedProp?: string;
+  shareAlertMessage?: string;
 }
