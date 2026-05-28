@@ -105,7 +105,7 @@ const FilterSettings: FC<Props> = ({
   );
   const isMobile = useIsMobile();
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
-  const [isDatasetFacetSelected, setIsDatasetFacetSelected] = useState(true);
+  const [isDatasetFacetSelected, setIsDatasetFacetSelected] = useState(false);
   // Combines: (1) hide disabled-dataset DatasetFilter facets (existing),
   //           (2) hide SharedFilter values whose sources are all disabled (new),
   //           (3) clip Time Period range to enabled datasets (new).

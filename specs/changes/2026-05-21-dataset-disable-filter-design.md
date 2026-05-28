@@ -86,9 +86,10 @@ Additional props: `disabledDatasetUrns: Set<string>`, `isDatasetFacetSelected: b
 
 Additional props: `disabledDatasetUrns: Set<string>`, `onToggleDataset`, `onClearAllDatasets`.
 
-- Adds internal state: `isDatasetFacetSelected: boolean` (initially `true`).
+- Adds internal state: `isDatasetFacetSelected: boolean` (initially `false`).
 - When `DatasetSelectorFacet` is clicked: sets `isDatasetFacetSelected = true`, clears `selectedFilter`.
 - When a regular filter is clicked: sets `isDatasetFacetSelected = false`.
+- On modal **open** (in both `Filters.tsx` and `MultiDatasetFilters.tsx`): `selectedFilter` is pre-set to the first non-time-period filter (`find(f => !f.isTimeDimension)`), which is Country/Region in practice.
 - Right-panel switch: `{isDatasetFacetSelected ? <DatasetValuesPanel .../> : <FiltersValuesPanel .../>}`.
 
 ---

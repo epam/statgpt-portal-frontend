@@ -358,7 +358,10 @@ const Filters: FC<FiltersProps> = ({
 
   useEffect(() => {
     if (modalState === PopUpState.Opened) {
-      setSelectedFilter(void 0);
+      const firstFilter = appliedFilters.find((f) => !f.isTimeDimension);
+      setSelectedFilter(
+        firstFilter ? { ...firstFilter, isSelectedFilter: true } : void 0,
+      );
       setModalFilters(appliedFilters);
     }
     if (modalState === PopUpState.Closed) {

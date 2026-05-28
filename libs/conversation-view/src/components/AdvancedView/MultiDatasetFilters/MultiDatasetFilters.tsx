@@ -363,7 +363,10 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   useEffect(() => {
     if (modalState === PopUpState.Opened) {
       setSelectedTimeOption(void 0);
-      setSelectedFilter(void 0);
+      const firstFilter = appliedFilters.find((f) => !f.isTimeDimension);
+      setSelectedFilter(
+        firstFilter ? { ...firstFilter, isSelectedFilter: true } : void 0,
+      );
       setModalFilters(appliedFilters);
       setDisabledDatasetUrns(
         new Set(dataQueries?.filter((q) => q.disabled).map((q) => q.urn)),
