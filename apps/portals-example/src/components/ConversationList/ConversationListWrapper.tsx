@@ -216,6 +216,7 @@ const ConversationListWrapper = ({
       chatExpirationDays: t(ChatI18nKeys.CHAT_EXPIRATION_DAYS),
       chatName: t(ChatI18nKeys.CHAT_NAME),
       chatWarning: t(ChatI18nKeys.CHAT_WARNING),
+      shareAlertMessage: t(ChatI18nKeys.SHARE_ALERT_MESSAGE),
     }),
     [t],
   );
