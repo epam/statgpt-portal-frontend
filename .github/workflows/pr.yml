@@ -18,3 +18,4 @@ jobs:
     secrets: inherit
     with:
       node-version: "24"
+      ort-version: "87.2.0"
