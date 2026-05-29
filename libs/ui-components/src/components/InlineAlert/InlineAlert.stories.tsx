@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { IconInfoCircle } from '@tabler/icons-react';
 import React from 'react';
+import { IconInfoCircle } from '@tabler/icons-react';
 import { InlineAlert } from './InlineAlert';
 import { InlineAlertType } from './types';
 
