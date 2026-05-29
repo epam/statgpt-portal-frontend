@@ -25,6 +25,11 @@ const config: StorybookConfig = {
     return mergeConfig(baseConfig, {
       plugins: [svgr()],
       css: {
+        preprocessorOptions: {
+          scss: {
+            silenceDeprecations: ['import'],
+          },
+        },
         postcss: {
           plugins: [
             tailwindcss(path.resolve(__dirname, '../tailwind.config.js')),
