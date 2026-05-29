@@ -1,9 +1,9 @@
 .download {
   &-popup {
-    @apply rounded-[10px] pt-2 w-[35%];
+    @apply rounded-[10px] w-[35%];
 
     .modal-heading {
-      @apply pt-5 border-b-[1px] border-neutrals-500 mb-0;
+      @apply border-b-[1px] border-neutrals-500;
     }
   }
 

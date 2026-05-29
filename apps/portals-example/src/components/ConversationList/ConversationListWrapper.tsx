@@ -216,6 +216,7 @@ const ConversationListWrapper = ({
       chatExpirationDays: t(ChatI18nKeys.CHAT_EXPIRATION_DAYS),
       chatName: t(ChatI18nKeys.CHAT_NAME),
       chatWarning: t(ChatI18nKeys.CHAT_WARNING),
+      shareAlertMessage: t(ChatI18nKeys.SHARE_ALERT_MESSAGE),
     }),
     [t],
   );
@@ -277,10 +278,15 @@ const ConversationListWrapper = ({
         <div
           className={classNames(
             'flex flex-col h-full pb-[14px] flex-1 min-h-0 pt-6',
-            isCollapsed ? 'px-[10px]' : 'px-6',
+            isCollapsed ? 'px-[10px]' : 'pl-6',
           )}
         >
-          <div className="flex flex-col gap-3">
+          <div
+            className={classNames(
+              'flex flex-col gap-3',
+              !isCollapsed && 'pr-6',
+            )}
+          >
             {isCollapsed && (
               <button
                 className="flex size-9 items-center justify-center self-center text-primary"
