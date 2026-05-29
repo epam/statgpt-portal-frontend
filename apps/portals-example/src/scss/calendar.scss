@@ -134,7 +134,7 @@ $calendar-width: $inner-width;
     }
     .cur-month,
     .cur-year {
-      @apply h2;
+      @extend h2;
       @apply text-neutrals-1000;
       &:hover {
         @apply bg-transparent;
