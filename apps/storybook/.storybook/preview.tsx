@@ -12,6 +12,9 @@ const withBrand: Decorator = (Story, context) => {
     link.rel = 'stylesheet';
     link.href = `/brand-themes/${brand}.css`;
     document.head.appendChild(link);
+    return () => {
+      document.getElementById('brand-theme')?.remove();
+    };
   }, [brand]);
   return <Story />;
 };
