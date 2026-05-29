@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import type { Decorator, Preview } from '@storybook/react-vite';
 import '../../../libs/ui-components/src/scss/styles.scss';
+import './preview-overrides.css';
 
 const withBrand: Decorator = (Story, context) => {
   const brand = (context.globals.brand as string) ?? 'brand1';
