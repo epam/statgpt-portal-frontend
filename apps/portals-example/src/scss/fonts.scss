@@ -1,21 +1,23 @@
-h1 {
-  @apply h1;
-}
+@layer base {
+  h1 {
+    @apply h1;
+  }
 
-h2 {
-  @apply h2;
-}
+  h2 {
+    @apply h2;
+  }
 
-h3 {
-  @apply h3;
-}
+  h3 {
+    @apply h3;
+  }
 
-h4 {
-  @apply h4;
-}
+  h4 {
+    @apply h4;
+  }
 
-h5 {
-  @apply h5;
+  h5 {
+    @apply h5;
+  }
 }
 
 .h1 {
