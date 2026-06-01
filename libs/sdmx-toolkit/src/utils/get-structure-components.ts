@@ -17,10 +17,12 @@ export const getStructureComponentsMap = (
   const codeLists = data?.codelists || [];
 
   if (data) {
+    const convertedMeta = getConvertedMetaAttributes(metadataStructure, dataStructure);
+
     const structureComponents = [
       ...(getDimensions(data)?.dimensions || []),
       ...(getDimensions(data)?.timeDimensions || []),
-      ...getConvertedMetaAttributes(metadataStructure, dataStructure),
+      ...convertedMeta,
       ...(dataStructure?.dataStructureComponents?.attributeList?.attributes ||
         []),
     ];

@@ -38,6 +38,7 @@ import { getDateFormattedValue } from '../../../utils/date-format';
 
 interface MetadataCellRendererParams extends ICellRendererParams {
   attributesData?: Data;
+  attributesDataMap?: Map<string, Data | undefined>;
   dataSetData?: StructuralData;
   structuresMap?: Map<string, StructuralData | undefined>;
   locale: Locale;
@@ -69,6 +70,14 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
     return params.dataSetData;
   }, [params.structuresMap, params.data, params.dataSetData]);
 
+  const resolvedAttributesData = useMemo(() => {
+    if (params.attributesDataMap) {
+      const urn = params?.data?.dataset?.urn as string | undefined;
+      return urn != null ? params.attributesDataMap.get(urn) : undefined;
+    }
+    return params.attributesData;
+  }, [params.attributesDataMap, params.data, params.attributesData]);
+
   const structureComponentsMap = useMemo(
     () => getStructureComponentsMap(resolvedDataSetData),
     [resolvedDataSetData],
@@ -91,7 +100,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
         params?.locale,
       ),
       ...getDimensionGroupAttributes(
-        params?.attributesData,
+        resolvedAttributesData,
         resolvedDataSetData?.dataStructures?.[0],
         structureComponentsMap,
         (params?.data?.originalData as TimeSeries)?.parsedTimeSeriesValue,
