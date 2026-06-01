@@ -60,6 +60,7 @@ interface Props {
   welcomeInputPlaceholder?: string;
   titleIcon?: ReactNode;
   inputMessageStyles: InputMessageStyles;
+  suggestionsContainerClass: string;
   isBottomInputPosition?: boolean;
   actions: ConversationListActions;
   prompt?: string;
@@ -78,6 +79,7 @@ export const ConversationWelcome: FC<Props> = ({
   actions,
   titles,
   inputMessageStyles,
+  suggestionsContainerClass,
   isBottomInputPosition,
   prompt,
   onboardingMessageSchema,
@@ -258,7 +260,12 @@ export const ConversationWelcome: FC<Props> = ({
           sendMessageIcon={inputMessageStyles.sendMessageIcon}
           onSendMessage={createConversation}
         />
-        <div className="no-scrollbar max-w-full overflow-x-auto">
+        <div
+          className={classNames(
+            'no-scrollbar max-w-full overflow-x-auto',
+            suggestionsContainerClass,
+          )}
+        >
           <div
             className={classNames(
               'flex flex-wrap justify-center gap-2 sm:flex-nowrap',
@@ -312,12 +319,12 @@ export const ConversationWelcome: FC<Props> = ({
               )}
             >
               {titleIcon}
-              <h1 className="sm:h2 text-center text-hues-800">
+              <h1 className="sm:h2 text-hues-800 text-center">
                 {welcomeText ?? titles?.welcomeTitle ?? 'How can I help you?'}
               </h1>
             </div>
             {welcomeDescription && (
-              <p className="body-1 mb-6 mt-3 max-w-[784px] text-center text-neutrals-900">
+              <p className="body-1 text-neutrals-900 mb-6 mt-3 max-w-[784px] text-center">
                 {welcomeDescription}
               </p>
             )}

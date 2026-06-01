@@ -39,6 +39,7 @@
     "chatExpiration": "Link expiration date:",
     "chatExpirationDays": "days",
     "chatWarning": "This chat has not been shared with anyone yet.",
+    "shareAlertMessage": "Only users of Global Trusted Data Commons can open this link",
     "conversationAccessErrorTitle": "Access error",
     "conversationAccessErrorText": "The link has expired or the chat has been deleted."
   },

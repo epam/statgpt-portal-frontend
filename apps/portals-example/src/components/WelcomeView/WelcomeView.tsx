@@ -89,6 +89,7 @@ const WelcomeView = () => {
       welcomeInputPlaceholder={welcomeInputPlaceholder}
       handleConversationClick={handleConversationSelect}
       actions={serverActions}
+      suggestionsContainerClass={'max-w-[784px]'}
       inputMessageStyles={{
         inputContainerClass: 'max-w-[784px] mb-6',
         sendMessageIcon: <IconSend />,
