@@ -1,8 +1,8 @@
 import React from 'react';
 import { InlineAlertConfig } from '@epam/statgpt-ui-components';
-import ErrorIcon from './assets/error.svg';
-import WarningIcon from './assets/warning.svg';
-import InfoIcon from './assets/info.svg';
+import ErrorIcon from '../assets/error.svg';
+import WarningIcon from '../assets/warning.svg';
+import InfoIcon from '../assets/info.svg';
 
 export const brand1AlertConfig: InlineAlertConfig = {
   icons: {

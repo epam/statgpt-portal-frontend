@@ -1,0 +1,130 @@
+$button-background: linear-gradient(
+  87.11deg,
+  #c3aab2 -10.34%,
+  #99eecc 47.57%,
+  #80c0c8 96.09%,
+  #4b8bfa 146.17%
+);
+
+$client-button-background: radial-gradient(
+  circle at -13% 0%,
+  #ffe33f 0%,
+  #ff9933 59.1346%,
+  #f22920 100%
+);
+
+$client-button-background-hovered: radial-gradient(
+  108.82% 97.45% at -17.65% 0%,
+  #f22920 0%,
+  #ff9933 59.13%,
+  #ffe33f 100%
+);
+
+.base-button {
+  @apply px-10 py-4 rounded-[30px] border-2;
+
+  &:disabled {
+    @apply text-neutrals-700;
+  }
+}
+
+.base-icon-button {
+  @apply h-[44px] w-[44px];
+  @apply rounded-[30px] border-2 p-3;
+
+  &.text-button-client {
+    @apply h-[46px] w-[46px];
+  }
+}
+
+.small-icon-button {
+  @apply p-2;
+}
+
+.small-button {
+  @apply px-4 py-2 h-[40px];
+}
+
+.text-button-primary {
+  &:hover {
+    @apply border-transparent;
+    background: $button-background;
+  }
+
+  &:disabled {
+    @apply text-white bg-neutrals-400 border-neutrals-400;
+  }
+}
+
+.text-button-secondary {
+  &:hover {
+    @apply relative z-0 border-0 py-5 px-[18px];
+
+    &:before {
+      @apply absolute z-[-1];
+      @apply p-[2px] rounded-[30px];
+      content: '';
+      inset: 0;
+      background: $button-background;
+      -webkit-mask:
+        linear-gradient(white 0 0) content-box,
+        linear-gradient(white 0 0);
+      mask:
+        linear-gradient(white 0 0) content-box,
+        linear-gradient(white 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+  }
+
+  &:disabled {
+    @apply text-neutrals-700 border-neutrals-700;
+  }
+}
+
+.text-button-tertiary {
+  @apply p-2;
+
+  &:hover {
+    @apply underline;
+  }
+
+  &:disabled {
+    @apply text-neutrals-700;
+  }
+}
+
+.text-button-client {
+  @apply text-white border-none;
+  background: $client-button-background;
+
+  &:hover {
+    background: $client-button-background-hovered;
+  }
+
+  &:disabled {
+    background: none;
+    @apply text-white bg-neutrals-400 border-neutrals-400;
+  }
+}
+
+.tag {
+  @apply rounded;
+  @apply w-[288px] border-hues-200 h-[96px] hover:bg-white border px-4 py-3 text-neutrals-800 max-w-[288px];
+}
+
+.tags-container {
+  @apply gap-6 w-[912px];
+}
+
+.radio-button {
+  @apply border border-primary rounded-full;
+}
+
+.checkbox-button {
+  @apply border border-primary body-2;
+
+  &-text {
+    @apply body-2;
+  }
+}

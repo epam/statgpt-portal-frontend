@@ -5,3 +5,8 @@ declare module '*.svg' {
 }
 
 declare module '@epam/statgpt-ui-components/scss/styles.scss';
+
+declare module '*.scss?inline' {
+  const content: string;
+  export default content;
+}

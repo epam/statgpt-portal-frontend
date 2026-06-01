@@ -1,0 +1,20 @@
+.input {
+  @apply flex rounded-full py-3 pr-0 pl-6 border border-neutrals-400 h-[48px];
+  @apply text-neutrals-700 relative;
+}
+
+.input-for-ask {
+  @apply text-primary body-2;
+
+  &-button {
+    @apply text-button-client self-center;
+  }
+}
+
+.input-for-ask-button {
+  @apply p-0;
+
+  svg {
+    @apply w-6 h-6;
+  }
+}

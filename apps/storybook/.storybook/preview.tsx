@@ -7,12 +7,19 @@ import {
 } from '@epam/statgpt-ui-components';
 import '@epam/statgpt-ui-components/scss/styles.scss';
 import './preview-overrides.css';
-import { brand1AlertConfig } from './brand-configs/brand1';
-import { brand2AlertConfig } from './brand-configs/brand2';
+import { brand1AlertConfig } from './brand-configs/brand1/index';
+import { brand2AlertConfig } from './brand-configs/brand2/index';
+import brand1Styles from './brand-configs/brand1/styles.scss?inline';
+import brand2Styles from './brand-configs/brand2/styles.scss?inline';
 
 const brandAlertConfigs: Record<string, InlineAlertConfig> = {
   brand1: brand1AlertConfig,
   brand2: brand2AlertConfig,
+};
+
+const brandComponentStyles: Record<string, string> = {
+  brand1: brand1Styles,
+  brand2: brand2Styles,
 };
 
 const BrandWrapper: FC<{ Story: ComponentType; brand: string }> = ({
@@ -27,8 +34,17 @@ const BrandWrapper: FC<{ Story: ComponentType; brand: string }> = ({
     link.rel = 'stylesheet';
     link.href = `/brand-themes/${brand}.css`;
     document.head.appendChild(link);
+
+    const existingStyles = document.getElementById('brand-component-styles');
+    if (existingStyles) existingStyles.remove();
+    const style = document.createElement('style');
+    style.id = 'brand-component-styles';
+    style.textContent = brandComponentStyles[brand] ?? '';
+    document.head.appendChild(style);
+
     return () => {
       document.getElementById('brand-theme')?.remove();
+      document.getElementById('brand-component-styles')?.remove();
     };
   }, [brand]);
   return (
@@ -65,6 +81,19 @@ const preview: Preview = {
       matchers: {
         color: /(background|color)$/i,
         date: /Date$/i,
+      },
+    },
+    docs: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      extractComponentDescription: (component: any) => {
+        const raw: string | undefined = component?.__docgenInfo?.description;
+        if (!raw) return undefined;
+        return (
+          raw
+            .replace(/@example[\s\S]*?```[\s\S]*?```/g, '')
+            .replace(/\n{3,}/g, '\n\n')
+            .trim() || undefined
+        );
       },
     },
   },
