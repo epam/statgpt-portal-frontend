@@ -18,4 +18,4 @@ jobs:
     secrets: inherit
     with:
       node-version: "24"
-      ort-version: "87.3.0"
+      ort-version: "87.3.0" # pin ORT: "latest" is unstable; >=87.2.0 required by current ort-config@main rules
