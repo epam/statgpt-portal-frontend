@@ -107,7 +107,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
         params?.locale,
       ),
     ],
-    [params, resolvedDataSetData, structureComponentsMap, titles],
+    [params, resolvedDataSetData, resolvedAttributesData, structureComponentsMap, titles],
   );
   const metadataDescription = useMemo(
     () =>

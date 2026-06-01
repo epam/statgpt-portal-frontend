@@ -50,7 +50,12 @@ export function buildCrossDatasetGridColumns(
   );
 
   return [
-    getCrossDatasetMetadataColumn(structuresMap, attributesDataMap, locale, titles),
+    getCrossDatasetMetadataColumn(
+      structuresMap,
+      attributesDataMap,
+      locale,
+      titles,
+    ),
     ...datasetInfoColumns,
     ...dimColumns,
     ...timeColumns,
