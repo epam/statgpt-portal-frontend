@@ -25,6 +25,7 @@ import classNames from 'classnames';
 import { useConversationViewStyles } from '../../../../context/ConversationViewStylesContext';
 import {
   getFilterIdentity,
+  getNewHierarchyFilterValues,
   isSharedFilter,
   getSelectedFilterValues,
   getTotalSelectedValuesLength,
@@ -174,24 +175,14 @@ const FilterSettings: FC<Props> = ({
       ? mapHierarchyNodesToFilterValueIds(nodes, filterToUpdate)
       : (nodes ?? []);
 
-    // For single-node calls (nodes with all-disabled children that are not yet
-    // in dimensionValues), add the node as a new entry so it can be selected.
+    // Add entries for nodes that aren't yet part of dimensionValues
+    // so their selection can be persisted.
     const existingIds = new Set(
       filterToUpdate?.dimensionValues?.map((v) => v.id),
     );
-    const newEntries: FilterValue[] =
-      !isSharedFilter(filterToUpdate) &&
-      mappedNodes.length === 1 &&
-      mappedNodes[0] &&
-      !existingIds.has(mappedNodes[0].id)
-        ? [
-            {
-              id: mappedNodes[0].id,
-              name: mappedNodes[0].name,
-              isSelectedValue: mappedNodes[0].isSelectedValue,
-            },
-          ]
-        : [];
+    const newEntries: FilterValue[] = isSharedFilter(filterToUpdate)
+      ? []
+      : getNewHierarchyFilterValues(mappedNodes, existingIds);
 
     const updatedFilter = {
       ...filterToUpdate,
