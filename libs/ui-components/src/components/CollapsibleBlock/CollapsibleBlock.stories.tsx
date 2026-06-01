@@ -9,7 +9,9 @@ const meta: Meta<typeof CollapsibleBlock> = {
   tags: ['autodocs'],
   args: {
     title: 'Section Title',
-    children: <p className="body-2 text-neutrals-800">Collapsible content goes here.</p>,
+    children: (
+      <p className="body-2 text-neutrals-800">Collapsible content goes here.</p>
+    ),
   },
 };
 
@@ -39,13 +41,13 @@ export const WithRichContent: Story = {
     value: '2 active',
     children: (
       <div className="flex flex-col gap-2">
-        <label className="flex items-center gap-2 body-2">
+        <label className="body-2 flex items-center gap-2">
           <input type="checkbox" /> Option A
         </label>
-        <label className="flex items-center gap-2 body-2">
+        <label className="body-2 flex items-center gap-2">
           <input type="checkbox" defaultChecked /> Option B
         </label>
-        <label className="flex items-center gap-2 body-2">
+        <label className="body-2 flex items-center gap-2">
           <input type="checkbox" /> Option C
         </label>
       </div>
