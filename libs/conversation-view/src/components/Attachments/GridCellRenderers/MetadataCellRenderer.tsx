@@ -64,19 +64,17 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
 
   const resolvedDataSetData = useMemo(() => {
     if (params.structuresMap) {
-      const urn = params?.data?.dataset?.urn as string | undefined;
-      return urn != null ? params.structuresMap.get(urn) : undefined;
+      return rowUrn != null ? params.structuresMap.get(rowUrn) : undefined;
     }
     return params.dataSetData;
-  }, [params.structuresMap, params.data, params.dataSetData]);
+  }, [params.structuresMap, rowUrn, params.dataSetData]);
 
   const resolvedAttributesData = useMemo(() => {
     if (params.attributesDataMap) {
-      const urn = params?.data?.dataset?.urn as string | undefined;
-      return urn != null ? params.attributesDataMap.get(urn) : undefined;
+      return rowUrn != null ? params.attributesDataMap.get(rowUrn) : undefined;
     }
     return params.attributesData;
-  }, [params.attributesDataMap, params.data, params.attributesData]);
+  }, [params.attributesDataMap, rowUrn, params.attributesData]);
 
   const structureComponentsMap = useMemo(
     () => getStructureComponentsMap(resolvedDataSetData),
