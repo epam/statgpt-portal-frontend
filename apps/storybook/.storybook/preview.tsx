@@ -1,10 +1,24 @@
 import React, { useEffect } from 'react';
+import type { ComponentType, FC } from 'react';
 import type { Decorator, Preview } from '@storybook/react-vite';
-import '../../../libs/ui-components/src/scss/styles.scss';
+import {
+  InlineAlertProvider,
+  type InlineAlertConfig,
+} from '@epam/statgpt-ui-components';
+import '@epam/statgpt-ui-components/scss/styles.scss';
 import './preview-overrides.css';
+import { brand1AlertConfig } from './brand-configs/brand1';
+import { brand2AlertConfig } from './brand-configs/brand2';
 
-const withBrand: Decorator = (Story, context) => {
-  const brand = (context.globals.brand as string) ?? 'brand1';
+const brandAlertConfigs: Record<string, InlineAlertConfig> = {
+  brand1: brand1AlertConfig,
+  brand2: brand2AlertConfig,
+};
+
+const BrandWrapper: FC<{ Story: ComponentType; brand: string }> = ({
+  Story,
+  brand,
+}) => {
   useEffect(() => {
     const existing = document.getElementById('brand-theme');
     if (existing) existing.remove();
@@ -17,7 +31,16 @@ const withBrand: Decorator = (Story, context) => {
       document.getElementById('brand-theme')?.remove();
     };
   }, [brand]);
-  return <Story />;
+  return (
+    <InlineAlertProvider value={brandAlertConfigs[brand]}>
+      <Story />
+    </InlineAlertProvider>
+  );
+};
+
+const withBrand: Decorator = (Story, context) => {
+  const brand = (context.globals.brand as string) ?? 'brand1';
+  return <BrandWrapper Story={Story} brand={brand} />;
 };
 
 const preview: Preview = {

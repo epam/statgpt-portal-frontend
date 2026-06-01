@@ -23,7 +23,7 @@ const config: StorybookConfig = {
     const { default: tailwindcss } = await import('tailwindcss');
     const { default: autoprefixer } = await import('autoprefixer');
     return mergeConfig(baseConfig, {
-      plugins: [svgr()],
+      plugins: [svgr({ include: '**/*.svg' })],
       css: {
         preprocessorOptions: {
           scss: {
@@ -58,6 +58,10 @@ const config: StorybookConfig = {
           '@epam/statgpt-shared-toolkit': path.resolve(
             __dirname,
             '../../../libs/shared-toolkit/src/index.ts',
+          ),
+          '@epam/statgpt-ui-components/scss/styles.scss': path.resolve(
+            __dirname,
+            '../../../libs/ui-components/src/scss/styles.scss',
           ),
           '@epam/statgpt-ui-components': path.resolve(
             __dirname,

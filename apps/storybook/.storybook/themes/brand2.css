@@ -1,35 +1,49 @@
-/* Brand 2 — replace values below with client 2 brand values */
+/* Brand 2 — Derzhstat */
 :root {
-  --primary: #414FFF;
-  --white: #FFFFFF;
-  --blackout: #090D13B3;
-  --neutrals-1000: #2B2B2D;
-  --neutrals-900: #3F404A;
-  --neutrals-800: #757575;
-  --neutrals-700: #89898B;
-  --neutrals-600: #CFCFCF;
-  --neutrals-500: #DDDFE8;
-  --neutrals-400: #E9EEF6;
-  --neutrals-300: #F0F4F8;
-  --neutrals-200: #F3F5FF;
-  --neutrals-100: #F3F6FB;
-  --hues-900: #0D2282;
-  --hues-800: #354487;
-  --hues-600: #9DA4FF;
-  --hues-400: #B1B7FF;
-  --hues-200: #CBD0FF;
-  --hues-100: #DFE6FF;
-  --accent-700: #0094FF;
-  --accent-300: #90A1FF;
-  --semantic-error: #D6323E;
-  --semantic-error-light: #FBEAEC;
-  --semantic-warning: #D4C000;
-  --semantic-warning-light: #FBF9E5;
-  --semantic-success: #00CC6F;
-  --gradients-light: #73E1E5;
-  --gradients-middle: #414FFF;
-  --gradients-dark: #6843E9;
-  --white10: #FFFFFF1A;
-  --neutrals-300-10: #F0F4F81A;
-  --highlight: #BEDAFF;
+  /* Base */
+  --primary: #000000;
+  --white: #ffffff;
+  --blackout: #090d13b3;
+  --highlight: #fffbe6;
+
+  /* Neutrals */
+  --neutrals-1000: #000000;
+  --neutrals-900: #4d4d4d;
+  --neutrals-800: #666666;
+  --neutrals-700: #808080;
+  --neutrals-600: #bfbfbf;
+  --neutrals-500: #cccccc;
+  --neutrals-400: #e0e0e0;
+  --neutrals-300: #f1f1f1;
+  --neutrals-200: #f1f1f1;
+  --neutrals-100: #f5f5f5;
+
+  /* Hues */
+  --hues-900: #4d4d4d;
+  --hues-800: #000000;
+  --hues-600: #7c98ac;
+  --hues-400: #8fa7b8;
+  --hues-200: #3398ff;
+  --hues-100: #e7eef3;
+
+  /* Accent */
+  --accent-800: #80c0c8;
+  --accent-700: #c3aab2;
+  --accent-600: #99eecc;
+  --accent-500: #a1ecc7;
+  --accent-300: #fffbe6;
+
+  /* Semantic */
+  --semantic-error: #ff3a44;
+  --semantic-error-light: #ffebec;
+  --semantic-warning: #ffd600;
+  --semantic-warning-light: #fffbe5;
+  --semantic-success: #15cf74;
+
+  /* Gradients */
+  --gradients-light: #ffe33f;
+  --gradients-middle: #ff9933;
+  --gradients-dark: #f22920;
+  --white10: #ffffff1a;
+  --neutrals-300-10: #ececee1a;
 }
