@@ -29,7 +29,7 @@ jobs:
       code-checks-bypassed: false
       ort-enabled: true
       ort-bypassed: false
-      ort-version: "87.2.0"
+      ort-version: "87.3.0"
       node-version: "24"
       runs-on: '["ubuntu-24.04"]'
 
