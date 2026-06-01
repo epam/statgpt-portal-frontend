@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CloseButton } from './CloseButton';
 
 const meta: Meta<typeof CloseButton> = {
-  title: 'UI Components/CloseButton',
+  title: 'UI Components/Buttons/CloseButton',
   component: CloseButton,
   tags: ['autodocs'],
 };

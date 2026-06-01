@@ -5,7 +5,7 @@ import { InlineAlert } from './InlineAlert';
 import { InlineAlertType } from './types';
 
 const meta: Meta<typeof InlineAlert> = {
-  title: 'UI Components/InlineAlert',
+  title: 'UI Components/Feedback/InlineAlert',
   component: InlineAlert,
   tags: ['autodocs'],
 };

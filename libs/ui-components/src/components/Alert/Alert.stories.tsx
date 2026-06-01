@@ -10,7 +10,7 @@ import { Alert } from './Alert';
 import { AlertType } from '../../constants/alert';
 
 const meta: Meta<typeof Alert> = {
-  title: 'UI Components/Alert',
+  title: 'UI Components/Feedback/Alert',
   component: Alert,
   tags: ['autodocs'],
   parameters: {

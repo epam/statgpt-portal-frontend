@@ -4,7 +4,7 @@ import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { CopyButton } from './CopyButton';
 
 const meta: Meta<typeof CopyButton> = {
-  title: 'UI Components/CopyButton',
+  title: 'UI Components/Buttons/CopyButton',
   component: CopyButton,
   tags: ['autodocs'],
   args: {

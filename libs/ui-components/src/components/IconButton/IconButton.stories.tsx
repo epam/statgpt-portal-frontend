@@ -9,7 +9,7 @@ import {
 import { IconButton } from './IconButton';
 
 const meta: Meta<typeof IconButton> = {
-  title: 'UI Components/IconButton',
+  title: 'UI Components/Buttons/IconButton',
   component: IconButton,
   tags: ['autodocs'],
   argTypes: {

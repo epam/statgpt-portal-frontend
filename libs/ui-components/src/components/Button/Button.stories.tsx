@@ -4,7 +4,7 @@ import { IconArrowRight, IconStar } from '@tabler/icons-react';
 import { Button } from './Button';
 
 const meta: Meta<typeof Button> = {
-  title: 'UI Components/Button',
+  title: 'UI Components/Buttons/Button',
   component: Button,
   tags: ['autodocs'],
   argTypes: {

@@ -4,7 +4,7 @@ import { IconFilter } from '@tabler/icons-react';
 import { CollapsibleBlock } from './CollapsibleBlock';
 
 const meta: Meta<typeof CollapsibleBlock> = {
-  title: 'UI Components/CollapsibleBlock',
+  title: 'UI Components/Display/CollapsibleBlock',
   component: CollapsibleBlock,
   tags: ['autodocs'],
   args: {
