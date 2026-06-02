@@ -18,20 +18,27 @@ const AttachmentDetailsItem: FC<Props> = ({
 }) => {
   return (
     <div>
-      {datasetName && isShowDatasetDetails && (
-        <p className="caption attachment-dataset-name mt-4 inline-flex items-center">
-          <span className="attachment-dataset-icon mr-1">{datasetIcon}</span>
-          {datasetName}
-        </p>
-      )}
       {queryFilterDetails?.map((queryFilterDetail) => (
-        <p className="body-1 mb-2 last:mb-0" key={queryFilterDetail?.title}>
-          {queryFilterDetail?.title}
-          <span>{setToTitle ?? ' set to '}</span>
-          <span className="font-bold">
-            {queryFilterDetail?.valuesTitles?.join(', ')}
+        <div
+          className="body-1 mb-2 flex flex-wrap items-center gap-1"
+          key={queryFilterDetail?.title}
+        >
+          <span>
+            {queryFilterDetail?.title}
+            <span>{setToTitle ?? ' set to '}</span>
+            <span className="font-bold">
+              {queryFilterDetail?.valuesTitles?.join(', ')}
+            </span>
           </span>
-        </p>
+          {datasetName && isShowDatasetDetails && (
+            <span className="attachment-dataset-name caption !mb-0 inline-flex items-center">
+              <span className="attachment-dataset-icon mr-1">
+                {datasetIcon}
+              </span>
+              {datasetName}
+            </span>
+          )}
+        </div>
       ))}
     </div>
   );
