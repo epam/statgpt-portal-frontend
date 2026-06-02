@@ -171,9 +171,10 @@ export function useAttachmentsDataMultipleQueries(
         getDataSetDataAction,
         setIsLoadingGridData,
         async (structureDataMaps) => {
+          const enabledDataQueries = dataQueries.filter((q) => !q.disabled);
           const implicitWildcardFilterParams =
             getImplicitSharedWildcardFilterParams(
-              dataQueries,
+              enabledDataQueries,
               structureDataMaps,
               constraintsMap,
               locale,
@@ -281,21 +282,27 @@ export function useAttachmentsDataMultipleQueries(
       }
 
       const cancel = scheduleDeferredWork(() => {
+        const nonDisabledQueries = compatibleDataQueries?.filter(
+          (q) => !q.disabled,
+        );
+        const effectiveActiveUrns =
+          activeDatasetUrns ??
+          new Set((nonDisabledQueries ?? []).map((q) => q.urn));
         const visibleDataQueries = filterDataQueriesByActiveDatasetUrns(
-          compatibleDataQueries,
-          activeDatasetUrns,
+          nonDisabledQueries,
+          effectiveActiveUrns,
         );
         const visibleStructuresMap = filterMapByActiveDatasetUrns(
           structuresMap,
-          activeDatasetUrns,
+          effectiveActiveUrns,
         );
         const visibleDataMessagesMap = filterMapByActiveDatasetUrns(
           dataMessagesMap,
-          activeDatasetUrns,
+          effectiveActiveUrns,
         );
         const visibleDimensionsSchemesMap = filterMapByActiveDatasetUrns(
           datasetDimensionsSchemesMap,
-          activeDatasetUrns,
+          effectiveActiveUrns,
         );
 
         setCrossDatasetGridAttachment((prev) => ({
@@ -358,17 +365,23 @@ export function useAttachmentsDataMultipleQueries(
       dataMessagesMap != null &&
       !isLoadingGridData
     ) {
+      const nonDisabledQueries = compatibleDataQueries?.filter(
+        (q) => !q.disabled,
+      );
+      const effectiveActiveUrns =
+        activeDatasetUrns ??
+        new Set((nonDisabledQueries ?? []).map((q) => q.urn));
       const visibleDataQueries = filterDataQueriesByActiveDatasetUrns(
-        compatibleDataQueries,
-        activeDatasetUrns,
+        nonDisabledQueries,
+        effectiveActiveUrns,
       );
       const visibleStructuresMap = filterMapByActiveDatasetUrns(
         structuresMap,
-        activeDatasetUrns,
+        effectiveActiveUrns,
       );
       const visibleDataMessagesMap = filterMapByActiveDatasetUrns(
         dataMessagesMap,
-        activeDatasetUrns,
+        effectiveActiveUrns,
       );
 
       const resolver = createCrossDatasetChartingDataResolver(
@@ -430,27 +443,29 @@ export function useAttachmentsDataMultipleQueries(
     ): void => {
       try {
         setIsLoadingGridData(true);
-        const compatibleUrns = new Set(dataQueries?.map((q) => q.urn));
+        const enabledDataQueries =
+          dataQueries?.filter((q) => !q.disabled) ?? [];
+        const compatibleUrns = new Set(enabledDataQueries.map((q) => q.urn));
         setActiveDatasetUrns(compatibleUrns);
         setStructureDataMaps((prevStructureDataMaps) => ({
           ...prevStructureDataMaps,
           constraintsMap,
         }));
 
-        if (!dataQueries?.length) {
+        if (!enabledDataQueries.length) {
           setIsLoadingGridData(false);
           return;
         }
 
         const queryFiltersMap = filtersMap
-          ? setDataQueryFiltersMap(dataQueries, filtersMap)
+          ? setDataQueryFiltersMap(enabledDataQueries, filtersMap)
           : undefined;
         const dataQueriesWithAppliedFilters = queryFiltersMap
-          ? dataQueries.map((dataQuery) => ({
+          ? enabledDataQueries.map((dataQuery) => ({
               ...dataQuery,
               filters: queryFiltersMap.get(dataQuery.urn) ?? [],
             }))
-          : dataQueries;
+          : enabledDataQueries;
         const implicitWildcardFilterParams =
           constraintsMap && structureDataMaps
             ? getImplicitSharedWildcardFilterParams(
@@ -464,7 +479,7 @@ export function useAttachmentsDataMultipleQueries(
         const resolvedFilterParamsMap =
           implicitWildcardFilterParams?.filterParamsMap ?? filterParamsMap;
 
-        dataQueries.forEach((dataQuery) => {
+        enabledDataQueries.forEach((dataQuery) => {
           getDataSetData(
             dataQuery,
             resolvedFilterParamsMap?.get(dataQuery?.urn) as DatasetQueryFilters,
@@ -496,8 +511,8 @@ export function useAttachmentsDataMultipleQueries(
             .finally(() => setIsLoadingGridData(false));
         });
 
-        if (getPythonAttachment && dataQueries?.length) {
-          const updatedDataQueries = dataQueries.map((dq) =>
+        if (getPythonAttachment && enabledDataQueries.length) {
+          const updatedDataQueries = enabledDataQueries.map((dq) =>
             buildDataQueryWithMergedFilters(
               dq,
               filters ?? filtersMap?.get(dq.urn) ?? [],

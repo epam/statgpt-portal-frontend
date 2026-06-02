@@ -1,4 +1,3 @@
-/* eslint-disable @nx/enforce-module-boundaries */
 'use client';
 
 import { ConversationInfo } from '@epam/ai-dial-shared';

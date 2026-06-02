@@ -12,6 +12,7 @@ export interface DataQuery {
     keyDimensionIdsInDsdOrder?: string[];
   };
   filters?: QueryFilter[];
+  disabled?: boolean; // true = excluded from query/display; undefined means enabled
 }
 
 export interface JsonDataQuery {
@@ -28,6 +29,7 @@ export interface JsonDataQuery {
     keyDimensionIdsInDsdOrder?: string[];
   };
   filters: JsonQueryFilter[];
+  disabled?: boolean;
 }
 
 export interface QueryFilter {
