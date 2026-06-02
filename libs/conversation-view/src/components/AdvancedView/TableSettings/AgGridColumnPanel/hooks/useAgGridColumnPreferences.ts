@@ -79,6 +79,7 @@ export function useAgGridColumnPreferences({
 
   const clearInitialColumnState = useCallback(() => {
     columnsInitialStateByUrnRef.current.delete(currentUrn);
+    setInitialColumnsState(null);
   }, [currentUrn]);
 
   useAgGridColumnGridListeners(gridApi, persistUserState);

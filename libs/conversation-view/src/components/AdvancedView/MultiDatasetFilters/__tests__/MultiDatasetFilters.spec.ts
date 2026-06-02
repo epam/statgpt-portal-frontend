@@ -19,11 +19,17 @@ const mockCallbacks: {
   onApply: (() => void) | null;
   onDeleteFilter: ((filter?: Filter) => void) | null;
   selectedFiltersCount: number | null;
+  onToggleDataset: ((urn: string, enabled: boolean) => void) | null;
+  disabledDatasetUrns: Set<string> | null;
+  onClearAllDatasets: (() => void) | null;
 } = {
   setModalState: null,
   onApply: null,
   onDeleteFilter: null,
   selectedFiltersCount: null,
+  onToggleDataset: null,
+  disabledDatasetUrns: null,
+  onClearAllDatasets: null,
 };
 
 // ─── Mock implementations ───────────────────────
@@ -169,6 +175,9 @@ jest.mock('../../Filters/FiltersModal/FiltersSettings', () => {
     __esModule: true,
     default: (props: any) => {
       mockCallbacks.onDeleteFilter = props.onDeleteFilter;
+      mockCallbacks.disabledDatasetUrns = props.disabledDatasetUrns;
+      mockCallbacks.onToggleDataset = props.onToggleDataset;
+      mockCallbacks.onClearAllDatasets = props.onClearAllDatasets;
       return R.createElement('div', { 'data-testid': 'filter-settings' });
     },
   };
@@ -261,6 +270,9 @@ beforeEach(() => {
   mockCallbacks.onApply = null;
   mockCallbacks.onDeleteFilter = null;
   mockCallbacks.selectedFiltersCount = null;
+  mockCallbacks.onToggleDataset = null;
+  mockCallbacks.disabledDatasetUrns = null;
+  mockCallbacks.onClearAllDatasets = null;
   jest.clearAllMocks();
   mockGetConstraintsRequests.mockReturnValue([]);
   mockGetConstraintsMapFromSettledResults.mockReturnValue(new Map());
@@ -495,12 +507,13 @@ describe('MultiDatasetFilters', () => {
         defaultProps.structureDataMaps.constraintsMap,
         false,
         expect.any(Object),
+        expect.any(Set),
       );
 
       expect(onMultipleDataFiltersChange).toHaveBeenCalledWith(
         queryFiltersMap,
         expect.anything(),
-        defaultProps.dataQueries,
+        defaultProps.dataQueries.map((q) => ({ ...q, disabled: false })),
         expect.any(Map),
         [sharedCountryFilter],
       );
@@ -561,6 +574,126 @@ describe('MultiDatasetFilters', () => {
       });
 
       expect(mockCallbacks.selectedFiltersCount).toBe(1);
+    });
+  });
+
+  describe('dataset disable state', () => {
+    it('initializes disabledDatasetUrns from disabled DataQuery when modal opens', async () => {
+      const propsWithDisabled = {
+        ...defaultProps,
+        dataQueries: [
+          { urn: DATASET_A_URN, disabled: true } as DataQuery,
+          { urn: DATASET_B_URN } as DataQuery,
+        ],
+      };
+
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, propsWithDisabled));
+      });
+
+      await act(async () => {
+        mockCallbacks.setModalState?.('opened');
+      });
+
+      expect(mockCallbacks.disabledDatasetUrns?.has(DATASET_A_URN)).toBe(true);
+      expect(mockCallbacks.disabledDatasetUrns?.has(DATASET_B_URN)).toBe(false);
+    });
+
+    it('adds URN to disabledDatasetUrns when onToggleDataset is called with enabled=false', async () => {
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, defaultProps));
+      });
+
+      await act(async () => {
+        mockCallbacks.setModalState?.('opened');
+      });
+
+      await act(async () => {
+        mockCallbacks.onToggleDataset?.(DATASET_A_URN, false);
+      });
+
+      expect(mockCallbacks.disabledDatasetUrns?.has(DATASET_A_URN)).toBe(true);
+    });
+
+    it('removes URN from disabledDatasetUrns when onToggleDataset is called with enabled=true', async () => {
+      const propsWithDisabled = {
+        ...defaultProps,
+        dataQueries: [
+          { urn: DATASET_A_URN, disabled: true } as DataQuery,
+          { urn: DATASET_B_URN } as DataQuery,
+        ],
+      };
+
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, propsWithDisabled));
+      });
+
+      await act(async () => {
+        mockCallbacks.setModalState?.('opened');
+      });
+
+      await act(async () => {
+        mockCallbacks.onToggleDataset?.(DATASET_A_URN, true);
+      });
+
+      expect(mockCallbacks.disabledDatasetUrns?.has(DATASET_A_URN)).toBe(false);
+    });
+
+    it('resets disabledDatasetUrns to empty set when onClearAllDatasets is called', async () => {
+      const propsWithDisabled = {
+        ...defaultProps,
+        dataQueries: [
+          { urn: DATASET_A_URN, disabled: true } as DataQuery,
+          { urn: DATASET_B_URN } as DataQuery,
+        ],
+      };
+
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, propsWithDisabled));
+      });
+
+      await act(async () => {
+        mockCallbacks.setModalState?.('opened');
+      });
+
+      await act(async () => {
+        mockCallbacks.onClearAllDatasets?.();
+      });
+
+      expect(mockCallbacks.disabledDatasetUrns?.size).toBe(0);
+    });
+
+    it('passes updatedDataQueries with disabled:true to onMultipleDataFiltersChange on apply', async () => {
+      const onMultipleDataFiltersChange = jest.fn();
+
+      await act(async () => {
+        render(
+          createElement(MultiDatasetFilters, {
+            ...defaultProps,
+            onMultipleDataFiltersChange,
+          }),
+        );
+      });
+
+      await act(async () => {
+        mockCallbacks.setModalState?.('opened');
+      });
+
+      await act(async () => {
+        mockCallbacks.onToggleDataset?.(DATASET_A_URN, false);
+      });
+
+      await act(async () => {
+        mockCallbacks.onApply?.();
+        await Promise.resolve();
+      });
+
+      const calledDataQueries = onMultipleDataFiltersChange.mock
+        .calls[0][2] as DataQuery[];
+      const disabledDataset = calledDataQueries?.find(
+        (q) => q.urn === DATASET_A_URN,
+      );
+      expect(disabledDataset?.disabled).toBe(true);
     });
   });
 
