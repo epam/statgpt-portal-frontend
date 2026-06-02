@@ -25,8 +25,13 @@ export function buildCrossDatasetGridColumns(
   formattingSettings?: FormatNumbersType,
   gridViewMode: CrossDatasetGridViewMode = CrossDatasetGridViewMode.Compact,
 ): ColDef[] {
+  const attributesDataMap = new Map<string, Data | undefined>(
+    [...dataMessagesMap.entries()].map(([urn, msg]) => [urn, msg?.data]),
+  );
+
   const datasetInfoColumns = getCrossDatasetInfoColumns(
     structuresMap,
+    attributesDataMap,
     locale,
     titles,
   );
@@ -43,10 +48,6 @@ export function buildCrossDatasetGridColumns(
     locale,
     formattingSettings,
     titles,
-  );
-
-  const attributesDataMap = new Map<string, Data | undefined>(
-    [...dataMessagesMap.entries()].map(([urn, msg]) => [urn, msg?.data]),
   );
 
   return [
