@@ -497,6 +497,32 @@ const getMergedSharedTimeRange = (filters: Filter[]): TimeRange | undefined => {
   };
 };
 
+const clipTimeRangeToBounds = (
+  currentStart: Date | null,
+  currentEnd: Date | null,
+  availableStart: Date,
+  availableEnd: Date,
+): TimeRange => {
+  if (currentEnd && currentEnd < availableStart)
+    return {
+      startPeriod: new Date(availableStart),
+      endPeriod: new Date(availableStart),
+    };
+  if (currentStart && currentStart > availableEnd)
+    return {
+      startPeriod: new Date(availableEnd),
+      endPeriod: new Date(availableEnd),
+    };
+  return {
+    startPeriod: currentStart
+      ? new Date(Math.max(currentStart.getTime(), availableStart.getTime()))
+      : new Date(availableStart),
+    endPeriod: currentEnd
+      ? new Date(Math.min(currentEnd.getTime(), availableEnd.getTime()))
+      : new Date(availableEnd),
+  };
+};
+
 const limitTimeRangeByConstraints = (
   filter: Filter,
   constraints?: DataConstraints[],
@@ -505,53 +531,22 @@ const limitTimeRangeByConstraints = (
     return filter;
   }
 
-  const annotationTimeRange = getAnnotationPeriod(
+  const { startPeriod: minPeriod, endPeriod: maxPeriod } = getAnnotationPeriod(
     constraints?.[0]?.annotations,
   );
-  const minPeriod = annotationTimeRange.startPeriod;
-  const maxPeriod = annotationTimeRange.endPeriod;
 
   if (!minPeriod || !maxPeriod) {
     return filter;
   }
 
-  const { startPeriod: requestedStart, endPeriod: requestedEnd } =
-    filter.timeRange;
-
-  const isBeforeAvailableRange = requestedEnd && requestedEnd < minPeriod;
-
-  if (isBeforeAvailableRange) {
-    return {
-      ...filter,
-      timeRange: {
-        startPeriod: new Date(minPeriod),
-        endPeriod: new Date(minPeriod),
-      },
-    };
-  }
-
-  const isAfterAvailableRange = requestedStart && requestedStart > maxPeriod;
-
-  if (isAfterAvailableRange) {
-    return {
-      ...filter,
-      timeRange: {
-        startPeriod: new Date(maxPeriod),
-        endPeriod: new Date(maxPeriod),
-      },
-    };
-  }
-
   return {
     ...filter,
-    timeRange: {
-      startPeriod: requestedStart
-        ? new Date(Math.max(requestedStart.getTime(), minPeriod.getTime()))
-        : new Date(minPeriod),
-      endPeriod: requestedEnd
-        ? new Date(Math.min(requestedEnd.getTime(), maxPeriod.getTime()))
-        : new Date(maxPeriod),
-    },
+    timeRange: clipTimeRangeToBounds(
+      filter.timeRange.startPeriod,
+      filter.timeRange.endPeriod,
+      minPeriod,
+      maxPeriod,
+    ),
   };
 };
 
@@ -766,8 +761,9 @@ export const buildFiltersMap = (
   constraintsMap?: Map<string, DataConstraints[] | undefined>,
   applySharedFallback = false,
   datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,
+  disabledDatasetUrns: Set<string> = new Set(),
 ): Map<string, Filter[]> => {
-  return filters
+  const result = filters
     ?.flatMap((filter) =>
       expandSharedFilter(
         filter,
@@ -788,6 +784,16 @@ export const buildFiltersMap = (
 
       return filterMap;
     }, new Map<string, Filter[]>());
+
+  // Remove disabled datasets so their DataQuery.filters survive the Apply cycle
+  // untouched (they are preserved via the `...q` spread in updatedDataQueries).
+  if (disabledDatasetUrns.size > 0) {
+    for (const urn of disabledDatasetUrns) {
+      result.delete(urn);
+    }
+  }
+
+  return result;
 };
 
 export const getCompatibleDatasetUrns = (
@@ -1501,4 +1507,98 @@ export const setDataQueryFiltersMap = (
       ];
     }),
   );
+};
+
+/**
+ * Filters a Time Period SharedFilter for enabled datasets.
+ * Handles: filtering sourceDatasetUrns to enabled ones, hiding the
+ * facet entirely when all source datasets are disabled, recomputing the
+ * available range from enabled datasets' constraints and clipping the
+ * user's timeRange selection accordingly.
+ */
+const filterTimeDimensionForEnabledDatasets = (
+  filter: SharedFilter,
+  disabledDatasetUrns: Set<string>,
+  constraintsMap?: Map<string, DataConstraints[] | undefined>,
+): Filter[] => {
+  const enabledSourceUrns = (filter.sourceDatasetUrns ?? []).filter(
+    (urn) => !disabledDatasetUrns.has(urn),
+  );
+
+  if (enabledSourceUrns.length === 0) return [];
+
+  if (!constraintsMap || !filter.timeRange) {
+    return [{ ...filter, sourceDatasetUrns: enabledSourceUrns }];
+  }
+
+  const periods = enabledSourceUrns
+    .map((urn) =>
+      getAnnotationPeriod(constraintsMap.get(urn)?.[0]?.annotations),
+    )
+    .filter(
+      (p): p is { startPeriod: Date; endPeriod: Date } =>
+        !!p?.startPeriod && !!p?.endPeriod,
+    );
+
+  if (periods.length === 0) {
+    return [{ ...filter, sourceDatasetUrns: enabledSourceUrns }];
+  }
+
+  const availableStart = new Date(
+    Math.min(...periods.map((p) => p.startPeriod.getTime())),
+  );
+  const availableEnd = new Date(
+    Math.max(...periods.map((p) => p.endPeriod.getTime())),
+  );
+
+  return [
+    {
+      ...filter,
+      sourceDatasetUrns: enabledSourceUrns,
+      timeRange: clipTimeRangeToBounds(
+        filter.timeRange.startPeriod,
+        filter.timeRange.endPeriod,
+        availableStart,
+        availableEnd,
+      ),
+    },
+  ];
+};
+
+/**
+ * Returns a display-safe copy of `filters` where SharedFilter values that
+ * belong exclusively to disabled datasets are removed. A SharedFilter with
+ * no remaining visible values is omitted entirely (facet hidden).
+ * DatasetFilter entries are passed through unchanged.
+ *
+ * Does NOT mutate `filters`. Call this in a useMemo for display only.
+ */
+export const filterSharedValuesForEnabledDatasets = (
+  filters: Filter[],
+  disabledDatasetUrns: Set<string>,
+  constraintsMap?: Map<string, DataConstraints[] | undefined>, // used by the Time Period path
+): Filter[] => {
+  if (disabledDatasetUrns.size === 0) return filters;
+
+  return filters.flatMap((filter): Filter[] => {
+    if (filter.filterType !== 'shared') return [filter];
+
+    if (filter.isTimeDimension) {
+      return filterTimeDimensionForEnabledDatasets(
+        filter,
+        disabledDatasetUrns,
+        constraintsMap,
+      );
+    }
+
+    const filteredValues = (filter.dimensionValues ?? []).filter((value) =>
+      // datasetUrn absent (structurally incomplete source) → treat as enabled (not in disabled set)
+      value.sourceValues?.some(
+        (sv) => !disabledDatasetUrns.has(sv.datasetUrn ?? ''),
+      ),
+    );
+
+    if (filteredValues.length === 0) return [];
+    return [{ ...filter, dimensionValues: filteredValues }];
+  });
 };

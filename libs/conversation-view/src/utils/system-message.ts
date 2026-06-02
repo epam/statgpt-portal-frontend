@@ -29,6 +29,7 @@ export const prepareSystemMessage = (
               filters: queryFiltersMap
                 ? queryFiltersMap?.get(dataQuery?.urn)
                 : singleDataQueryFilters,
+              disabled: !!dataQuery?.disabled,
             }),
           };
         }) || [],
@@ -48,20 +49,34 @@ export const updateMessagesWithSystemMessage = (
     return [];
   }
 
-  const lastMessage = messages?.at(-1);
+  const lastMessage = messages.at(-1);
+  const isLastSystem = lastMessage?.role === Role.System;
 
-  if (lastMessage && lastMessage.role === Role.System) {
-    messages?.pop();
+  const pythonAttachment = isLastSystem
+    ? lastMessage?.custom_content?.attachments?.find(
+        (a) => a.type === 'text/markdown' && a.data?.includes('```python'),
+      )
+    : undefined;
+
+  const baseMessages = isLastSystem ? messages.slice(0, -1) : messages;
+
+  const newSystemMessage = prepareSystemMessage(
+    filters,
+    currentDataQuery,
+    dataQueries,
+    getLastAssistantMessage(baseMessages),
+    queryFiltersMap,
+  );
+
+  if (pythonAttachment && newSystemMessage.custom_content) {
+    newSystemMessage.custom_content = {
+      ...newSystemMessage.custom_content,
+      attachments: [
+        ...(newSystemMessage.custom_content.attachments ?? []),
+        pythonAttachment,
+      ],
+    };
   }
 
-  return [
-    ...messages,
-    prepareSystemMessage(
-      filters,
-      currentDataQuery,
-      dataQueries,
-      getLastAssistantMessage(messages),
-      queryFiltersMap,
-    ),
-  ];
+  return [...baseMessages, newSystemMessage];
 };

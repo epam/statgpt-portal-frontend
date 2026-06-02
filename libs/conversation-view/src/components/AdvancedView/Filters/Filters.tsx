@@ -55,6 +55,8 @@ import {
 } from '../../../utils/request-cache';
 import { cleanIncompatibleFilters } from '../../../utils/incompatible-filters';
 
+const EMPTY_DISABLED_SET = new Set<string>();
+
 const Filters: FC<FiltersProps> = ({
   actions,
   dimensions,
@@ -383,7 +385,10 @@ const Filters: FC<FiltersProps> = ({
 
   useEffect(() => {
     if (modalState === PopUpState.Opened) {
-      setSelectedFilter({ ...appliedFilters?.[0], isSelectedFilter: true });
+      const firstFilter = appliedFilters.find((f) => !f.isTimeDimension);
+      setSelectedFilter(
+        firstFilter ? { ...firstFilter, isSelectedFilter: true } : void 0,
+      );
       setModalFilters(appliedFilters);
     }
     if (modalState === PopUpState.Closed) {
@@ -653,6 +658,9 @@ const Filters: FC<FiltersProps> = ({
               dataQueries={
                 attachmentsDataQuery ? [attachmentsDataQuery] : undefined
               }
+              disabledDatasetUrns={EMPTY_DISABLED_SET}
+              onToggleDataset={() => {}}
+              onClearAllDatasets={() => {}}
             />
             <ModalFooter
               onApply={onApply}

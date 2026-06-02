@@ -5,6 +5,7 @@ import {
   SdmxApiClient,
 } from '@epam/statgpt-sdmx-toolkit';
 import { DialApiClient, ConversationApi } from '@epam/statgpt-dial-toolkit';
+import { getIsEnableAuthToggle } from '../../utils/auth/get-auth-toggle';
 
 export const DEFAULT_MODEL_ID = process.env.DEFAULT_MODEL || 'gpt-4-turbo';
 
@@ -30,6 +31,13 @@ const config = {
   version: process.env.DIAL_API_VERSION || '2025-01-01-preview',
   apiKey: process.env.DIAL_API_KEY || '',
 };
+
+if (process.env.DIAL_API_KEY && getIsEnableAuthToggle()) {
+  console.warn(
+    'DIAL_API_KEY is set but will be ignored because an auth provider is configured. ' +
+      'Please, use DIAL_API_KEY only when auth is disabled.',
+  );
+}
 
 export const dialApiClient = new DialApiClient(config);
 export const conversationApi = new ConversationApi(dialApiClient);
