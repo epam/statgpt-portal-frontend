@@ -178,4 +178,29 @@ describe('getAttachmentInfoList', () => {
 
     expect(result[0].queryFiltersDetails).toEqual([]);
   });
+
+  describe('getAttachmentInfoList — disabled datasets', () => {
+    it('excludes disabled datasets from the returned attachment info list', () => {
+      const enabledQuery: DataQuery = {
+        urn: DATASET_A_URN,
+        metadata: { countryDimension: 'REF_AREA', indicatorDimensions: [] },
+      };
+      const disabledQuery: DataQuery = {
+        urn: DATASET_B_URN,
+        disabled: true,
+        metadata: { countryDimension: 'REF_AREA', indicatorDimensions: [] },
+      };
+
+      mockGetDimensions.mockReturnValue({ dimensions: [], timeDimensions: [] });
+
+      const result = getAttachmentInfoList(
+        [enabledQuery, disabledQuery],
+        [enabledQuery, disabledQuery],
+        emptyStructuresMap,
+        LOCALE,
+      );
+
+      expect(result).toHaveLength(1);
+    });
+  });
 });
