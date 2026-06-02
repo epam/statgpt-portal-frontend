@@ -69,7 +69,11 @@ export const TableSettingsPanel = () => {
       return;
     }
     clearUserColumnState();
-    restoreInitialColumnsState(gridApi, initialColumnsState);
+    if (initialColumnsState) {
+      restoreInitialColumnsState(gridApi, initialColumnsState);
+    } else {
+      gridApi.resetColumnState();
+    }
     resetDimensionCustomization();
   }, [
     clearUserColumnState,
