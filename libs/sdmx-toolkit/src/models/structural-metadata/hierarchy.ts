@@ -27,6 +27,12 @@ export interface TreeNode<T> {
   children: TreeNode<T>[];
   isExpanded?: boolean;
   disabled?: boolean;
+  /**
+   * Whether the node corresponds to a real, selectable code from the dimension's
+   * own codelist (as opposed to a purely structural grouping node that only
+   * exists in the hierarchy and cannot be persisted as a value on its own).
+   */
+  isSelectableValue?: boolean;
   parent?: string;
   metadata: T;
 }

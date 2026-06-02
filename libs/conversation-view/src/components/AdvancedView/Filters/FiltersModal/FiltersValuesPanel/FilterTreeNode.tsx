@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useId } from 'react';
 import { FilterTreeNodeProps } from '../../../../../models/filters';
 import ChevronSolidDownIcon from '../../../../../assets/icons/chevron-solid-down.svg';
 import ChevronSolidRightIcon from '../../../../../assets/icons/chevron-solid-right.svg';
@@ -8,6 +8,7 @@ import { Checkbox } from '@epam/statgpt-ui-components';
 import {
   getFilterNodesBySelection,
   getFilterTreeNodePadding,
+  hasSelectedDescendant,
 } from '../../../../../utils/filters';
 
 interface Props {
@@ -28,9 +29,19 @@ const FilterTreeNode: FC<Props> = ({
   expandHierarchicalValue,
 }) => {
   const isHasChildren = !!node?.children?.length;
+  const isIndeterminate =
+    isHasChildren && !node.isSelectedValue && hasSelectedDescendant(node);
   const nodeIconClasses = 'cursor-pointer text-neutrals-1000 w-6 h-6 shrink-0';
 
-  const onSelectFilterValue = (id: string, isSelectedValue?: boolean) => {
+  // A hierarchy code can appear at several positions in the tree.
+  // Give each rendered checkbox a DOM-unique id so the label/input
+  // association never binds to another node's input.
+  const checkboxId = useId();
+
+  const onSelectFilterValue = (
+    _checkboxId: string,
+    isSelectedValue?: boolean,
+  ) => {
     if (node?.children?.length) {
       const hasEnabledChildren = node.children.some((child) => !child.disabled);
       if (hasEnabledChildren) {
@@ -42,7 +53,7 @@ const FilterTreeNode: FC<Props> = ({
         selectHierarchicalNodes?.([{ ...node, isSelectedValue }]);
       }
     } else {
-      selectFilterValue?.(id, isSelectedValue);
+      selectFilterValue?.(node.id, isSelectedValue);
     }
   };
 
@@ -67,9 +78,10 @@ const FilterTreeNode: FC<Props> = ({
             />
           ))}
         <Checkbox
-          id={node?.id}
+          id={checkboxId}
           label={node?.name}
           checked={!!node.isSelectedValue}
+          indeterminate={isIndeterminate}
           checkboxIcon={checkboxIcon}
           disabled={node?.disabled}
           onChange={onSelectFilterValue}
