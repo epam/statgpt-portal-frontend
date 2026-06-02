@@ -68,3 +68,11 @@ Chat responses use SSE (Server-Sent Events). `ChatMessagesContext` tracks the `i
 ### Styling
 
 Tailwind CSS 3.4 with a custom CSS-variable-based color system defined in `tailwind.config.js`. The compiled stylesheet is output to `dist/libs/ui-components/index.css` via `npm run build:styles`.
+
+## Storybook
+
+Stories for `ui-components` live next to their components in `libs/ui-components/src/`. The Storybook app is at `apps/storybook/`.
+
+- Story authoring patterns: `.claude/rules/storybook-conventions.md` (auto-loaded when editing `*.stories.tsx`)
+- Brand config, commands, architecture: `apps/storybook/CLAUDE.md`
+- To add a new story: `/add-story <ComponentName>`
