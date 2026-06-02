@@ -193,6 +193,8 @@ cypress/videos
 storybook-static
 
 # Local brand variant
+# Superpowers (AI tooling docs)
+docs/superpowers/
 apps/storybook/.storybook/brand-configs/local-brand1/
 apps/storybook/.storybook/themes/local-brand1.css
 
