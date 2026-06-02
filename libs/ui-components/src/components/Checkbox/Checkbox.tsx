@@ -1,12 +1,24 @@
-import { ChangeEvent, FC, ReactNode, MouseEvent, useCallback } from 'react';
+import {
+  ChangeEvent,
+  FC,
+  ReactNode,
+  MouseEvent,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
 import classNames from 'classnames';
-import { IconSquareCheckFilled } from '@tabler/icons-react';
+import {
+  IconSquareCheckFilled,
+  IconSquareMinusFilled,
+} from '@tabler/icons-react';
 import { mergeClasses } from '../../utils/mergeClasses';
 
 interface Props {
   id: string;
   label?: string;
   checked: boolean;
+  indeterminate?: boolean;
   checkboxIcon?: ReactNode;
   onChange?: (id: string, isChecked?: boolean) => void;
   disabled?: boolean;
@@ -19,6 +31,7 @@ export const Checkbox: FC<Props> = ({
   label,
   id,
   checked,
+  indeterminate = false,
   checkboxIcon,
   onChange,
   disabled = false,
@@ -26,6 +39,14 @@ export const Checkbox: FC<Props> = ({
   className,
   stopPropagation = true,
 }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.indeterminate = !checked && indeterminate;
+    }
+  }, [checked, indeterminate]);
+
   const handleClick = useCallback(
     (e: MouseEvent<HTMLLabelElement>) => {
       if (stopPropagation) {
@@ -47,9 +68,14 @@ export const Checkbox: FC<Props> = ({
   );
 
   const getIcon = () => {
-    if (!checked) return;
-    if (checkboxIcon) return checkboxIcon;
-    return <IconSquareCheckFilled className="absolute size-4" />;
+    if (checked) {
+      if (checkboxIcon) return checkboxIcon;
+      return <IconSquareCheckFilled className="absolute size-4" />;
+    }
+    if (indeterminate) {
+      return <IconSquareMinusFilled className="absolute size-4" />;
+    }
+    return;
   };
 
   return (
@@ -85,6 +111,7 @@ export const Checkbox: FC<Props> = ({
       ) : null}
 
       <input
+        ref={inputRef}
         id={id}
         type="checkbox"
         checked={checked}

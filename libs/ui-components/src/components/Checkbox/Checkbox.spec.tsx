@@ -36,6 +36,27 @@ describe('Checkbox', () => {
     expect(container.textContent).toContain('ICON');
   });
 
+  it('sets the native indeterminate state when indeterminate and not checked', () => {
+    const { container } = render(
+      <Checkbox id="indeterminate-checkbox" checked={false} indeterminate />,
+    );
+    const input = container.querySelector(
+      'input[type="checkbox"]',
+    ) as HTMLInputElement;
+    expect(input.indeterminate).toBe(true);
+  });
+
+  it('prefers the checked state over indeterminate', () => {
+    const { container } = render(
+      <Checkbox id="checked-indeterminate" checked={true} indeterminate />,
+    );
+    const input = container.querySelector(
+      'input[type="checkbox"]',
+    ) as HTMLInputElement;
+    expect(input).toBeChecked();
+    expect(input.indeterminate).toBe(false);
+  });
+
   describe('disabledScope', () => {
     it('applies opacity-50 to the label when disabled with default disabledScope', () => {
       const { container } = render(
