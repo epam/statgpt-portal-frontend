@@ -1,28 +1,25 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@import 'scroll.scss';
-@import 'buttons.scss';
-@import 'input.scss';
-@import 'fonts.scss';
-@import 'grid.scss';
-@import 'loader.scss';
-@import 'calendar.scss';
-@import 'attachments-container.scss';
-@import 'dataset-tabs.scss';
-@import 'dataset-tabs-cross-dataset-mode.scss';
-@import 'messages.scss';
-@import 'conversation-list.scss';
-@import 'share.scss';
-@import 'metadata.scss';
-@import 'download.scss';
-@import 'advance-view.scss';
-@import 'alert.scss';
-@import 'chart-attachment.scss';
+@use 'tailwind';
+@use 'scroll';
+@use 'buttons';
+@use 'input';
+@use 'fonts';
+@use 'grid';
+@use 'loader';
+@use 'calendar';
+@use 'attachments-container';
+@use 'dataset-tabs';
+@use 'dataset-tabs-cross-dataset-mode';
+@use 'messages';
+@use 'conversation-list';
+@use 'share';
+@use 'metadata';
+@use 'download';
+@use 'advance-view';
+@use 'alert';
+@use 'chart-attachment';
+@use '../../../../libs/ui-components/src/scss/styles-tailwind';
 
 @import 'flatpickr/dist/themes/light.css';
-@import '../../../../libs/ui-components/src/scss/styles-tailwind.scss';
 
 @layer base {
   body {
