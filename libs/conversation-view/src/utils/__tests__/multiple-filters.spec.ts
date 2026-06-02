@@ -14,6 +14,7 @@ import {
   getFiltersForQueryContext,
   getFiltersPreselectedByDataQueries,
   getImplicitSharedWildcardFilterParams,
+  getNativeFilterIdForSharedFilter,
   getRestoredActiveDatasetUrns,
   getSharedFilterIdForDatasetDimension,
   hasImplicitSharedWildcard,
@@ -169,6 +170,57 @@ describe('getSharedFilterIdForDatasetDimension', () => {
     expect(getSharedFilterIdForDatasetDimension(undefined, 'FREQUENCY')).toBe(
       COMMON_FREQUENCY_FILTER_ID,
     );
+  });
+});
+
+describe('getNativeFilterIdForSharedFilter', () => {
+  it('resolves a shared filter to the native dimension id per dataset via subtype', () => {
+    const sharedFilter = {
+      id: COMMON_FREQUENCY_FILTER_ID,
+      filterType: 'shared',
+    } as SharedFilter;
+
+    expect(
+      getNativeFilterIdForSharedFilter(
+        sharedFilter,
+        DATASET_A_URN,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toBe('FREQ');
+    expect(
+      getNativeFilterIdForSharedFilter(
+        sharedFilter,
+        DATASET_B_URN,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toBe('FREQUENCY');
+  });
+
+  it('prefers an explicit per-dataset source filter id mapping', () => {
+    const sharedFilter = {
+      id: COMMON_COUNTRY_FILTER_ID,
+      filterType: 'shared',
+      sourceFilterIdsByDataset: { [DATASET_A_URN]: 'REF_AREA' },
+    } as unknown as SharedFilter;
+
+    expect(
+      getNativeFilterIdForSharedFilter(
+        sharedFilter,
+        DATASET_A_URN,
+        DATASET_DIMENSIONS_METADATA_MAP,
+      ),
+    ).toBe('REF_AREA');
+  });
+
+  it('returns undefined when the dataset has no matching dimension', () => {
+    const sharedFilter = {
+      id: COMMON_FREQUENCY_FILTER_ID,
+      filterType: 'shared',
+    } as SharedFilter;
+
+    expect(
+      getNativeFilterIdForSharedFilter(sharedFilter, 'UNKNOWN:DF(1.0)'),
+    ).toBeUndefined();
   });
 });
 

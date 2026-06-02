@@ -53,6 +53,7 @@ import {
   getCachedRequestResult,
   isRequestCached,
 } from '../../../utils/request-cache';
+import { cleanIncompatibleFilters } from '../../../utils/incompatible-filters';
 
 const Filters: FC<FiltersProps> = ({
   actions,
@@ -212,6 +213,32 @@ const Filters: FC<FiltersProps> = ({
       request
         .then((constraints) => {
           const newConstraints = constraints?.data?.dataConstraints || [];
+
+          if (changedFilter) {
+            const { filters: cleanedFilters, changed } =
+              cleanIncompatibleFilters(
+                filters,
+                dimensions,
+                structures,
+                newConstraints,
+                changedFilter,
+                locale as Locale,
+              );
+
+            if (changed) {
+              constraintsRef.current = newConstraints;
+              setIsConstraintsLoading?.(true);
+              setIsDisableFilterValues(true);
+              handleFiltersWithConstraints(
+                cleanedFilters,
+                setFilters,
+                setIsConstraintsLoading,
+                changedFilter,
+              );
+              return;
+            }
+          }
+
           const filledFilters = getFilledFilters(
             filters,
             dimensions,

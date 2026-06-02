@@ -43,6 +43,7 @@ import {
   mergeConstraintsMaps,
   setDataQueryFiltersMap,
 } from '../../../utils/multiple-filters';
+import { cleanIncompatibleFiltersMap } from '../../../utils/incompatible-filters';
 import { getHierarchyRequestContextForFilter } from '../../../utils/hierarchy-request-context';
 import { StructureDataMaps } from '../../../models/structure-data';
 import { useHierarchyState } from '../../../utils/use-hierarchy-state';
@@ -219,9 +220,44 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
             constraintsMapRef.current || structureDataMaps?.constraintsMap,
             getConstraintsMapFromSettledResults(constraintsResults),
           );
+          const structureDataMapsWithConstraints = {
+            ...structureDataMaps,
+            constraintsMap: currentConstraintsMap,
+          };
+
+          if (changedFilter) {
+            const { filtersMap: cleanedMap, changed } =
+              cleanIncompatibleFiltersMap(
+                filtersMap,
+                structureDataMapsWithConstraints,
+                changedFilter,
+                locale as Locale,
+                datasetDimensionsMetadata.map,
+              );
+
+            if (changed) {
+              constraintsMapRef.current = currentConstraintsMap;
+              setIsConstraintsLoading?.(true);
+              setIsDisableFilterValues(true);
+              const cleanedMerged = getFiltersByConstraints(
+                cleanedMap,
+                structureDataMapsWithConstraints,
+                locale as Locale,
+                datasetDimensionsMetadata.map,
+              );
+              handleFiltersWithConstraints(
+                cleanedMerged,
+                setFilters,
+                setIsConstraintsLoading,
+                changedFilter,
+              );
+              return;
+            }
+          }
+
           const filledFilters = getFiltersByConstraints(
             filtersMap,
-            { ...structureDataMaps, constraintsMap: currentConstraintsMap },
+            structureDataMapsWithConstraints,
             locale as Locale,
             datasetDimensionsMetadata.map,
           );
