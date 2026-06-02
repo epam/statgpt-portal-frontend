@@ -353,7 +353,7 @@ const mergeSharedFilters = (
   return [...sharedFilters, ...otherFilters];
 };
 
-const getNativeFilterIdForSharedFilter = (
+export const getNativeFilterIdForSharedFilter = (
   filter: SharedFilter,
   datasetUrn: string,
   datasetDimensionsMetadataMap?: DatasetDimensionsMetadataMap,

@@ -9,9 +9,11 @@ import {
   getFiltersAfterClear,
   getFiltersAfterDelete,
   getFiltersPreselectedByDataQuery,
+  getNewHierarchyFilterValues,
   getSelectedDimensionValues,
   getSelectedFilterValues,
   getTotalSelectedValuesLength,
+  hasSelectedDescendant,
   isSameFilter,
   isSharedFilter,
   updateFiltersWithDisabledOption,
@@ -525,13 +527,42 @@ describe('getFilterTreeNodePadding', () => {
 
 // ─── getFilterNodesBySelection ────────────────────────────────────────────────
 
-describe('getFilterNodesBySelection', () => {
-  const makeNode = (
-    id: string,
-    isSelectedValue: boolean,
-    children: FilterTreeNodeProps[] = [],
-  ): FilterTreeNodeProps => ({ id, isSelectedValue, children });
+const makeNode = (
+  id: string,
+  isSelectedValue: boolean,
+  children: FilterTreeNodeProps[] = [],
+): FilterTreeNodeProps => ({ id, isSelectedValue, children });
 
+describe('hasSelectedDescendant', () => {
+  it('returns false for a leaf node', () => {
+    expect(hasSelectedDescendant(makeNode('FR', false))).toBe(false);
+  });
+
+  it('returns false when no descendant is selected', () => {
+    const node = makeNode('EUROPE', false, [
+      makeNode('FR', false),
+      makeNode('DE', false),
+    ]);
+    expect(hasSelectedDescendant(node)).toBe(false);
+  });
+
+  it('returns true when at least one direct child is selected', () => {
+    const node = makeNode('EUROPE', false, [
+      makeNode('FR', true),
+      makeNode('DE', false),
+    ]);
+    expect(hasSelectedDescendant(node)).toBe(true);
+  });
+
+  it('returns true when a deeply nested descendant is selected', () => {
+    const node = makeNode('EUROPE', false, [
+      makeNode('WEST', false, [makeNode('FR', false), makeNode('DE', true)]),
+    ]);
+    expect(hasSelectedDescendant(node)).toBe(true);
+  });
+});
+
+describe('getFilterNodesBySelection', () => {
   it('selects a leaf node when it is not selected', () => {
     const result = getFilterNodesBySelection(makeNode('FR', false));
     expect(result[0]).toMatchObject({ id: 'FR', isSelectedValue: true });
@@ -580,6 +611,144 @@ describe('getFilterNodesBySelection', () => {
     const result = getFilterNodesBySelection(node);
     expect(result[0]).toMatchObject({ id: 'EUROPE', isSelectedValue: true });
     expect(result.slice(1).every((n) => n.isSelectedValue)).toBe(true);
+  });
+});
+
+// ─── getFilterNodesBySelection: selectable parent 4-state cycle ───────────────
+
+describe('getFilterNodesBySelection (selectable parent cycle)', () => {
+  const makeSelectableNode = (
+    id: string,
+    isSelectedValue: boolean,
+    children: FilterTreeNodeProps[] = [],
+  ): FilterTreeNodeProps => ({
+    id,
+    isSelectedValue,
+    isSelectableValue: true,
+    children,
+  });
+
+  const parentWith = (
+    parentSelected: boolean,
+    childStates: boolean[],
+  ): FilterTreeNodeProps =>
+    makeSelectableNode(
+      'A',
+      parentSelected,
+      childStates.map((selected, index) =>
+        makeSelectableNode(`C${index}`, selected),
+      ),
+    );
+
+  it('A -> B: empty selects the parent and all children', () => {
+    const result = getFilterNodesBySelection(parentWith(false, [false, false]));
+    expect(result[0]).toMatchObject({ id: 'A', isSelectedValue: true });
+    expect(result.slice(1).every((n) => n.isSelectedValue)).toBe(true);
+  });
+
+  it('B -> C: full selection deselects the parent but keeps children', () => {
+    const result = getFilterNodesBySelection(parentWith(true, [true, true]));
+    expect(result[0]).toMatchObject({ id: 'A', isSelectedValue: false });
+    expect(result.slice(1).every((n) => n.isSelectedValue)).toBe(true);
+  });
+
+  it('C -> D: children-only selects the parent and clears children', () => {
+    const result = getFilterNodesBySelection(parentWith(false, [true, true]));
+    expect(result[0]).toMatchObject({ id: 'A', isSelectedValue: true });
+    expect(result.slice(1).every((n) => !n.isSelectedValue)).toBe(true);
+  });
+
+  it('D -> A: parent-only clears everything', () => {
+    const result = getFilterNodesBySelection(parentWith(true, [false, false]));
+    expect(result[0]).toMatchObject({ id: 'A', isSelectedValue: false });
+    expect(result.slice(1).every((n) => !n.isSelectedValue)).toBe(true);
+  });
+
+  it('normalizes a mixed state (parent + partial children) to full selection', () => {
+    const result = getFilterNodesBySelection(parentWith(true, [true, false]));
+    expect(result[0]).toMatchObject({ id: 'A', isSelectedValue: true });
+    expect(result.slice(1).every((n) => n.isSelectedValue)).toBe(true);
+  });
+
+  it('treats children-only as the trigger for D regardless of partial selection', () => {
+    const result = getFilterNodesBySelection(parentWith(false, [true, false]));
+    expect(result[0]).toMatchObject({ id: 'A', isSelectedValue: true });
+    expect(result.slice(1).every((n) => !n.isSelectedValue)).toBe(true);
+  });
+});
+
+// ─── getNewHierarchyFilterValues ──────────────────────────────────────────────
+
+describe('getNewHierarchyFilterValues', () => {
+  const node = (
+    id: string,
+    overrides: Partial<FilterTreeNodeProps> = {},
+  ): FilterTreeNodeProps => ({
+    id,
+    name: id,
+    isSelectedValue: true,
+    children: [],
+    ...overrides,
+  });
+
+  it('adds a missing codelist-backed node', () => {
+    const result = getNewHierarchyFilterValues(
+      [node('CODE', { isSelectableValue: true })],
+      new Set(),
+    );
+    expect(result).toEqual([
+      { id: 'CODE', name: 'CODE', isSelectedValue: true },
+    ]);
+  });
+
+  it('does NOT add a node that is not in the codelist', () => {
+    const result = getNewHierarchyFilterValues(
+      [node('CODE', { isSelectableValue: false })],
+      new Set(),
+    );
+    expect(result).toEqual([]);
+  });
+
+  it('skips a node that already exists', () => {
+    const result = getNewHierarchyFilterValues(
+      [node('CODE', { isSelectableValue: true })],
+      new Set(['CODE']),
+    );
+    expect(result).toEqual([]);
+  });
+
+  it('adds a missing selectable aggregate parent from a multi-node call', () => {
+    const result = getNewHierarchyFilterValues(
+      [
+        node('A', { isSelectableValue: true }),
+        node('A1', { isSelectableValue: true }),
+        node('A2', { isSelectableValue: true }),
+      ],
+      new Set(['A1', 'A2']),
+    );
+    expect(result).toEqual([{ id: 'A', name: 'A', isSelectedValue: true }]);
+  });
+
+  it('does NOT add non-selectable structural parents from a multi-node call', () => {
+    const result = getNewHierarchyFilterValues(
+      [
+        node('GROUP', { isSelectableValue: false }),
+        node('FR', { isSelectableValue: true }),
+      ],
+      new Set(['FR']),
+    );
+    expect(result).toEqual([]);
+  });
+
+  it('preserves the deselected state of an added parent', () => {
+    const result = getNewHierarchyFilterValues(
+      [
+        node('A', { isSelectableValue: true, isSelectedValue: false }),
+        node('A1', { isSelectableValue: true }),
+      ],
+      new Set(['A1']),
+    );
+    expect(result).toEqual([{ id: 'A', name: 'A', isSelectedValue: false }]);
   });
 });
 

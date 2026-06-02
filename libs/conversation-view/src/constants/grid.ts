@@ -86,6 +86,7 @@ export function getChartColumn(
 
 export function getCrossDatasetMetadataColumn(
   structuresMap: Map<string, StructuralData | undefined>,
+  attributesDataMap: Map<string, Data | undefined>,
   locale: string,
   titles?: ConversationViewTitles,
 ): ColDef {
@@ -100,6 +101,6 @@ export function getCrossDatasetMetadataColumn(
     maxWidth: 32,
     cellClass: CELL_PADDING_0,
     cellRenderer: METADATA_CELL_RENDER,
-    cellRendererParams: { structuresMap, locale, titles },
+    cellRendererParams: { structuresMap, attributesDataMap, locale, titles },
   };
 }
