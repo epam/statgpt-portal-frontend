@@ -132,9 +132,9 @@ export const Large: Story   = { render: () => <PopupDemo size={PopUpSize.LG} /> 
 `fonts.scss` is a one-time per-brand file (already exists). Do not recreate it when adding a new component.
 
 When the user provides the content for an existing component:
-1. Create `apps/storybook/.storybook/brand-configs/brand1/{component}.scss`
-2. Create `apps/storybook/.storybook/brand-configs/brand2/{component}.scss`
-3. Add `@use "./{component}";` to each brand's `styles.scss`
+1. Create `apps/storybook/.storybook/brand-configs/brand1/{component}.scss` (committed)
+2. Add `@use "./{component}";` to `brand1/styles.scss`
+3. Optionally mirror in `local-brand1/` if the local brand also needs it (gitignored, not committed)
 
 Do not use `@tailwind` directives or `@layer` in these files.
 

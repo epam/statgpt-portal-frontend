@@ -8,18 +8,17 @@ import {
 import '@epam/statgpt-ui-components/scss/styles.scss';
 import './preview-overrides.css';
 import { brand1AlertConfig } from './brand-configs/brand1/index';
-import { brand2AlertConfig } from './brand-configs/brand2/index';
 import brand1Styles from './brand-configs/brand1/styles.scss?inline';
-import brand2Styles from './brand-configs/brand2/styles.scss?inline';
+import { localBrand } from './local-brand';
 
 const brandAlertConfigs: Record<string, InlineAlertConfig> = {
   brand1: brand1AlertConfig,
-  brand2: brand2AlertConfig,
+  ...(localBrand && { [localBrand.key]: localBrand.alertConfig }),
 };
 
 const brandComponentStyles: Record<string, string> = {
   brand1: brand1Styles,
-  brand2: brand2Styles,
+  ...(localBrand && { [localBrand.key]: localBrand.styles }),
 };
 
 const BrandWrapper: FC<{ Story: ComponentType; brand: string }> = ({
@@ -68,7 +67,9 @@ const preview: Preview = {
         icon: 'paintbrush',
         items: [
           { value: 'brand1', title: 'Brand 1' },
-          { value: 'brand2', title: 'Brand 2' },
+          ...(localBrand
+            ? [{ value: localBrand.key, title: localBrand.title }]
+            : []),
         ],
       },
     },

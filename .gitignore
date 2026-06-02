@@ -192,6 +192,10 @@ cypress/videos
 # Storybook
 storybook-static
 
+# Local brand override — not shared with the team
+apps/storybook/.storybook/brand-configs/local-brand1/
+apps/storybook/.storybook/themes/local-brand1.css
+
 # Temporary files
 *.tmp
 *.temp
