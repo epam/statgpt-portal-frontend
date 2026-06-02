@@ -88,7 +88,7 @@ type Story = StoryObj<typeof ComponentName>;
 After writing the story, look at the component's styles:
 - If it uses only Tailwind utility classes, no brand SCSS is needed.
 - If it uses component-specific CSS class names (non-Tailwind prefixes), check whether a brand SCSS file already exists in `apps/storybook/.storybook/brand-configs/`.
-- If brand SCSS is missing: **do not generate or invent styles.** Brand SCSS must be copied from the client project repos from the portal app repos. If you don't have access to those repos, stop and ask the user to provide the SCSS content.
+- If brand SCSS is missing: **do not generate or invent styles.** Brand SCSS must come from the portal app repos. If you don't have access to those repos, stop and ask the user to provide the SCSS content.
 
 ## Step 8 — Report
 
