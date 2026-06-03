@@ -1,6 +1,10 @@
 'use client';
 
-import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
+import {
+  DataConstraints,
+  generateShortUrn,
+  getLocalizedName,
+} from '@epam/statgpt-sdmx-toolkit';
 import {
   DataQuery,
   Locale,
@@ -739,6 +743,20 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     setSelectedTimeOption(value);
   };
 
+  const displayDataQueries = useMemo(
+    () =>
+      dataQueries?.map((q) => {
+        const dataflow = structureDataMaps?.structuresMap?.get(q.urn)
+          ?.dataflows?.[0];
+        const localizedName = getLocalizedName(dataflow, locale ?? '');
+        const name = localizedName
+          ? generateShortUrn(localizedName, '', dataflow?.agencyID)
+          : undefined;
+        return name ? { ...q, title: name } : q;
+      }),
+    [dataQueries, structureDataMaps?.structuresMap, locale],
+  );
+
   return (
     <div className="filters-container">
       <FilterButton
@@ -784,7 +802,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               hierarchyStateMap={hierarchyStateMap}
               onSelectHierarchy={onSelectHierarchy}
               onExpandHierarchyNode={onExpandHierarchyNode}
-              dataQueries={dataQueries}
+              dataQueries={displayDataQueries}
               disabledDatasetUrns={disabledDatasetUrns}
               onToggleDataset={onToggleDataset}
               onClearAllDatasets={onClearAllDatasets}
