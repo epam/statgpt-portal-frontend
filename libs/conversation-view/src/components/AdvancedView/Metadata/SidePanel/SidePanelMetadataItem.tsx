@@ -9,27 +9,30 @@ interface Props {
   title?: string;
   value: string;
   attachedKeysTitles?: string[];
+  isDimensionGroup?: boolean;
 }
 
 export const SidePanelMetadataItem: FC<Props> = ({
   title,
   value,
   attachedKeysTitles,
+  isDimensionGroup,
 }) => {
   const { valueRef, isExpanded, canToggle, toggle } =
     useClampToggle<HTMLParagraphElement>(value);
 
   return (
     <div className="flex flex-col gap-1">
-      {attachedKeysTitles?.map((attachedKeyTitle, index) => (
-        <div
-          key={`${attachedKeyTitle}-${index}`}
-          title={attachedKeyTitle}
-          className="body-3 text-neutrals-800"
-        >
-          {attachedKeyTitle}
-        </div>
-      ))}
+      {!isDimensionGroup &&
+        attachedKeysTitles?.map((attachedKeyTitle, index) => (
+          <div
+            key={`${attachedKeyTitle}-${index}`}
+            title={attachedKeyTitle}
+            className="body-3 text-neutrals-800"
+          >
+            {attachedKeyTitle}
+          </div>
+        ))}
       <div className="flex items-center justify-between gap-2 pr-2">
         <p title={title} className="body-3 text-neutrals-800">
           {title}

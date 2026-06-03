@@ -41,6 +41,20 @@ describe('SidePanelMetadataItem', () => {
     expect(screen.getByText('Country: US')).toBeTruthy();
   });
 
+  it('hides attached key titles for dimensionGroup attributes', () => {
+    setMeasurements(0, 0);
+    render(
+      <SidePanelMetadataItem
+        title="Attr"
+        value="v"
+        attachedKeysTitles={['Country: US']}
+        isDimensionGroup
+      />,
+    );
+
+    expect(screen.queryByText('Country: US')).toBeNull();
+  });
+
   it('clamps and expands long values', () => {
     setMeasurements(200, 80);
     render(

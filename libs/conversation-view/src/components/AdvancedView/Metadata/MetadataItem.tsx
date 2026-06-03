@@ -14,6 +14,7 @@ const MetadataItem: FC<Props> = ({
   title,
   value,
   attachedKeysTitles,
+  isDimensionGroup,
   locale,
 }) => {
   const displayValue = useMemo(
@@ -33,15 +34,16 @@ const MetadataItem: FC<Props> = ({
 
   return (
     <div className="metadata-item">
-      {attachedKeysTitles?.map((attachedKeyTitle) => (
-        <div
-          title={attachedKeyTitle}
-          key={attachedKeyTitle}
-          className="metadata-item-key mb-1 pr-3 text-neutrals-800"
-        >
-          {attachedKeyTitle}
-        </div>
-      ))}
+      {!isDimensionGroup &&
+        attachedKeysTitles?.map((attachedKeyTitle) => (
+          <div
+            title={attachedKeyTitle}
+            key={attachedKeyTitle}
+            className="metadata-item-key mb-1 pr-3 text-neutrals-800"
+          >
+            {attachedKeyTitle}
+          </div>
+        ))}
       <div
         className={classNames(
           'flex items-center',

@@ -134,6 +134,7 @@ const SidePanelMetadataContent: FC<Props> = ({
                   title={metadataItem?.title || metadataItem?.id}
                   value={formatValue(metadataItem?.value)}
                   attachedKeysTitles={metadataItem?.attachedKeysTitles}
+                  isDimensionGroup={metadataItem?.isDimensionGroup}
                 />
               ))}
             </div>
