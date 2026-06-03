@@ -190,7 +190,9 @@ export const getStructureAttributes = (data?: Data): StructureAttribute[] => {
 
       if (attr?.values?.length > 0) {
         const selectedValue = attr.values[rawValue as number];
-        if (selectedValue) result.push({ ...attr, values: [selectedValue] });
+        result.push(
+          selectedValue ? { ...attr, values: [selectedValue] } : { ...attr },
+        );
       } else if (Array.isArray(rawValue)) {
         result.push({
           ...attr,
@@ -273,7 +275,7 @@ export const getDataSetAttributes = (
         return {
           id,
           title: getLocalizedName(attributeData, locale) || id,
-          value: attributeValues ? attributeValues : attributeValue,
+          value: attributeValues?.length ? attributeValues : attributeValue,
         };
       })
       .filter(({ value }) => !!value) || []
