@@ -125,6 +125,7 @@ function buildNodes(
           isExpanded: true,
           disabled:
             !isFromDimensionCodelist && children.every((c) => c.disabled),
+          isSelectableValue: isFromDimensionCodelist,
           parent: parentUrn,
           metadata: { ...code, hierarchicalCodes: undefined },
         } as TreeNode<HierarchicalCode>;
@@ -161,6 +162,7 @@ export function hierarchyNodesToFilterTreeProps(
       isExpanded: node.isExpanded,
       isSelectedValue: false,
       disabled: node.disabled,
+      isSelectableValue: node.isSelectableValue,
       children: hierarchyNodesToFilterTreeProps(node.children),
     } as FilterTreeNodeProps;
   });
@@ -242,13 +244,18 @@ export function applySelectionToTree(
 
     let isSelectedValue: boolean;
     if (selectedIds.has(node.id)) {
+      // The node's own code is part of the selection.
       isSelectedValue = true;
-    } else if (updatedChildren?.length) {
+    } else if (updatedChildren?.length && !node.isSelectableValue) {
+      // Structural-only parent (not a real codelist code):
+      // derive its checked state from its children.
       const enabledChildren = updatedChildren.filter((c) => !c.disabled);
       isSelectedValue =
         enabledChildren.length > 0 &&
         enabledChildren.every((c) => !!c.isSelectedValue);
     } else {
+      // Selectable parent whose own code is not selected, or a leaf. When its
+      // children are selected, the indeterminate state is derived at render time.
       isSelectedValue = false;
     }
 

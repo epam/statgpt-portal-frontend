@@ -64,6 +64,7 @@ build
 .claude/*
 !.claude/commands/
 !.claude/rules/
+docs/superpowers/
 
 # System Files
 .DS_Store

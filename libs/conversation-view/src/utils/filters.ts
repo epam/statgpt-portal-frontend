@@ -313,21 +313,80 @@ const setSelectedChildrenNodes = (
     }));
 };
 
+export const hasSelectedDescendant = (node: FilterTreeNodeProps): boolean => {
+  return !!node?.children?.some(
+    (child) => child?.isSelectedValue || hasSelectedDescendant(child),
+  );
+};
+
 export const getFilterNodesBySelection = (
   node: FilterTreeNodeProps,
 ): FilterTreeNodeProps[] => {
-  if (!node.isSelectedValue) {
-    return [
-      { ...node, isSelectedValue: true },
-      ...setSelectedChildrenNodes(getAllChildrenNodes(node), true),
-    ];
+  const allChildren = getAllChildrenNodes(node);
+
+  // Leaf node — simple toggle.
+  if (!node.children?.length) {
+    return [{ ...node, isSelectedValue: !node.isSelectedValue }];
   }
 
-  return [
-    { ...node, isSelectedValue: false },
-    ...setSelectedChildrenNodes(getAllChildrenNodes(node), false),
+  const build = (parentSelected: boolean, childrenSelected: boolean) => [
+    { ...node, isSelectedValue: parentSelected },
+    ...setSelectedChildrenNodes(allChildren, childrenSelected),
   ];
+
+  // Structural-only parent (not a real codelist code):
+  // keep the 2-state all / none toggle based on the parent's (derived) checked state.
+  if (!node.isSelectableValue) {
+    return node.isSelectedValue ? build(false, false) : build(true, true);
+  }
+
+  const enabledChildren = allChildren.filter((child) => !child.disabled);
+  const anyChildSelected = enabledChildren.some(
+    (child) => child.isSelectedValue,
+  );
+  const allChildrenSelected =
+    enabledChildren.length > 0 &&
+    enabledChildren.every((child) => child.isSelectedValue);
+  const parentSelected = !!node.isSelectedValue;
+
+  // Selectable parent — cycle through the 4 states:
+  //   A: parent off, children off (nothing)
+  //   B: parent on, children on (aggregate + all members)
+  //   C: parent off,children on (members only — indeterminate)
+  //   D: parent on, children off (aggregate only)
+  if (!parentSelected && !anyChildSelected) {
+    return build(true, true); // A -> B
+  }
+  if (parentSelected && allChildrenSelected) {
+    return build(false, true); // B -> C
+  }
+  if (!parentSelected && anyChildSelected) {
+    return build(true, false); // C -> D
+  }
+  if (parentSelected && !anyChildSelected) {
+    return build(false, false); // D -> A
+  }
+
+  // Mixed state (parent selected with only some children) — normalize to "all".
+  return build(true, true);
 };
+
+/**
+ * Returns dimensionValue entries for codelist-backed nodes not yet present in
+ * the filter, so a newly selected code (e.g. an aggregate parent) can be
+ * persisted. Structural-only nodes (not in the codelist) are never added.
+ */
+export const getNewHierarchyFilterValues = (
+  mappedNodes: FilterTreeNodeProps[],
+  existingIds: Set<string>,
+): FilterValue[] =>
+  mappedNodes
+    .filter((node) => node.isSelectableValue && !existingIds.has(node.id))
+    .map((node) => ({
+      id: node.id,
+      name: node.name,
+      isSelectedValue: node.isSelectedValue,
+    }));
 
 export const getHierarchyOptions = ({
   isHierarchical,
