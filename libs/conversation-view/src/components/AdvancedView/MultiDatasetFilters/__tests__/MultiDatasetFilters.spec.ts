@@ -9,7 +9,10 @@ import { COMMON_COUNTRY_FILTER_ID } from '../../../../utils/multiple-filters';
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
-jest.mock('@epam/statgpt-sdmx-toolkit', () => ({}));
+jest.mock('@epam/statgpt-sdmx-toolkit', () => ({
+  getLocalizedName: jest.fn(),
+  generateShortUrn: jest.fn(),
+}));
 jest.mock('@epam/ai-dial-shared', () => ({}));
 
 // ─── Captured callbacks ────
@@ -356,9 +359,13 @@ describe('MultiDatasetFilters', () => {
       mockGetFiltersPreselectedByDataQueries.mockReturnValue([
         makeSharedCountryFilter(),
       ]);
+      const rejectedConstraint = Promise.reject(
+        new Error('constraints failed'),
+      );
+      void rejectedConstraint.catch(() => {});
       mockGetConstraintsRequests.mockReturnValue([
         Promise.resolve(fulfilledConstraintData),
-        Promise.reject(new Error('constraints failed')),
+        rejectedConstraint,
       ]);
       mockGetConstraintsMapFromSettledResults.mockReturnValue(
         updatedConstraintsMap,
