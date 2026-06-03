@@ -61,7 +61,7 @@ const FiltersFacetsList: FC<Props> = ({
   return (
     <div
       className={classNames(
-        'overflow-y-auto advanced-view-filters-list min-w-[320px] max-w-[338px] pr-3 h-full sm:max-w-full sm:w-full',
+        'overflow-y-auto advanced-view-filters-list w-[338px] pr-3 h-full sm:w-full',
       )}
     >
       {dataQueries && dataQueries.length > 0 && (
