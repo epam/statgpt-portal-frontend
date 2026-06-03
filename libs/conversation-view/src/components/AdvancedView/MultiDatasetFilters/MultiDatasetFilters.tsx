@@ -684,7 +684,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     );
     const filtersParamsMap = getFiltersChangeParamsMap(appliedFiltersMap);
     const compatibleUrns = getCompatibleDatasetUrns(
-      modalFilters,
+      appliedFilters,
       dataQueries?.map((q) => q.urn) ?? [],
       dataQueries,
       datasetDimensionsMetadata.map,
