@@ -1,10 +1,10 @@
 'use client';
 
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, useMemo } from 'react';
 import classNames from 'classnames';
-import { IconButton } from '@epam/statgpt-ui-components';
-import ChevronSolidDownIcon from '../../../assets/icons/chevron-solid-down.svg';
 import { StructureComponentValue } from '../../../models/structure-component';
+import { useClampToggle } from './hooks/useClampToggle';
+import { ExpandToggleButton } from './ExpandToggleButton';
 
 interface Props extends StructureComponentValue {
   locale: string;
@@ -16,17 +16,7 @@ const MetadataItem: FC<Props> = ({
   attachedKeysTitles,
   locale,
 }) => {
-  const [isItemOpen, setIsItemOpen] = useState(false);
-  const [isShowIcon, setShowIcon] = useState<boolean>(false);
-  const valueContainerRef = useRef<HTMLDivElement>(null);
-
-  const onIconClick = useCallback(() => {
-    if (isShowIcon) {
-      setIsItemOpen((prev) => !prev);
-    }
-  }, [setIsItemOpen, isShowIcon]);
-
-  const getMetadataItemValue = useCallback(
+  const displayValue = useMemo(
     () =>
       Array.isArray(value)
         ? value
@@ -38,14 +28,8 @@ const MetadataItem: FC<Props> = ({
     [locale, value],
   );
 
-  useEffect(() => {
-    if (valueContainerRef?.current) {
-      setShowIcon(
-        valueContainerRef?.current?.scrollHeight >
-          valueContainerRef?.current?.offsetHeight,
-      );
-    }
-  }, [valueContainerRef]);
+  const { valueRef, isExpanded, canToggle, toggle } =
+    useClampToggle<HTMLParagraphElement>(displayValue);
 
   return (
     <div className="metadata-item">
@@ -61,33 +45,25 @@ const MetadataItem: FC<Props> = ({
       <div
         className={classNames(
           'flex items-center',
-          isShowIcon && 'justify-between',
+          canToggle && 'justify-between',
         )}
       >
         <h2 title={title} className="metadata-item-title">
           {title}
         </h2>
-        {isShowIcon && (
-          <IconButton
-            buttonClassName={classNames(
-              'border-none p-0 w-6 h-6',
-              isItemOpen ? 'rotate-[180deg]' : '',
-            )}
-            isBaseIconStyles={false}
-            icon={<ChevronSolidDownIcon width={24} height={24} />}
-            onClick={onIconClick}
-          />
+        {canToggle && (
+          <ExpandToggleButton isExpanded={isExpanded} onToggle={toggle} />
         )}
       </div>
       <p
-        title={getMetadataItemValue()}
+        title={displayValue}
         className={classNames(
           'metadata-item-value pr-3',
-          !isItemOpen && 'line-clamp-4',
+          !isExpanded && 'line-clamp-4',
         )}
-        ref={valueContainerRef}
+        ref={valueRef}
       >
-        {getMetadataItemValue()}
+        {displayValue}
       </p>
     </div>
   );
