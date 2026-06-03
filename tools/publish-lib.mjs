@@ -6,7 +6,7 @@
  *
  * You might need to authenticate with NPM before running this script.
  */
-import mainPackageJson from '../package.json' with { type: 'json' };
+import mainPackageJson from '../package.json' with { type: "json" };
 
 import devkit from '@nx/devkit';
 import { execSync } from 'child_process';
@@ -34,31 +34,18 @@ function invariant(condition, message) {
 // Default "tag" to "next" so we won't publish the "latest" tag by accident.
 let params = minimist(process.argv);
 let version = params.version;
-const isDevelopment = params.development;
 const dry = params.dry === 'true';
 const tag = params.tag || 'next';
 const name = params['_'][2];
 
 console.info(
-  `\nPublish run with next values:\nname=${name}\nversion=${version}\ndry=${dry}\ntag=${tag}\ndevelopment=${isDevelopment}\n`,
+  `\nPublish run with next values:\nname=${name}\nversion=${version}\ndry=${dry}\ntag=${tag}\n`,
 );
 
 const getVersion = (version) => {
-  let potentialVersion = version;
-  console.log('Initial potentialVersion:', potentialVersion);
-  if (isDevelopment && !version) {
-    potentialVersion = getDevVersion(potentialVersion);
-    invariant(
-      potentialVersion !== 'dev',
-      `Version calculated incorrectly - still equal 'dev'.`,
-    );
-  }
-
-  return potentialVersion || mainPackageJson.version;
+  return version || mainPackageJson.version;
 };
 version = getVersion(version);
-
-console.info(`Publishing ${name} with version ${version}\n`);
 
 // A simple SemVer validation to validate the version
 const validVersion = /^\d+\.\d+\.\d+(-\w+\.\d+)?/;
@@ -155,56 +142,9 @@ try {
   }
 
   writeFileSync(`package.json`, JSON.stringify(json, null, 2));
-} catch {
+} catch (e) {
   console.error(`Error reading package.json file from library build output.`);
 }
 
 // Execute "npm publish" to publish
 execSync(`npm publish --access public --tag ${tag} --dry-run ${dry}`);
-
-function getDevVersion(potentialVersion) {
-  let result;
-  try {
-    result = JSON.parse(
-      execSync(`npm view ${PREFIX}-${name} versions --json`).toString(),
-    );
-  } catch (e) {
-    if (JSON.parse(e.stdout).error.code === 'E404') {
-      console.warn(
-        `Could not get versions from registry. Version from package.json will be used.\n `,
-      );
-
-      result = [];
-    } else {
-      throw new Error(`Could not get versions from registry.`);
-    }
-  }
-
-  console.log('Existing versions:', result);
-
-  if (!result) {
-    throw new Error(`Could not get version.`);
-  }
-
-  if (!Array.isArray(result) && typeof result === 'string') {
-    result = [result];
-  }
-  const lastVersionToIncrement = result
-    .filter((ver) => ver.startsWith(mainPackageJson.version))
-    .map((ver) => ver.match(/\d+$/)?.[0])
-    .filter(Boolean)
-    .map((ver) => parseInt(ver, 10))
-    .sort((a, b) => a - b)
-    .reverse()[0];
-
-  if (typeof lastVersionToIncrement !== 'undefined') {
-    const incrementedNum = lastVersionToIncrement + 1;
-    potentialVersion = `${mainPackageJson.version}.${incrementedNum}`;
-  } else {
-    potentialVersion = `${mainPackageJson.version}.0`;
-  }
-  console.warn(
-    `Version of development package for ${PREFIX + '-' + name} will be: ${potentialVersion}`,
-  );
-  return potentialVersion;
-}
