@@ -316,6 +316,7 @@ export const AdvancedView: FC<Props> = ({
             locale={locale}
             shareConversationProps={shareConversationProps}
             isShowShare={advanceViewStyles?.isShowShare}
+            conversation={props.filtersProps.conversation}
           />
           {!datasets.length ? (
             <Loader />
