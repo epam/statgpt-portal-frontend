@@ -130,6 +130,24 @@ datasets as inactive. The dataset URN remains in the `dataQueries` list; only th
 per-dimension filter signals exclusion. See `01-domain-model.md` for the
 `QueryFilterType.excluded` operator.
 
+### Compatibility must be checked against the disabled-aware filters, not `modalFilters`
+
+`onApply` computes `compatibleUrns` via `getCompatibleDatasetUrns`. It must pass
+`appliedFilters` — the merged set rebuilt by `getFiltersByConstraints` *after*
+`buildFiltersMap` has dropped disabled datasets — **not** the raw `modalFilters`.
+
+`onToggleDataset` only mutates `disabledDatasetUrns`; it does not re-derive
+`modalFilters`. So `modalFilters` can still carry a shared-filter selection whose
+only `sourceValues` come from a now-disabled dataset (e.g. frequency `A` selected
+while the only dataset that has `A` is disabled). Feeding that stale selection to
+`getCompatibleDatasetUrns` makes every *enabled* dataset that lacks `A` look
+incompatible, so they are dropped from the queries handed to
+`onMultipleDataFiltersChange` and the grid renders empty. `appliedFilters` already
+excludes the disabled dataset's contribution, so the selection is gone and the
+remaining datasets are correctly judged compatible. (Symptom before the fix: empty
+grid on first Apply, correct grid after reopening and pressing Apply again — because
+the reopened modal is seeded from the rebuilt `appliedFilters`.)
+
 ---
 
 ## Hierarchy state is keyed by filter identity, not by dataset + dimension
