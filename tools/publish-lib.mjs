@@ -6,7 +6,7 @@
  *
  * You might need to authenticate with NPM before running this script.
  */
-import mainPackageJson from '../package.json' with { type: "json" };
+import mainPackageJson from '../package.json' with { type: 'json' };
 
 import devkit from '@nx/devkit';
 import { execSync } from 'child_process';
