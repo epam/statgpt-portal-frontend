@@ -52,6 +52,24 @@ export function protectLastVisibleLeafInGroups(
 ): DraggableListItemNode {
   if (!item.items?.length) return item;
 
+  // Single-dataset flat layout: leaves are direct children with no group wrapper.
+  // Apply protection across the entire flat list.
+  if (item.items.every((n) => n.type === 'item')) {
+    const leafItems = item.items as DraggableListItemNode[];
+    const visibleLeaves = leafItems.filter((i) => i.isChecked !== false);
+    if (visibleLeaves.length !== 1) return item;
+    const [soleVisibleLeaf] = visibleLeaves;
+    return {
+      ...item,
+      items: leafItems.map((leaf) =>
+        leaf === soleVisibleLeaf
+          ? { ...leaf, checkable: false, draggable: false }
+          : { ...leaf, draggable: false },
+      ),
+    };
+  }
+
+  // Multi-dataset layout: protect the last visible leaf within each group.
   const newGroupItems = item.items.map((node) => {
     if (node.type !== 'group') return node;
 

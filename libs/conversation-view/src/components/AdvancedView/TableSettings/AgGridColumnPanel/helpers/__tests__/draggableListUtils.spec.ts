@@ -191,9 +191,18 @@ describe('protectLastVisibleLeafInGroups', () => {
       expect(protectLastVisibleLeafInGroups(node)).toBe(node);
     });
 
-    it('returns unchanged when sub-items contain only item nodes (no groups)', () => {
+    it('returns unchanged when flat leaves have two or more visible items', () => {
       const node = item('col', [
         checkedItem('a', true),
+        checkedItem('b', true),
+      ]);
+      const result = protectLastVisibleLeafInGroups(node);
+      expect(result).toBe(node);
+    });
+
+    it('returns unchanged when all flat leaves are hidden', () => {
+      const node = item('col', [
+        checkedItem('a', false),
         checkedItem('b', false),
       ]);
       const result = protectLastVisibleLeafInGroups(node);
@@ -316,6 +325,28 @@ describe('protectLastVisibleLeafInGroups', () => {
       const leaves = (result.items![0] as ReturnType<typeof group>)
         .items as DraggableListItemNode[];
       expect(leaves[0].checkable).toBe(false);
+    });
+
+    it('sets checkable: false on the sole visible leaf in a flat list (single-dataset layout)', () => {
+      const node = item('col', [
+        checkedItem('a', false),
+        checkedItem('b', true),
+      ]);
+      const result = protectLastVisibleLeafInGroups(node);
+      const leaves = result.items as DraggableListItemNode[];
+      expect(leaves.find((l) => l.id === 'b')?.checkable).toBe(false);
+      expect(leaves.find((l) => l.id === 'a')?.checkable).toBeUndefined();
+    });
+
+    it('sets draggable: false on all flat leaves when only one is visible', () => {
+      const node = item('col', [
+        checkedItem('a', false, { draggable: true }),
+        checkedItem('b', true, { draggable: true }),
+      ]);
+      const result = protectLastVisibleLeafInGroups(node);
+      const leaves = result.items as DraggableListItemNode[];
+      expect(leaves.find((l) => l.id === 'a')?.draggable).toBe(false);
+      expect(leaves.find((l) => l.id === 'b')?.draggable).toBe(false);
     });
   });
 
