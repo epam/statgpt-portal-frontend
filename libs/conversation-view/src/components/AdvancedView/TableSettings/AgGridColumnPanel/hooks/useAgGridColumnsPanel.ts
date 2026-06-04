@@ -208,13 +208,29 @@ export function useAgGridColumnsPanel({
           ) {
             continue;
           }
-          for (const groupNode of topNode.items) {
-            if (groupNode.type !== 'group') continue;
-            const leafItems = groupNode.items.filter(
+
+          if (topNode.items.some((n) => n.type === 'group')) {
+            // Multi-dataset: each group wraps one dataset's leaves.
+            for (const groupNode of topNode.items) {
+              if (groupNode.type !== 'group') continue;
+              const leafItems = groupNode.items.filter(
+                (i): i is DraggableListItemNode => i.type === 'item',
+              );
+              if (leafItems.length <= 1) continue;
+              const urn = groupNode.id;
+              const newOrder = leafItems.map(
+                (i) => parseDimensionSubItemId(i.id).dimensionKey,
+              );
+              onSubItemOrderChange(urn, topNode.id, newOrder);
+            }
+          } else {
+            // Single-dataset: leaves are direct children; derive urn from the leaf id.
+            const leafItems = topNode.items.filter(
               (i): i is DraggableListItemNode => i.type === 'item',
             );
-            if (leafItems.length <= 1) continue;
-            const urn = groupNode.id;
+            if (leafItems.length <= 1 || !isDimensionSubItemId(leafItems[0].id))
+              continue;
+            const { urn } = parseDimensionSubItemId(leafItems[0].id);
             const newOrder = leafItems.map(
               (i) => parseDimensionSubItemId(i.id).dimensionKey,
             );

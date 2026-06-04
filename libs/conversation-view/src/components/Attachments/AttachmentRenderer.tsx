@@ -7,6 +7,7 @@ import {
   DatasetQueryFilters,
   Dimension,
   DownloadType as DownloadTypeOptions,
+  generateShortUrn,
 } from '@epam/statgpt-sdmx-toolkit';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import {
@@ -35,6 +36,7 @@ import { AllCommunityModule, GridApi, ModuleRegistry } from 'ag-grid-community';
 import DownloadSettings from '@statgpt/download-panel/src/components/DownloadSettings/DownloadSettings';
 import { DownloadDatasetItem } from '@statgpt/download-panel/src/models/download-dataset-item';
 import { useConversationViewStyles } from '../../context/ConversationViewStylesContext';
+import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
 import DatasetTabs from './Tabs/DatasetTabs/DatasetTabs';
 import { getExternalLink } from '../../utils/attachments-details';
 import AttachmentsViewModePanel from './AttachmentsViewModePanel';
@@ -101,6 +103,7 @@ const AttachmentRenderer: FC<Props> = ({
     limitMessages,
     attachmentsConfig,
   } = useConversationViewStyles();
+  const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const [selectedAttachmentIndex, setSelectedAttachmentIndex] =
     useState<number>(0);
   const [selectedAttachment, setSelectedAttachment] =
@@ -111,6 +114,23 @@ const AttachmentRenderer: FC<Props> = ({
   const [showLoading, setShowLoading] = useState<boolean>(false);
   const [showLimitMessage, setShowLimitMessage] = useState(false);
   const downloadType = DownloadTypeOptions.DATA_IN_TABLE;
+
+  const enabledDatasets = useMemo(() => {
+    if (!isCrossDatasetModeOn || !dataQueries?.some((q) => q.disabled)) {
+      return datasets;
+    }
+    const enabledUrns = new Set(
+      dataQueries.filter((q) => !q.disabled).map((q) => q.urn),
+    );
+    return datasets?.filter((dataset) => {
+      const urn = generateShortUrn(
+        dataset?.id,
+        dataset?.version,
+        dataset?.agencyID,
+      );
+      return enabledUrns.has(urn);
+    });
+  }, [datasets, dataQueries, isCrossDatasetModeOn]);
 
   const selectAttachment = (index: number) => {
     setSelectedAttachmentIndex(index);
@@ -263,10 +283,10 @@ const AttachmentRenderer: FC<Props> = ({
                 />
               )}
               {!isOpenedAdvancedView &&
-                datasets?.length != null &&
-                datasets?.length > 0 && (
+                enabledDatasets?.length != null &&
+                enabledDatasets?.length > 0 && (
                   <DatasetTabs
-                    datasets={datasets}
+                    datasets={enabledDatasets}
                     initialSelectedDatasetUrn={initialSelectedDatasetUrn}
                     locale={locale}
                     selectDataset={selectDataset}
