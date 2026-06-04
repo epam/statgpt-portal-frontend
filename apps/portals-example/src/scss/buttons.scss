@@ -67,7 +67,7 @@
 }
 
 .tag {
-  @apply rounded-[10px] border-hues-600 bg-neutrals-100 hover:bg-white border p-2 text-primary h-[32px];
+  @apply rounded-[10px] border-hues-600 bg-neutrals-100 hover:bg-white border p-2 text-primary min-h-[32px];
 }
 
 .tag-container {
