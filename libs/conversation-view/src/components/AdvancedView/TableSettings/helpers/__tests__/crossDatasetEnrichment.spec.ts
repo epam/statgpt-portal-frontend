@@ -182,24 +182,24 @@ describe('buildCrossDatasetEnrichItem', () => {
     expect(enrich(item)).toBe(item);
   });
 
-  it('builds one group per dataset for INDICATOR_COL_ID', () => {
-    const urn = 'urn:abc';
+  it('builds one group per dataset when there are multiple datasets', () => {
+    const urn1 = 'urn:abc';
+    const urn2 = 'urn:def';
     const enrich = buildCrossDatasetEnrichItem(
       makeInfo({
-        dataQueries: [{ urn }],
+        dataQueries: [{ urn: urn1 }, { urn: urn2 }],
         getDimensionsScheme: () => makeScheme({ indicators: ['IND1', 'IND2'] }),
         getDimensionConfig: (_, dimKey) => aliasConfig(dimKey + '_label'),
       }),
     );
     const result = enrich(makeItem(INDICATOR_COL_ID));
 
-    expect(result.items).toHaveLength(1);
-    const group = result.items![0];
-    expect(group.type).toBe('group');
-    expect(group.id).toBe(urn);
+    expect(result.items).toHaveLength(2);
+    expect(result.items![0]).toMatchObject({ type: 'group', id: urn1 });
+    expect(result.items![1]).toMatchObject({ type: 'group', id: urn2 });
   });
 
-  it('builds leaf items with encoded ids and alias labels', () => {
+  it('builds leaf items with encoded ids and alias labels (single dataset — flat)', () => {
     const urn = 'urn:abc';
     const enrich = buildCrossDatasetEnrichItem(
       makeInfo({
@@ -209,18 +209,17 @@ describe('buildCrossDatasetEnrichItem', () => {
       }),
     );
     const result = enrich(makeItem(INDICATOR_COL_ID));
-    const group = result.items![0];
-    if (group.type !== 'group') throw new Error('expected group');
 
-    expect(group.items).toHaveLength(2);
-    expect(group.items[0]).toMatchObject({
+    expect(result.items).toHaveLength(2);
+    expect(result.items![0]).toMatchObject({
       id: buildDimensionSubItemId(urn, 'IND1'),
       label: 'IND1_label',
       type: 'item',
     });
-    expect(group.items[1]).toMatchObject({
+    expect(result.items![1]).toMatchObject({
       id: buildDimensionSubItemId(urn, 'IND2'),
       label: 'IND2_label',
+      type: 'item',
     });
   });
 
@@ -234,10 +233,8 @@ describe('buildCrossDatasetEnrichItem', () => {
       }),
     );
     const result = enrich(makeItem(INDICATOR_COL_ID));
-    const group = result.items![0];
-    if (group.type !== 'group') throw new Error('expected group');
 
-    for (const leaf of group.items) {
+    for (const leaf of result.items!) {
       if (leaf.type === 'item') {
         expect(leaf.draggable).toBe(true);
         expect(leaf.checkable).toBe(true);
@@ -256,9 +253,7 @@ describe('buildCrossDatasetEnrichItem', () => {
       }),
     );
     const result = enrich(makeItem(COUNTRY_COL_ID));
-    const group = result.items![0];
-    if (group.type !== 'group') throw new Error('expected group');
-    const leaf = group.items[0];
+    const leaf = result.items![0];
     if (leaf.type === 'item') {
       expect(leaf.draggable).toBe(false);
       expect(leaf.checkable).toBe(false);
@@ -282,47 +277,49 @@ describe('buildCrossDatasetEnrichItem', () => {
       }),
     );
     const result = enrich(makeItem(INDICATOR_COL_ID));
-    const group = result.items![0];
-    if (group.type !== 'group') throw new Error('expected group');
 
-    const ind1 = group.items.find(
+    const ind1 = result.items!.find(
       (i) => i.id === buildDimensionSubItemId(urn, 'IND1'),
     );
-    const ind2 = group.items.find(
+    const ind2 = result.items!.find(
       (i) => i.id === buildDimensionSubItemId(urn, 'IND2'),
     );
     expect(ind1?.type === 'item' && ind1.isChecked).toBe(false);
     expect(ind2?.type === 'item' && ind2.isChecked).toBe(true);
   });
 
-  it('uses getLocalizedName for the group label', () => {
-    const urn = 'urn:abc';
-    mockGetLocalizedName.mockReturnValue('Localized Dataset Name');
+  it('uses getLocalizedName for the group label (multiple datasets)', () => {
+    const urn1 = 'urn:abc';
+    const urn2 = 'urn:def';
+    mockGetLocalizedName
+      .mockReturnValueOnce('Dataset ABC')
+      .mockReturnValueOnce('Dataset DEF');
     const enrich = buildCrossDatasetEnrichItem(
       makeInfo({
-        dataQueries: [{ urn }],
+        dataQueries: [{ urn: urn1 }, { urn: urn2 }],
         getDimensionsScheme: () => makeScheme({ indicators: ['IND1'] }),
         getDimensionConfig: () => aliasConfig('IND1'),
       }),
     );
     const result = enrich(makeItem(INDICATOR_COL_ID));
-    const group = result.items![0];
-    expect(group.label).toBe('Localized Dataset Name');
+    expect(result.items![0].label).toBe('Dataset ABC');
+    expect(result.items![1].label).toBe('Dataset DEF');
   });
 
-  it('falls back to urn as group label when getLocalizedName returns undefined', () => {
-    const urn = 'urn:abc';
+  it('falls back to urn as group label when getLocalizedName returns undefined (multiple datasets)', () => {
+    const urn1 = 'urn:abc';
+    const urn2 = 'urn:def';
     mockGetLocalizedName.mockReturnValue(undefined);
     const enrich = buildCrossDatasetEnrichItem(
       makeInfo({
-        dataQueries: [{ urn }],
+        dataQueries: [{ urn: urn1 }, { urn: urn2 }],
         getDimensionsScheme: () => makeScheme({ indicators: ['IND1'] }),
         getDimensionConfig: () => aliasConfig('IND1'),
       }),
     );
     const result = enrich(makeItem(INDICATOR_COL_ID));
-    const group = result.items![0];
-    expect(group.label).toBe(urn);
+    expect(result.items![0].label).toBe(urn1);
+    expect(result.items![1].label).toBe(urn2);
   });
 
   it('handles FREQUENCY_COL_ID by reading scheme.frequency', () => {
@@ -337,9 +334,10 @@ describe('buildCrossDatasetEnrichItem', () => {
     );
     const result = enrich(makeItem(FREQUENCY_COL_ID));
     expect(result.items).toHaveLength(1);
-    const group = result.items![0];
-    if (group.type !== 'group') throw new Error('expected group');
-    expect(group.items[0].id).toBe(buildDimensionSubItemId(urn, 'FREQ'));
+    expect(result.items![0]).toMatchObject({
+      type: 'item',
+      id: buildDimensionSubItemId(urn, 'FREQ'),
+    });
   });
 
   it('resolves label via getDimensionTitle when no alias is configured', () => {
@@ -357,8 +355,6 @@ describe('buildCrossDatasetEnrichItem', () => {
       }),
     );
     const result = enrich(makeItem(INDICATOR_COL_ID));
-    const group = result.items![0];
-    if (group.type !== 'group') throw new Error('expected group');
-    expect(group.items[0]).toMatchObject({ label: 'Title From Scheme' });
+    expect(result.items![0]).toMatchObject({ label: 'Title From Scheme' });
   });
 });
