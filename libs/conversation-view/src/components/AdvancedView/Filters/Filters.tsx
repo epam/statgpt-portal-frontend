@@ -45,6 +45,7 @@ import {
 import ModalFooter from './FiltersModal/ModalFooter';
 import FilterButton from './FilterButton/FilterButton';
 import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
+import { useFiltersModalState } from '../../../context/FiltersModalStateContext';
 import { updateMessagesWithSystemMessage } from '../../../utils/system-message';
 import { getUpdatedDataQueries } from '../../../utils/get-updated-data-queries';
 import { useHierarchyState } from '../../../utils/use-hierarchy-state';
@@ -79,7 +80,8 @@ const Filters: FC<FiltersProps> = ({
   filterIconClassName,
 }) => {
   const { titles } = useConversationViewStyles();
-  const [modalState, setModalState] = useState(PopUpState.Closed);
+  const { modalState, setModalState, isModalClosed, setIsModalClosed } =
+    useFiltersModalState();
   const [modalFilters, setModalFilters] = useState<Filter[]>([]);
   const [appliedFilters, setAppliedFilters] = useState<Filter[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<Filter>();
@@ -98,7 +100,6 @@ const Filters: FC<FiltersProps> = ({
   const [isFilterValuesLoading, setIsFilterValuesLoading] = useState(false);
   const filterValuesLoadingRequestsRef = useRef(0);
   const isPreselectedFromDataQuery = useRef(false);
-  const [isModalClosed, setIsModalClosed] = useState(false);
 
   const startFilterValuesLoading = useCallback(() => {
     filterValuesLoadingRequestsRef.current += 1;
@@ -576,7 +577,7 @@ const Filters: FC<FiltersProps> = ({
     constraintsRef.current = initialModalConstraints;
     setModalState(PopUpState.Closed);
     setIsModalClosed(true);
-  }, [initialModalConstraints]);
+  }, [initialModalConstraints, setModalState, setIsModalClosed]);
 
   const onClearAllFilters = useCallback(() => {
     const filtersAfterClear = getFiltersAfterClear(modalFilters);
@@ -601,6 +602,8 @@ const Filters: FC<FiltersProps> = ({
     onFiltersChange,
     addSystemMessage,
     constraintsRef,
+    setModalState,
+    setIsModalClosed,
   ]);
   const onTimePeriodChange = (value: string | number) => {
     setSelectedTimeOption(value);

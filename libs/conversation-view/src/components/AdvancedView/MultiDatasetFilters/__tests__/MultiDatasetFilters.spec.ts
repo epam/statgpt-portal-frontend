@@ -218,6 +218,18 @@ jest.mock('../../../../context/ConversationViewStylesContext', () => ({
   useConversationViewStyles: jest.fn(() => ({})),
 }));
 
+jest.mock('../../../../context/FiltersModalStateContext', () => {
+  const R = require('react');
+  return {
+    FiltersModalStateProvider: ({ children }: any) => children,
+    useFiltersModalState: () => {
+      const [modalState, setModalState] = R.useState('closed');
+      const [isModalClosed, setIsModalClosed] = R.useState(false);
+      return { modalState, setModalState, isModalClosed, setIsModalClosed };
+    },
+  };
+});
+
 jest.mock('../../../../utils/hierarchy-view', () => ({
   hierarchyNodesToFilterTreeProps: jest.fn(() => []),
 }));
