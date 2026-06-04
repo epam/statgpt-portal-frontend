@@ -81,6 +81,11 @@ export const AdvancedView: FC<Props> = ({
     [attachmentsProps.currentDataQuery?.urn, attachmentsProps.dataQueries],
   );
 
+  const enabledDataQueries = useMemo(
+    () => attachmentsProps?.dataQueries?.filter((q) => !q.disabled),
+    [attachmentsProps?.dataQueries],
+  );
+
   const [gridViewMode, setGridViewMode] = useState(
     CrossDatasetGridViewMode.Compact,
   );
@@ -295,7 +300,7 @@ export const AdvancedView: FC<Props> = ({
         currentUrn={currentUrn}
         structuresMap={structureDataMaps?.structuresMap}
         locale={locale}
-        dataQueries={attachmentsProps?.dataQueries}
+        dataQueries={enabledDataQueries}
         gridViewMode={gridViewMode}
         onGridViewModeChange={setGridViewMode}
         texts={{
