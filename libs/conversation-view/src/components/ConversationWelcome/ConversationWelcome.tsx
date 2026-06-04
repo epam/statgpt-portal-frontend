@@ -262,13 +262,13 @@ export const ConversationWelcome: FC<Props> = ({
         />
         <div
           className={classNames(
-            'no-scrollbar max-w-full overflow-x-auto',
+            'no-scrollbar overflow-x-auto',
             suggestionsContainerClass,
           )}
         >
           <div
             className={classNames(
-              'flex flex-wrap justify-center gap-2 sm:flex-nowrap',
+              'flex flex-wrap justify-center gap-2',
               'tags-container',
             )}
           >
