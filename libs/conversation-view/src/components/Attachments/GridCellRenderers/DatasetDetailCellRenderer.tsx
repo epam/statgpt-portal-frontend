@@ -2,9 +2,18 @@
 
 import { FC, useMemo, useCallback } from 'react';
 import { ICellRendererParams } from 'ag-grid-community';
-import { StructuralData, getLastUpdatedTime } from '@epam/statgpt-sdmx-toolkit';
+import {
+  Data,
+  getLastUpdatedTime,
+  getStructureComponentsMap,
+  StructuralData,
+} from '@epam/statgpt-sdmx-toolkit';
 import SidePanelMetadataContent from '../../AdvancedView/Metadata/SidePanel/SidePanelMetadataContent';
-import { getDatasetInfoData } from '../../../utils/attachments/metadata';
+import {
+  getDataSetAttributes,
+  getDatasetInfoData,
+  getStructureAttributes,
+} from '../../../utils/attachments/metadata';
 import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
 import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
 import { useConversationViewSidePanelOptional } from '../../ConversationView/SidePanel/ConversationViewSidePanelContext';
@@ -14,6 +23,7 @@ import { getExternalLinkFromContext } from './helpers/get-external-link-from-con
 
 interface DatasetDetailCellRendererParams extends ICellRendererParams {
   structuresMap: Map<string, StructuralData | undefined>;
+  attributesDataMap: Map<string, Data | undefined>;
   locale: string;
 }
 
@@ -30,6 +40,8 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
   const urn: string | undefined = params?.data?.dataset?.urn;
   const externalLink = getExternalLinkFromContext(params?.context, urn);
   const structures = urn != null ? params.structuresMap.get(urn) : undefined;
+  const resolvedData =
+    urn != null ? params.attributesDataMap?.get(urn) : undefined;
 
   const datasetInfo = useMemo(() => {
     const dataflow = structures?.dataflows?.[0];
@@ -40,6 +52,16 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
     );
     return getDatasetInfoData(dataflow, lastUpdatedDate, params.locale, titles);
   }, [structures, params.locale, titles]);
+
+  const metadata = useMemo(
+    () =>
+      getDataSetAttributes(
+        getStructureAttributes(resolvedData),
+        getStructureComponentsMap(structures),
+        params.locale,
+      ),
+    [resolvedData, structures, params.locale],
+  );
 
   const showIndicator = isMetadataInSidePanel && !!sidePanel && !!params.value;
 
@@ -53,7 +75,7 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
       content: (
         <SidePanelMetadataContent
           locale={params.locale}
-          metadata={[]}
+          metadata={metadata}
           datasetInfo={datasetInfo}
           externalLink={externalLink}
         />
@@ -62,6 +84,7 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
   }, [
     sidePanel,
     isOpenedAdvancedView,
+    metadata,
     datasetInfo,
     externalLink,
     titles,

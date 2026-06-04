@@ -3,4 +3,5 @@ export interface StructureComponentValue {
   title?: string;
   value?: string | string[];
   attachedKeysTitles?: string[];
+  isDimensionGroup?: boolean;
 }

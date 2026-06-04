@@ -40,6 +40,7 @@ const MetadataContent: FC<Props> = ({
               value={metadataItem?.value}
               locale={locale}
               attachedKeysTitles={metadataItem?.attachedKeysTitles}
+              isDimensionGroup={metadataItem?.isDimensionGroup}
             />
           ))
         ) : (

@@ -1,4 +1,8 @@
-import { getLocalizedName, StructuralData } from '@epam/statgpt-sdmx-toolkit';
+import {
+  Data,
+  getLocalizedName,
+  StructuralData,
+} from '@epam/statgpt-sdmx-toolkit';
 import { ColDef, ITooltipParams, ValueGetterParams } from 'ag-grid-community';
 import {
   CELL_PADDING_0,
@@ -15,17 +19,19 @@ import {
 
 export function getCrossDatasetInfoColumns(
   structuresMap: Map<string, StructuralData | undefined>,
+  attributesDataMap: Map<string, Data | undefined>,
   locale: string,
   titles?: ConversationViewTitles,
 ): ColDef[] {
   return [
     buildAgencyColDef(structuresMap, titles),
-    buildDatasetColDef(structuresMap, locale, titles),
+    buildDatasetColDef(structuresMap, attributesDataMap, locale, titles),
   ];
 }
 
 function buildDatasetColDef(
   structuresMap: Map<string, StructuralData | undefined>,
+  attributesDataMap: Map<string, Data | undefined>,
   locale: string,
   titles?: ConversationViewTitles,
 ): ColDef {
@@ -50,6 +56,7 @@ function buildDatasetColDef(
     cellRenderer: DATASET_DETAIL_CELL_RENDER,
     cellRendererParams: {
       structuresMap,
+      attributesDataMap,
       locale,
       titles,
     },

@@ -910,9 +910,7 @@ export const ConversationView: FC<Props> = ({
       <div
         className={classNames(
           'h-full flex flex-col bg-white conversation-view-wrapper',
-          isOpenedAdvancedView && !showConversationHeaderAdvancedView
-            ? 'p-4'
-            : 'pr-2',
+          isOpenedAdvancedView && !showConversationHeaderAdvancedView && 'p-4',
         )}
       >
         {isOpenedAdvancedView && !showConversationHeaderAdvancedView ? null : (

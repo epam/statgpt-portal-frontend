@@ -8,6 +8,7 @@ import ShareConversation from '@statgpt/share-conversation/src/components/ShareC
 import { CloseButton } from '@epam/statgpt-ui-components';
 import { ShareConversationProps } from '@statgpt/share-conversation/src/models/share-conversation';
 import { useConversationViewStyles } from '../../context/ConversationViewStylesContext';
+import { ConversationInfo } from '@epam/ai-dial-shared';
 import { getTooltipDataByElement } from '../../utils/get-tooltip-data.by-element';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { OnboardingElements } from '../../constants/onboarding-elements';
@@ -17,9 +18,15 @@ interface Props {
   isShowShare?: boolean;
   locale?: string;
   shareConversationProps?: ShareConversationProps;
+  conversation?: ConversationInfo | null;
 }
 
-const Header: FC<Props> = ({ locale, isShowShare, shareConversationProps }) => {
+const Header: FC<Props> = ({
+  locale,
+  isShowShare,
+  shareConversationProps,
+  conversation,
+}) => {
   const { titles } = useConversationViewStyles();
   const { setIsOpenedAdvancedView } = useAdvancedView();
 
@@ -85,7 +92,11 @@ const Header: FC<Props> = ({ locale, isShowShare, shareConversationProps }) => {
         <h2>{titles?.advanceViewTitle ?? 'Advanced view'}</h2>
       </div>
       {isShowShare && (
-        <ShareConversation locale={locale} {...shareConversationProps} />
+        <ShareConversation
+          locale={locale}
+          conversation={conversation}
+          {...shareConversationProps}
+        />
       )}
     </header>
   );

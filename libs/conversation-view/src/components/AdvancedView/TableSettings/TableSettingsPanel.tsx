@@ -111,7 +111,7 @@ export const TableSettingsPanel = () => {
   ]);
 
   return gridApi ? (
-    <>
+    <div className="flex h-full flex-col">
       <GridViewModeSwitcher
         gridViewMode={gridViewMode}
         onModeChange={handleModeChange}
@@ -141,6 +141,6 @@ export const TableSettingsPanel = () => {
         onSubItemVisibilityChange={setDimensionKeyHidden}
         searchPlaceholder={texts?.columnsSearchPlaceholder}
       />
-    </>
+    </div>
   ) : null;
 };
