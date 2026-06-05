@@ -11,7 +11,7 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { Locale } from '@epam/statgpt-shared-toolkit';
 import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
-import { isEqual } from 'lodash';
+import isEqual from 'lodash/isEqual';
 import FilterSettings from './FiltersModal/FiltersSettings';
 import { Filter, FiltersProps } from '../../../models/filters';
 import {
@@ -493,7 +493,11 @@ const Filters: FC<FiltersProps> = ({
   );
 
   const isFiltersUnchanged = useMemo(
-    () => isEqual(getFiltersChangeParams(modalFilters), getFiltersChangeParams(appliedFilters)),
+    () =>
+      isEqual(
+        getFiltersChangeParams(modalFilters),
+        getFiltersChangeParams(appliedFilters),
+      ),
     [modalFilters, appliedFilters, getFiltersChangeParams],
   );
 
@@ -677,7 +681,11 @@ const Filters: FC<FiltersProps> = ({
               onClose={onCloseModal}
               onClearAllFilters={onClearAllFilters}
               modalProps={modalProps}
-              applyDisabled={isConstraintsLoading || isDisableFilterValues || isFiltersUnchanged}
+              applyDisabled={
+                isConstraintsLoading ||
+                isDisableFilterValues ||
+                isFiltersUnchanged
+              }
               timeseriesLength={timeSeriesCount}
               limitMessages={limitMessages}
             />

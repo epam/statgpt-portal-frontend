@@ -853,7 +853,9 @@ describe('getSelectedFilterValues — isSelectedFilter does not affect output', 
       dimensionValues: [{ id: 'A', isSelectedValue: true }],
     };
 
-    const withFlag = getSelectedFilterValues([{ ...base, isSelectedFilter: true }]);
+    const withFlag = getSelectedFilterValues([
+      { ...base, isSelectedFilter: true },
+    ]);
 
     expect(withFlag).toHaveLength(1);
     expect(withFlag[0].id).toBe('FREQ');
@@ -866,7 +868,9 @@ describe('getSelectedFilterValues — isSelectedFilter does not affect output', 
       dimensionValues: [{ id: 'A', isSelectedValue: true }],
     };
 
-    const withFalse = getSelectedFilterValues([{ ...base, isSelectedFilter: false }]);
+    const withFalse = getSelectedFilterValues([
+      { ...base, isSelectedFilter: false },
+    ]);
 
     expect(withFalse).toHaveLength(1);
     expect(withFalse[0].id).toBe('FREQ');
@@ -880,8 +884,12 @@ describe('getSelectedFilterValues — isSelectedFilter does not affect output', 
     };
 
     const resultWithoutFlag = getSelectedFilterValues([{ ...base }]);
-    const resultWithTrue = getSelectedFilterValues([{ ...base, isSelectedFilter: true }]);
-    const resultWithFalse = getSelectedFilterValues([{ ...base, isSelectedFilter: false }]);
+    const resultWithTrue = getSelectedFilterValues([
+      { ...base, isSelectedFilter: true },
+    ]);
+    const resultWithFalse = getSelectedFilterValues([
+      { ...base, isSelectedFilter: false },
+    ]);
 
     expect(resultWithoutFlag).toEqual(resultWithTrue);
     expect(resultWithoutFlag).toEqual(resultWithFalse);

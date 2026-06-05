@@ -10,7 +10,7 @@ import {
   Locale,
   QueryFilterType,
 } from '@epam/statgpt-shared-toolkit';
-import { isEqual } from 'lodash';
+import isEqual from 'lodash/isEqual';
 import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
 import { Filter, FiltersProps } from '../../../models/filters';
 import {
@@ -852,7 +852,11 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               onClose={onCloseModal}
               onClearAllFilters={onClearAllFilters}
               modalProps={modalProps}
-              applyDisabled={isConstraintsLoading || isDisableFilterValues || isFiltersUnchanged}
+              applyDisabled={
+                isConstraintsLoading ||
+                isDisableFilterValues ||
+                isFiltersUnchanged
+              }
               limitMessages={limitMessages}
             />
           </Popup>
