@@ -797,6 +797,9 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     [dataQueries, structureDataMaps?.structuresMap, locale],
   );
 
+  const isApplyDisabled =
+    isConstraintsLoading || isDisableFilterValues || isFiltersUnchanged;
+
   return (
     <div className="filters-container">
       <FilterButton
@@ -852,11 +855,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               onClose={onCloseModal}
               onClearAllFilters={onClearAllFilters}
               modalProps={modalProps}
-              applyDisabled={
-                isConstraintsLoading ||
-                isDisableFilterValues ||
-                isFiltersUnchanged
-              }
+              applyDisabled={isApplyDisabled}
               limitMessages={limitMessages}
             />
           </Popup>

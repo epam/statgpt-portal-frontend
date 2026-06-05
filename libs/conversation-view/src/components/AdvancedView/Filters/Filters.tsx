@@ -624,6 +624,9 @@ const Filters: FC<FiltersProps> = ({
     getTimeSeriesCount(constraintsRef?.current?.[0]?.annotations),
   );
 
+  const isApplyDisabled =
+    isConstraintsLoading || isDisableFilterValues || isFiltersUnchanged;
+
   return (
     <div className="filters-container">
       <FilterButton
@@ -681,11 +684,7 @@ const Filters: FC<FiltersProps> = ({
               onClose={onCloseModal}
               onClearAllFilters={onClearAllFilters}
               modalProps={modalProps}
-              applyDisabled={
-                isConstraintsLoading ||
-                isDisableFilterValues ||
-                isFiltersUnchanged
-              }
+              applyDisabled={isApplyDisabled}
               timeseriesLength={timeSeriesCount}
               limitMessages={limitMessages}
             />
