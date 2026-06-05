@@ -40,6 +40,7 @@ import {
   startTransition,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -491,6 +492,11 @@ const Filters: FC<FiltersProps> = ({
     [dimensions],
   );
 
+  const isFiltersUnchanged = useMemo(
+    () => isEqual(getFiltersChangeParams(modalFilters), getFiltersChangeParams(appliedFilters)),
+    [modalFilters, appliedFilters, getFiltersChangeParams],
+  );
+
   const updateViewAfterDelete = useCallback(
     (dataConstraints: DataConstraints[], filtersToUpdate: Filter[]) => {
       const filledFilters = getFilledFilters(
@@ -671,7 +677,7 @@ const Filters: FC<FiltersProps> = ({
               onClose={onCloseModal}
               onClearAllFilters={onClearAllFilters}
               modalProps={modalProps}
-              applyDisabled={isConstraintsLoading || isDisableFilterValues}
+              applyDisabled={isConstraintsLoading || isDisableFilterValues || isFiltersUnchanged}
               timeseriesLength={timeSeriesCount}
               limitMessages={limitMessages}
             />
