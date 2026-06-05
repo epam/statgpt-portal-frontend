@@ -11,6 +11,7 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { Locale } from '@epam/statgpt-shared-toolkit';
 import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
+import { isEqual } from 'lodash';
 import FilterSettings from './FiltersModal/FiltersSettings';
 import { Filter, FiltersProps } from '../../../models/filters';
 import {
