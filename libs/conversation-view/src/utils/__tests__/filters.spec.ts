@@ -842,3 +842,84 @@ describe('getDatasetFilters', () => {
     expect(result[0].displayMode).toBe(FilterDisplayMode.HIERARCHY);
   });
 });
+
+// ─── getSelectedFilterValues — isSelectedFilter does not affect output ────────
+
+describe('getSelectedFilterValues — isSelectedFilter does not affect output', () => {
+  it('does not filter based on isSelectedFilter: true', () => {
+    const base: Filter = {
+      id: 'FREQ',
+      filterType: 'dataset',
+      dimensionValues: [{ id: 'A', isSelectedValue: true }],
+    };
+
+    const withFlag = getSelectedFilterValues([{ ...base, isSelectedFilter: true }]);
+
+    expect(withFlag).toHaveLength(1);
+    expect(withFlag[0].id).toBe('FREQ');
+  });
+
+  it('does not filter based on isSelectedFilter: false', () => {
+    const base: Filter = {
+      id: 'FREQ',
+      filterType: 'dataset',
+      dimensionValues: [{ id: 'A', isSelectedValue: true }],
+    };
+
+    const withFalse = getSelectedFilterValues([{ ...base, isSelectedFilter: false }]);
+
+    expect(withFalse).toHaveLength(1);
+    expect(withFalse[0].id).toBe('FREQ');
+  });
+
+  it('filters consistently regardless of isSelectedFilter value', () => {
+    const base: Filter = {
+      id: 'FREQ',
+      filterType: 'dataset',
+      dimensionValues: [{ id: 'A', isSelectedValue: false }],
+    };
+
+    const resultWithoutFlag = getSelectedFilterValues([{ ...base }]);
+    const resultWithTrue = getSelectedFilterValues([{ ...base, isSelectedFilter: true }]);
+    const resultWithFalse = getSelectedFilterValues([{ ...base, isSelectedFilter: false }]);
+
+    expect(resultWithoutFlag).toEqual(resultWithTrue);
+    expect(resultWithoutFlag).toEqual(resultWithFalse);
+  });
+});
+
+// ─── updateFiltersWithSelectedItem — preserves query-relevant fields ─────────
+
+describe('updateFiltersWithSelectedItem — preserves query-relevant fields', () => {
+  it('only changes isSelectedFilter, leaving dimensionValues and id intact', () => {
+    const filter: Filter = {
+      id: 'FREQ',
+      filterType: 'dataset',
+      dimensionValues: [{ id: 'A', isSelectedValue: true }],
+    };
+
+    const result = updateFiltersWithSelectedItem([filter], filter);
+
+    expect(result[0].id).toBe(filter.id);
+    expect(result[0].dimensionValues).toEqual(filter.dimensionValues);
+    expect(result[0].isSelectedFilter).toBe(true);
+  });
+
+  it('sets isSelectedFilter to false on non-matching filters, leaving their data intact', () => {
+    const selected: Filter = {
+      id: 'FREQ',
+      filterType: 'dataset',
+      dimensionValues: [{ id: 'A', isSelectedValue: true }],
+    };
+    const other: Filter = {
+      id: 'GEO',
+      filterType: 'dataset',
+      dimensionValues: [{ id: 'US', isSelectedValue: true }],
+    };
+
+    const result = updateFiltersWithSelectedItem([selected, other], selected);
+
+    expect(result[1].dimensionValues).toEqual(other.dimensionValues);
+    expect(result[1].isSelectedFilter).toBe(false);
+  });
+});
