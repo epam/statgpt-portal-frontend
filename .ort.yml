@@ -16,7 +16,7 @@ excludes:
       comment: 'Packages for development only.'
 resolutions:
   issues:
-    - message: "(?s).*(minimatch|invalid:).*"
+    - message: '(?s).*(minimatch|invalid:).*'
       reason: 'BUILD_TOOL_ISSUE'
       comment: >-
         'npm list' reports dependency-tree version mismatches (ELSPROBLEMS)
