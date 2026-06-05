@@ -14,7 +14,8 @@ concurrency:
 
 jobs:
   run_tests:
-    uses: epam/ai-dial-ci/.github/workflows/node_pr.yml@fix/ort-npm-install
+    uses: epam/ai-dial-ci/.github/workflows/node_pr.yml@4.4.0
     secrets: inherit
     with:
       node-version: "24"
+      ort-version: "84.0.0"
