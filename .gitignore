@@ -9,6 +9,9 @@ node_modules
 coverage
 .nyc_output
 
+# ORT license-scan output (local runs)
+ort-out/
+
 # Next.js
 .next/
 out/

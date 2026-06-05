@@ -14,8 +14,12 @@ concurrency:
 
 jobs:
   run_tests:
-    uses: epam/ai-dial-ci/.github/workflows/node_pr.yml@4.4.0
+    # TEMP (PR validation only): point at the ai-dial-ci branch that adds
+    # `-P ort.analyzer.skipExcluded=true` to the ORT args, which skips analysis of
+    # excluded scopes/paths (devDependencies + libs/**) and cuts the ORT job from
+    # ~50 min back to ~11 min. Revert to a released tag (e.g. @4.4.1) once the
+    # ai-dial-ci PR is merged and tagged.
+    uses: epam/ai-dial-ci/.github/workflows/node_pr.yml@fix/ort-npm-install
     secrets: inherit
     with:
       node-version: "24"
-      ort-version: "84.0.0"

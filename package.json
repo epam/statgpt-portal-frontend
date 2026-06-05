@@ -23,9 +23,6 @@
     "affected:lint": "nx affected --target=lint"
   },
   "private": true,
-  "workspaces": [
-    "libs/*"
-  ],
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",

@@ -3,10 +3,27 @@ excludes:
   paths:
     - pattern: 'package-lock.json'
       reason: 'BUILD_TOOL_OF'
+    - pattern: 'libs/**'
+      reason: 'OPTIONAL_COMPONENT_OF'
+      comment: >-
+        First-party workspace libraries (@epam/statgpt-*). They have no own
+        lockfile and their third-party dependencies are already covered by the
+        root project scan, so analyzing them as separate NPM projects only
+        produces "No lockfile found" errors.
   scopes:
     - pattern: 'devDependencies'
       reason: 'DEV_DEPENDENCY_OF'
       comment: 'Packages for development only.'
+resolutions:
+  issues:
+    - message: "(?s).*(minimatch|invalid:).*"
+      reason: 'BUILD_TOOL_ISSUE'
+      comment: >-
+        'npm list' reports dependency-tree version mismatches (ELSPROBLEMS)
+        because the security `overrides` in package.json pin some packages
+        (e.g. minimatch to 10.x) while parts of the eslint toolchain require an
+        older major (minimatch 3.x). These are dev-tool resolution quirks that
+        do not affect the production dependency set ORT actually scans.
 license_choices:
   repository_license_choices:
     - given: 'GPL-2.0-only OR MIT'
