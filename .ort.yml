@@ -14,16 +14,6 @@ excludes:
     - pattern: 'devDependencies'
       reason: 'DEV_DEPENDENCY_OF'
       comment: 'Packages for development only.'
-resolutions:
-  issues:
-    - message: '(?s).*(minimatch|invalid:).*'
-      reason: 'BUILD_TOOL_ISSUE'
-      comment: >-
-        'npm list' reports dependency-tree version mismatches (ELSPROBLEMS)
-        because the security `overrides` in package.json pin some packages
-        (e.g. minimatch to 10.x) while parts of the eslint toolchain require an
-        older major (minimatch 3.x). These are dev-tool resolution quirks that
-        do not affect the production dependency set ORT actually scans.
 license_choices:
   repository_license_choices:
     - given: 'GPL-2.0-only OR MIT'
