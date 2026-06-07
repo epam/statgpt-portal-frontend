@@ -5,7 +5,7 @@ import dts from 'vite-plugin-dts';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import * as path from 'path';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
-import { dependencies } from './package.json';
+import { dependencies, peerDependencies } from './package.json';
 
 export default defineConfig({
   root: __dirname,
@@ -53,6 +53,7 @@ export default defineConfig({
         'react/jsx-runtime',
         'flatpickr',
         ...Object.keys(dependencies),
+        ...Object.keys(peerDependencies),
       ],
     },
   },
