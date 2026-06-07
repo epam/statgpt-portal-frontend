@@ -3,17 +3,12 @@
   "version": "0.0.1",
   "license": "MIT",
   "dependencies": {
-    "@epam/statgpt-shared-toolkit": "*",
-    "@epam/statgpt-ui-components": "*",
-    "@epam/statgpt-sdmx-toolkit": "*",
-    "@epam/statgpt-dial-toolkit": "*",
-    "@epam/statgpt-conversation-list": "*"
-  },
-  "peerDependencies": {
-    "react": "^19.2.1",
     "classnames": "^2.5.1",
     "@epam/ai-dial-shared": "^0.43.3",
     "@tabler/icons-react": "^3.34.1",
+    "@epam/statgpt-shared-toolkit": "*",
+    "@epam/statgpt-ui-components": "*",
+    "@epam/statgpt-sdmx-toolkit": "*",
     "react-window": "^1.8.11",
     "react-virtualized-auto-sizer": "^1.0.26",
     "ag-grid-community": "33.3.2",
@@ -21,14 +16,20 @@
     "@floating-ui/react": "^0.27.14",
     "echarts": "^5.6.0",
     "echarts-for-react": "^3.0.2",
+    "@epam/statgpt-dial-toolkit": "*",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
+    "@epam/statgpt-conversation-list": "*",
     "flatpickr": "4.6.13",
     "react-flatpickr": "^4.0.11",
     "date-fns": "^4.1.0",
     "lodash": "^4.17.23",
     "tailwind-merge": "^3.4.0",
-    "@monaco-editor/react": "^4.7.0"
+    "@monaco-editor/react": "^4.7.0",
+    "@testing-library/jest-dom": "^6.6.3"
+  },
+  "peerDependencies": {
+    "react": "^19.2.1"
   },
   "exports": {
     ".": {

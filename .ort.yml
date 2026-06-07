@@ -3,13 +3,6 @@ excludes:
   paths:
     - pattern: 'package-lock.json'
       reason: 'BUILD_TOOL_OF'
-    - pattern: 'libs/**'
-      reason: 'OPTIONAL_COMPONENT_OF'
-      comment: >-
-        First-party workspace libraries (@epam/statgpt-*). They have no own
-        lockfile and their third-party dependencies are already covered by the
-        root project scan, so analyzing them as separate NPM projects only
-        produces "No lockfile found" errors.
   scopes:
     - pattern: 'devDependencies'
       reason: 'DEV_DEPENDENCY_OF'

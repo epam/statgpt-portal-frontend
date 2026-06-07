@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/dial-toolkit/src",
   "projectType": "library",
-  "tags": ["publishable"],
+  "tags": [],
   "targets": {
     "build": {
       "executor": "@nx/vite:build",
@@ -47,7 +47,7 @@
       }
     },
     "publish": {
-      "command": "node tools/publish-lib.mjs dial-toolkit --version={args.ver} --dry={args.dry} --tag={args.tag}"
+      "command": "node tools/publish-lib.mjs dial-toolkit --version={args.ver} --dry={args.dry} --tag={args.tag} --development={args.development}"
     }
   }
 }

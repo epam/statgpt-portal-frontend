@@ -15,9 +15,7 @@
   "types": "./index.d.ts",
   "dependencies": {
     "@epam/statgpt-dial-toolkit": "*",
-    "@epam/statgpt-shared-toolkit": "*"
-  },
-  "peerDependencies": {
+    "@epam/statgpt-shared-toolkit": "*",
     "compare-versions": "^6.1.1",
     "date-fns": "^4.1.0"
   }
