@@ -1,5 +1,9 @@
 import { Attachment } from '@epam/ai-dial-shared';
 import { AttachmentType, Message } from '@epam/statgpt-dial-toolkit';
+import {
+  CrossDatasetGridAttachmentType,
+  CustomGridAttachment,
+} from '../../models/attachments';
 
 export const parseMessageAttachments = (message: Message): Attachment[] => {
   const attachments: Attachment[] = [];
@@ -39,7 +43,9 @@ export function isGridAttachment(attachment: Attachment): boolean {
   return attachment.type === AttachmentType.TABLE;
 }
 
-export function isCustomGridAttachment(attachment: Attachment): boolean {
+export function isCustomGridAttachment(
+  attachment: Attachment,
+): attachment is CustomGridAttachment {
   return attachment.type === AttachmentType.CUSTOM_DATA_GRID;
 }
 
@@ -55,7 +61,9 @@ export function isCustomCodeSampleAttachment(attachment: Attachment): boolean {
   return attachment.type === AttachmentType.CUSTOM_CODE_SAMPLE;
 }
 
-export function isCrossDatasetGrid(attachment: Attachment): boolean {
+export function isCrossDatasetGrid(
+  attachment: Attachment,
+): attachment is CrossDatasetGridAttachmentType {
   return attachment.type === AttachmentType.CROSS_DATASET_GRID;
 }
 
