@@ -49,6 +49,7 @@ import { useConversationList } from '../../context/ConversationListContext';
 import {
   getConversationNavPath,
   getConversationId,
+  getConversationIdFromResourceUrl,
   ApiResponse,
 } from '@epam/statgpt-shared-toolkit';
 import { getSignInLink } from '../../constants/auth';
@@ -78,6 +79,10 @@ const ConversationListWrapper = ({
   const locale = useCurrentLocale();
   const { data: session } = useSession();
   const { isStreaming } = useChatMessages();
+  const selectedConversationId = useMemo(
+    () => getConversationId(id, locale),
+    [id, locale],
+  );
 
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -109,8 +114,14 @@ const ConversationListWrapper = ({
               sourceUrl,
               destinationUrl,
             );
+          const sourceConversationId =
+            getConversationIdFromResourceUrl(sourceUrl);
 
-          if (response.success && navPath) {
+          if (
+            response.success &&
+            navPath &&
+            sourceConversationId === selectedConversationId
+          ) {
             router.replace(
               `/${locale}${ApplicationRoute.Conversations}/${navPath}`,
             );
@@ -120,7 +131,7 @@ const ConversationListWrapper = ({
         },
       ),
     }),
-    [authHandler, locale, router],
+    [authHandler, locale, router, selectedConversationId],
   );
 
   const titles: ConversationListTitles = {
@@ -322,7 +333,7 @@ const ConversationListWrapper = ({
             setConversations={setConversations}
             setSharedConversations={setSharedConversations}
             isCollapsed={isCollapsed}
-            selectedConversationId={getConversationId(id, locale)}
+            selectedConversationId={selectedConversationId}
             conversationStyles={{
               titles,
               isSmallModalButton: true,
