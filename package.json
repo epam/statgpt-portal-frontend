@@ -14,8 +14,10 @@
     "typecheck": "nx run-many --target=typecheck --all",
     "graph": "nx graph",
     "build:styles": "tailwindcss -m -i ./libs/ui-components/src/scss/styles.scss -o ./dist/libs/ui-components/index.css",
-    "publish": "nx run-many -t publish",
-    "publish:dry": "nx run-many -t publish --output-style=static --dry",
+    "build:publishable": "nx run-many -t build --projects=tag:publishable && npm run build:styles",
+    "publish": "nx run-many -t publish --projects=tag:publishable",
+    "publish:npm": "nx run-many -t publish --projects=tag:publishable",
+    "publish:dry": "nx run-many -t publish --output-style=static --dry --projects=tag:publishable",
     "affected:build": "nx affected --target=build",
     "affected:test": "nx affected --target=test",
     "affected:lint": "nx affected --target=lint"
