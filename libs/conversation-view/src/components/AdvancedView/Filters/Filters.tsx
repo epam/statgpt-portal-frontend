@@ -11,6 +11,7 @@ import {
 } from '@epam/statgpt-sdmx-toolkit';
 import { Locale } from '@epam/statgpt-shared-toolkit';
 import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
+import isEqual from 'lodash/isEqual';
 import FilterSettings from './FiltersModal/FiltersSettings';
 import { Filter, FiltersProps } from '../../../models/filters';
 import {
@@ -39,6 +40,7 @@ import {
   startTransition,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -490,6 +492,15 @@ const Filters: FC<FiltersProps> = ({
     [dimensions],
   );
 
+  const isFiltersUnchanged = useMemo(
+    () =>
+      isEqual(
+        getFiltersChangeParams(modalFilters),
+        getFiltersChangeParams(appliedFilters),
+      ),
+    [modalFilters, appliedFilters, getFiltersChangeParams],
+  );
+
   const updateViewAfterDelete = useCallback(
     (dataConstraints: DataConstraints[], filtersToUpdate: Filter[]) => {
       const filledFilters = getFilledFilters(
@@ -613,6 +624,9 @@ const Filters: FC<FiltersProps> = ({
     getTimeSeriesCount(constraintsRef?.current?.[0]?.annotations),
   );
 
+  const isApplyDisabled =
+    isConstraintsLoading || isDisableFilterValues || isFiltersUnchanged;
+
   return (
     <div className="filters-container">
       <FilterButton
@@ -670,7 +684,7 @@ const Filters: FC<FiltersProps> = ({
               onClose={onCloseModal}
               onClearAllFilters={onClearAllFilters}
               modalProps={modalProps}
-              applyDisabled={isConstraintsLoading || isDisableFilterValues}
+              applyDisabled={isApplyDisabled}
               timeseriesLength={timeSeriesCount}
               limitMessages={limitMessages}
             />
