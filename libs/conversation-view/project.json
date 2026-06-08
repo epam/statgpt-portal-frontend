@@ -45,8 +45,8 @@
       }
     },
     "publish": {
-      "command": "node tools/publish-lib.mjs conversation-view --version={args.ver} --dry={args.dry} --tag={args.tag} --development={args.development}"
+      "command": "node tools/publish-lib.mjs conversation-view --version={args.ver} --dry={args.dry} --tag={args.tag}"
     }
   },
-  "tags": ["type:lib", "scope:ui"]
+  "tags": ["type:lib", "scope:ui", "publishable"]
 }
