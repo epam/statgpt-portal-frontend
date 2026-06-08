@@ -10,6 +10,7 @@ import {
   Locale,
   QueryFilterType,
 } from '@epam/statgpt-shared-toolkit';
+import isEqual from 'lodash/isEqual';
 import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
 import { Filter, FiltersProps } from '../../../models/filters';
 import {
@@ -56,6 +57,7 @@ import { StructureDataMaps } from '../../../models/structure-data';
 import { useHierarchyState } from '../../../utils/use-hierarchy-state';
 import { useDatasetDimensionsMetadataMapOptional } from '../../../context/DatasetDimensionsMetadataMapContext';
 import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
+import { useFiltersModalState } from '../../../context/FiltersModalStateContext';
 
 const MultiDatasetFilters: FC<FiltersProps> = ({
   actions,
@@ -77,7 +79,8 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
 }) => {
   const { titles } = useConversationViewStyles();
   const datasetDimensionsMetadata = useDatasetDimensionsMetadataMapOptional();
-  const [modalState, setModalState] = useState(PopUpState.Closed);
+  const { modalState, setModalState, isModalClosed, setIsModalClosed } =
+    useFiltersModalState();
   const [modalFilters, setModalFilters] = useState<Filter[]>([]);
   const [appliedFilters, setAppliedFilters] = useState<Filter[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<Filter>();
@@ -96,8 +99,10 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   const [isDisableFilterValues, setIsDisableFilterValues] = useState<boolean>();
   const [isFilterValuesLoading, setIsFilterValuesLoading] = useState(false);
   const filterValuesLoadingRequestsRef = useRef(0);
-  const [isModalClosed, setIsModalClosed] = useState(false);
   const [disabledDatasetUrns, setDisabledDatasetUrns] = useState<Set<string>>(
+    new Set(),
+  );
+  const [appliedDisabledUrns, setAppliedDisabledUrns] = useState<Set<string>>(
     new Set(),
   );
   const conversationRef = useRef(conversation);
@@ -408,9 +413,11 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         firstFilter ? { ...firstFilter, isSelectedFilter: true } : void 0,
       );
       setModalFilters(appliedFilters);
-      setDisabledDatasetUrns(
-        new Set(dataQueries?.filter((q) => q.disabled).map((q) => q.urn)),
+      const initialDisabled = new Set(
+        dataQueries?.filter((q) => q.disabled).map((q) => q.urn),
       );
+      setDisabledDatasetUrns(initialDisabled);
+      setAppliedDisabledUrns(initialDisabled);
     }
     if (modalState === PopUpState.Closed) {
       setSelectedFilter(void 0);
@@ -524,6 +531,37 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       ),
     [dataQueries, structureDataMaps?.dimensionsMap],
   );
+
+  const isFiltersUnchanged = useMemo(() => {
+    const appliedMap = buildFiltersMap(
+      appliedFilters,
+      constraintsMapRef.current,
+      false,
+      datasetDimensionsMetadata.map,
+    );
+    const modalMap = buildFiltersMap(
+      modalFilters,
+      constraintsMapRef.current,
+      false,
+      datasetDimensionsMetadata.map,
+    );
+    const filtersEqual = isEqual(
+      getFiltersChangeParamsMap(appliedMap),
+      getFiltersChangeParamsMap(modalMap),
+    );
+    const disabledEqual = isEqual(
+      [...appliedDisabledUrns].sort(),
+      [...disabledDatasetUrns].sort(),
+    );
+    return filtersEqual && disabledEqual;
+  }, [
+    appliedFilters,
+    modalFilters,
+    appliedDisabledUrns,
+    disabledDatasetUrns,
+    getFiltersChangeParamsMap,
+    datasetDimensionsMetadata.map,
+  ]);
 
   const updateViewAfterDelete = useCallback(
     (
@@ -652,7 +690,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     constraintsMapRef.current = initialModalConstraintsMap;
     setModalState(PopUpState.Closed);
     setIsModalClosed(true);
-  }, [initialModalConstraintsMap]);
+  }, [initialModalConstraintsMap, setModalState, setIsModalClosed]);
 
   const onClearAllFilters = useCallback(() => {
     const filtersAfterClear = getFiltersAfterClear(modalFilters);
@@ -737,6 +775,8 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     dataQueries,
     disabledDatasetUrns,
     addSystemMessage,
+    setModalState,
+    setIsModalClosed,
   ]);
 
   const onTimePeriodChange = (value: string | number) => {
@@ -756,6 +796,9 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
       }),
     [dataQueries, structureDataMaps?.structuresMap, locale],
   );
+
+  const isApplyDisabled =
+    isConstraintsLoading || isDisableFilterValues || isFiltersUnchanged;
 
   return (
     <div className="filters-container">
@@ -812,7 +855,7 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
               onClose={onCloseModal}
               onClearAllFilters={onClearAllFilters}
               modalProps={modalProps}
-              applyDisabled={isConstraintsLoading || isDisableFilterValues}
+              applyDisabled={isApplyDisabled}
               limitMessages={limitMessages}
             />
           </Popup>

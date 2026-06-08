@@ -120,6 +120,23 @@ full algorithm.
 This sequence covers what happens between the user clicking "Apply" in the filter
 modal and the new state being saved to the backend.
 
+### Apply button disabled state
+
+The Apply button is disabled when the working modal state is identical to the last
+committed state. `Filters.tsx` computes this via
+`isEqual(getFiltersChangeParams(modalFilters), getFiltersChangeParams(appliedFilters))`.
+`MultiDatasetFilters.tsx` additionally compares `disabledDatasetUrns` against
+`appliedDisabledUrns` (a snapshot of the disabled set taken when the modal opened).
+The button is also disabled while constraints are loading (`isConstraintsLoading`) or
+filter values are being refreshed (`isDisableFilterValues`). Steps 1–3 below only
+execute when the button is enabled.
+
+`getFiltersChangeParams` serialises to `{ filterKey, timeFilter }` — query-relevant
+fields only. UI-only state such as `isSelectedFilter` (set by
+`updateFiltersWithSelectedItem` on modal open) is not included, so the comparison
+correctly returns "unchanged" right after the modal opens before the user touches
+anything.
+
 ### Step 1 — Serialise selections to QueryFilter[]
 
 `onApply()` in `Filters.tsx` calls `getQueryFilters()` which internally calls
