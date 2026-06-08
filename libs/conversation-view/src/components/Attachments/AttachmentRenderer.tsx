@@ -106,8 +106,6 @@ const AttachmentRenderer: FC<Props> = ({
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const [selectedAttachmentIndex, setSelectedAttachmentIndex] =
     useState<number>(0);
-  const [selectedAttachment, setSelectedAttachment] =
-    useState<Attachment | null>(null);
 
   const { isOpenedAdvancedView, setIsOpenedAdvancedView } = useAdvancedView();
   const [modalState, setModalState] = useState(PopUpState.Closed);
@@ -151,9 +149,7 @@ const AttachmentRenderer: FC<Props> = ({
     onAdvancedViewOpen,
   ]);
 
-  useEffect(() => {
-    setSelectedAttachment(attachments[selectedAttachmentIndex] || null);
-  }, [attachments, selectedAttachmentIndex]);
+  const selectedAttachment = attachments[selectedAttachmentIndex] || null;
 
   useEffect(() => {
     setShowLoading(
@@ -249,6 +245,9 @@ const AttachmentRenderer: FC<Props> = ({
 
   if (!attachments || attachments.length === 0) return null;
 
+  const shouldShowLoader =
+    (!isOpenedAdvancedView && showLoading) || !!isDataLoading;
+
   return (
     <>
       {isOpenedAdvancedView && !isShowAttachments ? (
@@ -266,7 +265,7 @@ const AttachmentRenderer: FC<Props> = ({
             `flex flex-col pb-1`,
           )}
         >
-          {!isOpenedAdvancedView && showLoading ? (
+          {shouldShowLoader ? (
             <Loader />
           ) : (
             <>
@@ -344,32 +343,32 @@ const AttachmentRenderer: FC<Props> = ({
                   )}
                 </div>
               </div>
+              <>
+                {modalState === PopUpState.Opened && (
+                  <DownloadSettings
+                    onCloseModal={onCloseModal}
+                    onDownloadStart={startDownload}
+                    isDownloadInProgress={isDownloadRunning}
+                    dataQuery={currentDataQuery}
+                    datasetName={selectedAttachment?.title || ''}
+                    locale={locale}
+                    type={downloadType}
+                    dimensions={dimensions}
+                    filters={filters}
+                    urn={currentDataQuery?.urn}
+                    titles={attachmentsStyles?.downloadTitles}
+                    rowCount={downloadRowCount}
+                    collapsible={attachmentsStyles?.downloadCollapsible}
+                    downloadDatasets={downloadDatasets}
+                    limitMessages={limitMessages}
+                    showLimitMessage={showLimitMessage}
+                    externalLink={externalLink}
+                  />
+                )}
+                <DownloadAlert {...downloadAlertProps} />
+              </>
             </>
           )}
-          <>
-            {modalState === PopUpState.Opened && (
-              <DownloadSettings
-                onCloseModal={onCloseModal}
-                onDownloadStart={startDownload}
-                isDownloadInProgress={isDownloadRunning}
-                dataQuery={currentDataQuery}
-                datasetName={selectedAttachment?.title || ''}
-                locale={locale}
-                type={downloadType}
-                dimensions={dimensions}
-                filters={filters}
-                urn={currentDataQuery?.urn}
-                titles={attachmentsStyles?.downloadTitles}
-                rowCount={downloadRowCount}
-                collapsible={attachmentsStyles?.downloadCollapsible}
-                downloadDatasets={downloadDatasets}
-                limitMessages={limitMessages}
-                showLimitMessage={showLimitMessage}
-                externalLink={externalLink}
-              />
-            )}
-            <DownloadAlert {...downloadAlertProps} />
-          </>
         </div>
       )}
     </>

@@ -52,6 +52,8 @@ const FiltersFacetsList: FC<Props> = ({
   onClearAllDatasets,
 }) => {
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
+  const shouldShowDatasetSelector =
+    isCrossDatasetModeOn && !!dataQueries?.length;
   const datasetCount = new Set(
     filtersList
       .filter((filter) => filter.filterType === 'dataset')
@@ -64,7 +66,7 @@ const FiltersFacetsList: FC<Props> = ({
         'overflow-y-auto advanced-view-filters-list w-[338px] pr-3 h-full sm:w-full',
       )}
     >
-      {dataQueries && dataQueries.length > 0 && (
+      {shouldShowDatasetSelector && (
         <DatasetSelectorFacet
           dataQueries={dataQueries}
           disabledDatasetUrns={disabledDatasetUrns}
