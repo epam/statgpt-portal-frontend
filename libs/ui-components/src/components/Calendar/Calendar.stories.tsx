@@ -1,9 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import React, { useState } from 'react';
 import { CalendarResolution } from '@epam/statgpt-shared-toolkit';
-import 'flatpickr/dist/themes/light.css';
-import 'flatpickr/dist/plugins/monthSelect/style.css';
-import monthSelectPlugin from 'flatpickr/dist/plugins/monthSelect';
 import { Calendar } from './Calendar';
 
 const today = new Date();
@@ -18,15 +15,6 @@ const dayOptions = {
   minDate,
   maxDate,
   monthSelectorType: 'static' as const,
-};
-
-const monthOptions = {
-  minDate: new Date(minDate.getFullYear(), minDate.getMonth()),
-  maxDate: new Date(maxDate.getFullYear(), maxDate.getMonth()),
-  dateFormat: 'M Y',
-  plugins: [
-    new (monthSelectPlugin as any)({ shorthand: true, dateFormat: 'M Y' }),
-  ],
 };
 
 const withTopRoom = (Story: React.ComponentType) => (
@@ -78,26 +66,6 @@ export const DayResolution: Story = {
     calendarResolution: CalendarResolution.DAY,
     onChange: () => {},
   },
-};
-
-const InteractiveMonthCalendar = () => {
-  const [value, setValue] = useState(
-    new Date(today.getFullYear(), today.getMonth(), 1),
-  );
-  return (
-    <Calendar
-      id="interactive-month-calendar"
-      label="Select month"
-      value={value}
-      options={monthOptions}
-      calendarResolution={CalendarResolution.MONTH}
-      onChange={setValue}
-    />
-  );
-};
-
-export const MonthResolution: Story = {
-  render: () => <InteractiveMonthCalendar />,
 };
 
 export const EndDate: Story = {
