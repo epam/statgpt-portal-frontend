@@ -60,7 +60,7 @@ const CSPMiddleware = (request: Request): NextResponse => {
   return response;
 };
 
-export const I18MiddlewareWithCSP = (req: NextRequest) => {
+const I18MiddlewareWithCSP = (req: NextRequest) => {
   const i18nResponse = I18nMiddleware(req);
   if (i18nResponse instanceof NextResponse) {
     const cspResponse = CSPMiddleware(req);
@@ -74,12 +74,10 @@ export const I18MiddlewareWithCSP = (req: NextRequest) => {
   }
 };
 
-async function middlewareFn(req: NextRequest) {
+async function proxyFn(req: NextRequest) {
   return I18MiddlewareWithCSP(req);
 }
 
-const middleware = getIsEnableAuthToggle()
-  ? withAuth(middlewareFn)
-  : middlewareFn;
+const proxy = getIsEnableAuthToggle() ? withAuth(proxyFn) : proxyFn;
 
-export default middleware;
+export default proxy;
