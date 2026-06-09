@@ -230,6 +230,7 @@ describe('buildHierarchyFilterTreeProps', () => {
         isExpanded: true,
         isSelectedValue: false,
         disabled: false,
+        isSelectableValue: false,
         children: [
           {
             id: 'EU',
@@ -237,6 +238,7 @@ describe('buildHierarchyFilterTreeProps', () => {
             isExpanded: true,
             isSelectedValue: false,
             disabled: false,
+            isSelectableValue: true,
             children: [
               {
                 id: 'FR',
@@ -244,6 +246,7 @@ describe('buildHierarchyFilterTreeProps', () => {
                 isExpanded: true,
                 isSelectedValue: false,
                 disabled: false,
+                isSelectableValue: true,
                 children: [],
               },
               {
@@ -252,6 +255,7 @@ describe('buildHierarchyFilterTreeProps', () => {
                 isExpanded: true,
                 isSelectedValue: false,
                 disabled: false,
+                isSelectableValue: true,
                 children: [],
               },
             ],
@@ -319,6 +323,7 @@ describe('buildHierarchyFilterTreeProps', () => {
         isExpanded: true,
         isSelectedValue: false,
         disabled: false,
+        isSelectableValue: false,
         children: [
           {
             id: 'EU',
@@ -326,6 +331,7 @@ describe('buildHierarchyFilterTreeProps', () => {
             isExpanded: true,
             isSelectedValue: false,
             disabled: false,
+            isSelectableValue: true,
             children: [
               {
                 id: 'FR',
@@ -333,6 +339,7 @@ describe('buildHierarchyFilterTreeProps', () => {
                 isExpanded: true,
                 isSelectedValue: false,
                 disabled: false,
+                isSelectableValue: true,
                 children: [],
               },
             ],
@@ -548,6 +555,67 @@ describe('applySelectionToTree', () => {
               { id: 'FR', isSelectedValue: true, children: [] },
               { id: 'DE', isSelectedValue: true, children: [] },
             ],
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('does NOT derive selection for a selectable parent from its children', () => {
+    const nodes: FilterTreeNodeProps[] = [
+      {
+        id: 'A',
+        isSelectableValue: true,
+        children: [
+          { id: 'A1', isSelectableValue: true, children: [] },
+          { id: 'A2', isSelectableValue: true, children: [] },
+        ],
+      },
+    ];
+
+    expect(applySelectionToTree(nodes, new Set(['A1', 'A2']))).toEqual([
+      {
+        id: 'A',
+        isSelectableValue: true,
+        isSelectedValue: false,
+        children: [
+          {
+            id: 'A1',
+            isSelectableValue: true,
+            isSelectedValue: true,
+            children: [],
+          },
+          {
+            id: 'A2',
+            isSelectableValue: true,
+            isSelectedValue: true,
+            children: [],
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('marks a selectable parent selected only when its own code is selected', () => {
+    const nodes: FilterTreeNodeProps[] = [
+      {
+        id: 'A',
+        isSelectableValue: true,
+        children: [{ id: 'A1', isSelectableValue: true, children: [] }],
+      },
+    ];
+
+    expect(applySelectionToTree(nodes, new Set(['A']))).toEqual([
+      {
+        id: 'A',
+        isSelectableValue: true,
+        isSelectedValue: true,
+        children: [
+          {
+            id: 'A1',
+            isSelectableValue: true,
+            isSelectedValue: false,
+            children: [],
           },
         ],
       },

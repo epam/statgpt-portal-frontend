@@ -126,6 +126,25 @@ describe('useAgGridColumnPreferences', () => {
     expect(result.current.initialColumnsState).toBeNull();
   });
 
+  it('clearInitialColumnState resets initialColumnsState to null', () => {
+    const api = mockApi();
+    const { result } = renderHook(() =>
+      useAgGridColumnPreferences({ currentUrn: 'urn:1' }),
+    );
+
+    act(() => {
+      result.current.onGridApiReady(api);
+    });
+
+    expect(result.current.initialColumnsState).not.toBeNull();
+
+    act(() => {
+      result.current.clearInitialColumnState();
+    });
+
+    expect(result.current.initialColumnsState).toBeNull();
+  });
+
   it('restores saved initial state when switching back to a known URN', () => {
     const urn1State = [{ colId: 'x', hide: false }];
     const api1 = mockApi({

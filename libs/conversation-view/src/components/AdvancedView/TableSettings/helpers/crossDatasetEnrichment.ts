@@ -183,6 +183,10 @@ export function buildCrossDatasetEnrichItem(
       return item;
     }
 
+    if (groups.length === 1) {
+      return { ...item, items: groups[0].items };
+    }
+
     return { ...item, items: groups };
   };
 }

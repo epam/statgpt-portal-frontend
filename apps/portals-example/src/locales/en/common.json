@@ -89,11 +89,10 @@
     "fullLimitMessage": "Full dataset is available in data explorer"
   },
   "message": {
-    "streaming": "I'm on it! Please wait...",
     "processingReview": "View Processing Steps",
     "queryUpdatedManually": "Query has been updated manually.",
     "setTo": " set to ",
-    "loading": "I'm on it! Please wait..."
+    "loading": "Connecting to the Global Trusted Data Commons..."
   },
   "conversation": {
     "delete": "Delete",

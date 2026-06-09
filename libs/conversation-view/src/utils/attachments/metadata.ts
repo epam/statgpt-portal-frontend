@@ -183,13 +183,44 @@ export const getStructureAttributes = (data?: Data): StructureAttribute[] => {
     return structuresAttributes;
   }
 
-  return structuresAttributes.map((attr, index) => {
-    if (attr?.values?.length > 0) {
-      return { ...attr };
-    }
+  return structuresAttributes.reduce<StructureAttribute[]>(
+    (result, attr, index) => {
+      const rawValue = attributes[index];
+      if (rawValue == null) return result;
 
-    return { ...attr, values: [{ value: attributes?.[index] }] };
-  }) as StructureAttribute[];
+      if (attr?.values?.length > 0) {
+        const selectedValue = attr.values[rawValue as number];
+        result.push(
+          selectedValue ? { ...attr, values: [selectedValue] } : { ...attr },
+        );
+      } else if (Array.isArray(rawValue)) {
+        result.push({
+          ...attr,
+          values: [{ values: rawValue as unknown as string[] }],
+        });
+      } else {
+        result.push({
+          ...attr,
+          values: [{ value: rawValue as unknown as string }],
+        });
+      }
+      return result;
+    },
+    [],
+  );
+};
+
+const resolveLocalizedString = (
+  raw: unknown,
+  locale: string,
+): string | undefined => {
+  if (raw == null) return undefined;
+  if (typeof raw !== 'object') return String(raw);
+  const obj = raw as Record<string, unknown>;
+  const byLocale = obj[locale];
+  if (typeof byLocale === 'string') return byLocale;
+  const first = Object.values(obj).find((v) => typeof v === 'string');
+  return typeof first === 'string' ? first : undefined;
 };
 
 export const getDataSetAttributes = (
@@ -201,10 +232,14 @@ export const getDataSetAttributes = (
     structureAttributes
       ?.map((structureAttribute: StructureAttribute) => {
         const id = structureAttribute?.id;
+        const rawValue = structureAttribute?.values?.[0]?.value;
         const value =
-          structureAttribute?.values?.[0]?.value ||
-          structureAttribute?.values?.[0]?.id;
-        const values = structureAttribute?.values?.[0]?.ids;
+          (typeof rawValue === 'object'
+            ? resolveLocalizedString(rawValue, locale)
+            : rawValue) || structureAttribute?.values?.[0]?.id;
+        const ids =
+          structureAttribute?.values?.[0]?.ids ||
+          structureAttribute?.values?.[0]?.values;
         const attributeData = structureComponentsMap?.get(id);
         const codeList = (attributeData as Codelist)?.codes?.length
           ? (attributeData as Codelist)
@@ -214,21 +249,33 @@ export const getDataSetAttributes = (
           getLocalizedName(
             codeList?.codes?.find((code) => code?.id === value),
             locale,
-          ) || value;
+          ) ||
+          getLocalizedName(
+            structureAttribute?.values?.[0] as unknown as ElementBase,
+            locale,
+          ) ||
+          value;
         const attributeValues =
-          values &&
-          values.map(
-            (value: string) =>
-              getLocalizedName(
-                codeList?.codes?.find((code) => code?.id === value),
-                locale,
-              ) || value,
-          );
+          ids &&
+          ids
+            .map((item: unknown): string | undefined => {
+              const strItem =
+                typeof item === 'object'
+                  ? resolveLocalizedString(item, locale)
+                  : String(item);
+              return (
+                getLocalizedName(
+                  codeList?.codes?.find((code) => code?.id === strItem),
+                  locale,
+                ) || strItem
+              );
+            })
+            .filter((v): v is string => v != null);
 
         return {
           id,
           title: getLocalizedName(attributeData, locale) || id,
-          value: values ? attributeValues : attributeValue,
+          value: attributeValues?.length ? attributeValues : attributeValue,
         };
       })
       .filter(({ value }) => !!value) || []

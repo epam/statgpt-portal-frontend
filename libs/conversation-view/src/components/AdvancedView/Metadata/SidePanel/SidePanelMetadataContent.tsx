@@ -5,6 +5,7 @@ import { StructureComponentValue } from '../../../../models/structure-component'
 import { useConversationViewStyles } from '../../../../context/ConversationViewStylesContext';
 import { DATASET_DESCRIPTION_ITEM_IDS } from '../../../../constants/metadata';
 import DatasetInfoDetails from './DatasetInfoDetails';
+import { SidePanelMetadataItem } from './SidePanelMetadataItem';
 import { DatasetInfoData } from '../../../../models/metadata';
 
 interface Props {
@@ -128,34 +129,13 @@ const SidePanelMetadataContent: FC<Props> = ({
           <div className="min-h-0 flex-1 overflow-y-auto">
             <div className="flex flex-col gap-4">
               {metadata?.map((metadataItem) => (
-                <div
+                <SidePanelMetadataItem
                   key={metadataItem?.id || metadataItem?.title}
-                  className="flex flex-col gap-1"
-                >
-                  {metadataItem?.attachedKeysTitles?.map(
-                    (attachedKeyTitle, index) => (
-                      <div
-                        key={`${attachedKeyTitle}-${index}`}
-                        title={attachedKeyTitle}
-                        className="body-3 text-neutrals-800"
-                      >
-                        {attachedKeyTitle}
-                      </div>
-                    ),
-                  )}
-                  <p
-                    title={metadataItem?.title}
-                    className="body-3 text-neutrals-800"
-                  >
-                    {metadataItem?.title || metadataItem?.id}
-                  </p>
-                  <p
-                    title={formatValue(metadataItem?.value)}
-                    className="body-2 break-words text-neutrals-1000"
-                  >
-                    {formatValue(metadataItem?.value)}
-                  </p>
-                </div>
+                  title={metadataItem?.title || metadataItem?.id}
+                  value={formatValue(metadataItem?.value)}
+                  attachedKeysTitles={metadataItem?.attachedKeysTitles}
+                  isDimensionGroup={metadataItem?.isDimensionGroup}
+                />
               ))}
             </div>
           </div>

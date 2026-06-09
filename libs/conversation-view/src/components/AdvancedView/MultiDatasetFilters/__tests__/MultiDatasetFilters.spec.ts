@@ -9,7 +9,10 @@ import { COMMON_COUNTRY_FILTER_ID } from '../../../../utils/multiple-filters';
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
-jest.mock('@epam/statgpt-sdmx-toolkit', () => ({}));
+jest.mock('@epam/statgpt-sdmx-toolkit', () => ({
+  getLocalizedName: jest.fn(),
+  generateShortUrn: jest.fn(),
+}));
 jest.mock('@epam/ai-dial-shared', () => ({}));
 
 // ─── Captured callbacks ────
@@ -19,11 +22,17 @@ const mockCallbacks: {
   onApply: (() => void) | null;
   onDeleteFilter: ((filter?: Filter) => void) | null;
   selectedFiltersCount: number | null;
+  onToggleDataset: ((urn: string, enabled: boolean) => void) | null;
+  disabledDatasetUrns: Set<string> | null;
+  onClearAllDatasets: (() => void) | null;
 } = {
   setModalState: null,
   onApply: null,
   onDeleteFilter: null,
   selectedFiltersCount: null,
+  onToggleDataset: null,
+  disabledDatasetUrns: null,
+  onClearAllDatasets: null,
 };
 
 // ─── Mock implementations ───────────────────────
@@ -169,6 +178,9 @@ jest.mock('../../Filters/FiltersModal/FiltersSettings', () => {
     __esModule: true,
     default: (props: any) => {
       mockCallbacks.onDeleteFilter = props.onDeleteFilter;
+      mockCallbacks.disabledDatasetUrns = props.disabledDatasetUrns;
+      mockCallbacks.onToggleDataset = props.onToggleDataset;
+      mockCallbacks.onClearAllDatasets = props.onClearAllDatasets;
       return R.createElement('div', { 'data-testid': 'filter-settings' });
     },
   };
@@ -205,6 +217,18 @@ jest.mock('../../../../context/ConversationViewFeatureTogglesContext', () => ({
 jest.mock('../../../../context/ConversationViewStylesContext', () => ({
   useConversationViewStyles: jest.fn(() => ({})),
 }));
+
+jest.mock('../../../../context/FiltersModalStateContext', () => {
+  const R = require('react');
+  return {
+    FiltersModalStateProvider: ({ children }: any) => children,
+    useFiltersModalState: () => {
+      const [modalState, setModalState] = R.useState('closed');
+      const [isModalClosed, setIsModalClosed] = R.useState(false);
+      return { modalState, setModalState, isModalClosed, setIsModalClosed };
+    },
+  };
+});
 
 jest.mock('../../../../utils/hierarchy-view', () => ({
   hierarchyNodesToFilterTreeProps: jest.fn(() => []),
@@ -261,6 +285,9 @@ beforeEach(() => {
   mockCallbacks.onApply = null;
   mockCallbacks.onDeleteFilter = null;
   mockCallbacks.selectedFiltersCount = null;
+  mockCallbacks.onToggleDataset = null;
+  mockCallbacks.disabledDatasetUrns = null;
+  mockCallbacks.onClearAllDatasets = null;
   jest.clearAllMocks();
   mockGetConstraintsRequests.mockReturnValue([]);
   mockGetConstraintsMapFromSettledResults.mockReturnValue(new Map());
@@ -344,9 +371,13 @@ describe('MultiDatasetFilters', () => {
       mockGetFiltersPreselectedByDataQueries.mockReturnValue([
         makeSharedCountryFilter(),
       ]);
+      const rejectedConstraint = Promise.reject(
+        new Error('constraints failed'),
+      );
+      void rejectedConstraint.catch(() => {});
       mockGetConstraintsRequests.mockReturnValue([
         Promise.resolve(fulfilledConstraintData),
-        Promise.reject(new Error('constraints failed')),
+        rejectedConstraint,
       ]);
       mockGetConstraintsMapFromSettledResults.mockReturnValue(
         updatedConstraintsMap,
@@ -495,12 +526,13 @@ describe('MultiDatasetFilters', () => {
         defaultProps.structureDataMaps.constraintsMap,
         false,
         expect.any(Object),
+        expect.any(Set),
       );
 
       expect(onMultipleDataFiltersChange).toHaveBeenCalledWith(
         queryFiltersMap,
         expect.anything(),
-        defaultProps.dataQueries,
+        defaultProps.dataQueries.map((q) => ({ ...q, disabled: false })),
         expect.any(Map),
         [sharedCountryFilter],
       );
@@ -561,6 +593,208 @@ describe('MultiDatasetFilters', () => {
       });
 
       expect(mockCallbacks.selectedFiltersCount).toBe(1);
+    });
+  });
+
+  describe('dataset disable state', () => {
+    it('initializes disabledDatasetUrns from disabled DataQuery when modal opens', async () => {
+      const propsWithDisabled = {
+        ...defaultProps,
+        dataQueries: [
+          { urn: DATASET_A_URN, disabled: true } as DataQuery,
+          { urn: DATASET_B_URN } as DataQuery,
+        ],
+      };
+
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, propsWithDisabled));
+      });
+
+      await act(async () => {
+        mockCallbacks.setModalState?.('opened');
+      });
+
+      expect(mockCallbacks.disabledDatasetUrns?.has(DATASET_A_URN)).toBe(true);
+      expect(mockCallbacks.disabledDatasetUrns?.has(DATASET_B_URN)).toBe(false);
+    });
+
+    it('adds URN to disabledDatasetUrns when onToggleDataset is called with enabled=false', async () => {
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, defaultProps));
+      });
+
+      await act(async () => {
+        mockCallbacks.setModalState?.('opened');
+      });
+
+      await act(async () => {
+        mockCallbacks.onToggleDataset?.(DATASET_A_URN, false);
+      });
+
+      expect(mockCallbacks.disabledDatasetUrns?.has(DATASET_A_URN)).toBe(true);
+    });
+
+    it('removes URN from disabledDatasetUrns when onToggleDataset is called with enabled=true', async () => {
+      const propsWithDisabled = {
+        ...defaultProps,
+        dataQueries: [
+          { urn: DATASET_A_URN, disabled: true } as DataQuery,
+          { urn: DATASET_B_URN } as DataQuery,
+        ],
+      };
+
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, propsWithDisabled));
+      });
+
+      await act(async () => {
+        mockCallbacks.setModalState?.('opened');
+      });
+
+      await act(async () => {
+        mockCallbacks.onToggleDataset?.(DATASET_A_URN, true);
+      });
+
+      expect(mockCallbacks.disabledDatasetUrns?.has(DATASET_A_URN)).toBe(false);
+    });
+
+    it('resets disabledDatasetUrns to empty set when onClearAllDatasets is called', async () => {
+      const propsWithDisabled = {
+        ...defaultProps,
+        dataQueries: [
+          { urn: DATASET_A_URN, disabled: true } as DataQuery,
+          { urn: DATASET_B_URN } as DataQuery,
+        ],
+      };
+
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, propsWithDisabled));
+      });
+
+      await act(async () => {
+        mockCallbacks.setModalState?.('opened');
+      });
+
+      await act(async () => {
+        mockCallbacks.onClearAllDatasets?.();
+      });
+
+      expect(mockCallbacks.disabledDatasetUrns?.size).toBe(0);
+    });
+
+    it('passes updatedDataQueries with disabled:true to onMultipleDataFiltersChange on apply', async () => {
+      const onMultipleDataFiltersChange = jest.fn();
+
+      await act(async () => {
+        render(
+          createElement(MultiDatasetFilters, {
+            ...defaultProps,
+            onMultipleDataFiltersChange,
+          }),
+        );
+      });
+
+      await act(async () => {
+        mockCallbacks.setModalState?.('opened');
+      });
+
+      await act(async () => {
+        mockCallbacks.onToggleDataset?.(DATASET_A_URN, false);
+      });
+
+      await act(async () => {
+        mockCallbacks.onApply?.();
+        await Promise.resolve();
+      });
+
+      const calledDataQueries = onMultipleDataFiltersChange.mock
+        .calls[0][2] as DataQuery[];
+      const disabledDataset = calledDataQueries?.find(
+        (q) => q.urn === DATASET_A_URN,
+      );
+      expect(disabledDataset?.disabled).toBe(true);
+    });
+
+    it('checks dataset compatibility against the rebuilt disabled-aware filters, not the raw modal filters', async () => {
+      const onMultipleDataFiltersChange = jest.fn();
+
+      // Shared FREQUENCY with "Annual" selected, sourced ONLY from DATASET_A.
+      // This mirrors the bug: a frequency available only in a dataset that is
+      // about to be disabled.
+      const sharedFrequencyFilter: Filter = {
+        id: 'FREQUENCY',
+        filterType: 'shared',
+        sourceDatasetUrns: [DATASET_A_URN, DATASET_B_URN],
+        dimensionValues: [
+          {
+            id: 'name:annual',
+            name: 'Annual',
+            isSelectedValue: true,
+            sourceValues: [
+              { datasetUrn: DATASET_A_URN, id: 'A', name: 'Annual' },
+            ],
+          },
+        ],
+      };
+
+      // After DATASET_A is disabled, buildFiltersMap drops it and the rebuilt
+      // merged filters no longer carry the "Annual" selection.
+      const rebuiltFilters: Filter[] = [
+        {
+          id: 'FREQUENCY',
+          filterType: 'shared',
+          sourceDatasetUrns: [DATASET_B_URN],
+          dimensionValues: [],
+        } as Filter,
+      ];
+
+      mockIsStructureDataMapsReady.mockReturnValue(true);
+      mockGetFiltersPreselectedByDataQueries.mockReturnValue([
+        sharedFrequencyFilter,
+      ]);
+      // First call (mount preselect) seeds modalFilters with the selected
+      // frequency; the apply-time rebuild (only DATASET_B in the map) returns
+      // the cleaned filter.
+      mockGetFiltersByConstraints
+        .mockReturnValueOnce([sharedFrequencyFilter])
+        .mockReturnValue(rebuiltFilters);
+      mockBuildFiltersMap.mockReturnValue(
+        new Map<string, Filter[]>([[DATASET_B_URN, []]]),
+      );
+
+      await act(async () => {
+        render(
+          createElement(MultiDatasetFilters, {
+            ...defaultProps,
+            onMultipleDataFiltersChange,
+          }),
+        );
+        await Promise.resolve();
+      });
+
+      await act(async () => {
+        mockCallbacks.setModalState?.('opened');
+      });
+
+      await act(async () => {
+        mockCallbacks.onToggleDataset?.(DATASET_A_URN, false);
+      });
+
+      await act(async () => {
+        mockCallbacks.onApply?.();
+        await Promise.resolve();
+      });
+
+      // Regression: compatibility must be evaluated against the rebuilt filters
+      // (no stale selection), NOT the raw modalFilters that still carry "Annual"
+      // sourced from the now-disabled DATASET_A.
+      expect(mockGetCompatibleDatasetUrns).toHaveBeenLastCalledWith(
+        rebuiltFilters,
+        expect.any(Array),
+        expect.anything(),
+        expect.anything(),
+        expect.any(Map),
+      );
     });
   });
 
