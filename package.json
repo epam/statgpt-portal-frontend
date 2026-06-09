@@ -24,6 +24,9 @@
     "affected:lint": "nx affected --target=lint"
   },
   "private": true,
+  "workspaces": [
+    "libs/*"
+  ],
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
@@ -124,6 +127,12 @@
     "minimatch": "10.2.3",
     "picomatch": "4.0.4",
     "serialize-javascript": "7.0.5",
+    "@eslint/config-array": {
+      "minimatch": "^3.1.5"
+    },
+    "@eslint/eslintrc": {
+      "minimatch": "^3.1.5"
+    },
     "eslint-plugin-jsx-a11y": {
       "minimatch": "^3.1.2"
     }
