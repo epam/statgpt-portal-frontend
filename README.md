@@ -62,8 +62,8 @@ This project uses:
 
 ### 🛠️ Prerequisites
 
-- Node.js >= 22.19.0
-- npm >= 11.0.0
+- Node.js >= 24.14.0
+- npm >= 11.11.0
 - DIAL API access (for backend integration)
 
 ### 📦 Installation
@@ -143,8 +143,8 @@ specs/
 
 ### Prerequisites
 
-- Node.js >= 22.19.0
-- npm >= 11.0.0
+- Node.js >= 24.14.0
+- npm >= 11.11.0
 - Git
 
 ### Development Setup

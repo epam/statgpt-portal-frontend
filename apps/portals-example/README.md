@@ -13,7 +13,7 @@ It's a reference application demonstrating how to build custom portals using the
 - [StatGPT Portal Frontend Example](#statgpt-portal-frontend-example)
   - [Table of Contents](#table-of-contents)
   - [✨ Main Features](#-main-features)
-  - [🏗️ Architecture Overview](#️-architecture-overview)
+  - [🏗️ Architecture Overview](#-architecture-overview)
   - [🚀 Quick Start](#-quick-start)
     - [Prerequisites](#prerequisites)
     - [Start](#start)
@@ -52,8 +52,8 @@ This project uses:
 
 ### Prerequisites
 
-- Node.js >= 22.19.0
-- npm >= 11.0.0
+- Node.js >= 24.14.0
+- npm >= 11.11.0
 
 ### Start
 
@@ -66,8 +66,8 @@ npm run start
 
 ### Prerequisites
 
-- Node.js >= 22.19.0
-- npm >= 11.0.0
+- Node.js >= 24.14.0
+- npm >= 11.11.0
 - Git
 
 ### Development Setup
