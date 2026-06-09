@@ -16,15 +16,15 @@ The application features a conversational interface powered by the DIAL API, opt
 ## 📋 Table of Contents
 
 - [✨ Main Features](#-main-features)
-- [🏗️ Architecture Overview](#-architecture-overview)
+- [📐 Architecture Overview](#-architecture-overview)
 - [🚀 Getting Started](#-getting-started)
-  - [🛠️ Prerequisites](#-prerequisites)
+  - [🔧 Prerequisites](#-prerequisites)
   - [📦 Installation](#-installation)
-  - [▶️ Running Applications](#-running-applications)
-  - [🏗️ Building Libraries](#-building-libraries)
-- [🏗️ Project Structure](#-project-structure)
+  - [🏃 Running Applications](#-running-applications)
+  - [📦 Building Libraries](#-building-libraries)
+- [📁 Project Structure](#-project-structure)
 - [🧑‍💻 Development](#-development)
-  - [🛠️ Prerequisites](#prerequisites)
+  - [🔧 Prerequisites](#prerequisites)
   - [🧩 Development Setup](#development-setup)
 - [🎨 Styling](#-styling)
 - [📚 Libraries](#-libraries)
@@ -47,7 +47,7 @@ The application features a conversational interface powered by the DIAL API, opt
 - **Authentication Support**: NextAuth.js integration for secure user authentication
 
 
-## 🏗️ Architecture Overview
+## 📐 Architecture Overview
 
 This project uses:
 - **Next.js** with App Router for the frontend framework
@@ -60,7 +60,7 @@ This project uses:
 
 ## 🚀 Getting Started
 
-### 🛠️ Prerequisites
+### 🔧 Prerequisites
 
 - Node.js >= 24.14.0
 - npm >= 11.11.0
@@ -76,7 +76,7 @@ cd statgpt-portal-frontend
 npm install
 ```
 
-### ▶️ Running Applications
+### 🏃 Running Applications
 
 To start the Next.js development server for `portals-example`:
 
@@ -94,7 +94,7 @@ npm run storybook
 
 Storybook runs on http://localhost:6006.
 
-### 🏗️ Building Libraries
+### 📦 Building Libraries
 
 To build all publishable libraries:
 
@@ -115,7 +115,7 @@ npm run publish:npm        # publish
 npm run publish:dry        # dry run
 ```
 
-## 🏗️ Project Structure
+## 📁 Project Structure
 
 ```
 apps/

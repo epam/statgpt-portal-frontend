@@ -13,7 +13,7 @@ It's a reference application demonstrating how to build custom portals using the
 - [StatGPT Portal Frontend Example](#statgpt-portal-frontend-example)
   - [Table of Contents](#table-of-contents)
   - [✨ Main Features](#-main-features)
-  - [🏗️ Architecture Overview](#-architecture-overview)
+  - [📐 Architecture Overview](#-architecture-overview)
   - [🚀 Quick Start](#-quick-start)
     - [Prerequisites](#prerequisites)
     - [Start](#start)
@@ -39,7 +39,7 @@ It's a reference application demonstrating how to build custom portals using the
 - **Charting**: view data in chart format
 - **Sharing**: share conversations via link or QR-code
 
-## 🏗️ Architecture Overview
+## 📐 Architecture Overview
 
 This project uses:
 - **Next.js** with App Router for the frontend framework
