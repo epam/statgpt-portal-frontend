@@ -193,6 +193,13 @@ cypress/videos
 # Storybook
 storybook-static
 
+# Local brand variant
+apps/storybook/.storybook/brand-configs/local-brand1/
+apps/storybook/.storybook/themes/local-brand1.css
+
+# AI tooling
+docs/superpowers/
+
 # Temporary files
 *.tmp
 *.temp

@@ -5,6 +5,7 @@
   "scripts": {
     "build": "nx run-many -t build && npm run build:styles",
     "start": "nx serve portals-example --port=4001",
+    "storybook": "nx run storybook:storybook",
     "test": "nx run-many -t test --runInBand",
     "test:verbose": "nx run-many -t test --runInBand --output-style=stream --coverage",
     "lint": "nx run-many --target=lint --all",
@@ -23,6 +24,9 @@
     "affected:lint": "nx affected --target=lint"
   },
   "private": true,
+  "workspaces": [
+    "libs/*"
+  ],
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
@@ -65,6 +69,9 @@
     "@nx/react": "22.7.5",
     "@nx/vite": "22.7.5",
     "@nx/workspace": "22.7.5",
+    "@storybook/addon-a11y": "^10.4.1",
+    "@storybook/addon-docs": "^10.4.1",
+    "@storybook/react-vite": "^10.4.1",
     "@svgr/webpack": "^8.1.0",
     "@swc/core": "1.15.8",
     "@swc/types": "0.1.24",
@@ -90,6 +97,7 @@
     "eslint-plugin-prettier": "^5.5.3",
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-react-hooks": "5.2.0",
+    "eslint-plugin-storybook": "^10.4.1",
     "eslint-plugin-tailwindcss": "^3.18.2",
     "jest": "30.0.5",
     "jest-environment-jsdom": "30.0.5",
@@ -100,6 +108,8 @@
     "prettier": "^3.5.3",
     "sass": "^1.89.0",
     "shelljs": "^0.10.0",
+    "storybook": "^10.4.1",
+    "storybook-addon-pseudo-states": "^10.4.1",
     "tailwindcss": "3.4.17",
     "ts-jest": "29.4.6",
     "ts-node": "10.9.2",
@@ -117,6 +127,12 @@
     "minimatch": "10.2.3",
     "picomatch": "4.0.4",
     "serialize-javascript": "7.0.5",
+    "@eslint/config-array": {
+      "minimatch": "^3.1.5"
+    },
+    "@eslint/eslintrc": {
+      "minimatch": "^3.1.5"
+    },
     "eslint-plugin-jsx-a11y": {
       "minimatch": "^3.1.2"
     }

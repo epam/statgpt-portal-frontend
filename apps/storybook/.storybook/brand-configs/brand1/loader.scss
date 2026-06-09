@@ -1,0 +1,11 @@
+.loader {
+  &::before {
+    width: 44px;
+    height: 44px;
+    background: {
+      image: url('/images/loader.svg') !important;
+      repeat: no-repeat;
+      position: 0 0;
+    }
+  }
+}
