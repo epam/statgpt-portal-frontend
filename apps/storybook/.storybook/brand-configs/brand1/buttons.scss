@@ -1,0 +1,95 @@
+.base-button {
+  @apply p-3 h-[44px] rounded-full;
+
+  &:disabled {
+    @apply text-neutrals-800;
+  }
+}
+
+.base-icon-button {
+  @apply h-[44px] w-[44px];
+  @apply rounded-[30px] border p-3;
+
+  &:disabled {
+    @apply text-neutrals-800;
+  }
+}
+
+.text-button-primary-error {
+  @apply bg-semantic-error text-white border-semantic-error;
+
+  &:hover {
+    @apply bg-white text-semantic-error;
+  }
+
+  &:disabled {
+    @apply bg-neutrals-500 border-neutrals-500;
+  }
+}
+
+.text-button-primary {
+  &:hover {
+    @apply bg-white;
+  }
+
+  &:disabled {
+    @apply bg-neutrals-500 border-neutrals-500;
+  }
+}
+
+.text-button-secondary {
+  &:hover {
+    @apply text-white bg-primary;
+  }
+
+  &:disabled {
+    @apply border-neutrals-800;
+  }
+}
+
+.text-button-tertiary {
+  &:hover {
+    @apply text-hues-800;
+  }
+}
+
+.text-button-client {
+  @apply bg-white text-primary border-white;
+  box-shadow: 0px 2px 2px 0px #dddfe8b2;
+
+  &:hover {
+    @apply text-hues-800 bg-neutrals-100 border-neutrals-100;
+  }
+
+  &:disabled {
+    @apply text-neutrals-800 bg-neutrals-500 border-neutrals-500;
+  }
+}
+
+.tag {
+  @apply rounded-[10px] border-hues-600 bg-neutrals-100 hover:bg-white border p-2 text-primary h-[32px];
+}
+
+.tag-container {
+  @apply mx-2 mb-3;
+}
+
+.radio-button {
+  @apply border border-neutrals-500 rounded-full text-primary;
+
+  &-active {
+    @apply border-primary;
+  }
+}
+
+.checkbox-button {
+  @apply border border-neutrals-600 rounded-[3px] text-primary;
+
+  &-text {
+    @apply body-3;
+  }
+}
+
+.dropdown-menu-shadow {
+  box-shadow: 0px 1px 4px 0px #3161b04d;
+}
