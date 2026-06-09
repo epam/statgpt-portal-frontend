@@ -167,6 +167,22 @@ hierarchy state for a shared dimension.
 
 ---
 
+## `flushToGrid` alone does not render the grid
+
+`flushToGrid` in `AttachmentsDataMultipleQueries.tsx` writes data into
+`structureDataMaps` state, but the effect that actually builds the grid attachment
+is gated on `!isLoadingGridData` (the condition at the top of the large `useEffect`
+in the same file). If `isLoadingGridData` is still `true` when `flushToGrid` runs,
+the state update lands silently and nothing visible changes.
+
+Any early-flush call — such as the `DATASET_FETCH_DEADLINE_MS` deadline — must also
+call `setIsLoadingGridData(false)` in the same batch, otherwise the flush is a
+no-op from the user's perspective. This will need revisiting when a partial loading
+indicator is introduced, since that feature requires showing a partially-built grid
+while loading is still technically in progress.
+
+---
+
 ## The request cache survives filter changes but not page reloads
 
 The module-level `resolvedRequests` map in `request-cache.ts` is never cleared

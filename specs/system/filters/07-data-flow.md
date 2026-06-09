@@ -182,6 +182,19 @@ After persistence, the filter components call the data-loading action for each
 active dataset with the updated `QueryFilter[]`. This fires new SDMX data API calls
 and ultimately re-renders the grid or chart attachments.
 
+`onMultipleDataFiltersChange` fetches all datasets in parallel and batches the
+results before writing to state. A `DATASET_FETCH_DEADLINE_MS` (5 s) deadline timer
+starts immediately when the fetches begin:
+
+- **All datasets settle before the deadline** — the deadline is cancelled and one
+  state update is written when `Promise.allSettled` resolves. The grid builds once.
+- **Any dataset is still in-flight at the deadline** — the deadline fires, flushes
+  the completed results to state, and clears `isLoadingGridData`. The grid builds
+  with the available data. When `Promise.allSettled` eventually resolves, a second
+  flush writes the remaining results and the grid rebuilds.
+
+At most two grid builds occur per filter-change invocation.
+
 Constraint re-fetching follows the same rules described in `04-constraints-fetching.md`:
 shared filters are excluded from multi-dataset constraint requests; `TIME_PERIOD` is
 always excluded.

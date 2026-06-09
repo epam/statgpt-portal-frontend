@@ -49,6 +49,8 @@ import {
   setDataQueryFiltersMap,
 } from '../utils/multiple-filters';
 
+const DATASET_FETCH_DEADLINE_MS = 5_000;
+
 export function useAttachmentsDataMultipleQueries(
   actions: {
     getDataSet: GetDatasetDetails;
@@ -91,6 +93,8 @@ export function useAttachmentsDataMultipleQueries(
   const pythonRequestIdRef = useRef(0);
   const prevGridViewModeRef = useRef(gridViewMode);
   const prevStructureDataMapsRef = useRef(structureDataMaps);
+  const currentInvocationRef = useRef(0);
+  const adaptiveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [crossDatasetGridAttachment, setCrossDatasetGridAttachment] =
     useState<CustomGridAttachment>(
@@ -259,6 +263,14 @@ export function useAttachmentsDataMultipleQueries(
       }
     }
   }, [rawAttachments, titles]);
+
+  useEffect(() => {
+    return () => {
+      if (adaptiveTimerRef.current !== null) {
+        clearTimeout(adaptiveTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const isOnlyModeChange =
@@ -443,6 +455,11 @@ export function useAttachmentsDataMultipleQueries(
     ): void => {
       try {
         setIsLoadingGridData(true);
+        const invocationId = ++currentInvocationRef.current;
+        if (adaptiveTimerRef.current !== null) {
+          clearTimeout(adaptiveTimerRef.current);
+          adaptiveTimerRef.current = null;
+        }
         const enabledDataQueries =
           dataQueries?.filter((q) => !q.disabled) ?? [];
         const compatibleUrns = new Set(enabledDataQueries.map((q) => q.urn));
@@ -479,36 +496,65 @@ export function useAttachmentsDataMultipleQueries(
         const resolvedFilterParamsMap =
           implicitWildcardFilterParams?.filterParamsMap ?? filterParamsMap;
 
-        enabledDataQueries.forEach((dataQuery) => {
+        type DatasetResult = {
+          urn: string;
+          dataMessage: Awaited<
+            ReturnType<typeof getDataSetData>
+          >['dataMessage'];
+          structureDimensions: Awaited<
+            ReturnType<typeof getDataSetData>
+          >['structureDimensions'];
+        };
+
+        const completedResults = new Map<string, DatasetResult>();
+
+        const flushToGrid = () => {
+          if (completedResults.size === 0) return;
+          setIsBuildingCrossDatasetGridAttachment(true);
+          const snapshot = [...completedResults.values()];
+          completedResults.clear();
+          setStructureDataMaps((prev) => {
+            const dataMessagesMap = new Map(prev?.dataMessagesMap);
+            const structureDimensionsMap = new Map(
+              prev?.structureDimensionsMap,
+            );
+            snapshot.forEach(({ urn, dataMessage, structureDimensions }) => {
+              dataMessagesMap.set(urn, dataMessage);
+              structureDimensionsMap.set(urn, structureDimensions || []);
+            });
+            return { ...prev, dataMessagesMap, structureDimensionsMap };
+          });
+        };
+
+        adaptiveTimerRef.current = setTimeout(() => {
+          adaptiveTimerRef.current = null;
+          if (invocationId !== currentInvocationRef.current) return;
+          flushToGrid();
+          setIsLoadingGridData(false);
+        }, DATASET_FETCH_DEADLINE_MS);
+
+        const fetchPromises = enabledDataQueries.map((dataQuery) =>
           getDataSetData(
             dataQuery,
             resolvedFilterParamsMap?.get(dataQuery?.urn) as DatasetQueryFilters,
             getDataSetDataAction,
-          )
-            .then(({ dataMessage, structureDimensions }) => {
-              setIsBuildingCrossDatasetGridAttachment(true);
-              setStructureDataMaps((prevStructureDataMaps) => {
-                const dataMessagesMap = new Map(
-                  prevStructureDataMaps?.dataMessagesMap,
-                );
-                const structureDimensionsMap = new Map(
-                  prevStructureDataMaps?.structureDimensionsMap,
-                );
+          ).then(({ dataMessage, structureDimensions }) => {
+            completedResults.set(dataQuery.urn, {
+              urn: dataQuery.urn,
+              dataMessage,
+              structureDimensions,
+            });
+          }),
+        );
 
-                dataMessagesMap.set(dataQuery.urn, dataMessage);
-                structureDimensionsMap.set(
-                  dataQuery.urn,
-                  structureDimensions || [],
-                );
-
-                return {
-                  ...prevStructureDataMaps,
-                  dataMessagesMap,
-                  structureDimensionsMap,
-                };
-              });
-            })
-            .finally(() => setIsLoadingGridData(false));
+        Promise.allSettled(fetchPromises).finally(() => {
+          if (invocationId !== currentInvocationRef.current) return;
+          if (adaptiveTimerRef.current !== null) {
+            clearTimeout(adaptiveTimerRef.current);
+            adaptiveTimerRef.current = null;
+          }
+          flushToGrid();
+          setIsLoadingGridData(false);
         });
 
         if (getPythonAttachment && enabledDataQueries.length) {
