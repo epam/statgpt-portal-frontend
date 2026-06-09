@@ -51,6 +51,14 @@ import {
 
 const DATASET_FETCH_DEADLINE_MS = 5_000;
 
+type DatasetResult = {
+  urn: string;
+  dataMessage: Awaited<ReturnType<typeof getDataSetData>>['dataMessage'];
+  structureDimensions: Awaited<
+    ReturnType<typeof getDataSetData>
+  >['structureDimensions'];
+};
+
 export function useAttachmentsDataMultipleQueries(
   actions: {
     getDataSet: GetDatasetDetails;
@@ -495,16 +503,6 @@ export function useAttachmentsDataMultipleQueries(
             : undefined;
         const resolvedFilterParamsMap =
           implicitWildcardFilterParams?.filterParamsMap ?? filterParamsMap;
-
-        type DatasetResult = {
-          urn: string;
-          dataMessage: Awaited<
-            ReturnType<typeof getDataSetData>
-          >['dataMessage'];
-          structureDimensions: Awaited<
-            ReturnType<typeof getDataSetData>
-          >['structureDimensions'];
-        };
 
         const completedResults = new Map<string, DatasetResult>();
 

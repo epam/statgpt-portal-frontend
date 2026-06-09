@@ -191,7 +191,10 @@ starts immediately when the fetches begin:
 - **Any dataset is still in-flight at the deadline** — the deadline fires, flushes
   the completed results to state, and clears `isLoadingGridData`. The grid builds
   with the available data. When `Promise.allSettled` eventually resolves, a second
-  flush writes the remaining results and the grid rebuilds.
+  flush writes the remaining results and the grid rebuilds. If no dataset has
+  resolved by the deadline, the flush is a no-op but `isLoadingGridData` is still
+  cleared — the loading spinner disappears and the grid builds when `allSettled`
+  fires.
 
 At most two grid builds occur per filter-change invocation.
 
