@@ -1,0 +1,9 @@
+/*
+ * Undo the app stylesheet's full-screen body reset so Storybook docs can scroll.
+ * Unlayered rules have higher cascade priority than @layer base, so no !important needed.
+ */
+html,
+body {
+  overflow: auto;
+  height: auto;
+}
