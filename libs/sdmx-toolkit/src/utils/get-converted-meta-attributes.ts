@@ -19,6 +19,7 @@ export const getConvertedMetaAttributes = (
 
     return {
       ...metadataAttribute,
+      id: metadataAttribute?.id ?? attr.metadataAttributeReference,
       attributeRelationship: attr.attributeRelationship,
       isMandatory: Number(metadataAttribute?.minOccurs) > 0,
     };

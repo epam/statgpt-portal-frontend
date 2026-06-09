@@ -49,6 +49,16 @@ import {
   setDataQueryFiltersMap,
 } from '../utils/multiple-filters';
 
+const DATASET_FETCH_DEADLINE_MS = 5_000;
+
+type DatasetResult = {
+  urn: string;
+  dataMessage: Awaited<ReturnType<typeof getDataSetData>>['dataMessage'];
+  structureDimensions: Awaited<
+    ReturnType<typeof getDataSetData>
+  >['structureDimensions'];
+};
+
 export function useAttachmentsDataMultipleQueries(
   actions: {
     getDataSet: GetDatasetDetails;
@@ -91,6 +101,8 @@ export function useAttachmentsDataMultipleQueries(
   const pythonRequestIdRef = useRef(0);
   const prevGridViewModeRef = useRef(gridViewMode);
   const prevStructureDataMapsRef = useRef(structureDataMaps);
+  const currentInvocationRef = useRef(0);
+  const adaptiveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [crossDatasetGridAttachment, setCrossDatasetGridAttachment] =
     useState<CustomGridAttachment>(
@@ -171,9 +183,10 @@ export function useAttachmentsDataMultipleQueries(
         getDataSetDataAction,
         setIsLoadingGridData,
         async (structureDataMaps) => {
+          const enabledDataQueries = dataQueries.filter((q) => !q.disabled);
           const implicitWildcardFilterParams =
             getImplicitSharedWildcardFilterParams(
-              dataQueries,
+              enabledDataQueries,
               structureDataMaps,
               constraintsMap,
               locale,
@@ -260,6 +273,14 @@ export function useAttachmentsDataMultipleQueries(
   }, [rawAttachments, titles]);
 
   useEffect(() => {
+    return () => {
+      if (adaptiveTimerRef.current !== null) {
+        clearTimeout(adaptiveTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     const isOnlyModeChange =
       prevGridViewModeRef.current !== gridViewMode &&
       prevStructureDataMapsRef.current === structureDataMaps;
@@ -281,21 +302,27 @@ export function useAttachmentsDataMultipleQueries(
       }
 
       const cancel = scheduleDeferredWork(() => {
+        const nonDisabledQueries = compatibleDataQueries?.filter(
+          (q) => !q.disabled,
+        );
+        const effectiveActiveUrns =
+          activeDatasetUrns ??
+          new Set((nonDisabledQueries ?? []).map((q) => q.urn));
         const visibleDataQueries = filterDataQueriesByActiveDatasetUrns(
-          compatibleDataQueries,
-          activeDatasetUrns,
+          nonDisabledQueries,
+          effectiveActiveUrns,
         );
         const visibleStructuresMap = filterMapByActiveDatasetUrns(
           structuresMap,
-          activeDatasetUrns,
+          effectiveActiveUrns,
         );
         const visibleDataMessagesMap = filterMapByActiveDatasetUrns(
           dataMessagesMap,
-          activeDatasetUrns,
+          effectiveActiveUrns,
         );
         const visibleDimensionsSchemesMap = filterMapByActiveDatasetUrns(
           datasetDimensionsSchemesMap,
-          activeDatasetUrns,
+          effectiveActiveUrns,
         );
 
         setCrossDatasetGridAttachment((prev) => ({
@@ -358,17 +385,23 @@ export function useAttachmentsDataMultipleQueries(
       dataMessagesMap != null &&
       !isLoadingGridData
     ) {
+      const nonDisabledQueries = compatibleDataQueries?.filter(
+        (q) => !q.disabled,
+      );
+      const effectiveActiveUrns =
+        activeDatasetUrns ??
+        new Set((nonDisabledQueries ?? []).map((q) => q.urn));
       const visibleDataQueries = filterDataQueriesByActiveDatasetUrns(
-        compatibleDataQueries,
-        activeDatasetUrns,
+        nonDisabledQueries,
+        effectiveActiveUrns,
       );
       const visibleStructuresMap = filterMapByActiveDatasetUrns(
         structuresMap,
-        activeDatasetUrns,
+        effectiveActiveUrns,
       );
       const visibleDataMessagesMap = filterMapByActiveDatasetUrns(
         dataMessagesMap,
-        activeDatasetUrns,
+        effectiveActiveUrns,
       );
 
       const resolver = createCrossDatasetChartingDataResolver(
@@ -430,27 +463,34 @@ export function useAttachmentsDataMultipleQueries(
     ): void => {
       try {
         setIsLoadingGridData(true);
-        const compatibleUrns = new Set(dataQueries?.map((q) => q.urn));
+        const invocationId = ++currentInvocationRef.current;
+        if (adaptiveTimerRef.current !== null) {
+          clearTimeout(adaptiveTimerRef.current);
+          adaptiveTimerRef.current = null;
+        }
+        const enabledDataQueries =
+          dataQueries?.filter((q) => !q.disabled) ?? [];
+        const compatibleUrns = new Set(enabledDataQueries.map((q) => q.urn));
         setActiveDatasetUrns(compatibleUrns);
         setStructureDataMaps((prevStructureDataMaps) => ({
           ...prevStructureDataMaps,
           constraintsMap,
         }));
 
-        if (!dataQueries?.length) {
+        if (!enabledDataQueries.length) {
           setIsLoadingGridData(false);
           return;
         }
 
         const queryFiltersMap = filtersMap
-          ? setDataQueryFiltersMap(dataQueries, filtersMap)
+          ? setDataQueryFiltersMap(enabledDataQueries, filtersMap)
           : undefined;
         const dataQueriesWithAppliedFilters = queryFiltersMap
-          ? dataQueries.map((dataQuery) => ({
+          ? enabledDataQueries.map((dataQuery) => ({
               ...dataQuery,
               filters: queryFiltersMap.get(dataQuery.urn) ?? [],
             }))
-          : dataQueries;
+          : enabledDataQueries;
         const implicitWildcardFilterParams =
           constraintsMap && structureDataMaps
             ? getImplicitSharedWildcardFilterParams(
@@ -464,40 +504,61 @@ export function useAttachmentsDataMultipleQueries(
         const resolvedFilterParamsMap =
           implicitWildcardFilterParams?.filterParamsMap ?? filterParamsMap;
 
-        dataQueries.forEach((dataQuery) => {
+        const completedResults = new Map<string, DatasetResult>();
+
+        const flushToGrid = () => {
+          if (completedResults.size === 0) return;
+          setIsBuildingCrossDatasetGridAttachment(true);
+          const snapshot = [...completedResults.values()];
+          completedResults.clear();
+          setStructureDataMaps((prev) => {
+            const dataMessagesMap = new Map(prev?.dataMessagesMap);
+            const structureDimensionsMap = new Map(
+              prev?.structureDimensionsMap,
+            );
+            snapshot.forEach(({ urn, dataMessage, structureDimensions }) => {
+              dataMessagesMap.set(urn, dataMessage);
+              structureDimensionsMap.set(urn, structureDimensions || []);
+            });
+            return { ...prev, dataMessagesMap, structureDimensionsMap };
+          });
+        };
+
+        adaptiveTimerRef.current = setTimeout(() => {
+          adaptiveTimerRef.current = null;
+          if (invocationId !== currentInvocationRef.current) return;
+          if (completedResults.size > 0) {
+            flushToGrid();
+            setIsLoadingGridData(false);
+          }
+        }, DATASET_FETCH_DEADLINE_MS);
+
+        const fetchPromises = enabledDataQueries.map((dataQuery) =>
           getDataSetData(
             dataQuery,
             resolvedFilterParamsMap?.get(dataQuery?.urn) as DatasetQueryFilters,
             getDataSetDataAction,
-          )
-            .then(({ dataMessage, structureDimensions }) => {
-              setIsBuildingCrossDatasetGridAttachment(true);
-              setStructureDataMaps((prevStructureDataMaps) => {
-                const dataMessagesMap = new Map(
-                  prevStructureDataMaps?.dataMessagesMap,
-                );
-                const structureDimensionsMap = new Map(
-                  prevStructureDataMaps?.structureDimensionsMap,
-                );
+          ).then(({ dataMessage, structureDimensions }) => {
+            completedResults.set(dataQuery.urn, {
+              urn: dataQuery.urn,
+              dataMessage,
+              structureDimensions,
+            });
+          }),
+        );
 
-                dataMessagesMap.set(dataQuery.urn, dataMessage);
-                structureDimensionsMap.set(
-                  dataQuery.urn,
-                  structureDimensions || [],
-                );
-
-                return {
-                  ...prevStructureDataMaps,
-                  dataMessagesMap,
-                  structureDimensionsMap,
-                };
-              });
-            })
-            .finally(() => setIsLoadingGridData(false));
+        Promise.allSettled(fetchPromises).finally(() => {
+          if (invocationId !== currentInvocationRef.current) return;
+          if (adaptiveTimerRef.current !== null) {
+            clearTimeout(adaptiveTimerRef.current);
+            adaptiveTimerRef.current = null;
+          }
+          flushToGrid();
+          setIsLoadingGridData(false);
         });
 
-        if (getPythonAttachment && dataQueries?.length) {
-          const updatedDataQueries = dataQueries.map((dq) =>
+        if (getPythonAttachment && enabledDataQueries.length) {
+          const updatedDataQueries = enabledDataQueries.map((dq) =>
             buildDataQueryWithMergedFilters(
               dq,
               filters ?? filtersMap?.get(dq.urn) ?? [],

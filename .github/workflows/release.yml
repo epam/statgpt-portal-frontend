@@ -8,6 +8,7 @@ permissions:
   contents: write
   packages: write
   security-events: write
+  id-token: write # For trusted publishing to npmjs registry
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -18,7 +19,7 @@ env:
 
 jobs:
   test:
-    uses: epam/ai-dial-ci/.github/workflows/node_test.yml@3.1.3
+    uses: epam/ai-dial-ci/.github/workflows/node_test.yml@4.4.0
     with:
       bypass-checks: false
       format-checks-enabled: true
@@ -30,6 +31,8 @@ jobs:
       ort-enabled: true
       ort-bypassed: false
       ort-version: "85.0.0" # HACK: pin ORT version due to java.util.NoSuchElementException in 85.1.0
+      ort-config-repository: "https://github.com/oss-review-toolkit/ort-config.git"
+      ort-config-revision: "5650fed55a20397b9abb9017a0c6bb674dc8481d"
       node-version: "24"
       runs-on: '["ubuntu-24.04"]'
 
@@ -37,11 +40,17 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       next-version: ${{ steps.semantic_versioning.outputs.next-version }}
+      latest-stable-tag: ${{ steps.semantic_versioning.outputs.latest-stable-tag }}
+      is-release-candidate: ${{ steps.semantic_versioning.outputs.is-release-candidate }}
+      is-release: ${{ steps.semantic_versioning.outputs.is-release }}
       is-latest: ${{ steps.semantic_versioning.outputs.is-latest }}
-      latest-tag: ${{ steps.semantic_versioning.outputs.latest-tag }}
+      release-line: ${{ steps.semantic_versioning.outputs.release-line }}
+      changelog-mode: ${{ steps.semantic_versioning.outputs.changelog-mode }}
     steps:
-      - uses: epam/ai-dial-ci/actions/semantic_versioning@3.1.3
+      - uses: epam/ai-dial-ci/actions/semantic_versioning@4.4.0
         id: semantic_versioning
+        with:
+          promote: true
 
   release:
     runs-on: ubuntu-24.04
@@ -50,6 +59,7 @@ jobs:
       contents: write
       packages: write
       security-events: write
+      id-token: write
 
     steps:
       - name: Maximize build space
@@ -79,16 +89,17 @@ jobs:
           docker-cleanup: "true"
           set-tmpdir: "true"
 
-      - uses: epam/ai-dial-ci/actions/generate_release_notes@3.1.3
+      - uses: epam/ai-dial-ci/actions/generate_release_notes@4.4.0
         with:
-          latest-tag: ${{ needs.calculate_version.outputs.latest-tag }}
+          latest-tag: ${{ needs.calculate_version.outputs.latest-stable-tag }}
+          use-merge-base: ${{ needs.calculate_version.outputs.changelog-mode == 'merge-base' }}
 
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           lfs: true
           token: ${{ secrets.ACTIONS_BOT_TOKEN }}
 
-      - uses: epam/ai-dial-ci/actions/node_prepare@3.1.3
+      - uses: epam/ai-dial-ci/actions/node_prepare@4.4.0
         with:
           node-version: "24"
           clean-install: true
@@ -97,7 +108,7 @@ jobs:
       - name: Set version
         shell: bash
         run: |
-          npm version ${{ needs.calculate_version.outputs.next-version }} --no-git-tag-version || true # Upstream branch may already be updated
+          npm version ${{ needs.calculate_version.outputs.next-version }} --no-git-tag-version --allow-same-version
 
       - uses: ./.github/actions/build_docker
         with:
@@ -106,7 +117,7 @@ jobs:
           dockerhub-username: ${{ secrets.DOCKERHUB_LOGIN }}
           dockerhub-password: ${{ secrets.DOCKERHUB_TOKEN }}
           image-name: ghcr.io/${{ env.IMAGE_NAME }}
-          image-tag: ${{ needs.calculate_version.outputs.next-version }}
+          image-tag: ${{ startsWith(github.ref, 'refs/heads/release-') && needs.calculate_version.outputs.next-version || 'development' }}
           push-enabled: false
           trivy-enabled: true
           bypass-checks: false
@@ -115,45 +126,59 @@ jobs:
           trivy-limit-severities-for-sarif: true
           platforms: "linux/amd64"
           image-extra-aliases: |
-            ${{ env.IMAGE_NAME }}:${{ needs.calculate_version.outputs.next-version }}
-            ${{ github.ref == 'refs/heads/development' && format('{0}:{1}', env.IMAGE_NAME, 'development') || ''}}
-            ${{ github.ref == 'refs/heads/development' && format('{0}/{1}:{2}', 'ghcr.io', env.IMAGE_NAME, 'development') || ''}}
-            ${{ startsWith(github.ref, 'refs/heads/release-') && needs.calculate_version.outputs.is-latest == 'true' && format('{0}:{1}', env.IMAGE_NAME, 'latest') || ''}}
-            ${{ startsWith(github.ref, 'refs/heads/release-') && needs.calculate_version.outputs.is-latest == 'true' && format('{0}/{1}:{2}', 'ghcr.io', env.IMAGE_NAME, 'latest') || ''}}
+            ${{ env.IMAGE_NAME }}:${{ startsWith(github.ref, 'refs/heads/release-') && needs.calculate_version.outputs.next-version || 'development' }}
+            ${{ startsWith(github.ref, 'refs/heads/release-') && needs.calculate_version.outputs.is-latest == 'true' && format('{0}:{1}', env.IMAGE_NAME, 'latest') || '' }}
+            ${{ startsWith(github.ref, 'refs/heads/release-') && needs.calculate_version.outputs.is-latest == 'true' && format('{0}/{1}:{2}', 'ghcr.io', env.IMAGE_NAME, 'latest') || '' }}
 
       - name: Publish packages to npmjs
         shell: bash
         run: |
           #!/bin/bash
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" &>/dev/null; then
+            echo "Version $PACKAGE_NAME@$PACKAGE_VERSION already published, skipping"; exit 0
+          fi
           if node -e "process.exit(require('./package.json').scripts?.['build:publishable'] ? 0 : 1)"; then
             npm run build:publishable
           else
             npm run build
           fi
-          PUBLISH_COMMAND="npm run publish"
-          ARGS=""
-          if [ "$IS_DEVELOPMENT_BRANCH" == "true" ]; then
-            ARGS+=" --development"
+          publish_with_tag() {
+            local tag="$1"
+            if node -e "process.exit(require('./package.json').scripts?.['publish:npm'] ? 0 : 1)"; then
+              npm run publish:npm -- --tag "$tag"
+            else
+              npm publish --tag "$tag"
+            fi
+          }
+          if [ "$IS_DEVELOPMENT" = "true" ]; then
+            publish_with_tag "development"
+          elif [ "$IS_RELEASE_CANDIDATE" = "true" ]; then
+            publish_with_tag "$RELEASE_LINE-rc"
+          elif [ "$IS_RELEASE" = "true" ]; then
+            if [ "$IS_LATEST" = "true" ]; then
+              publish_with_tag "latest"
+            else
+              publish_with_tag "release-$RELEASE_LINE"
+            fi
           fi
-          if [ "$IS_RELEASE_BRANCH" == "true" ] && [ "$IS_LATEST" == "true" ]; then
-            ARGS+=" --tag latest"
-          fi
-          if [ -n "$ARGS" ]; then
-            PUBLISH_COMMAND+=" --"$ARGS
-          fi
-          $PUBLISH_COMMAND
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          IS_DEVELOPMENT: ${{ github.ref == 'refs/heads/development' }}
+          IS_RELEASE_CANDIDATE: ${{ needs.calculate_version.outputs.is-release-candidate == 'true' }}
+          IS_RELEASE: ${{ needs.calculate_version.outputs.is-release == 'true' }}
           IS_LATEST: ${{ needs.calculate_version.outputs.is-latest == 'true' }}
-          IS_DEVELOPMENT_BRANCH: ${{ github.ref == 'refs/heads/development' }}
-          IS_RELEASE_BRANCH: ${{ startsWith(github.ref, 'refs/heads/release-') }}
+          RELEASE_LINE: ${{ needs.calculate_version.outputs.release-line }}
 
-      - uses: epam/ai-dial-ci/actions/publish_tag_release@3.1.3
+      - uses: epam/ai-dial-ci/actions/publish_tag_release@4.4.0
+        if: ${{ startsWith(github.ref, 'refs/heads/release-') }}
         with:
+          git-user-name: ${{ vars.ACTIONS_BOT_NAME || 'statgpt-actions' }}
+          git-user-email: ${{ vars.ACTIONS_BOT_EMAIL || '231008922+statgpt-actions@users.noreply.github.com' }}
           tag-version: ${{ needs.calculate_version.outputs.next-version }}
           changelog-file: "/tmp/my_changelog" # Comes from generate_release_notes step
+          draft-stable-releases: true
           extra-commit-command: |
-            git config --global user.name "statgpt-actions"
-            git config --global user.email "231008922+statgpt-actions@users.noreply.github.com"
             git add package.json package-lock.json
             git commit -m '[skip ci] Update version' || true # Upstream branch may already be updated

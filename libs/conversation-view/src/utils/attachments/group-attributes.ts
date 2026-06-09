@@ -202,6 +202,7 @@ export const getDimensionGroupAttributes = (
             structureComponentsMap,
             dataStructure,
           ),
+          isDimensionGroup: true,
         };
       })
       ?.filter(({ value }) => value?.some((v) => !!v)) || []

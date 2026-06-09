@@ -68,6 +68,12 @@ export interface FilterTreeNodeProps extends FilterValue {
   children?: FilterTreeNodeProps[];
   level?: number;
   disabled?: boolean;
+  /**
+   * Whether the node is a real, selectable code from the dimension's own
+   * codelist. Selectable parents support the full parent/children selection
+   * cycle; structural-only parents fall back to a 2-state all/none toggle.
+   */
+  isSelectableValue?: boolean;
 }
 
 export interface FilterButtonProps {

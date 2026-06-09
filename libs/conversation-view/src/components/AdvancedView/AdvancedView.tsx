@@ -33,6 +33,7 @@ import { useAdvancedView } from '../../context/AdvancedViewContext';
 import { ConversationViewSidePanelOutlet } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
 import { ConversationViewStylesProvider } from '../../context/ConversationViewStylesContext';
+import { FiltersModalStateProvider } from '../../context/FiltersModalStateContext';
 import { useCrossDatasetAttachments } from '../../context/CrossDatasetAttachmentsContext';
 import { useDatasetDimensionsMetadataMap } from '../../context/DatasetDimensionsMetadataMapContext';
 import {
@@ -79,6 +80,11 @@ export const AdvancedView: FC<Props> = ({
       attachmentsProps.dataQueries?.[0]?.urn ??
       'default',
     [attachmentsProps.currentDataQuery?.urn, attachmentsProps.dataQueries],
+  );
+
+  const enabledDataQueries = useMemo(
+    () => attachmentsProps?.dataQueries?.filter((q) => !q.disabled),
+    [attachmentsProps?.dataQueries],
   );
 
   const [gridViewMode, setGridViewMode] = useState(
@@ -170,6 +176,7 @@ export const AdvancedView: FC<Props> = ({
     handleCodeAttachmentUpdated,
     skipSingleDatasetConstraintsLoading,
   );
+  const shouldRenderDatasetInfo = shouldShowDatasetInfo && !!dataset;
   const {
     structureDataMaps,
     crossDatasetAttachments,
@@ -218,15 +225,17 @@ export const AdvancedView: FC<Props> = ({
     setCrossDatasetAttachmentsState,
     structureDataMaps,
   ]);
-  const [isFiltering, setIsFiltering] = useState<boolean>();
   const [filters, setFilters] = useState<DatasetQueryFilters>({
     filterKey: null,
     timeFilter: null,
   });
-  const isDataLoading = useMemo(
-    () => (isCrossDatasetModeOn ? isLoadingCrossDsGridData : isLoadingGridData),
-    [isCrossDatasetModeOn, isLoadingCrossDsGridData, isLoadingGridData],
-  );
+  const [isFiltering, setIsFiltering] = useState<boolean>();
+  const isDataLoading = isCrossDatasetModeOn
+    ? isLoadingCrossDsGridData
+    : isLoadingGridData;
+  const attachments = isCrossDatasetModeOn
+    ? crossDatasetAttachments
+    : dataSetAttachments;
 
   const handleFiltersChange = useCallback(
     (
@@ -295,7 +304,7 @@ export const AdvancedView: FC<Props> = ({
         currentUrn={currentUrn}
         structuresMap={structureDataMaps?.structuresMap}
         locale={locale}
-        dataQueries={attachmentsProps?.dataQueries}
+        dataQueries={enabledDataQueries}
         gridViewMode={gridViewMode}
         onGridViewModeChange={setGridViewMode}
         texts={{
@@ -311,91 +320,93 @@ export const AdvancedView: FC<Props> = ({
         }}
         resetIcon={attachmentsProps.styles?.tableSettingsResetIcon}
       >
-        <div className="advanced-view flex h-full min-w-0 flex-1 flex-col">
-          <Header
-            locale={locale}
-            shareConversationProps={shareConversationProps}
-            isShowShare={advanceViewStyles?.isShowShare}
-          />
-          {!datasets.length ? (
-            <Loader />
-          ) : (
-            <>
-              {showDatasetTabs && (
-                <DatasetTabs
-                  datasets={datasets}
-                  initialSelectedDatasetUrn={
-                    attachmentsProps?.currentDataQuery?.urn
-                  }
-                  locale={locale}
-                  selectDataset={onSelectDataset}
-                />
-              )}
-              {isDataLoading && !isFiltering ? (
-                <Loader />
-              ) : (
-                <>
-                  {shouldShowDatasetInfo && (
-                    <DatasetInfo
-                      {...datasetInfoOptions}
-                      locale={locale}
-                      dataset={dataset}
-                      data={dataMessage?.data}
-                      structures={structures}
-                      metadataSettings={metadataSettings}
-                      getDatasetUpdatedTime={getDatasetUpdatedTime}
-                      externalLink={externalLink}
-                    />
-                  )}
-                  <div
-                    className={classNames(
-                      'flex flex-1 min-h-0 overflow-auto',
-                      shouldShowDatasetInfo && 'border-t border-neutrals-500',
+        <FiltersModalStateProvider>
+          <div className="advanced-view flex h-full min-w-0 flex-1 flex-col">
+            <Header
+              locale={locale}
+              shareConversationProps={shareConversationProps}
+              isShowShare={advanceViewStyles?.isShowShare}
+              conversation={props.filtersProps.conversation}
+            />
+            {!datasets.length ? (
+              <Loader />
+            ) : (
+              <>
+                {showDatasetTabs && (
+                  <DatasetTabs
+                    datasets={datasets}
+                    initialSelectedDatasetUrn={
+                      attachmentsProps?.currentDataQuery?.urn
+                    }
+                    locale={locale}
+                    selectDataset={onSelectDataset}
+                  />
+                )}
+                {isDataLoading && !isFiltering ? (
+                  <Loader />
+                ) : (
+                  <>
+                    {shouldRenderDatasetInfo && (
+                      <DatasetInfo
+                        {...datasetInfoOptions}
+                        locale={locale}
+                        dataset={dataset}
+                        data={dataMessage?.data}
+                        structures={structures}
+                        metadataSettings={metadataSettings}
+                        getDatasetUpdatedTime={getDatasetUpdatedTime}
+                        externalLink={externalLink}
+                      />
                     )}
-                  >
                     <div
                       className={classNames(
-                        'flex-1 min-h-0 overflow-auto',
-                        'advanced-view-filters',
+                        'flex flex-1 min-h-0 overflow-auto',
+                        shouldRenderDatasetInfo &&
+                          'border-t border-neutrals-500',
                       )}
                     >
-                      <DataDetails
-                        {...props}
-                        actions={actions}
-                        attachments={
-                          isCrossDatasetModeOn
-                            ? crossDatasetAttachments
-                            : dataSetAttachments
-                        }
-                        attachmentsDataQuery={attachmentsProps.currentDataQuery}
-                        dataQueries={attachmentsProps?.dataQueries}
-                        dimensions={dimensions}
-                        isDataLoading={isDataLoading}
-                        locale={locale}
-                        filtersProps={{
-                          ...props?.filtersProps,
-                          structureDimensions,
-                          structures,
-                          structureDataMaps,
-                          onFiltersChange,
-                          onMultipleDataFiltersChange:
-                            handleMultipleDataFiltersChange,
-                          initialConstraints: constraints,
-                        }}
-                        setIsFiltering={setIsFiltering}
-                        filters={filters}
-                        onFiltersChange={handleFiltersChange}
-                      />
+                      <div
+                        className={classNames(
+                          'flex-1 min-h-0 overflow-auto',
+                          'advanced-view-filters',
+                        )}
+                      >
+                        <DataDetails
+                          {...props}
+                          actions={actions}
+                          attachments={attachments}
+                          attachmentsDataQuery={
+                            attachmentsProps.currentDataQuery
+                          }
+                          dataQueries={attachmentsProps?.dataQueries}
+                          dimensions={dimensions}
+                          isDataLoading={isDataLoading}
+                          locale={locale}
+                          filtersProps={{
+                            ...props?.filtersProps,
+                            structureDimensions,
+                            structures,
+                            structureDataMaps,
+                            onFiltersChange,
+                            onMultipleDataFiltersChange:
+                              handleMultipleDataFiltersChange,
+                            initialConstraints: constraints,
+                          }}
+                          setIsFiltering={setIsFiltering}
+                          filters={filters}
+                          onFiltersChange={handleFiltersChange}
+                        />
+                      </div>
+                      {isOpenedAdvancedView && (
+                        <ConversationViewSidePanelOutlet scope="advanced" />
+                      )}
                     </div>
-                    {isOpenedAdvancedView && (
-                      <ConversationViewSidePanelOutlet scope="advanced" />
-                    )}
-                  </div>
-                </>
-              )}
-            </>
-          )}
-        </div>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </FiltersModalStateProvider>
       </TableSettingsProvider>
     </ConversationViewStylesProvider>
   );

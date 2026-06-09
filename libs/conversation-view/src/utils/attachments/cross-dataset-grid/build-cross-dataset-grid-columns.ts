@@ -2,6 +2,7 @@ import { getCrossDatasetInfoColumns } from './dataset-info-columns';
 import { getCrossDatasetDimensionsColumns } from './dimensions-columns';
 import { getCrossDatasetTimeseriesColumns } from './timeseries-columns';
 import {
+  Data,
   DataMessage,
   DatasetDimensionsScheme,
   StructuralData,
@@ -24,8 +25,13 @@ export function buildCrossDatasetGridColumns(
   formattingSettings?: FormatNumbersType,
   gridViewMode: CrossDatasetGridViewMode = CrossDatasetGridViewMode.Compact,
 ): ColDef[] {
+  const attributesDataMap = new Map<string, Data | undefined>(
+    [...dataMessagesMap.entries()].map(([urn, msg]) => [urn, msg?.data]),
+  );
+
   const datasetInfoColumns = getCrossDatasetInfoColumns(
     structuresMap,
+    attributesDataMap,
     locale,
     titles,
   );
@@ -45,7 +51,12 @@ export function buildCrossDatasetGridColumns(
   );
 
   return [
-    getCrossDatasetMetadataColumn(structuresMap, locale, titles),
+    getCrossDatasetMetadataColumn(
+      structuresMap,
+      attributesDataMap,
+      locale,
+      titles,
+    ),
     ...datasetInfoColumns,
     ...dimColumns,
     ...timeColumns,

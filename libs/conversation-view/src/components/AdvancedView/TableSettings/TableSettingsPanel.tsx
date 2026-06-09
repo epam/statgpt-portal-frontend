@@ -69,7 +69,11 @@ export const TableSettingsPanel = () => {
       return;
     }
     clearUserColumnState();
-    restoreInitialColumnsState(gridApi, initialColumnsState);
+    if (initialColumnsState) {
+      restoreInitialColumnsState(gridApi, initialColumnsState);
+    } else {
+      gridApi.resetColumnState();
+    }
     resetDimensionCustomization();
   }, [
     clearUserColumnState,
@@ -107,7 +111,7 @@ export const TableSettingsPanel = () => {
   ]);
 
   return gridApi ? (
-    <>
+    <div className="flex h-full flex-col">
       <GridViewModeSwitcher
         gridViewMode={gridViewMode}
         onModeChange={handleModeChange}
@@ -137,6 +141,6 @@ export const TableSettingsPanel = () => {
         onSubItemVisibilityChange={setDimensionKeyHidden}
         searchPlaceholder={texts?.columnsSearchPlaceholder}
       />
-    </>
+    </div>
   ) : null;
 };
