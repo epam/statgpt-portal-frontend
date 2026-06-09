@@ -2,9 +2,8 @@ import './globals.scss';
 import { Inter, Open_Sans } from 'next/font/google';
 import classNames from 'classnames';
 import { ReactNode } from 'react';
-import { getServerSession } from 'next-auth';
 import SessionProviderWrapper from '../components/SessionProvider';
-import { authOptions } from '../utils/auth/auth-options';
+import { auth } from '../auth';
 
 const font = Open_Sans({
   subsets: ['latin'],
@@ -28,7 +27,7 @@ export default async function RootLayout({
 }: {
   children: ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   return (
     <html lang="en">

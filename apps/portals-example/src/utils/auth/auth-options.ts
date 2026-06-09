@@ -1,11 +1,14 @@
-import { AuthOptions, CookiesOptions } from 'next-auth';
+import { NextAuthConfig } from 'next-auth';
 import { authProviders } from './auth-providers';
 import { callbacks } from './auth-callbacks';
+import { isSecureAuthUrl } from './auth-cookie';
+
+type CookiesOptions = NonNullable<NextAuthConfig['cookies']>;
 
 // https://github.com/nextauthjs/next-auth/blob/a8dfc8ebb11ccb96fd694db888e52f0d20395e64/packages/core/src/lib/cookie.ts#L53
 function defaultCookies(
   useSecureCookies: boolean,
-  sameSite = 'lax',
+  sameSite: 'lax' | 'none' | 'strict' = 'lax',
 ): CookiesOptions {
   const cookiePrefix = useSecureCookies ? '__Secure-' : '';
 
@@ -72,14 +75,11 @@ function defaultCookies(
   };
 }
 
-const isSecure =
-  !!process.env.NEXTAUTH_URL && process.env.NEXTAUTH_URL.startsWith('https:');
-
 export const authOptions = {
   providers: authProviders,
-  cookies: defaultCookies(isSecure, isSecure ? 'none' : 'lax'),
+  cookies: defaultCookies(isSecureAuthUrl, isSecureAuthUrl ? 'none' : 'lax'),
   callbacks,
   session: {
     strategy: 'jwt',
   },
-} as AuthOptions;
+} satisfies NextAuthConfig;

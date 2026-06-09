@@ -1,4 +1,4 @@
-import { OAuthConfig, OAuthUserConfig } from 'next-auth/providers/oauth';
+import { OAuthConfig, OAuthUserConfig } from '@auth/core/providers/oauth';
 
 // from https://github.com/nextauthjs/next-auth/pull/6614
 
@@ -44,13 +44,6 @@ export default function PingId<P extends PingProfile>(
       };
     },
     options,
-    style: {
-      bg: '#b3282d',
-      bgDark: '#b3282d',
-      logo: '',
-      logoDark: '',
-      text: '#fff',
-      textDark: '#fff',
-    },
+    style: { brandColor: '#b3282d' },
   };
 }
