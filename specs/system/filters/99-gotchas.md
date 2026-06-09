@@ -177,9 +177,11 @@ the state update lands silently and nothing visible changes.
 
 Any early-flush call — such as the `DATASET_FETCH_DEADLINE_MS` deadline — must also
 call `setIsLoadingGridData(false)` in the same batch, otherwise the flush is a
-no-op from the user's perspective. This will need revisiting when a partial loading
-indicator is introduced, since that feature requires showing a partially-built grid
-while loading is still technically in progress.
+no-op from the user's perspective. The deadline only clears loading when there are
+completed results to show (`completedResults.size > 0`); if nothing has arrived yet
+the spinner is intentionally preserved. This will need revisiting when a partial
+loading indicator is introduced, since that feature requires showing a
+partially-built grid while loading is still technically in progress.
 
 ---
 

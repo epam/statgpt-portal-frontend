@@ -527,8 +527,10 @@ export function useAttachmentsDataMultipleQueries(
         adaptiveTimerRef.current = setTimeout(() => {
           adaptiveTimerRef.current = null;
           if (invocationId !== currentInvocationRef.current) return;
-          flushToGrid();
-          setIsLoadingGridData(false);
+          if (completedResults.size > 0) {
+            flushToGrid();
+            setIsLoadingGridData(false);
+          }
         }, DATASET_FETCH_DEADLINE_MS);
 
         const fetchPromises = enabledDataQueries.map((dataQuery) =>
