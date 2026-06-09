@@ -19,7 +19,7 @@ env:
 
 jobs:
   test:
-    uses: epam/ai-dial-ci/.github/workflows/node_test.yml@4.4.0
+    uses: epam/ai-dial-ci/.github/workflows/node_test.yml@4.4.1
     with:
       bypass-checks: false
       format-checks-enabled: true
@@ -47,7 +47,7 @@ jobs:
       release-line: ${{ steps.semantic_versioning.outputs.release-line }}
       changelog-mode: ${{ steps.semantic_versioning.outputs.changelog-mode }}
     steps:
-      - uses: epam/ai-dial-ci/actions/semantic_versioning@4.4.0
+      - uses: epam/ai-dial-ci/actions/semantic_versioning@4.4.1
         id: semantic_versioning
         with:
           promote: true
@@ -89,7 +89,7 @@ jobs:
           docker-cleanup: "true"
           set-tmpdir: "true"
 
-      - uses: epam/ai-dial-ci/actions/generate_release_notes@4.4.0
+      - uses: epam/ai-dial-ci/actions/generate_release_notes@4.4.1
         with:
           latest-tag: ${{ needs.calculate_version.outputs.latest-stable-tag }}
           use-merge-base: ${{ needs.calculate_version.outputs.changelog-mode == 'merge-base' }}
@@ -99,7 +99,7 @@ jobs:
           lfs: true
           token: ${{ secrets.ACTIONS_BOT_TOKEN }}
 
-      - uses: epam/ai-dial-ci/actions/node_prepare@4.4.0
+      - uses: epam/ai-dial-ci/actions/node_prepare@4.4.1
         with:
           node-version: "24"
           clean-install: true
@@ -171,7 +171,7 @@ jobs:
           IS_LATEST: ${{ needs.calculate_version.outputs.is-latest == 'true' }}
           RELEASE_LINE: ${{ needs.calculate_version.outputs.release-line }}
 
-      - uses: epam/ai-dial-ci/actions/publish_tag_release@4.4.0
+      - uses: epam/ai-dial-ci/actions/publish_tag_release@4.4.1
         if: ${{ startsWith(github.ref, 'refs/heads/release-') }}
         with:
           git-user-name: ${{ vars.ACTIONS_BOT_NAME || 'statgpt-actions' }}
