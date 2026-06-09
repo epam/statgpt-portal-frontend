@@ -114,7 +114,7 @@ export default async function LocaleLayout({
   };
 
   const azureContentManagementPolicyUrl =
-    process.env.AZURE_CONTENT_MANAGEMENT_POLICY_URL;
+    process.env.CONTENT_MANAGEMENT_POLICY_URL;
 
   return (
     <I18nProvider locale={locale}>

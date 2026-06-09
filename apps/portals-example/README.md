@@ -13,7 +13,7 @@ It's a reference application demonstrating how to build custom portals using the
 - [StatGPT Portal Frontend Example](#statgpt-portal-frontend-example)
   - [Table of Contents](#table-of-contents)
   - [✨ Main Features](#-main-features)
-  - [🏗️ Architecture Overview](#️-architecture-overview)
+  - [📐 Architecture Overview](#-architecture-overview)
   - [🚀 Quick Start](#-quick-start)
     - [Prerequisites](#prerequisites)
     - [Start](#start)
@@ -39,7 +39,7 @@ It's a reference application demonstrating how to build custom portals using the
 - **Charting**: view data in chart format
 - **Sharing**: share conversations via link or QR-code
 
-## 🏗️ Architecture Overview
+## 📐 Architecture Overview
 
 This project uses:
 - **Next.js** with App Router for the frontend framework
@@ -52,8 +52,8 @@ This project uses:
 
 ### Prerequisites
 
-- Node.js >= 22.19.0
-- npm >= 11.0.0
+- Node.js >= 24.14.0
+- npm >= 11.11.0
 
 ### Start
 
@@ -66,8 +66,8 @@ npm run start
 
 ### Prerequisites
 
-- Node.js >= 22.19.0
-- npm >= 11.0.0
+- Node.js >= 24.14.0
+- npm >= 11.11.0
 - Git
 
 ### Development Setup
@@ -85,22 +85,16 @@ npm run start
 
 3. **Set up environment variables**.
 
-   Create a `.env` file in the application directory:
+   Copy the example file and fill in your values:
 
-    ```env
-    # DIAL API Configuration
-    DIAL_API_URL=https://your-dial-api-endpoint.com
-    DIAL_API_VERSION=your-dial-api-version
-    DIAL_API_KEY=your-api-key
-    DEFAULT_MODEL="ADD_VALUE_HERE"
-   
-    # SDMX API Configuration (optional — if not set, SDMX requests are proxied through DIAL_API_URL)
-    SDMX_API_URL=https://your-sdmx-api-endpoint.com
-    ```
+   ```bash
+   cp .env.local.example .env.local
+   ```
+
+   Both `.env` and `.env.local` are supported. See `.env.local.example` for all available variables.
 
 4. **Start Development Environment**
    ```bash
-   # Start Vite dev server
    npm run start
    ```
 
@@ -129,8 +123,11 @@ Portals Example uses environment variables for configuration. All environment va
 | `DIAL_API_VERSION`                  |    No    | AI DIAL API Version                                                                                                                                                                                                                                           | Any string       | `2024-02-01`                                                                                                                       |
 | `DEFAULT_MODEL`                     |    No    | A model that will be used for the new conversation. `Reference` or `ID` of the agent.                                                                                                                                                                         | Any string       | First available model from [AI DIAL Core](https://github.com/epam/ai-dial-core?tab=readme-ov-file#dynamic-settings) config listing |
 | `SDMX_API_URL`                     |    No    | SDMX+ api url. If not set, SDMX requests will be proxied through `DIAL_API_URL`.                                                                                                                                                                              | URL              |  |
+| `SDMX_AUTH_KEY`                    |    No    | API key for authenticating requests to `SDMX_API_URL`.                                                                                                                                                                                                        | Any string       |  |
 | `CONSTRAINS_SDMX_API_URL`          |    No    | SDMX+ Constrains api url                                                                                                                                                                                                                                      | URL              |  |
-| `SDMX_PROXY_URL`          |    No    | SDMX 3.0 constrains api url                                                                                                                                                                                                                                   | URL              |  |
+| `SDMX_PROXY_URL`                   |    No    | SDMX 3.0 constraints proxy url                                                                                                                                                                                                                                | URL              |  |
+| `LOG_LEVEL`                        |    No    | Server-side log level.                                                                                                                                                                                                                                         | `trace` \| `debug` \| `info` \| `warn` \| `error` \| `fatal` | `info` |
+| `NEXT_PUBLIC_DEBUG`                |    No    | Enables verbose client-side logging in the browser console.                                                                                                                                                                                                    | `true` \| `false` | `false` |
 
 ### Environment Variables for the Configuration of Auth Providers
 
@@ -209,7 +206,6 @@ The table below presents a list of environment variables you can use to configur
 | `AUTH_OKTA_SCOPE`                 |                            No                            | Okta Scope                                                                                                                                                                                                                                         | Any string                                                                                                                      | `openid email profile`                          |
 | `AUTH_OKTA_ADMIN_ROLE_NAMES`      |                            No                            | Defines the administrator names                                                                                                                                                                                                                    | Any string. Values must be separated by a comma.                                                                                |                                                 |
 | `AUTH_OKTA_DIAL_ROLES_FIELD`      |                            No                            | Defines the path of the roles field in JWT token                                                                                                                                                                                                   | refer to `DIAL_ROLES_FIELD` for details                                                                                         |                                                 |
-| `FEDERATED_LOGOUT_PROVIDERS`      |                            No                            | Comma-separated list of authentication provider IDs (e.g., keycloak, azure-ad) that require federated logout when the user signs out.                                                                                                                                                                                                                |                                                                                          |                                                 |
 
 
 ### Content Configuration Environment Variables
@@ -219,8 +215,7 @@ The table below lists environment variables that control configurable content di
 | Variable                          |                         Required                         | Description                                                                                                                                                                                                                                                      | Available Values                                                                                                                | Default values                                  |
 |-----------------------------------| :------------------------------------------------------: |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
 | `CLIENT_CONTACT_SUPPORT_URL`    |   No    | URL of the contact support page displayed to users within the application.                                                                                                                                                                                                                                                                                          | URL                                                                                       |  |
-| `INFO_BANNER_MESSAGE`    |   No    | Plain text message displayed in the informational banner below the footer (e.g., maintenance notice or system alert). If not set, the banner is hidden.                                                                                                                                                                                                                                                                                           | Any string                                                                                       |  |
-| `CONTENT_MANAGEMENT_POLICY_URL` | No | URL of the page describing the content management policy. Displayed in a warning message when a user's prompt triggers the content filtering policy. | URL |
+| `CONTENT_MANAGEMENT_POLICY_URL` | No | URL of the content management policy page. Displayed in a warning message when a user's prompt triggers the content filtering policy. | URL | |
 
 ### Feature Toggles Environment Variables
 
