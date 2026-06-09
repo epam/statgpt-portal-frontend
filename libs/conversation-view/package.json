@@ -1,6 +1,6 @@
 {
   "name": "@epam/statgpt-conversation-view",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "license": "MIT",
   "dependencies": {
     "classnames": "^2.5.1",
