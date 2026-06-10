@@ -1,23 +1,19 @@
-import { IncomingMessage } from 'http';
 import { getToken, GetTokenParams, JWT } from 'next-auth/jwt';
-import { NextApiRequestCookies } from 'next/dist/server/api-utils';
-import { authOptions } from './auth-options';
+import { getAuthSecret, getSessionCookieName } from './auth-cookie';
 
 export const getTokenRequest = async (
   headers: Promise<Headers>,
   cookies: Promise<unknown>,
 ): Promise<GetTokenParams> => {
   const headersList = await headers;
-  const cookiesList = await cookies;
+  await cookies;
 
   return {
     req: {
       headers: headersList,
-      cookies: cookiesList as NextApiRequestCookies,
-    } as unknown as IncomingMessage & {
-      cookies: NextApiRequestCookies;
     },
-    ...(authOptions as Partial<GetTokenParams>),
+    cookieName: getSessionCookieName(),
+    secret: getAuthSecret(),
   };
 };
 

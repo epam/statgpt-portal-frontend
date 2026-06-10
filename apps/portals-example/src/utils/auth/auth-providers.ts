@@ -1,4 +1,5 @@
-import { Provider, TokenEndpointHandler } from 'next-auth/providers/index';
+import { customFetch } from 'next-auth';
+import { Provider } from 'next-auth/providers/index';
 import Auth0Provider from 'next-auth/providers/auth0';
 import AzureProvider from 'next-auth/providers/azure-ad';
 import CognitoProvider from 'next-auth/providers/cognito';
@@ -9,7 +10,6 @@ import AzureB2CProvider from 'next-auth/providers/azure-ad-b2c';
 
 import { GitLab } from './custom-gitlab';
 import PingId from './ping-identity';
-import NextClient from './nextauth-client';
 import {
   isAuth0Configured,
   isAzureAdConfigured,
@@ -22,38 +22,58 @@ import {
   isPingIdConfigured,
 } from './auth-providers-config';
 
-// Need to be set for all providers
-export const tokenConfig: TokenEndpointHandler = {
-  request: async (context) => {
-    let tokens;
+const DEFAULT_NAME = 'SSO';
 
-    NextClient.setClient(context.client, context.provider);
-
-    if (context.provider.idToken) {
-      tokens = await context.client.callback(
-        context.provider.callbackUrl,
-        context.params,
-        context.checks,
-      );
-    } else {
-      tokens = await context.client.oauthCallback(
-        context.provider.callbackUrl,
-        context.params,
-        context.checks,
-      );
-    }
-    return { tokens };
-  },
+const getAzureAdIssuer = () => {
+  const tenantId = process.env.AUTH_AZURE_AD_TENANT_ID || 'common';
+  return `https://login.microsoftonline.com/${tenantId}/v2.0`;
 };
 
-const DEFAULT_NAME = 'SSO';
+const getAzureB2cIssuer = () => {
+  if (process.env.AUTH_AZURE_B2C_ISSUER) {
+    return process.env.AUTH_AZURE_B2C_ISSUER;
+  }
+
+  const tenantId = process.env.AUTH_AZURE_B2C_TENANT_ID;
+  const userFlow = process.env.AUTH_AZURE_B2C_USER_FLOW;
+
+  if (!tenantId || !userFlow) {
+    return undefined;
+  }
+
+  return `https://${tenantId}.b2clogin.com/${tenantId}.onmicrosoft.com/${userFlow}/v2.0`;
+};
+
+/**
+ * Azure AD B2C custom policies omit `userinfo_endpoint` from their discovery
+ * document, but `@auth/core` rejects metadata without one — even though it
+ * never calls userinfo for the OIDC id_token flow.
+ */
+const b2cDiscoveryFetch: typeof fetch = async (input, init) => {
+  const response = await fetch(input, init);
+
+  const url = new URL(input instanceof Request ? input.url : input.toString());
+  if (!url.pathname.endsWith('/.well-known/openid-configuration')) {
+    return response;
+  }
+
+  const metadata = await response.clone().json();
+  if (!metadata?.issuer || metadata.userinfo_endpoint) {
+    return response;
+  }
+
+  return Response.json({
+    ...metadata,
+    userinfo_endpoint: `${metadata.issuer}userinfo`,
+  });
+};
 
 const allProviders: (Provider | boolean)[] = [
   isAzureAdConfigured &&
     AzureProvider({
       clientId: process.env.AUTH_AZURE_AD_CLIENT_ID!,
       clientSecret: process.env.AUTH_AZURE_AD_SECRET!,
-      tenantId: process.env.AUTH_AZURE_AD_TENANT_ID,
+      issuer: process.env.AUTH_AZURE_AD_ISSUER ?? getAzureAdIssuer(),
       name: process.env.AUTH_AZURE_AD_NAME ?? DEFAULT_NAME,
       authorization: {
         params: {
@@ -62,17 +82,14 @@ const allProviders: (Provider | boolean)[] = [
             'openid profile user.Read email offline_access',
         },
       },
-      token: tokenConfig,
     }),
 
   isAzureB2cConfigured &&
     AzureB2CProvider({
-      issuer: process.env.AUTH_AZURE_B2C_ISSUER,
+      issuer: getAzureB2cIssuer(),
       clientId: process.env.AUTH_AZURE_B2C_CLIENT_ID!,
       clientSecret: process.env.AUTH_AZURE_B2C_CLIENT_SECRET!,
-      tenantId: process.env.AUTH_AZURE_B2C_TENANT_ID,
       name: process.env.AUTH_AZURE_B2C_NAME ?? DEFAULT_NAME,
-      primaryUserFlow: process.env.AUTH_AZURE_B2C_USER_FLOW,
       authorization: {
         params: {
           scope:
@@ -80,7 +97,7 @@ const allProviders: (Provider | boolean)[] = [
             'openid profile user.Read email offline_access',
         },
       },
-      token: tokenConfig,
+      [customFetch]: b2cDiscoveryFetch,
     }),
 
   isGitlabConfigured &&
@@ -92,7 +109,6 @@ const allProviders: (Provider | boolean)[] = [
       authorization: {
         params: { scope: process.env.AUTH_GITLAB_SCOPE || 'read_user' },
       },
-      token: tokenConfig,
     }),
 
   isGoogleConfigured &&
@@ -107,7 +123,6 @@ const allProviders: (Provider | boolean)[] = [
             'openid email profile offline_access',
         },
       },
-      token: tokenConfig,
     }),
 
   isAuth0Configured &&
@@ -124,7 +139,6 @@ const allProviders: (Provider | boolean)[] = [
             'openid email profile offline_access',
         },
       },
-      token: tokenConfig,
     }),
 
   isKeycloakConfigured &&
@@ -133,14 +147,6 @@ const allProviders: (Provider | boolean)[] = [
       clientSecret: process.env.AUTH_KEYCLOAK_SECRET!,
       name: process.env.AUTH_KEYCLOAK_NAME ?? DEFAULT_NAME,
       issuer: process.env.AUTH_KEYCLOAK_HOST,
-      userinfo: {
-        async request(context) {
-          const userinfo = await context.client.userinfo(
-            context.tokens.access_token as string,
-          );
-          return userinfo;
-        },
-      },
       authorization: {
         params: {
           scope:
@@ -148,7 +154,6 @@ const allProviders: (Provider | boolean)[] = [
             'openid email profile offline_access',
         },
       },
-      token: tokenConfig,
     }),
 
   isPingIdConfigured &&
@@ -162,7 +167,6 @@ const allProviders: (Provider | boolean)[] = [
           scope: process.env.AUTH_PING_ID_SCOPE || 'offline_access',
         },
       },
-      token: tokenConfig,
     }),
 
   isCognitoConfigured &&
@@ -176,7 +180,6 @@ const allProviders: (Provider | boolean)[] = [
           scope: process.env.AUTH_COGNITO_SCOPE || 'openid email profile',
         },
       },
-      token: tokenConfig,
     }),
 
   isOktaConfigured &&
@@ -189,7 +192,6 @@ const allProviders: (Provider | boolean)[] = [
           scope: process.env.AUTH_OKTA_SCOPE || 'openid email profile',
         },
       },
-      token: tokenConfig,
     }),
 ];
 
