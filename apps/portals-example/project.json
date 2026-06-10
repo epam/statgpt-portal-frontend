@@ -9,8 +9,7 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/apps/portals-example",
-        "webpack": true
+        "outputPath": "dist/apps/portals-example"
       },
       "configurations": {
         "development": {
@@ -24,8 +23,7 @@
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "portals-example:build",
-        "dev": true,
-        "webpack": true
+        "dev": true
       },
       "configurations": {
         "development": {
