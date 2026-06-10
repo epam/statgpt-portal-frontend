@@ -265,6 +265,7 @@ export function useAttachmentsData(
           const updatedQuery = buildDataQueryWithMergedFilters(
             dataQuery,
             filters,
+            false,
           );
           const originalTitle = rawAttachments?.find(
             (a) =>
