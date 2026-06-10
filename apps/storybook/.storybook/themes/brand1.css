@@ -31,4 +31,5 @@
   --white10: #ffffff1a;
   --neutrals-300-10: #f0f4f81a;
   --highlight: #bedaff;
+  --loader-image-url: url('/brand-assets/brand1/loader.svg');
 }

@@ -18,7 +18,10 @@ const config: StorybookConfig = {
     name: '@storybook/react-vite',
     options: {},
   },
-  staticDirs: [{ from: './themes', to: '/brand-themes' }],
+  staticDirs: [
+    { from: './themes', to: '/brand-themes' },
+    { from: '../brand-assets/brand1', to: '/brand-assets/brand1' },
+  ],
   async viteFinal(baseConfig) {
     const { default: tailwindcss } = await import('tailwindcss');
     const { default: autoprefixer } = await import('autoprefixer');
