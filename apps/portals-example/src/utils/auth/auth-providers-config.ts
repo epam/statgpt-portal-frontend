@@ -6,7 +6,9 @@ export const isAzureAdConfigured =
 export const isAzureB2cConfigured =
   !!process.env.AUTH_AZURE_B2C_CLIENT_ID &&
   !!process.env.AUTH_AZURE_B2C_CLIENT_SECRET &&
-  !!process.env.AUTH_AZURE_B2C_TENANT_ID;
+  (!!process.env.AUTH_AZURE_B2C_ISSUER ||
+    (!!process.env.AUTH_AZURE_B2C_TENANT_ID &&
+      !!process.env.AUTH_AZURE_B2C_USER_FLOW));
 
 export const isGitlabConfigured =
   !!process.env.AUTH_GITLAB_CLIENT_ID && !!process.env.AUTH_GITLAB_SECRET;
