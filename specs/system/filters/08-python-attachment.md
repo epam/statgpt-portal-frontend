@@ -48,6 +48,21 @@ rebuilt by merging the UI's current selections into the stored query:
 
 The returned `DataQuery[]` is what gets sent to the Python API.
 
+**Dataset-URN scoping (`scopeToDatasetUrn`).** `buildDataQueryWithMergedFilters` takes a
+third argument controlling how UI filters are resolved to the dataset:
+
+- **Cross-dataset mode** keeps the default `true`. UI filters carry a `datasetUrn` (and
+  shared filters span datasets), so the merge resolves them per dataset via
+  `getFiltersForQueryContext(filters, dataQuery.urn)` → `buildFiltersMap`.
+- **Single-dataset mode** passes `false`. Single-dataset filters are built by
+  `getDatasetFilters` **without** a `datasetUrn`, so they are untagged. Scoping them by
+  URN routes through `buildFiltersMap`, which groups by `filter.datasetUrn || ''` and
+  then fails to find them under the real URN — silently dropping the entire UI
+  selection and falling back to the original stored `DataQuery.filters`. Passing
+  `false` makes the merge use the no-URN context (`getFiltersForQueryContext(filters,
+  undefined)`), exactly mirroring the grid's `getQueryFilters(filters, dimensions)`
+  call, so the user's selection reaches the Python API.
+
 ---
 
 ## API Call and Dual Attachment Output
