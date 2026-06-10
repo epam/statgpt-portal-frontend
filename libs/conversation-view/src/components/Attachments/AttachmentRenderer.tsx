@@ -265,6 +265,16 @@ const AttachmentRenderer: FC<Props> = ({
             `flex flex-col pb-1`,
           )}
         >
+          {!isOpenedAdvancedView &&
+            enabledDatasets?.length != null &&
+            enabledDatasets?.length > 0 && (
+              <DatasetTabs
+                datasets={enabledDatasets}
+                initialSelectedDatasetUrn={initialSelectedDatasetUrn}
+                locale={locale}
+                selectDataset={selectDataset}
+              />
+            )}
           {shouldShowLoader ? (
             <Loader />
           ) : (
@@ -281,16 +291,6 @@ const AttachmentRenderer: FC<Props> = ({
                   dataQueries={dataQueries}
                 />
               )}
-              {!isOpenedAdvancedView &&
-                enabledDatasets?.length != null &&
-                enabledDatasets?.length > 0 && (
-                  <DatasetTabs
-                    datasets={enabledDatasets}
-                    initialSelectedDatasetUrn={initialSelectedDatasetUrn}
-                    locale={locale}
-                    selectDataset={selectDataset}
-                  />
-                )}
               {showLimitMessage && (
                 <RequestLimitMessage
                   limitMessages={limitMessages}
