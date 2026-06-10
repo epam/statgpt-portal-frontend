@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-import { Account, CallbacksOptions, Profile } from 'next-auth';
+import { NextAuthConfig, Profile } from 'next-auth';
 
-import { TokenSet } from 'openid-client';
 import { Token, UserSession } from '../../models/auth';
 import { logTokenExpiration } from './log-token-info';
 import NextClient, { RefreshToken } from './nextauth-client';
+import { refreshOAuthToken } from './oauth-refresh';
 
 const waitRefreshTokenTimeout = 5;
 
@@ -21,18 +21,6 @@ async function refreshAccessToken(token: Token) {
     // Ensure the token contains provider information
     if (!token.providerId) {
       throw new Error(`No provider information exists in token`);
-    }
-
-    const client = NextClient.getClient(token.providerId);
-
-    if (!client) {
-      console.error(
-        `No client for provider: ${token.providerId}. Sub: ${displayedTokenSub}`,
-      );
-      return {
-        ...token,
-        error: 'NoClientForProvider',
-      };
     }
 
     let msWaiting = 0;
@@ -70,8 +58,18 @@ async function refreshAccessToken(token: Token) {
       }
     }
     console.log('refreshing token');
-    const refreshedTokens = await client.refresh(
-      token.refreshToken as string | TokenSet,
+    const refreshToken =
+      typeof token.refreshToken === 'string'
+        ? token.refreshToken
+        : token.refreshToken?.refresh_token;
+
+    if (!refreshToken) {
+      throw new Error('No refresh token exists');
+    }
+
+    const refreshedTokens = await refreshOAuthToken(
+      token.providerId,
+      refreshToken,
     );
 
     if (
@@ -119,14 +117,16 @@ async function refreshAccessToken(token: Token) {
   }
 }
 
-export const callbacks: Partial<
-  CallbacksOptions<Profile & { job_title?: string }, Account>
-> = {
+export const callbacks = {
   jwt: async (options) => {
     if (options.account) {
+      const profile = options.profile as
+        | (Profile & { job_title?: string })
+        | undefined;
+
       return {
         ...options.token,
-        jobTitle: options.profile?.job_title,
+        jobTitle: profile?.job_title,
         access_token: options.account.access_token,
         accessTokenExpires:
           typeof options.account.expires_in === 'number'
@@ -134,7 +134,7 @@ export const callbacks: Partial<
             : (options.account.expires_at as number) * 1000,
         refreshToken: options.account.refresh_token,
         providerId: options.account.provider,
-        userId: options.user.id,
+        userId: options.user.id ?? options.token.sub ?? '',
         idToken: options.account.id_token,
       };
     }
@@ -175,9 +175,9 @@ export const callbacks: Partial<
   session: async (options) => {
     if (options.token?.error) {
       console.info(`Session error: ${options.token.error}`);
-      (options.session as UserSession).error = options.token.error;
+      (options.session as unknown as UserSession).error = options.token.error;
     }
 
     return options.session;
   },
-};
+} satisfies NextAuthConfig['callbacks'];
