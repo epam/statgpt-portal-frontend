@@ -95,10 +95,8 @@ async function authProxyFn(req: NextRequest) {
     token == null || (token as { error?: unknown }).error != null;
 
   if (isInvalidSession) {
-    const signInUrl = new URL(
-      getSignInLink(req.nextUrl.href),
-      req.nextUrl.origin,
-    );
+    const callbackUrl = `${req.nextUrl.pathname}${req.nextUrl.search}`;
+    const signInUrl = new URL(getSignInLink(callbackUrl), req.nextUrl.origin);
 
     return NextResponse.redirect(signInUrl);
   }
