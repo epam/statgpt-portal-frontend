@@ -75,7 +75,10 @@ export function useAttachmentsData(
   rawAttachments?: Attachment[],
   initialDatasetStructure?: StructuralData,
   isInitialDatasetStructureLoading = false,
-  onCodeAttachmentUpdated?: (attachment: Attachment, datasetUrn?: string) => void,
+  onCodeAttachmentUpdated?: (
+    attachment: Attachment,
+    datasetUrn?: string,
+  ) => void,
   skipInitialConstraintsLoading = false,
 ) {
   const [dataMessage, setDataMessage] = useState<DataMessage | undefined>();

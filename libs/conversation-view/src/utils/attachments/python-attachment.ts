@@ -26,7 +26,10 @@ export function invokePythonAttachment(options: {
   markdownTitle: string;
   datasetUrn?: string;
   setCodeAttachments: (attachments: CustomCodeAttachment[]) => void;
-  onCodeAttachmentUpdated?: (attachment: Attachment, datasetUrn?: string) => void;
+  onCodeAttachmentUpdated?: (
+    attachment: Attachment,
+    datasetUrn?: string,
+  ) => void;
 }): void {
   const {
     getPythonAttachment,
