@@ -152,12 +152,12 @@ describe('replacePythonAttachment', () => {
     const attachments = result?.[0].custom_content?.attachments ?? [];
 
     expect(attachments).toHaveLength(2);
-    expect(attachments.find((a: any) => a.title === 'Python code for URN:A')?.data).toBe(
-      '```python\nprint("A")\n```',
-    );
-    expect(attachments.find((a: any) => a.title === 'Python code for URN:B')?.data).toBe(
-      '```python\nprint("B-new")\n```',
-    );
+    expect(
+      attachments.find((a: any) => a.title === 'Python code for URN:A')?.data,
+    ).toBe('```python\nprint("A")\n```');
+    expect(
+      attachments.find((a: any) => a.title === 'Python code for URN:B')?.data,
+    ).toBe('```python\nprint("B-new")\n```');
   });
 
   it('with datasetUrn that matches nothing, appends without removing siblings', () => {
@@ -187,7 +187,11 @@ describe('replacePythonAttachment', () => {
     const attachments = result?.[0].custom_content?.attachments ?? [];
 
     expect(attachments).toHaveLength(2);
-    expect(attachments.find((a: any) => a.title === 'Python code for URN:A')).toBeDefined();
-    expect(attachments.find((a: any) => a.title === 'Python code for URN:C')).toBeDefined();
+    expect(
+      attachments.find((a: any) => a.title === 'Python code for URN:A'),
+    ).toBeDefined();
+    expect(
+      attachments.find((a: any) => a.title === 'Python code for URN:C'),
+    ).toBeDefined();
   });
 });
