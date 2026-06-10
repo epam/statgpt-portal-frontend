@@ -2,6 +2,7 @@ import {
   prepareSystemMessage,
   updateMessagesWithSystemMessage,
 } from '../system-message';
+import { getLastAssistantMessage } from '../messages';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 
 jest.mock('@epam/ai-dial-shared', () => ({
@@ -13,6 +14,10 @@ jest.mock('@epam/statgpt-dial-toolkit', () => ({
 jest.mock('../messages', () => ({
   getLastAssistantMessage: jest.fn().mockReturnValue(undefined),
 }));
+
+beforeEach(() => {
+  (getLastAssistantMessage as jest.Mock).mockReturnValue(undefined);
+});
 
 const SYSTEM_MESSAGE = (attachments: any[] = []) => ({
   role: 'system',
@@ -138,5 +143,82 @@ describe('updateMessagesWithSystemMessage', () => {
       pythonA.data,
       pythonB.data,
     ]);
+  });
+
+  it('seeds python attachments from the assistant message when there is no prior system message', () => {
+    const pyA = {
+      type: 'text/markdown',
+      title: 'Python Code: A',
+      data: '```python\nA\n```',
+    };
+    const pyB = {
+      type: 'text/markdown',
+      title: 'Python Code: B',
+      data: '```python\nB\n```',
+    };
+    const assistant = {
+      role: 'assistant',
+      content: '',
+      custom_content: { attachments: [pyA, pyB] },
+    };
+    (getLastAssistantMessage as jest.Mock).mockReturnValue(assistant);
+
+    const result = updateMessagesWithSystemMessage(
+      [assistant] as any,
+      DATA_QUERIES,
+    );
+    const sys = result[result.length - 1];
+    const python = sys.custom_content!.attachments!.filter(
+      (a: any) => a.type === 'text/markdown' && a.data?.includes('```python'),
+    );
+
+    expect(python.map((a: any) => a.title)).toEqual([
+      'Python Code: A',
+      'Python Code: B',
+    ]);
+  });
+
+  it('unions assistant originals with updated system python, preferring updated versions by title', () => {
+    const pyA = {
+      type: 'text/markdown',
+      title: 'Python Code: A',
+      data: '```python\nA\n```',
+    };
+    const pyBOld = {
+      type: 'text/markdown',
+      title: 'Python Code: B',
+      data: '```python\nB-old\n```',
+    };
+    const pyC = {
+      type: 'text/markdown',
+      title: 'Python Code: C',
+      data: '```python\nC\n```',
+    };
+    const assistant = {
+      role: 'assistant',
+      content: '',
+      custom_content: { attachments: [pyA, pyBOld, pyC] },
+    };
+    const pyBUpdated = {
+      type: 'text/markdown',
+      title: 'Python Code: B',
+      data: '```python\nB-new\n```',
+    };
+    const degradedSystem = SYSTEM_MESSAGE([pyBUpdated]);
+    (getLastAssistantMessage as jest.Mock).mockReturnValue(assistant);
+
+    const result = updateMessagesWithSystemMessage(
+      [assistant, degradedSystem] as any,
+      DATA_QUERIES,
+    );
+    const sys = result[result.length - 1];
+    const python = sys.custom_content!.attachments!.filter(
+      (a: any) => a.type === 'text/markdown' && a.data?.includes('```python'),
+    );
+
+    expect(python).toHaveLength(3);
+    expect(
+      python.find((a: any) => a.title === 'Python Code: B')?.data,
+    ).toContain('B-new');
   });
 });
