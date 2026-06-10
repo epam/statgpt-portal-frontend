@@ -119,4 +119,75 @@ describe('replacePythonAttachment', () => {
     );
     expect(result?.[2].custom_content?.attachments).toEqual([newAttachment]);
   });
+
+  it('with datasetUrn, replaces only the matching python attachment and preserves siblings', () => {
+    const messages = [
+      {
+        role: Role.System,
+        content: '',
+        custom_content: {
+          attachments: [
+            {
+              type: AttachmentType.MARKDOWN,
+              title: 'Python code for URN:A',
+              data: '```python\nprint("A")\n```',
+            },
+            {
+              type: AttachmentType.MARKDOWN,
+              title: 'Python code for URN:B',
+              data: '```python\nprint("B-old")\n```',
+            },
+          ],
+        },
+      },
+    ] as any;
+
+    const newB = {
+      type: AttachmentType.MARKDOWN,
+      title: 'Python code for URN:B',
+      data: '```python\nprint("B-new")\n```',
+    };
+
+    const result = replacePythonAttachment(messages, newB, undefined, 'URN:B');
+    const attachments = result?.[0].custom_content?.attachments ?? [];
+
+    expect(attachments).toHaveLength(2);
+    expect(attachments.find((a: any) => a.title === 'Python code for URN:A')?.data).toBe(
+      '```python\nprint("A")\n```',
+    );
+    expect(attachments.find((a: any) => a.title === 'Python code for URN:B')?.data).toBe(
+      '```python\nprint("B-new")\n```',
+    );
+  });
+
+  it('with datasetUrn that matches nothing, appends without removing siblings', () => {
+    const messages = [
+      {
+        role: Role.System,
+        content: '',
+        custom_content: {
+          attachments: [
+            {
+              type: AttachmentType.MARKDOWN,
+              title: 'Python code for URN:A',
+              data: '```python\nprint("A")\n```',
+            },
+          ],
+        },
+      },
+    ] as any;
+
+    const newC = {
+      type: AttachmentType.MARKDOWN,
+      title: 'Python code for URN:C',
+      data: '```python\nprint("C")\n```',
+    };
+
+    const result = replacePythonAttachment(messages, newC, undefined, 'URN:C');
+    const attachments = result?.[0].custom_content?.attachments ?? [];
+
+    expect(attachments).toHaveLength(2);
+    expect(attachments.find((a: any) => a.title === 'Python code for URN:A')).toBeDefined();
+    expect(attachments.find((a: any) => a.title === 'Python code for URN:C')).toBeDefined();
+  });
 });
