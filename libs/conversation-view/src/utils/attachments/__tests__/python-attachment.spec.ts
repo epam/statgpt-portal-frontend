@@ -1,4 +1,7 @@
-import { invokePythonAttachment } from '../python-attachment';
+import {
+  invokePythonAttachment,
+  resolveSingleDatasetPythonTitle,
+} from '../python-attachment';
 
 jest.mock('@epam/statgpt-dial-toolkit', () => ({
   AttachmentType: {
@@ -53,5 +56,67 @@ describe('invokePythonAttachment', () => {
     await flush();
 
     expect(onCodeAttachmentUpdated.mock.calls[0][1]).toBeUndefined();
+  });
+});
+
+describe('resolveSingleDatasetPythonTitle', () => {
+  const pythonAttachment = (title: string) => ({
+    type: 'text/markdown',
+    title,
+    data: '```python\nx = 1\n```',
+  });
+
+  it('returns the existing python attachment title whose title includes the dataset urn', () => {
+    const rawAttachments = [
+      pythonAttachment('Python Code: IMF.STA:NSDP(7.0.0)'),
+      pythonAttachment('Python Code: IMF.STA:ANEA(6.0.1)'),
+    ] as any;
+
+    const title = resolveSingleDatasetPythonTitle(rawAttachments, {
+      urn: 'IMF.STA:ANEA(6.0.1)',
+    } as any);
+
+    expect(title).toBe('Python Code: IMF.STA:ANEA(6.0.1)');
+  });
+
+  it('falls back to the dataset urn when no python attachment matches the urn', () => {
+    const rawAttachments = [
+      pythonAttachment('Python Code: IMF.STA:NSDP(7.0.0)'),
+    ] as any;
+
+    const title = resolveSingleDatasetPythonTitle(rawAttachments, {
+      urn: 'IMF.STA:ANEA(6.0.1)',
+    } as any);
+
+    expect(title).toBe('IMF.STA:ANEA(6.0.1)');
+  });
+
+  it('ignores non-markdown and non-python attachments', () => {
+    const rawAttachments = [
+      {
+        type: 'application/json',
+        title: 'Query: IMF.STA:ANEA(6.0.1)',
+        data: '{}',
+      },
+      {
+        type: 'text/markdown',
+        title: 'Notes: IMF.STA:ANEA(6.0.1)',
+        data: 'no code here',
+      },
+    ] as any;
+
+    const title = resolveSingleDatasetPythonTitle(rawAttachments, {
+      urn: 'IMF.STA:ANEA(6.0.1)',
+    } as any);
+
+    expect(title).toBe('IMF.STA:ANEA(6.0.1)');
+  });
+
+  it('falls back to the dataset urn when there are no attachments', () => {
+    expect(
+      resolveSingleDatasetPythonTitle(undefined, {
+        urn: 'IMF.STA:ANEA(6.0.1)',
+      } as any),
+    ).toBe('IMF.STA:ANEA(6.0.1)');
   });
 });

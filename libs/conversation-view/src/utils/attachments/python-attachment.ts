@@ -6,6 +6,26 @@ import { CustomCodeAttachment } from '../../models/attachments';
 import { GetPythonAttachment } from '../../types/actions';
 
 /**
+ * Resolves the title for a single dataset's persisted python markdown attachment.
+ *
+ * Reuses the dataset's existing python attachment title — matched by the dataset
+ * urn appearing in the title — so the regenerated sample stays scoped to that
+ * dataset; falls back to the dataset urn when no matching sample exists.
+ */
+export function resolveSingleDatasetPythonTitle(
+  rawAttachments: Attachment[] | undefined,
+  dataQuery: DataQuery,
+): string {
+  const originalTitle = rawAttachments?.find(
+    (a) =>
+      a.type === AttachmentType.MARKDOWN &&
+      a.data?.includes('```python') &&
+      a.title?.includes(dataQuery.urn),
+  )?.title;
+  return originalTitle ?? dataQuery.urn;
+}
+
+/**
  * Calls the python attachment API with stale-request protection and applies
  * the result to local state and the persisted conversation.
  *
