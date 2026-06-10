@@ -73,7 +73,7 @@ export function useAttachmentsDataMultipleQueries(
   metadataSettings?: MetadataSettings,
   rawAttachments?: Attachment[],
   initialActiveDatasetUrns?: string[],
-  onCodeAttachmentUpdated?: (attachment: Attachment) => void,
+  onCodeAttachmentUpdated?: (attachment: Attachment, datasetUrn?: string) => void,
   gridViewMode: CrossDatasetGridViewMode = CrossDatasetGridViewMode.Compact,
   titles?: ConversationViewTitles,
 ) {

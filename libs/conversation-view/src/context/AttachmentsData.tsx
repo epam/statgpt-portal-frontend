@@ -75,7 +75,7 @@ export function useAttachmentsData(
   rawAttachments?: Attachment[],
   initialDatasetStructure?: StructuralData,
   isInitialDatasetStructureLoading = false,
-  onCodeAttachmentUpdated?: (attachment: Attachment) => void,
+  onCodeAttachmentUpdated?: (attachment: Attachment, datasetUrn?: string) => void,
   skipInitialConstraintsLoading = false,
 ) {
   const [dataMessage, setDataMessage] = useState<DataMessage | undefined>();
@@ -266,7 +266,8 @@ export function useAttachmentsData(
           const originalTitle = rawAttachments?.find(
             (a) =>
               a.type === AttachmentType.MARKDOWN &&
-              a.data?.includes('```python'),
+              a.data?.includes('```python') &&
+              a.title?.includes(dataQuery.urn),
           )?.title;
           invokePythonAttachment({
             getPythonAttachment,
@@ -276,6 +277,7 @@ export function useAttachmentsData(
             markdownTitle: originalTitle ?? dataQuery.urn,
             setCodeAttachments,
             onCodeAttachmentUpdated,
+            datasetUrn: dataQuery.urn,
           });
         }
       } catch (err) {

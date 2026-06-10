@@ -127,12 +127,14 @@ export const AdvancedView: FC<Props> = ({
   conversationRef.current = props.filtersProps.conversation;
 
   const handleCodeAttachmentUpdated = useCallback(
-    (newRawAttachment: Attachment) => {
+    (newRawAttachment: Attachment, datasetUrn?: string) => {
       const conversation = conversationRef.current;
       if (!conversation) return;
       const updatedMessages = replacePythonAttachment(
         conversation.messages as Message[],
         newRawAttachment,
+        undefined,
+        datasetUrn,
       );
       if (!updatedMessages) return;
       const updatedConversation = {
