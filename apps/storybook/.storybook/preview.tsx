@@ -6,6 +6,7 @@ import {
   type InlineAlertConfig,
 } from '@epam/statgpt-ui-components';
 import '@epam/statgpt-ui-components/scss/styles.scss';
+import 'flatpickr/dist/themes/light.css';
 import './preview-overrides.css';
 import { brand1AlertConfig } from './brand-configs/brand1/index';
 import brand1Styles from './brand-configs/brand1/styles.scss?inline';

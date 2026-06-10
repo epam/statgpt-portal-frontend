@@ -26,6 +26,8 @@ export default [
             '@testing-library/jest-dom',
             '@vitejs/plugin-react',
             'vite-plugin-dts',
+            '@storybook/react-vite',
+            'flatpickr',
           ],
         },
       ],

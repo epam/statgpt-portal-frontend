@@ -69,7 +69,6 @@ export default defineConfig({
         'react',
         'react-dom',
         'react/jsx-runtime',
-        'flatpickr',
         ...Object.keys(dependencies),
       ],
     },
