@@ -16,6 +16,7 @@ import { GetPythonAttachment } from '../../types/actions';
  * @param options.markdownTitle - Title for the raw markdown attachment written back to the conversation.
  * @param options.setCodeAttachments - State setter that replaces the current code attachment list.
  * @param options.onCodeAttachmentUpdated - Optional callback to persist the updated markdown attachment.
+ * @param options.datasetUrn - Optional dataset URN forwarded to onCodeAttachmentUpdated to scope persistence to one dataset.
  */
 export function invokePythonAttachment(options: {
   getPythonAttachment: GetPythonAttachment;
@@ -23,8 +24,9 @@ export function invokePythonAttachment(options: {
   requestIdRef: RefObject<number>;
   codeTitle: string;
   markdownTitle: string;
+  datasetUrn?: string;
   setCodeAttachments: (attachments: CustomCodeAttachment[]) => void;
-  onCodeAttachmentUpdated?: (attachment: Attachment) => void;
+  onCodeAttachmentUpdated?: (attachment: Attachment, datasetUrn?: string) => void;
 }): void {
   const {
     getPythonAttachment,
@@ -32,6 +34,7 @@ export function invokePythonAttachment(options: {
     requestIdRef,
     codeTitle,
     markdownTitle,
+    datasetUrn,
     setCodeAttachments,
     onCodeAttachmentUpdated,
   } = options;
@@ -48,11 +51,14 @@ export function invokePythonAttachment(options: {
           title: codeTitle,
         },
       ]);
-      onCodeAttachmentUpdated?.({
-        type: AttachmentType.MARKDOWN,
-        title: markdownTitle,
-        data: `\`\`\`python\n${result.python_code}\n\`\`\``,
-      });
+      onCodeAttachmentUpdated?.(
+        {
+          type: AttachmentType.MARKDOWN,
+          title: markdownTitle,
+          data: `\`\`\`python\n${result.python_code}\n\`\`\``,
+        },
+        datasetUrn,
+      );
     })
     .catch((err) => console.error('Error refreshing python attachment:', err));
 }
