@@ -87,18 +87,25 @@ the network call completes but its result is ignored.
 
 ## Persistence: `replacePythonAttachment()`
 
-`replace-python-attachment.ts`. Takes the current message list and the new markdown
-attachment. Locates the target message with the following priority:
+`replace-python-attachment.ts`. Takes the current message list, the new markdown
+attachment, an optional `messageId`, and an optional `datasetUrn`. Locates the target
+message with the following priority:
 
-1. If a `messageId` is provided (AdvancedView path): find the message with that ID
+1. If a `messageId` is provided (in-chat code-edit path): find the message with that ID
 2. Otherwise: backward scan from the end of the message list to find the most recent
    `Role.System` message
 
 Once the target is found:
-- All existing `type === 'text/markdown'` attachments whose `data` contains
-  ` ```python` are removed from the target message
-- The new markdown attachment is appended to the remaining attachments
-- The updated messages array is returned (or `null` if the target was not found)
+- If `datasetUrn` is provided (single-dataset filter path): only the
+  `type === 'text/markdown'` python attachment whose `title` includes that URN is
+  removed; every other dataset's python attachment is preserved.
+- If `datasetUrn` is omitted (cross-dataset filter path and in-chat code-edit path):
+  all `type === 'text/markdown'` attachments whose `data` contains ` ```python` are
+  removed (there is only one combined python attachment in cross-dataset mode).
+- The new markdown attachment is appended to the remaining attachments.
+- The updated messages array is returned (or `null` if the target was not found). When
+  `datasetUrn` is provided but no existing attachment matches it, the new attachment is
+  simply appended — siblings are never destroyed.
 
 The backward scan for the fallback case is the same logic described in
 `05-system-message-persistence.md` (Invariants). If no system message exists in the
@@ -114,6 +121,20 @@ per active dataset) to `buildDataQueryWithMergedFilters` for each dataset, then
 collects the rebuilt queries into an array before calling `invokePythonAttachment`.
 The API call itself is identical; the difference is only how many `DataQuery` objects
 are merged and passed.
+
+**Per-dataset keying in single-dataset (multi-tab) mode.** When more than one dataset
+is present and cross-dataset mode is off, each dataset tab has its own python markdown
+attachment, keyed by the dataset URN embedded in the attachment title (the read path
+`buildMarkdownAttachments(rawAttachments, dataQuery.urn, ...)` filters by
+`title.includes(urn)`). On a filter Apply, `AttachmentsData.onFiltersChange` therefore:
+- scopes the `originalTitle` lookup to the current `dataQuery.urn`, so the regenerated
+  attachment keeps the correct dataset's title, and
+- passes `datasetUrn: dataQuery.urn` into `invokePythonAttachment`, which forwards it as
+  the second argument of `onCodeAttachmentUpdated` so that `replacePythonAttachment`
+  replaces only that dataset's attachment and leaves the other tabs' code intact.
+
+The cross-dataset variant (`AttachmentsDataMultipleQueries`) passes **no** `datasetUrn`
+— it persists a single combined attachment, so the remove-all behavior is correct.
 
 `invokePythonAttachment` passes `dataQueries` to the Python API without transformation
 with respect to the `disabled` flag — the flag is included in the payload automatically
@@ -136,3 +157,8 @@ if it is set. The caller (`onApply` in `MultiDatasetFilters`) supplies the updat
 - The Python attachment uses ISO dates (`YYYY-MM-DD`). The SDMX data API uses
   `MM-DD-YYYY`. Both come from the same `timeRange` object serialised by different
   functions — see spec 99.
+- In single-dataset (multi-tab) mode there is one python attachment per dataset, keyed
+  by URN-in-title. Applying a filter on one tab regenerates and replaces only that
+  dataset's attachment; the others are preserved. `updateMessagesWithSystemMessage`
+  likewise carries forward **all** python attachments when rebuilding the system message
+  (see spec 05), not just the first.
