@@ -78,9 +78,10 @@ Updates the message list with the freshly built system message:
 
 1. Check if the **last** message has `role === Role.System` — if so, note it as
    the old system message (to be replaced); otherwise the new message is appended
-2. If the old system message exists, scan its attachments for a Python codeblock
-   attachment (`type: 'text/markdown'` with a ` ```python ` fence). If found, carry
-   it forward to the new system message so the Python attachment is not silently
+2. If the old system message exists, scan its attachments for **all** Python codeblock
+   attachments (`type: 'text/markdown'` with a ` ```python ` fence). All matching
+   attachments are carried forward to the new system message so that in single-dataset
+   (multi-tab) mode — where one attachment per dataset is generated — none are silently
    lost when the user changes filters.
 3. Slice off the old system message (if any), call `prepareSystemMessage()` to
    build the new one, re-attach the Python codeblock if one was found, then push

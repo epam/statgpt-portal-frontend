@@ -52,11 +52,11 @@ export const updateMessagesWithSystemMessage = (
   const lastMessage = messages.at(-1);
   const isLastSystem = lastMessage?.role === Role.System;
 
-  const pythonAttachment = isLastSystem
-    ? lastMessage?.custom_content?.attachments?.find(
+  const pythonAttachments = isLastSystem
+    ? (lastMessage?.custom_content?.attachments?.filter(
         (a) => a.type === 'text/markdown' && a.data?.includes('```python'),
-      )
-    : undefined;
+      ) ?? [])
+    : [];
 
   const baseMessages = isLastSystem ? messages.slice(0, -1) : messages;
 
@@ -68,12 +68,12 @@ export const updateMessagesWithSystemMessage = (
     queryFiltersMap,
   );
 
-  if (pythonAttachment && newSystemMessage.custom_content) {
+  if (pythonAttachments.length && newSystemMessage.custom_content) {
     newSystemMessage.custom_content = {
       ...newSystemMessage.custom_content,
       attachments: [
         ...(newSystemMessage.custom_content.attachments ?? []),
-        pythonAttachment,
+        ...pythonAttachments,
       ],
     };
   }

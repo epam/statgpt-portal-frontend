@@ -113,4 +113,30 @@ describe('updateMessagesWithSystemMessage', () => {
     const result = updateMessagesWithSystemMessage(null as any, DATA_QUERIES);
     expect(result).toEqual([]);
   });
+
+  it('carries ALL python attachments from the old system message to the new one', () => {
+    const pythonA = {
+      type: 'text/markdown',
+      title: 'Python code for TEST:DS(1.0)',
+      data: '```python\nprint("A")\n```',
+    };
+    const pythonB = {
+      type: 'text/markdown',
+      title: 'Python code for TEST:DS2(1.0)',
+      data: '```python\nprint("B")\n```',
+    };
+    const messages = [SYSTEM_MESSAGE([pythonA, pythonB])];
+
+    const result = updateMessagesWithSystemMessage(messages, DATA_QUERIES);
+    const attachments = result[0].custom_content!.attachments!;
+    const pythonAttachments = attachments.filter(
+      (a: any) => a.type === 'text/markdown' && a.data?.includes('```python'),
+    );
+
+    expect(pythonAttachments).toHaveLength(2);
+    expect(pythonAttachments.map((a: any) => a.data)).toEqual([
+      pythonA.data,
+      pythonB.data,
+    ]);
+  });
 });
