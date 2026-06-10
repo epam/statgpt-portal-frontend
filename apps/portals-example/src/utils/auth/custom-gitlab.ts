@@ -1,4 +1,4 @@
-import { OAuthConfig, OAuthUserConfig } from 'next-auth/providers/oauth';
+import { OAuthConfig, OAuthUserConfig } from '@auth/core/providers/oauth';
 import { GitLabProfile } from 'next-auth/providers/gitlab';
 
 export function GitLab<P extends GitLabProfile>(
@@ -25,14 +25,7 @@ export function GitLab<P extends GitLabProfile>(
         image: profile.avatar_url,
       };
     },
-    style: {
-      logo: '/gitlab.svg',
-      logoDark: '/gitlab-dark.svg',
-      bg: '#fff',
-      text: '#FC6D26',
-      bgDark: '#FC6D26',
-      textDark: '#fff',
-    },
+    style: { brandColor: '#FC6D26' },
     options,
   };
 }

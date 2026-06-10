@@ -1,6 +1,6 @@
-import { DefaultSession, getServerSession } from 'next-auth';
+import { DefaultSession } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
-import { authOptions } from './auth-options';
+import { auth } from '../../auth';
 
 export const getIsInvalidSession = async (
   isEnableAuth: boolean,
@@ -9,7 +9,7 @@ export const getIsInvalidSession = async (
   if (!isEnableAuth) {
     return false;
   }
-  const session = (await getServerSession(authOptions)) as DefaultSession & {
+  const session = (await auth()) as DefaultSession & {
     error?: string;
   };
   const isInvalidSession = session == null || session.error != null;
