@@ -1,4 +1,4 @@
-# https://github.com/epam/ai-dial-ci/blob/4.4.0/actions/build_docker/action.yml
+# https://github.com/epam/ai-dial-ci/blob/4.4.1/actions/build_docker/action.yml
 # This version has modified values for maintainer and org.opencontainers.image.licenses
 
 name: Build docker
