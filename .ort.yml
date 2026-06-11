@@ -9,6 +9,12 @@ excludes:
     - pattern: 'devDependencies'
       reason: 'DEV_DEPENDENCY_OF'
       comment: 'Packages for development only.'
+    - pattern: 'peerDependencies'
+      reason: 'PROVIDED_DEPENDENCY_OF'
+      comment: >-
+        Third-party peers declared by the publishable @epam/statgpt-* libs are
+        provided by the consuming app, not bundled by us, and every one of them
+        is already covered by the root project's dependencies scope.
 license_choices:
   repository_license_choices:
     - given: 'GPL-2.0-only OR MIT'

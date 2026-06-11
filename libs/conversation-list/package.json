@@ -3,16 +3,16 @@
   "version": "0.0.1",
   "license": "MIT",
   "dependencies": {
-    "@tabler/icons-react": "^3.34.1",
-    "@epam/ai-dial-shared": "^0.43.3",
-    "@epam/statgpt-ui-components": "*",
-    "classnames": "^2.5.1",
-    "@epam/statgpt-shared-toolkit": "*",
     "@epam/statgpt-dial-toolkit": "*",
-    "jszip": "3.10.1",
-    "lodash": "^4.17.23"
+    "@epam/statgpt-shared-toolkit": "*",
+    "@epam/statgpt-ui-components": "*"
   },
   "peerDependencies": {
+    "@epam/ai-dial-shared": "^0.43.3",
+    "@tabler/icons-react": "^3.34.1",
+    "classnames": "^2.5.1",
+    "jszip": "3.10.1",
+    "lodash": "^4.17.23",
     "react": "^19.2.1"
   },
   "exports": {

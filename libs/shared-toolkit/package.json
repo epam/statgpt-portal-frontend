@@ -13,7 +13,7 @@
   "browser": "./index.mjs",
   "module": "./index.mjs",
   "types": "./index.d.ts",
-  "dependencies": {
+  "peerDependencies": {
     "@epam/ai-dial-shared": "^0.43.3",
     "date-fns": "^4.1.0"
   }
