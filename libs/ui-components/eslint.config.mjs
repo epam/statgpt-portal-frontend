@@ -27,6 +27,8 @@ export default [
             '@storybook/react-vite',
             '@vitejs/plugin-react',
             'vite-plugin-dts',
+            '@storybook/react-vite',
+            'flatpickr',
           ],
         },
       ],

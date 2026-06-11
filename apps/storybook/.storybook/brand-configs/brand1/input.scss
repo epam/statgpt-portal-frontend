@@ -10,3 +10,11 @@
     @apply text-button-primary;
   }
 }
+
+.input-for-ask-button {
+  @apply p-0;
+
+  svg {
+    @apply w-6 h-6;
+  }
+}
