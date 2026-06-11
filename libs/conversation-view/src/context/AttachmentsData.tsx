@@ -35,7 +35,6 @@ import {
   buildDataQueryWithMergedFilters,
   getTimeQueryFilterFromAttachment,
 } from '../utils/query-filters';
-import { AttachmentType } from '@epam/statgpt-dial-toolkit';
 import {
   createChartDataResolver,
   isChartingDataPlottable,
@@ -46,7 +45,10 @@ import { ConversationViewTitles } from '../models/titles';
 import { Filter } from '../models/filters';
 import { Attachment } from '@epam/ai-dial-shared';
 import { buildMarkdownAttachments } from '../utils/attachments/markdown-attachments';
-import { invokePythonAttachment } from '../utils/attachments/python-attachment';
+import {
+  invokePythonAttachment,
+  resolveSingleDatasetPythonTitle,
+} from '../utils/attachments/python-attachment';
 import {
   buildRequestCacheKey,
   getCachedRequestResult,
@@ -75,7 +77,10 @@ export function useAttachmentsData(
   rawAttachments?: Attachment[],
   initialDatasetStructure?: StructuralData,
   isInitialDatasetStructureLoading = false,
-  onCodeAttachmentUpdated?: (attachment: Attachment) => void,
+  onCodeAttachmentUpdated?: (
+    attachment: Attachment,
+    datasetUrn?: string,
+  ) => void,
   skipInitialConstraintsLoading = false,
 ) {
   const [dataMessage, setDataMessage] = useState<DataMessage | undefined>();
@@ -262,20 +267,20 @@ export function useAttachmentsData(
           const updatedQuery = buildDataQueryWithMergedFilters(
             dataQuery,
             filters,
+            false,
           );
-          const originalTitle = rawAttachments?.find(
-            (a) =>
-              a.type === AttachmentType.MARKDOWN &&
-              a.data?.includes('```python'),
-          )?.title;
           invokePythonAttachment({
             getPythonAttachment,
             dataQueries: [updatedQuery],
             requestIdRef: pythonRequestIdRef,
             codeTitle: titles?.codeSamples || 'Python Code',
-            markdownTitle: originalTitle ?? dataQuery.urn,
+            markdownTitle: resolveSingleDatasetPythonTitle(
+              rawAttachments,
+              dataQuery,
+            ),
             setCodeAttachments,
             onCodeAttachmentUpdated,
+            datasetUrn: dataQuery.urn,
           });
         }
       } catch (err) {

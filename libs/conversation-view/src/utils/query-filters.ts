@@ -122,20 +122,22 @@ const buildQueryFiltersCore = (
 
 const getUiControlledFilterCodes = (
   filters: Filter[],
-  datasetUrn: string,
+  datasetUrn?: string,
 ): Set<string> => {
   const expandedFilterCodes = getFiltersForQueryContext(
     filters,
     datasetUrn,
   ).flatMap((filter) => (filter.id ? [filter.id] : []));
-  const sharedSourceFilterCodes = filters.flatMap((filter) => {
-    if (filter.filterType !== 'shared') {
-      return [];
-    }
+  const sharedSourceFilterCodes = datasetUrn
+    ? filters.flatMap((filter) => {
+        if (filter.filterType !== 'shared') {
+          return [];
+        }
 
-    const sourceFilterId = filter.sourceFilterIdsByDataset?.[datasetUrn];
-    return sourceFilterId ? [sourceFilterId] : [];
-  });
+        const sourceFilterId = filter.sourceFilterIdsByDataset?.[datasetUrn];
+        return sourceFilterId ? [sourceFilterId] : [];
+      })
+    : [];
 
   return new Set([...expandedFilterCodes, ...sharedSourceFilterCodes]);
 };
@@ -157,15 +159,27 @@ const getWildcardFiltersForClearedUiCodes = (
     }));
 };
 
+/**
+ * Merges the UI filter selection into a DataQuery for the python attachment.
+ *
+ * `scopeToDatasetUrn` selects how UI filters are resolved to this dataset:
+ * - cross-dataset mode keeps the default `true`, so filters are resolved per
+ *   dataset by URN (shared filters expanded, picked via `buildFiltersMap`);
+ * - single-dataset mode passes `false`, so the filters are used as-is
+ *   (mirroring the grid's `getQueryFilters(filters, dimensions)` call). Single-
+ *   dataset filters carry no `datasetUrn`, so URN scoping would drop them.
+ */
 export const buildDataQueryWithMergedFilters = (
   dataQuery: DataQuery,
   uiFilters: Filter[],
+  scopeToDatasetUrn = true,
 ): DataQuery => {
+  const filterContextUrn = scopeToDatasetUrn ? dataQuery.urn : undefined;
   const updatedFiltersFromUI = buildQueryFiltersForPythonAttachment(
     uiFilters,
-    dataQuery.urn,
+    filterContextUrn,
   );
-  const uiFilterCodes = getUiControlledFilterCodes(uiFilters, dataQuery.urn);
+  const uiFilterCodes = getUiControlledFilterCodes(uiFilters, filterContextUrn);
   const wildcardFiltersFromUI = getWildcardFiltersForClearedUiCodes(
     uiFilterCodes,
     updatedFiltersFromUI,
