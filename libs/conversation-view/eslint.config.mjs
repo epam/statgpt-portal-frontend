@@ -22,6 +22,7 @@ export default [
             '@nx/vite',
             'vite',
             '@vitejs/plugin-react',
+            '@testing-library/jest-dom',
             'vite-plugin-dts',
           ],
         },
