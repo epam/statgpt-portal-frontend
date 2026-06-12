@@ -2,6 +2,7 @@ import {
   Dataset,
   DeploymentDatasetsResponseData,
   DatasetDimensionsMetadataMap,
+  DatasetLastUpdatedMap,
 } from '../models';
 import { generateShortUrn } from './urn';
 
@@ -20,6 +21,20 @@ export function buildDatasetDimensionsMetadataMap(
     const urn = datasetToShortUrn(dataset);
 
     map[urn] = dataset.details.dimensions;
+  }
+
+  return map;
+}
+
+export function buildDatasetLastUpdatedMap(
+  data: DeploymentDatasetsResponseData,
+): DatasetLastUpdatedMap {
+  const map: DatasetLastUpdatedMap = {};
+
+  for (const cd of data.datasets) {
+    if (cd.last_updated_at) {
+      map[datasetToShortUrn(cd.dataset)] = cd.last_updated_at;
+    }
   }
 
   return map;

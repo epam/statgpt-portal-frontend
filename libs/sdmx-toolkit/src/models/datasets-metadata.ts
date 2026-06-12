@@ -4,6 +4,7 @@ export interface DeploymentDatasetsResponseData {
 
 export interface ChannelDataset {
   dataset: Dataset;
+  last_updated_at?: string | null;
 }
 
 export interface Dataset {
@@ -48,3 +49,4 @@ export type DatasetDimensionsMetadataMap = Record<
   ShortUrn,
   Record<DimensionKey, DimensionConfig>
 >;
+export type DatasetLastUpdatedMap = Record<ShortUrn, string>;

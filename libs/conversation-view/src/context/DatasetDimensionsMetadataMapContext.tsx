@@ -2,9 +2,13 @@
 
 import React, { createContext, ReactNode, useContext, useMemo } from 'react';
 import {
+  Dataflow,
   DatasetDimensionsScheme,
+  DatasetLastUpdatedMap,
   DimensionConfig,
   DimensionKey,
+  generateShortUrn,
+  getLastUpdatedTime,
   ShortUrn,
   DatasetDimensionsMetadataMap,
 } from '@epam/statgpt-sdmx-toolkit';
@@ -13,6 +17,10 @@ type GetDimensionMetadata = (
   urn: ShortUrn,
   dimensionKey: DimensionKey,
 ) => DimensionConfig | undefined;
+
+type GetDatasetLastUpdated = (
+  dataset: Dataflow | null | undefined,
+) => string | undefined;
 
 interface DatasetDimensionsMetadataMapContextValue {
   map: DatasetDimensionsMetadataMap;
@@ -24,10 +32,13 @@ interface DatasetDimensionsMetadataMapContextValue {
   getFrequencyDimension: (urn: ShortUrn) => DimensionKey | undefined;
   getIndicatorDimensions: (urn: ShortUrn) => DimensionKey[];
   getDimensionsScheme: (urn: ShortUrn) => DatasetDimensionsScheme | undefined;
+  getDatasetLastUpdated: GetDatasetLastUpdated;
 }
 
 const EMPTY_DATASET_DIMENSIONS_METADATA_MAP =
   {} as DatasetDimensionsMetadataMap;
+
+const EMPTY_DATASET_LAST_UPDATED_MAP = {} as DatasetLastUpdatedMap;
 
 const DEFAULT_CONTEXT_VALUE: DatasetDimensionsMetadataMapContextValue = {
   map: EMPTY_DATASET_DIMENSIONS_METADATA_MAP,
@@ -37,6 +48,7 @@ const DEFAULT_CONTEXT_VALUE: DatasetDimensionsMetadataMapContextValue = {
   getFrequencyDimension: () => undefined,
   getIndicatorDimensions: () => [],
   getDimensionsScheme: () => undefined,
+  getDatasetLastUpdated: (dataset) => getLastUpdatedTime(dataset),
 };
 
 const Context = createContext<DatasetDimensionsMetadataMapContextValue>(
@@ -45,9 +57,11 @@ const Context = createContext<DatasetDimensionsMetadataMapContextValue>(
 
 export function DatasetDimensionsMetadataMapProvider({
   map,
+  lastUpdatedMap = EMPTY_DATASET_LAST_UPDATED_MAP,
   children,
 }: {
   map: DatasetDimensionsMetadataMap;
+  lastUpdatedMap?: DatasetLastUpdatedMap;
   children: ReactNode;
 }) {
   const value = useMemo<DatasetDimensionsMetadataMapContextValue>(() => {
@@ -104,8 +118,21 @@ export function DatasetDimensionsMetadataMapProvider({
       getIndicatorDimensions: (urn: ShortUrn) =>
         dimensionsByType[urn]?.['INDICATOR'] ?? [],
       getDimensionsScheme: (urn: ShortUrn) => schemesCache[urn],
+      getDatasetLastUpdated: (dataset) => {
+        if (!dataset) {
+          return undefined;
+        }
+
+        const urn = generateShortUrn(
+          dataset.id,
+          dataset.version,
+          dataset.agencyID,
+        );
+
+        return lastUpdatedMap[urn] || getLastUpdatedTime(dataset);
+      },
     };
-  }, [map]);
+  }, [map, lastUpdatedMap]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }

@@ -22,7 +22,10 @@ import { ComponentsConfig } from '../../components/configs/ComponentsConfig/Comp
 import { TextsConfig } from '../../components/configs/TextsConfig/TextsConfig';
 import { ClientProvidersWrapper } from '../../components/ClientProvidersWrapper/ClientProvidersWrapper';
 import { getDatasetsMetadata } from '../actions/datasets-metadata';
-import { buildDatasetDimensionsMetadataMap } from '@epam/statgpt-sdmx-toolkit';
+import {
+  buildDatasetDimensionsMetadataMap,
+  buildDatasetLastUpdatedMap,
+} from '@epam/statgpt-sdmx-toolkit';
 import { parseBoolean } from '@epam/statgpt-shared-toolkit';
 
 export default async function LocaleLayout({
@@ -76,6 +79,9 @@ export default async function LocaleLayout({
   const datasetDimensionsMetadataMap = metadata.data
     ? buildDatasetDimensionsMetadataMap(metadata.data)
     : {};
+  const datasetLastUpdatedMap = metadata.data
+    ? buildDatasetLastUpdatedMap(metadata.data)
+    : {};
 
   const getContent = () => {
     if (!configuration.success && !isAnyConversationAvailable) {
@@ -92,6 +98,7 @@ export default async function LocaleLayout({
           <ClientProvidersWrapper
             isAgentAvailable={configuration.success}
             datasetDimensionsMetadataMap={datasetDimensionsMetadataMap}
+            datasetLastUpdatedMap={datasetLastUpdatedMap}
           >
             <OnboardingProvider>
               <AdvancedViewProvider>

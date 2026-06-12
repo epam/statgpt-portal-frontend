@@ -168,6 +168,14 @@ interface DimensionConfig {
 This is how the system knows that `REF_AREA` in Dataset A and `GEO` in Dataset B
 are both the "region/country" dimension — they both have `subtype: 'REGION'`.
 
+The same server response also carries a per-dataset `last_updated_at` timestamp
+(snake_case, as serialised by the backend). It is not filter-related: it is
+collected into `DatasetLastUpdatedMap` (`Record<ShortUrn, string>`) by
+`buildDatasetLastUpdatedMap`, exposed via `getDatasetLastUpdated` on
+`DatasetDimensionsMetadataMapContext`, and used to display the "Last updated"
+date in dataset metadata panels (with the SDMX `lastUpdatedAt` annotation as a
+fallback).
+
 ### `DatasetDimensionsScheme`
 
 A lightweight derived summary per dataset (`libs/sdmx-toolkit/src/models/dataset-dimensions-scheme.ts`):

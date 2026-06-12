@@ -8,5 +8,5 @@ export function getLastUpdatedTime(
     if (annotation.id === Annotations.LAST_UPDATE_AT) {
       return annotation;
     }
-  })?.value;
+  })?.text;
 }

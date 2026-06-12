@@ -4,7 +4,6 @@ import MetadataIcon from '../../assets/icons/metadata.svg';
 import { IconExternalLink } from '@tabler/icons-react';
 import {
   Dataflow,
-  getLastUpdatedTime,
   getLocalizedName,
   StructuralData,
   Data,
@@ -41,6 +40,7 @@ import { mergeClasses } from '../../utils/mergeClasses';
 import { useConversationViewFeatureToggles } from '../../context/ConversationViewFeatureTogglesContext';
 import { useConversationViewSidePanelOptional } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
+import { useDatasetDimensionsMetadataMap } from '../../context/DatasetDimensionsMetadataMapContext';
 
 export interface DatasetInfoOptions {
   isShowAgency?: boolean;
@@ -98,6 +98,7 @@ const DatasetInfo: FC<Props> = ({
   const { isOpenedAdvancedView } = useAdvancedView();
   const sidePanel = useConversationViewSidePanelOptional();
   const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
+  const { getDatasetLastUpdated } = useDatasetDimensionsMetadataMap();
   const [isMetadataClosed, setIsMetadataClosed] = useState(false);
 
   const datasetDescription = useMemo(
@@ -182,9 +183,15 @@ const DatasetInfo: FC<Props> = ({
       getDatasetUpdatedTime && getDatasetUpdatedTime(datasetMetadata);
     const updatedTime =
       overridenValue ||
-      getDateFormattedValue(getLastUpdatedTime(dataset), locale);
+      getDateFormattedValue(getDatasetLastUpdated(dataset), locale);
     setLastUpdatedDate(updatedTime);
-  }, [dataset, locale, datasetMetadata, getDatasetUpdatedTime]);
+  }, [
+    dataset,
+    locale,
+    datasetMetadata,
+    getDatasetUpdatedTime,
+    getDatasetLastUpdated,
+  ]);
 
   useEffect(() => {
     if (isShowOnboarding) {
