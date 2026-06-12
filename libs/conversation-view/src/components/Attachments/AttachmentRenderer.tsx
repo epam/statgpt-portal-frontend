@@ -43,6 +43,7 @@ import AttachmentsViewModePanel from './AttachmentsViewModePanel';
 import AttachmentsContentRenderer from './AttachmentsContentRenderer';
 import { DownloadAlert } from './DownloadAlert/DownloadAlert';
 import { useAttachmentDownloadFlow } from './useAttachmentDownloadFlow';
+import { mergeClasses } from '../../utils/mergeClasses';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 interface Props {
@@ -67,13 +68,15 @@ interface Props {
   filters?: DatasetQueryFilters;
   selectDataset?: (datasetUrn?: string) => void;
   onAdvancedViewOpen?: () => void;
+  hideDownloadButton?: boolean;
+  containerClassName?: string;
   isTableSettingsOpen?: boolean;
   onTableSettingsOpen?: () => void;
   onTableSettingsClose?: () => void;
   onGridApiReady?: (api: GridApi) => void;
 }
 
-const AttachmentRenderer: FC<Props> = ({
+export const AttachmentRenderer: FC<Props> = ({
   attachments,
   actions,
   isSystemAttachments,
@@ -91,6 +94,8 @@ const AttachmentRenderer: FC<Props> = ({
   filters,
   selectDataset,
   onAdvancedViewOpen,
+  hideDownloadButton,
+  containerClassName,
   isTableSettingsOpen,
   onTableSettingsOpen,
   onTableSettingsClose,
@@ -259,10 +264,11 @@ const AttachmentRenderer: FC<Props> = ({
         />
       ) : (
         <div
-          className={classNames(
+          className={mergeClasses(
             `space-y-3 max-w-full max-h-full h-full`,
             !isOpenedAdvancedView && !isSystemAttachments ? 'pt-5' : 'pt-0',
             `flex flex-col pb-1`,
+            containerClassName,
           )}
         >
           {!isOpenedAdvancedView &&
@@ -322,6 +328,7 @@ const AttachmentRenderer: FC<Props> = ({
                     limitMessages={limitMessages}
                     onSelectedAttachmentChange={selectAttachment}
                     onDownloadClick={() => setModalState(PopUpState.Opened)}
+                    hideDownloadButton={hideDownloadButton}
                     showAdvancedView={showAdvancedView}
                     onOpenAdvancedView={onOpenAdvancedView}
                     isTableSettingsOpen={isTableSettingsOpen}
@@ -374,5 +381,3 @@ const AttachmentRenderer: FC<Props> = ({
     </>
   );
 };
-
-export default AttachmentRenderer;

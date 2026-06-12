@@ -60,3 +60,11 @@ export {
   CrossDatasetAttachmentsProvider,
   useCrossDatasetAttachments,
 } from './context/CrossDatasetAttachmentsContext';
+
+export { AttachmentRenderer } from './components/Attachments/AttachmentRenderer';
+export type {
+  ChartingData,
+  ChartUnit,
+  ChartUnitGroup,
+} from './models/charting';
+export type { GridData } from './types/data-grid/grid-data';

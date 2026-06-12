@@ -1,6 +1,5 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import AttachmentRenderer from '../AttachmentRenderer';
+import { AttachmentRenderer } from '../AttachmentRenderer';
 import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
 import type { DataQuery } from '@epam/statgpt-shared-toolkit';
 

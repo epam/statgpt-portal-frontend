@@ -1,7 +1,7 @@
 'use client';
 
 import { FC, useCallback } from 'react';
-import AttachmentRenderer from '../Attachments/AttachmentRenderer';
+import { AttachmentRenderer } from '../Attachments/AttachmentRenderer';
 import type { ComponentProps } from 'react';
 import { useTableSettingsContext } from './TableSettings/TableSettingsContext';
 import { useConversationViewSidePanelOptional } from '../ConversationView/SidePanel/ConversationViewSidePanelContext';

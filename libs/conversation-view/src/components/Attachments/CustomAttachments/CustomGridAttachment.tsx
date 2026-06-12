@@ -36,7 +36,7 @@ interface Props {
   onApiReady?: (api: GridApi) => void;
 }
 
-const CustomDataGridAttachment: FC<Props> = ({
+export const CustomDataGridAttachment: FC<Props> = ({
   attachment,
   isDataLoading,
   isChartColumnVisible,
@@ -192,5 +192,3 @@ const CustomDataGridAttachment: FC<Props> = ({
     </div>
   );
 };
-
-export default CustomDataGridAttachment;
