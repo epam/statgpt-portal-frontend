@@ -18,8 +18,8 @@ import {
 } from '../../utils/attachments/attachment-parser';
 import { AttachmentsStyles } from '../../models/attachments-styles';
 import GridAttachment from './BaseAttachments/GridAttachment';
-import CustomDataGridAttachment from './CustomAttachments/CustomGridAttachment';
-import CustomChartAttachment from './CustomAttachments/CustomChartAttachment';
+import { CustomDataGridAttachment } from './CustomAttachments/CustomGridAttachment';
+import { CustomChartAttachment } from './CustomAttachments/CustomChartAttachment';
 import { CodeAttachment } from './CustomAttachments/CodeAttachment';
 import { AttachmentsActions } from '../../models/actions';
 import CrossDatasetGridAttachment from './CustomAttachments/CrossDatasetGridAttachment';

@@ -9,7 +9,7 @@ export interface AttachmentsStyles {
   openAdvancedViewIcon?: ReactNode;
   advancedViewTitle?: string;
   chartingStyles?: ChartingStyles;
-  chartingIcons: Record<ChartingIcon, ReactNode>;
+  chartingIcons?: Record<ChartingIcon, ReactNode>;
   downloadIcon?: ReactNode;
   downloadChevronIcon?: ReactNode;
   openLinkTitle?: string;

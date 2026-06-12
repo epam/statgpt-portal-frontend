@@ -19,7 +19,7 @@ import { useConversationViewStyles } from '../../../context/ConversationViewStyl
 import classNames from 'classnames';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
-import AttachmentRenderer from '../../Attachments/AttachmentRenderer';
+import { AttachmentRenderer } from '../../Attachments/AttachmentRenderer';
 import MessageContent from '../MessageContent';
 import { useAttachmentsData } from '../../../context/AttachmentsData';
 import { useDatasets } from '../../../context/Datasets';

@@ -35,7 +35,7 @@ interface FlatChartUnit {
   groupTitle?: string;
 }
 
-const CustomChartAttachment: FC<Props> = ({
+export const CustomChartAttachment: FC<Props> = ({
   attachment,
   icons,
   isDataLoading,
@@ -226,5 +226,3 @@ const CustomChartAttachment: FC<Props> = ({
     </div>
   );
 };
-
-export default CustomChartAttachment;
