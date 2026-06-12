@@ -5,7 +5,7 @@ describe('getLastUpdatedTime', () => {
   it('returns the value of the LAST_UPDATE_AT annotation', () => {
     const dataset = {
       annotations: [
-        { id: Annotations.LAST_UPDATE_AT, value: '2024-07-24T10:00:00Z' },
+        { id: Annotations.LAST_UPDATE_AT, text: '2024-07-24T10:00:00Z' },
         { id: 'OTHER', value: 'something else' },
       ],
     };
