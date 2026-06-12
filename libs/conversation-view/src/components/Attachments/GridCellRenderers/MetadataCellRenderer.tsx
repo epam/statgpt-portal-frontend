@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Data,
-  getLastUpdatedTime,
   getStructureComponentsMap,
   StructuralData,
   TimeSeries,
@@ -34,6 +33,7 @@ import { useOnboarding } from '../../../context/OnboardingContext';
 import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
 import { useConversationViewSidePanelOptional } from '../../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import { useAdvancedView } from '../../../context/AdvancedViewContext';
+import { useDatasetDimensionsMetadataMap } from '../../../context/DatasetDimensionsMetadataMapContext';
 import { getDateFormattedValue } from '../../../utils/date-format';
 
 interface MetadataCellRendererParams extends ICellRendererParams {
@@ -58,6 +58,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
   const { isOpenedAdvancedView } = useAdvancedView();
   const sidePanel = useConversationViewSidePanelOptional();
   const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
+  const { getDatasetLastUpdated } = useDatasetDimensionsMetadataMap();
   const [isMetadataClosed, setIsMetadataClosed] = useState(false);
   const rowUrn = params?.data?.dataset?.urn as string | undefined;
   const externalLink = getExternalLinkFromContext(params?.context, rowUrn);
@@ -128,12 +129,12 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
   const sidePanelDatasetInfo = useMemo(() => {
     const dataset = resolvedDataSetData?.dataflows?.[0];
     const lastUpdatedDate = getDateFormattedValue(
-      getLastUpdatedTime(dataset),
+      getDatasetLastUpdated(dataset),
       params?.locale,
     );
 
     return getDatasetInfoData(dataset, lastUpdatedDate, params?.locale, titles);
-  }, [resolvedDataSetData, params?.locale, titles]);
+  }, [resolvedDataSetData, params?.locale, titles, getDatasetLastUpdated]);
 
   const openMetadata = useCallback(() => {
     if (isMetadataInSidePanel && sidePanel) {

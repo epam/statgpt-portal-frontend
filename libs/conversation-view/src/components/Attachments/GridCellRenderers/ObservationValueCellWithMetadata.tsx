@@ -8,6 +8,7 @@ import { useConversationViewFeatureToggles } from '../../../context/Conversation
 import { useConversationViewSidePanelOptional } from '../../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import { useAdvancedView } from '../../../context/AdvancedViewContext';
 import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
+import { useDatasetDimensionsMetadataMap } from '../../../context/DatasetDimensionsMetadataMapContext';
 import {
   getObservationMetadataContent,
   ObservationMetadataContent,
@@ -30,11 +31,16 @@ const ObservationValueCellWithMetadata: FC<
   const { isOpenedAdvancedView } = useAdvancedView();
   const sidePanel = useConversationViewSidePanelOptional();
   const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
+  const { getDatasetLastUpdated } = useDatasetDimensionsMetadataMap();
   const rowUrn = params?.data?.dataset?.urn as string | undefined;
   const externalLink = getExternalLinkFromContext(params?.context, rowUrn);
 
   const openMetadata = useCallback(() => {
-    const content = getObservationMetadataContent(params, obsAttributes);
+    const content = getObservationMetadataContent(
+      params,
+      obsAttributes,
+      getDatasetLastUpdated,
+    );
 
     if (isMetadataInSidePanel && sidePanel) {
       sidePanel.openPanel({
@@ -65,6 +71,7 @@ const ObservationValueCellWithMetadata: FC<
     params,
     sidePanel,
     titles,
+    getDatasetLastUpdated,
   ]);
 
   const closeMetadata = useCallback(() => {

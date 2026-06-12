@@ -96,7 +96,7 @@ update because you cannot verify every line number.
 | `libs/shared-toolkit/src/models/data-query.ts` | `DataQuery`, `QueryFilter` types |
 | `libs/conversation-view/src/models/filters.ts` | `Filter`, `SharedFilter`, `FilterValue` types |
 | `libs/sdmx-toolkit/src/models/structural-metadata/constraints.ts` | `DataConstraints`, `CubeRegion` types |
-| `libs/sdmx-toolkit/src/models/datasets-metadata.ts` | `DatasetDimensionsMetadataMap`, `DimensionConfig` |
+| `libs/sdmx-toolkit/src/models/datasets-metadata.ts` | `DatasetDimensionsMetadataMap`, `DimensionConfig`, `DatasetLastUpdatedMap` |
 | `libs/sdmx-toolkit/src/models/dataset-dimensions-scheme.ts` | `DatasetDimensionsScheme` |
 | `libs/conversation-view/src/utils/filters.ts` | Single-dataset filter utilities |
 | `libs/conversation-view/src/utils/multiple-filters.ts` | Multi-dataset merging, constraint fetching (1500+ lines — the core) |
