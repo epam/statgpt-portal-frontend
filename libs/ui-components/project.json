@@ -10,24 +10,7 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/ui-components",
-        "assets": [
-          {
-            "glob": "README.md",
-            "input": ".",
-            "output": "."
-          },
-          {
-            "glob": "LICENSE",
-            "input": ".",
-            "output": "."
-          },
-          {
-            "glob": "styles-tailwind.scss",
-            "input": "libs/ui-components/src/scss",
-            "output": "."
-          }
-        ]
+        "outputPath": "dist/libs/ui-components"
       },
       "configurations": {
         "development": {
