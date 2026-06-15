@@ -160,8 +160,8 @@ in-modal working `Set<string>` tracking which datasets the user has toggled off 
 into `updatedDataQueries`. Each `DataQuery` whose `urn` is in the set has
 `disabled: true` written onto it; all others have `disabled: false` written explicitly.
 This merge happens before both `onMultipleDataFiltersChange` and `addSystemMessage` are called.
-`addSystemMessage` computes `updatedDataQueries` internally by closing over the
-current value of `disabledDatasetUrns` at call time.
+`addSystemMessage` receives `disabledDatasetUrns` as an explicit argument from
+`onApply` and recomputes `updatedDataQueries` internally from it.
 
 ### Step 2 — Build and persist the system message
 

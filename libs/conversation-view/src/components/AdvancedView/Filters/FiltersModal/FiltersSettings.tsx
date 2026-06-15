@@ -1,23 +1,12 @@
 'use client';
 
-import {
-  DataConstraints,
-  Hierarchy,
-  StructuralData,
-} from '@epam/statgpt-sdmx-toolkit';
-import {
-  DataQuery,
-  TimeRange,
-  TimeRangeOptions,
-} from '@epam/statgpt-shared-toolkit';
+import { TimeRange } from '@epam/statgpt-shared-toolkit';
 import { Button, useIsMobile } from '@epam/statgpt-ui-components';
-import { FC, ReactNode, useCallback, useMemo, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import {
   Filter,
-  FiltersModalProps,
   FilterTreeNodeProps,
   FilterValue,
-  HierarchyState,
 } from '../../../../models/filters';
 import FiltersFacetsList from './FiltersFacets/FiltersFacetsList';
 import FiltersValuesPanel from './FiltersValuesPanel/FiltersValuesPanel';
@@ -42,64 +31,49 @@ import {
   mapHierarchyNodeIdToFilterValueId,
   mapHierarchyNodesToFilterValueIds,
 } from '../../../../utils/hierarchy-view';
+import {
+  FilterSettingsControllerProvider,
+  type FilterSettingsController,
+  useFilterSettingsController,
+} from './FilterSettingsControllerContext';
 
 interface Props {
-  filtersList: Filter[];
-  selectedFilter?: Filter;
-  locale?: string;
-  isDisableValues?: boolean;
-  isValuesLoading?: boolean;
-  timeSeriesCount?: string;
-  timeRangeOptions?: TimeRangeOptions[];
-  modalProps?: FiltersModalProps;
-  initialConstraints?: DataConstraints[];
-  initialConstraintsMap?: Map<string, DataConstraints[] | undefined>;
-  datasetIcon?: ReactNode;
-  structuresMap?: Map<string, StructuralData | undefined>;
-  setSelectedFilter: (filter?: Filter) => void;
-  onSelectDisplayMode: (filter?: Filter, displayMode?: string) => void;
-  onDeleteFilter?: (filter?: Filter) => void;
-  onClearAllFilters?: () => void;
-  updateSelectedFilterValues?: (filter: Filter) => void;
-  onTimePeriodChange?: (value: string | number) => void;
-  selectedTimeOption?: string | number;
-  hierarchyStateMap?: Map<string, HierarchyState>;
-  onSelectHierarchy?: (filter?: Filter, hierarchy?: Hierarchy | null) => void;
-  onExpandHierarchyNode?: (filterKey: string, nodeId: string) => void;
-  dataQueries?: DataQuery[];
-  disabledDatasetUrns: Set<string>;
-  onToggleDataset: (urn: string, enabled: boolean) => void;
-  onClearAllDatasets: () => void;
+  controller: FilterSettingsController;
 }
 
-const FilterSettings: FC<Props> = ({
-  filtersList,
-  selectedFilter,
-  modalProps,
-  locale,
-  isDisableValues,
-  isValuesLoading,
-  timeSeriesCount,
-  timeRangeOptions,
-  initialConstraints,
-  initialConstraintsMap,
-  datasetIcon,
-  structuresMap,
-  setSelectedFilter,
-  onSelectDisplayMode,
-  onDeleteFilter,
-  onClearAllFilters,
-  updateSelectedFilterValues,
-  onTimePeriodChange,
-  selectedTimeOption,
-  hierarchyStateMap,
-  onSelectHierarchy,
-  onExpandHierarchyNode,
-  dataQueries,
-  disabledDatasetUrns,
-  onToggleDataset,
-  onClearAllDatasets,
-}) => {
+const FilterSettingsContent: FC = () => {
+  const {
+    state: {
+      filtersList,
+      selectedFilter,
+      isDisableValues,
+      isValuesLoading,
+      timeSeriesCount,
+      selectedTimeOption,
+      disabledDatasetUrns,
+    },
+    options: {
+      modalProps,
+      locale,
+      timeRangeOptions,
+      initialConstraints,
+      initialConstraintsMap,
+      datasetIcon,
+      structuresMap,
+      dataQueries,
+    },
+    handlers: {
+      setSelectedFilter,
+      onSelectDisplayMode,
+      onDeleteFilter,
+      onClearAllFilters,
+      updateSelectedFilterValues,
+      onTimePeriodChange,
+      onToggleDataset,
+      onClearAllDatasets,
+    },
+    hierarchy: { hierarchyStateMap, onSelectHierarchy, onExpandHierarchyNode },
+  } = useFilterSettingsController();
   const { titles } = useConversationViewStyles();
   const hierarchyState = hierarchyStateMap?.get(
     getFilterIdentity(selectedFilter) as string,
@@ -423,5 +397,11 @@ const FilterSettings: FC<Props> = ({
     </FiltersModalProvider>
   );
 };
+
+const FilterSettings: FC<Props> = ({ controller }) => (
+  <FilterSettingsControllerProvider controller={controller}>
+    <FilterSettingsContent />
+  </FilterSettingsControllerProvider>
+);
 
 export default FilterSettings;

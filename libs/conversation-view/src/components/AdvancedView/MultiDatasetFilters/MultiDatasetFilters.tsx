@@ -1,63 +1,29 @@
 'use client';
 
-import {
-  DataConstraints,
-  generateShortUrn,
-  getLocalizedName,
-} from '@epam/statgpt-sdmx-toolkit';
-import {
-  DataQuery,
-  Locale,
-  QueryFilterType,
-} from '@epam/statgpt-shared-toolkit';
-import isEqual from 'lodash/isEqual';
+import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
 import { Popup, PopUpSize, PopUpState } from '@epam/statgpt-ui-components';
+import { FC, useCallback, useEffect, useMemo, useRef } from 'react';
+import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
+import { useDatasetDimensionsMetadataMapOptional } from '../../../context/DatasetDimensionsMetadataMapContext';
+import { useFiltersModalState } from '../../../context/FiltersModalStateContext';
 import { Filter, FiltersProps } from '../../../models/filters';
 import {
   getFiltersAfterClear,
   getFiltersAfterDelete,
-  getFilterIdentity,
-  getSelectedFilterValues,
   getTotalSelectedValuesLength,
-  isSameFilter,
-  updateFiltersWithDisabledOption,
-  updateFiltersWithDisplayMode,
-  updateFiltersWithSelectedItem,
 } from '../../../utils/filters';
-import {
-  FC,
-  startTransition,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { updateMessagesWithSystemMessage } from '../../../utils/system-message';
+import { getHierarchyRequestContextForFilter } from '../../../utils/hierarchy-request-context';
+import { isStructureDataMapsReady } from '../../../utils/multiple-filters';
+import { useHierarchyState } from '../../../utils/use-hierarchy-state';
 import FilterButton from '../Filters/FilterButton/FilterButton';
 import FilterSettings from '../Filters/FiltersModal/FiltersSettings';
 import ModalFooter from '../Filters/FiltersModal/ModalFooter';
-import {
-  buildFiltersMap,
-  getCompatibleDatasetUrns,
-  getConstraintsMapFromSettledResults,
-  getConstraintsRequests,
-  getFilledDatasetFiltersMap,
-  getFiltersByConstraints,
-  getFiltersPreselectedByDataQueries,
-  hasUncachedConstraintRequests,
-  isStructureDataMapsReady,
-  getQueryFiltersMap,
-  mergeConstraintsMaps,
-  setDataQueryFiltersMap,
-} from '../../../utils/multiple-filters';
-import { cleanIncompatibleFiltersMap } from '../../../utils/incompatible-filters';
-import { getHierarchyRequestContextForFilter } from '../../../utils/hierarchy-request-context';
-import { StructureDataMaps } from '../../../models/structure-data';
-import { useHierarchyState } from '../../../utils/use-hierarchy-state';
-import { useDatasetDimensionsMetadataMapOptional } from '../../../context/DatasetDimensionsMetadataMapContext';
-import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
-import { useFiltersModalState } from '../../../context/FiltersModalStateContext';
+import { useMultiDatasetDisplayDataQueries } from './hooks/use-multi-dataset-display-data-queries';
+import { useMultiDatasetFilterApply } from './hooks/use-multi-dataset-filter-apply';
+import { useMultiDatasetFilterConstraints } from './hooks/use-multi-dataset-filter-constraints';
+import { useMultiDatasetFilterInitialization } from './hooks/use-multi-dataset-filter-initialization';
+import { useMultiDatasetFilterModalState } from './hooks/use-multi-dataset-filter-modal-state';
+import { useMultiDatasetSystemMessage } from './hooks/use-multi-dataset-system-message';
 
 const MultiDatasetFilters: FC<FiltersProps> = ({
   actions,
@@ -81,51 +47,9 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
   const datasetDimensionsMetadata = useDatasetDimensionsMetadataMapOptional();
   const { modalState, setModalState, isModalClosed, setIsModalClosed } =
     useFiltersModalState();
-  const [modalFilters, setModalFilters] = useState<Filter[]>([]);
-  const [appliedFilters, setAppliedFilters] = useState<Filter[]>([]);
-  const [selectedFilter, setSelectedFilter] = useState<Filter>();
-  const [selectedFilterValues, setSelectedFilterValues] = useState<Filter[]>(
-    [],
-  );
-  const [selectedTimeOption, setSelectedTimeOption] = useState<
-    string | number | undefined
-  >(undefined);
-  const constraintsMapRef = useRef<Map<string, DataConstraints[] | undefined>>(
-    structureDataMaps?.constraintsMap,
-  );
-  const [initialModalConstraintsMap, setInitialModalConstraintsMap] =
-    useState<Map<string, DataConstraints[] | undefined>>();
-  const [isConstraintsLoading, setIsConstraintsLoading] = useState<boolean>();
-  const [isDisableFilterValues, setIsDisableFilterValues] = useState<boolean>();
-  const [isFilterValuesLoading, setIsFilterValuesLoading] = useState(false);
-  const filterValuesLoadingRequestsRef = useRef(0);
-  const [disabledDatasetUrns, setDisabledDatasetUrns] = useState<Set<string>>(
-    new Set(),
-  );
-  const [appliedDisabledUrns, setAppliedDisabledUrns] = useState<Set<string>>(
-    new Set(),
-  );
-  const conversationRef = useRef(conversation);
-  useEffect(() => {
-    conversationRef.current = conversation;
-  }, [conversation]);
-
-  const startFilterValuesLoading = useCallback(() => {
-    filterValuesLoadingRequestsRef.current += 1;
-    if (filterValuesLoadingRequestsRef.current === 1) {
-      setIsFilterValuesLoading(true);
-    }
-  }, []);
-
-  const finishFilterValuesLoading = useCallback(() => {
-    filterValuesLoadingRequestsRef.current = Math.max(
-      filterValuesLoadingRequestsRef.current - 1,
-      0,
-    );
-    if (filterValuesLoadingRequestsRef.current === 0) {
-      setIsFilterValuesLoading(false);
-    }
-  }, []);
+  const constraintsMapRef = useRef<
+    Map<string, DataConstraints[] | undefined> | undefined
+  >(structureDataMaps?.constraintsMap);
 
   const isStructureDataReady = useMemo(
     () => isStructureDataMapsReady(dataQueries, structureDataMaps),
@@ -174,627 +98,127 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
     getHierarchy: actions?.getHierarchy,
   });
 
-  const updateSelectedFilterValues = (filter?: Filter) => {
-    const filters = filter
-      ? modalFilters.map((oldFilter) =>
-          isSameFilter(oldFilter, filter) ? filter : oldFilter,
-        )
-      : modalFilters;
+  const {
+    modalFilters,
+    setModalFilters,
+    appliedFilters,
+    setAppliedFilters,
+    selectedFilter,
+    setSelectedFilter,
+    selectedFilterValues,
+    selectedTimeOption,
+    disabledDatasetUrns,
+    appliedDisabledUrns,
+    onSelectDisplayMode,
+    onClearAllDatasets,
+    onToggleDataset,
+    onTimePeriodChange,
+  } = useMultiDatasetFilterModalState({
+    modalState,
+    dataQueries,
+    hierarchyStateMap,
+    loadAvailableHierarchies,
+  });
 
-    setIsDisableFilterValues(true);
-    setModalFilters(updateFiltersWithDisabledOption(filters));
-    setIsConstraintsLoading?.(true);
-    handleFiltersWithConstraints(
-      filter?.isTimeDimension
-        ? updateFiltersWithSelectedItem(filters, filter)
-        : filters,
-      setModalFilters,
-      setIsConstraintsLoading,
-      filter,
-    );
-  };
+  const {
+    isConstraintsLoading,
+    isDisableFilterValues,
+    isFilterValuesLoading,
+    setIsConstraintsLoading,
+    handleFiltersWithConstraints,
+    handleFiltersDelete,
+    updateSelectedFilterValues,
+    rememberInitialModalConstraintsMap,
+    restoreInitialModalConstraintsMap,
+  } = useMultiDatasetFilterConstraints({
+    actions,
+    dataQueries,
+    datasetDimensionsMetadataMap: datasetDimensionsMetadata.map,
+    structureDataMaps,
+    constraintsMapRef,
+    locale,
+    modalFilters,
+    setModalFilters,
+    setSelectedFilter,
+    rebuildHierarchyTree,
+    getConstraintsForFilter,
+  });
 
   useEffect(() => {
     if (modalState === PopUpState.Closed) {
-      setInitialModalConstraintsMap(constraintsMapRef.current);
+      rememberInitialModalConstraintsMap();
     }
-  }, [modalState]);
+  }, [modalState, rememberInitialModalConstraintsMap]);
 
-  const handleFiltersWithConstraints = useCallback(
-    (
-      filters: Filter[],
-      setFilters: (filters: Filter[]) => void,
-      setIsConstraintsLoading?: (isLoading: boolean) => void,
-      changedFilter?: Filter,
-    ) => {
-      const filtersMap = buildFiltersMap(
-        filters,
-        constraintsMapRef.current,
-        false,
-        datasetDimensionsMetadata.map,
-      );
-      const shouldTrackFilterValuesLoading = hasUncachedConstraintRequests(
-        dataQueries,
-        filtersMap,
-        actions,
-        datasetDimensionsMetadata.map,
-        filters,
-      );
-
-      if (shouldTrackFilterValuesLoading) {
-        startFilterValuesLoading();
-      }
-
-      const requests = getConstraintsRequests(
-        dataQueries,
-        filtersMap,
-        actions,
-        datasetDimensionsMetadata.map,
-        filters,
-      );
-
-      Promise.allSettled(requests)
-        .then((constraintsResults) => {
-          const currentConstraintsMap = mergeConstraintsMaps(
-            constraintsMapRef.current || structureDataMaps?.constraintsMap,
-            getConstraintsMapFromSettledResults(constraintsResults),
-          );
-          const structureDataMapsWithConstraints = {
-            ...structureDataMaps,
-            constraintsMap: currentConstraintsMap,
-          };
-
-          if (changedFilter) {
-            const { filtersMap: cleanedMap, changed } =
-              cleanIncompatibleFiltersMap(
-                filtersMap,
-                structureDataMapsWithConstraints,
-                changedFilter,
-                locale as Locale,
-                datasetDimensionsMetadata.map,
-              );
-
-            if (changed) {
-              constraintsMapRef.current = currentConstraintsMap;
-              setIsConstraintsLoading?.(true);
-              setIsDisableFilterValues(true);
-              const cleanedMerged = getFiltersByConstraints(
-                cleanedMap,
-                structureDataMapsWithConstraints,
-                locale as Locale,
-                datasetDimensionsMetadata.map,
-              );
-              handleFiltersWithConstraints(
-                cleanedMerged,
-                setFilters,
-                setIsConstraintsLoading,
-                changedFilter,
-              );
-              return;
-            }
-          }
-
-          const filledFilters = getFiltersByConstraints(
-            filtersMap,
-            structureDataMapsWithConstraints,
-            locale as Locale,
-            datasetDimensionsMetadata.map,
-          );
-
-          constraintsMapRef.current = currentConstraintsMap;
-          setIsConstraintsLoading?.(false);
-          setFilters(filledFilters);
-          if (changedFilter) {
-            const updatedSelectedFilter = filledFilters.find((filter) =>
-              isSameFilter(filter, changedFilter),
-            );
-
-            setSelectedFilter((currentFilter) =>
-              currentFilter &&
-              updatedSelectedFilter &&
-              isSameFilter(currentFilter, changedFilter)
-                ? { ...updatedSelectedFilter, isSelectedFilter: true }
-                : currentFilter,
-            );
-            rebuildHierarchyTree(
-              changedFilter,
-              getConstraintsForFilter(changedFilter),
-            );
-          }
-        })
-        .catch(() => {
-          const currentConstraintsMap =
-            constraintsMapRef.current ||
-            structureDataMaps?.constraintsMap ||
-            new Map();
-          const filledFilters = getFiltersByConstraints(
-            filtersMap,
-            { ...structureDataMaps, constraintsMap: currentConstraintsMap },
-            locale as Locale,
-            datasetDimensionsMetadata.map,
-          );
-
-          constraintsMapRef.current = currentConstraintsMap;
-          setIsConstraintsLoading?.(false);
-          setFilters(filledFilters);
-          if (changedFilter) {
-            const updatedSelectedFilter = filledFilters.find((filter) =>
-              isSameFilter(filter, changedFilter),
-            );
-
-            setSelectedFilter((currentFilter) =>
-              currentFilter &&
-              updatedSelectedFilter &&
-              isSameFilter(currentFilter, changedFilter)
-                ? { ...updatedSelectedFilter, isSelectedFilter: true }
-                : currentFilter,
-            );
-          }
-        })
-        .finally(() => {
-          setIsDisableFilterValues(false);
-          if (shouldTrackFilterValuesLoading) {
-            finishFilterValuesLoading();
-          }
-        });
-    },
-    [
-      actions,
-      dataQueries,
-      datasetDimensionsMetadata.map,
-      finishFilterValuesLoading,
-      getConstraintsForFilter,
-      locale,
-      rebuildHierarchyTree,
-      startFilterValuesLoading,
-      structureDataMaps,
-    ],
-  );
-
-  useEffect(() => {
-    if (!isStructureDataReady) {
-      setIsConstraintsLoading(true);
-      return;
-    }
-
-    const filledDatasetFiltersMap = getFilledDatasetFiltersMap(
-      structureDataMaps,
-      locale,
-    );
-    const dataQueriesForMerge = dataQueries?.map((q) => {
-      if (!q.disabled) return q;
-      const emptySelectionFilters = (filledDatasetFiltersMap.get(q.urn) ?? [])
-        .filter((f) => f.filterType === 'dataset' && f.id && !f.isTimeDimension)
-        .map((f) => ({
-          componentCode: f.id!,
-          operator: QueryFilterType.IN,
-          values: [] as string[],
-        }));
-      return { ...q, filters: emptySelectionFilters };
-    });
-    const filtersFromDataQuery = getFiltersPreselectedByDataQueries(
-      filledDatasetFiltersMap,
-      dataQueriesForMerge,
-      structureDataMaps?.constraintsMap,
-      datasetDimensionsMetadata.map,
-    );
-    setIsConstraintsLoading?.(true);
-    handleFiltersWithConstraints(
-      filtersFromDataQuery,
-      setAppliedFilters,
-      setIsConstraintsLoading,
-    );
-  }, [
+  useMultiDatasetFilterInitialization({
     dataQueries,
-    datasetDimensionsMetadata.map,
-    handleFiltersWithConstraints,
+    datasetDimensionsMetadataMap: datasetDimensionsMetadata.map,
     isStructureDataReady,
     locale,
     structureDataMaps,
-  ]);
+    setAppliedFilters,
+    setIsConstraintsLoading,
+    handleFiltersWithConstraints,
+  });
 
-  useEffect(() => {
-    if (appliedFilters?.length) {
-      setSelectedFilterValues(getSelectedFilterValues(appliedFilters));
-    }
-  }, [appliedFilters]);
+  const closeModal = useCallback(() => {
+    setModalState(PopUpState.Closed);
+    setIsModalClosed(true);
+  }, [setModalState, setIsModalClosed]);
 
-  useEffect(() => {
-    setModalFilters((prevFilters) =>
-      updateFiltersWithSelectedItem(prevFilters, selectedFilter),
-    );
-  }, [selectedFilter]);
+  const onCloseModal = useCallback(() => {
+    restoreInitialModalConstraintsMap();
+    closeModal();
+  }, [closeModal, restoreInitialModalConstraintsMap]);
 
-  useEffect(() => {
-    if (modalState === PopUpState.Opened) {
-      setSelectedTimeOption(void 0);
-      const firstFilter = appliedFilters.find((f) => !f.isTimeDimension);
-      setSelectedFilter(
-        firstFilter ? { ...firstFilter, isSelectedFilter: true } : void 0,
-      );
-      setModalFilters(appliedFilters);
-      const initialDisabled = new Set(
-        dataQueries?.filter((q) => q.disabled).map((q) => q.urn),
-      );
-      setDisabledDatasetUrns(initialDisabled);
-      setAppliedDisabledUrns(initialDisabled);
-    }
-    if (modalState === PopUpState.Closed) {
-      setSelectedFilter(void 0);
-    }
-  }, [appliedFilters, dataQueries, modalState]);
+  const addSystemMessage = useMultiDatasetSystemMessage({
+    conversation,
+    conversationKey,
+    dataQueries,
+    setConversation,
+    updateConversation,
+    updateDataQueries,
+  });
 
-  // Load available hierarchies when selected filter changes
-  useEffect(() => {
-    if (!selectedFilter || selectedFilter.isTimeDimension) {
-      return;
-    }
-
-    const filterKey = getFilterIdentity(selectedFilter);
-    if (!filterKey) return;
-    const existingState = hierarchyStateMap.get(filterKey);
-
-    // Load once per unique filter — existingState being set (even isLoading:true)
-    // means we've already initiated a request for this filter key
-    if (!existingState) {
-      loadAvailableHierarchies(selectedFilter);
-    }
-  }, [selectedFilter, hierarchyStateMap, loadAvailableHierarchies]);
-
-  // Load hierarchies for all filters when modal opens
-  useEffect(() => {
-    if (modalState !== PopUpState.Opened) return;
-
-    appliedFilters.forEach((filter) => {
-      if (filter.isTimeDimension) return;
-      const filterKey = getFilterIdentity(filter);
-      if (filterKey && !hierarchyStateMap.has(filterKey)) {
-        loadAvailableHierarchies(filter);
-      }
-    });
-  }, [modalState, appliedFilters, hierarchyStateMap, loadAvailableHierarchies]);
-
-  const addSystemMessage = useCallback(
-    async (filtersMap: Map<string, Filter[]>) => {
-      const currentConversation = conversationRef.current;
-      const updatedDataQueries = dataQueries?.map((q) => ({
-        ...q,
-        disabled: disabledDatasetUrns.has(q.urn),
-      }));
-      const enabledDataQueries = updatedDataQueries?.filter((q) => !q.disabled);
-      const dataQueryFiltersMap = setDataQueryFiltersMap(
-        enabledDataQueries,
-        filtersMap,
-      );
-      const updatedConversationWithSystemMessage = currentConversation
-        ? {
-            ...currentConversation,
-            messages: updateMessagesWithSystemMessage(
-              currentConversation.messages,
-              updatedDataQueries,
-              dataQueryFiltersMap,
-            ),
-          }
-        : null;
-
-      setConversation?.(updatedConversationWithSystemMessage);
-
-      updateDataQueries?.(
-        updatedDataQueries?.map((q) => ({
-          ...q,
-          filters: q.disabled
-            ? (q.filters ?? [])
-            : (dataQueryFiltersMap.get(q.urn) ?? []),
-        })) ?? [],
-      );
-
-      await updateConversation(decodeURI(conversationKey), {
-        name: updatedConversationWithSystemMessage?.name,
-        messages: updatedConversationWithSystemMessage?.messages || [],
-      });
-    },
-    [
-      conversationKey,
-      dataQueries,
-      disabledDatasetUrns,
-      setConversation,
-      updateConversation,
-      updateDataQueries,
-    ],
-  );
-
-  const onSelectDisplayMode = useCallback(
-    (filter?: Filter, displayMode?: string) => {
-      setModalFilters((prevFilters) =>
-        updateFiltersWithDisplayMode(prevFilters, filter, displayMode),
-      );
-      if (isSameFilter(selectedFilter, filter)) {
-        setSelectedFilter((prevFilter) =>
-          prevFilter
-            ? {
-                ...prevFilter,
-                displayMode,
-              }
-            : prevFilter,
-        );
-      }
-    },
-    [selectedFilter],
-  );
-
-  const getFiltersChangeParamsMap = useCallback(
-    (filtersMap: Map<string, Filter[]>) =>
-      getQueryFiltersMap(
-        filtersMap,
-        dataQueries,
-        structureDataMaps?.dimensionsMap,
-      ),
-    [dataQueries, structureDataMaps?.dimensionsMap],
-  );
-
-  const isFiltersUnchanged = useMemo(() => {
-    const appliedMap = buildFiltersMap(
-      appliedFilters,
-      constraintsMapRef.current,
-      false,
-      datasetDimensionsMetadata.map,
-    );
-    const modalMap = buildFiltersMap(
-      modalFilters,
-      constraintsMapRef.current,
-      false,
-      datasetDimensionsMetadata.map,
-    );
-    const filtersEqual = isEqual(
-      getFiltersChangeParamsMap(appliedMap),
-      getFiltersChangeParamsMap(modalMap),
-    );
-    const disabledEqual = isEqual(
-      [...appliedDisabledUrns].sort(),
-      [...disabledDatasetUrns].sort(),
-    );
-    return filtersEqual && disabledEqual;
-  }, [
-    appliedFilters,
-    modalFilters,
+  const { isFiltersUnchanged, onApply } = useMultiDatasetFilterApply({
     appliedDisabledUrns,
+    appliedFilters,
+    constraintsMapRef,
+    dataQueries,
+    datasetDimensionsMetadataMap: datasetDimensionsMetadata.map,
     disabledDatasetUrns,
-    getFiltersChangeParamsMap,
-    datasetDimensionsMetadata.map,
-  ]);
-
-  const updateViewAfterDelete = useCallback(
-    (
-      filtersToUpdateMap: Map<string, Filter[]>,
-      structureDataMaps?: StructureDataMaps,
-    ) => {
-      const filledFilters = getFiltersByConstraints(
-        filtersToUpdateMap,
-        structureDataMaps,
-        locale as Locale,
-        datasetDimensionsMetadata.map,
-      );
-      constraintsMapRef.current = structureDataMaps?.constraintsMap;
-
-      setSelectedFilter(
-        (previousSelectedFilter) =>
-          filledFilters?.find((filter) =>
-            isSameFilter(filter, previousSelectedFilter),
-          ) || previousSelectedFilter,
-      );
-      setModalFilters(filledFilters);
-      setIsDisableFilterValues(false);
-    },
-    [datasetDimensionsMetadata.map, locale],
-  );
-
-  const handleFiltersDelete = useCallback(
-    (filtersToUpdate: Filter[], dataQueries?: DataQuery[]) => {
-      setIsDisableFilterValues(true);
-      setModalFilters(updateFiltersWithDisabledOption(filtersToUpdate));
-      const filtersMap = buildFiltersMap(
-        filtersToUpdate,
-        constraintsMapRef.current,
-        false,
-        datasetDimensionsMetadata.map,
-      );
-      const currentConstraintsMap =
-        constraintsMapRef.current ||
-        structureDataMaps?.constraintsMap ||
-        new Map<string, DataConstraints[] | undefined>();
-      const shouldTrackFilterValuesLoading = hasUncachedConstraintRequests(
-        dataQueries,
-        filtersMap,
-        actions,
-        datasetDimensionsMetadata.map,
-        filtersToUpdate,
-      );
-
-      if (shouldTrackFilterValuesLoading) {
-        startFilterValuesLoading();
-      }
-
-      const requests = getConstraintsRequests(
-        dataQueries,
-        filtersMap,
-        actions,
-        datasetDimensionsMetadata.map,
-        filtersToUpdate,
-      );
-
-      Promise.allSettled(requests)
-        .then((constraintsResults) => {
-          const mergedConstraintsMap = mergeConstraintsMaps(
-            currentConstraintsMap,
-            getConstraintsMapFromSettledResults(constraintsResults),
-          );
-          updateViewAfterDelete(filtersMap, {
-            ...structureDataMaps,
-            constraintsMap: mergedConstraintsMap,
-          });
-        })
-        .catch(() => {
-          updateViewAfterDelete(filtersMap, {
-            ...structureDataMaps,
-            constraintsMap: currentConstraintsMap,
-          });
-        })
-        .finally(() => {
-          if (shouldTrackFilterValuesLoading) {
-            finishFilterValuesLoading();
-          }
-        });
-    },
-    [
-      actions,
-      datasetDimensionsMetadata.map,
-      finishFilterValuesLoading,
-      startFilterValuesLoading,
-      structureDataMaps,
-      updateViewAfterDelete,
-    ],
-  );
+    locale,
+    modalFilters,
+    onMultipleDataFiltersChange,
+    setAppliedFilters,
+    structureDataMaps,
+    closeModal,
+    addSystemMessage,
+  });
 
   const onDeleteFilter = useCallback(
     (filter?: Filter) => {
       const dataQuery = dataQueries?.find(
         (dataQuery) => dataQuery?.urn === filter?.datasetUrn,
       );
-      const filtersAfterDelete = getFiltersAfterDelete(modalFilters, filter);
 
       handleFiltersDelete(
-        filtersAfterDelete,
+        getFiltersAfterDelete(modalFilters, filter),
         !filter?.datasetUrn ? dataQueries : dataQuery ? [dataQuery] : [],
       );
     },
-    [handleFiltersDelete, modalFilters, dataQueries],
+    [dataQueries, handleFiltersDelete, modalFilters],
   );
 
-  const onClearAllDatasets = useCallback(() => {
-    setDisabledDatasetUrns(new Set());
-  }, []);
-
-  const onToggleDataset = useCallback((urn: string, enabled: boolean) => {
-    setDisabledDatasetUrns((prev) => {
-      const next = new Set(prev);
-      if (enabled) {
-        next.delete(urn);
-      } else {
-        next.add(urn);
-      }
-      return next;
-    });
-  }, []);
-
-  const onCloseModal = useCallback(() => {
-    constraintsMapRef.current = initialModalConstraintsMap;
-    setModalState(PopUpState.Closed);
-    setIsModalClosed(true);
-  }, [initialModalConstraintsMap, setModalState, setIsModalClosed]);
-
   const onClearAllFilters = useCallback(() => {
-    const filtersAfterClear = getFiltersAfterClear(modalFilters);
+    handleFiltersDelete(getFiltersAfterClear(modalFilters), dataQueries);
+    onClearAllDatasets();
+  }, [dataQueries, handleFiltersDelete, modalFilters, onClearAllDatasets]);
 
-    handleFiltersDelete(filtersAfterClear, dataQueries);
-    setDisabledDatasetUrns(new Set());
-  }, [handleFiltersDelete, modalFilters, dataQueries]);
-
-  const onApply = useCallback(() => {
-    const updatedDataQueries = dataQueries?.map((q) => ({
-      ...q,
-      disabled: disabledDatasetUrns.has(q.urn),
-    }));
-    const appliedFiltersMap = buildFiltersMap(
-      modalFilters,
-      constraintsMapRef.current,
-      false,
-      datasetDimensionsMetadata.map,
-      disabledDatasetUrns, // disabled datasets are omitted from filtersParamsMap; their filters are preserved via updatedDataQueries spread
-    );
-    const appliedFilters = getFiltersByConstraints(
-      appliedFiltersMap,
-      {
-        ...structureDataMaps,
-        constraintsMap: constraintsMapRef.current,
-      },
-      locale as Locale,
-      datasetDimensionsMetadata.map,
-    );
-    const filtersParamsMap = getFiltersChangeParamsMap(appliedFiltersMap);
-    const compatibleUrns = getCompatibleDatasetUrns(
-      appliedFilters,
-      dataQueries?.map((q) => q.urn) ?? [],
-      dataQueries,
-      datasetDimensionsMetadata.map,
-      appliedFiltersMap,
-    );
-
-    const incompatibleUrns = (dataQueries?.map((q) => q.urn) ?? []).filter(
-      (urn) => !compatibleUrns.has(urn),
-    );
-    for (const urn of incompatibleUrns) {
-      const filters = appliedFiltersMap.get(urn);
-      if (filters) {
-        appliedFiltersMap.set(
-          urn,
-          filters.map((filter) =>
-            !filter.isTimeDimension &&
-            filter.dimensionValues?.length &&
-            !filter.dimensionValues.some((v) => v.isSelectedValue)
-              ? { ...filter, isExcluded: true }
-              : filter,
-          ),
-        );
-      }
-    }
-
-    onMultipleDataFiltersChange?.(
-      filtersParamsMap,
-      constraintsMapRef.current,
-      updatedDataQueries?.filter(
-        (q) => compatibleUrns.has(q.urn) || q.disabled,
-      ),
-      appliedFiltersMap,
-      appliedFilters,
-    );
-
-    setAppliedFilters(appliedFilters);
-    setModalState(PopUpState.Closed);
-    setIsModalClosed(true);
-
-    startTransition(() => {
-      addSystemMessage(appliedFiltersMap);
-    });
-  }, [
-    getFiltersChangeParamsMap,
-    modalFilters,
-    structureDataMaps,
-    locale,
-    datasetDimensionsMetadata.map,
-    onMultipleDataFiltersChange,
+  const displayDataQueries = useMultiDatasetDisplayDataQueries(
     dataQueries,
-    disabledDatasetUrns,
-    addSystemMessage,
-    setModalState,
-    setIsModalClosed,
-  ]);
-
-  const onTimePeriodChange = (value: string | number) => {
-    setSelectedTimeOption(value);
-  };
-
-  const displayDataQueries = useMemo(
-    () =>
-      dataQueries?.map((q) => {
-        const dataflow = structureDataMaps?.structuresMap?.get(q.urn)
-          ?.dataflows?.[0];
-        const localizedName = getLocalizedName(dataflow, locale ?? '');
-        const name = localizedName
-          ? generateShortUrn(localizedName, '', dataflow?.agencyID)
-          : undefined;
-        return name ? { ...q, title: name } : q;
-      }),
-    [dataQueries, structureDataMaps?.structuresMap, locale],
+    structureDataMaps?.structuresMap,
+    locale,
   );
 
   const isApplyDisabled =
@@ -813,54 +237,62 @@ const MultiDatasetFilters: FC<FiltersProps> = ({
         warningIcon={limitMessages?.warningIcon}
         filterIconClassName={filterIconClassName}
       />
-      <>
-        {modalState === PopUpState.Opened && (
-          <Popup
-            heading={titles?.settings || 'Settings'}
-            portalId="filters"
-            size={PopUpSize.LG}
-            containerClassName="advanced-view-filters-modal h-[80%]"
-            dividers={modalProps?.isShowDividers}
+      {modalState === PopUpState.Opened && (
+        <Popup
+          heading={titles?.settings || 'Settings'}
+          portalId="filters"
+          size={PopUpSize.LG}
+          containerClassName="advanced-view-filters-modal h-[80%]"
+          dividers={modalProps?.isShowDividers}
+          onClose={onCloseModal}
+          closeButtonTitle={titles?.close || 'Close'}
+        >
+          <FilterSettings
+            controller={{
+              state: {
+                filtersList: modalFilters,
+                selectedFilter,
+                isDisableValues: isDisableFilterValues,
+                isValuesLoading: isFilterValuesLoading,
+                selectedTimeOption,
+                disabledDatasetUrns,
+              },
+              options: {
+                locale,
+                timeRangeOptions,
+                modalProps,
+                initialConstraintsMap: structureDataMaps?.constraintsMap,
+                datasetIcon,
+                structuresMap: structureDataMaps?.structuresMap,
+                dataQueries: displayDataQueries,
+              },
+              handlers: {
+                setSelectedFilter,
+                onSelectDisplayMode,
+                onDeleteFilter,
+                onClearAllFilters,
+                updateSelectedFilterValues,
+                onTimePeriodChange,
+                onToggleDataset,
+                onClearAllDatasets,
+              },
+              hierarchy: {
+                hierarchyStateMap,
+                onSelectHierarchy,
+                onExpandHierarchyNode,
+              },
+            }}
+          />
+          <ModalFooter
+            onApply={onApply}
             onClose={onCloseModal}
-            closeButtonTitle={titles?.close || 'Close'}
-          >
-            <FilterSettings
-              locale={locale}
-              timeRangeOptions={timeRangeOptions}
-              filtersList={modalFilters}
-              selectedFilter={selectedFilter}
-              isDisableValues={isDisableFilterValues}
-              isValuesLoading={isFilterValuesLoading}
-              modalProps={modalProps}
-              initialConstraintsMap={structureDataMaps?.constraintsMap}
-              datasetIcon={datasetIcon}
-              structuresMap={structureDataMaps?.structuresMap}
-              setSelectedFilter={setSelectedFilter}
-              onSelectDisplayMode={onSelectDisplayMode}
-              onDeleteFilter={onDeleteFilter}
-              onClearAllFilters={onClearAllFilters}
-              updateSelectedFilterValues={updateSelectedFilterValues}
-              onTimePeriodChange={onTimePeriodChange}
-              selectedTimeOption={selectedTimeOption}
-              hierarchyStateMap={hierarchyStateMap}
-              onSelectHierarchy={onSelectHierarchy}
-              onExpandHierarchyNode={onExpandHierarchyNode}
-              dataQueries={displayDataQueries}
-              disabledDatasetUrns={disabledDatasetUrns}
-              onToggleDataset={onToggleDataset}
-              onClearAllDatasets={onClearAllDatasets}
-            />
-            <ModalFooter
-              onApply={onApply}
-              onClose={onCloseModal}
-              onClearAllFilters={onClearAllFilters}
-              modalProps={modalProps}
-              applyDisabled={isApplyDisabled}
-              limitMessages={limitMessages}
-            />
-          </Popup>
-        )}
-      </>
+            onClearAllFilters={onClearAllFilters}
+            modalProps={modalProps}
+            applyDisabled={isApplyDisabled}
+            limitMessages={limitMessages}
+          />
+        </Popup>
+      )}
     </div>
   );
 };
