@@ -22,7 +22,7 @@ import { CustomDataGridAttachment } from './CustomAttachments/CustomGridAttachme
 import { CustomChartAttachment } from './CustomAttachments/CustomChartAttachment';
 import { CodeAttachment } from './CustomAttachments/CodeAttachment';
 import { AttachmentsActions } from '../../models/actions';
-import CrossDatasetGridAttachment from './CustomAttachments/CrossDatasetGridAttachment';
+import { CrossDatasetGridAttachment } from './CustomAttachments/CrossDatasetGridAttachment';
 
 interface Props {
   selectedAttachment: Attachment;

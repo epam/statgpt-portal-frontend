@@ -153,4 +153,4 @@ const CrossDatasetGridAttachment: FC<Props> = ({
   );
 };
 
-export default CrossDatasetGridAttachment;
+export { CrossDatasetGridAttachment };
