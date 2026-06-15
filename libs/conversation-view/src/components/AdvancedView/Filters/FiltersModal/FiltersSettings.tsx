@@ -31,17 +31,13 @@ import {
   mapHierarchyNodeIdToFilterValueId,
   mapHierarchyNodesToFilterValueIds,
 } from '../../../../utils/hierarchy-view';
-import {
-  FilterSettingsControllerProvider,
-  type FilterSettingsController,
-  useFilterSettingsController,
-} from './FilterSettingsControllerContext';
+import { type FilterSettingsController } from './filter-settings-controller';
 
 interface Props {
   controller: FilterSettingsController;
 }
 
-const FilterSettingsContent: FC = () => {
+const FilterSettings: FC<Props> = ({ controller }) => {
   const {
     state: {
       filtersList,
@@ -73,7 +69,7 @@ const FilterSettingsContent: FC = () => {
       onClearAllDatasets,
     },
     hierarchy: { hierarchyStateMap, onSelectHierarchy, onExpandHierarchyNode },
-  } = useFilterSettingsController();
+  } = controller;
   const { titles } = useConversationViewStyles();
   const hierarchyState = hierarchyStateMap?.get(
     getFilterIdentity(selectedFilter) as string,
@@ -397,11 +393,5 @@ const FilterSettingsContent: FC = () => {
     </FiltersModalProvider>
   );
 };
-
-const FilterSettings: FC<Props> = ({ controller }) => (
-  <FilterSettingsControllerProvider controller={controller}>
-    <FilterSettingsContent />
-  </FilterSettingsControllerProvider>
-);
 
 export default FilterSettings;

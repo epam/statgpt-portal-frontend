@@ -7,7 +7,7 @@ import type {
 } from '@epam/statgpt-sdmx-toolkit';
 import type { DataQuery } from '@epam/statgpt-shared-toolkit';
 import type { Filter, FiltersProps } from '../../../../models/filters';
-import type { FilterSettingsController } from '../FiltersModal/FilterSettingsControllerContext';
+import type { FilterSettingsController } from '../FiltersModal/filter-settings-controller';
 
 const DATASET_URN = 'AGENCY:DF_TEST(1.0)';
 const UPDATED_CONSTRAINTS = [

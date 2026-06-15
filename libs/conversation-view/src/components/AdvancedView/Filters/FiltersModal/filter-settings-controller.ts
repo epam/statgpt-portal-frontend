@@ -6,13 +6,7 @@ import type {
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
 import type { DataQuery, TimeRangeOptions } from '@epam/statgpt-shared-toolkit';
-import {
-  createContext,
-  type Dispatch,
-  type ReactNode,
-  type SetStateAction,
-  useContext,
-} from 'react';
+import { type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import type {
   Filter,
   FiltersModalProps,
@@ -62,31 +56,4 @@ export interface FilterSettingsController {
   options: FilterSettingsOptions;
   handlers: FilterSettingsHandlers;
   hierarchy: FilterSettingsHierarchy;
-}
-
-const FilterSettingsControllerContext =
-  createContext<FilterSettingsController | null>(null);
-
-export function FilterSettingsControllerProvider({
-  children,
-  controller,
-}: {
-  children: ReactNode;
-  controller: FilterSettingsController;
-}) {
-  return (
-    <FilterSettingsControllerContext.Provider value={controller}>
-      {children}
-    </FilterSettingsControllerContext.Provider>
-  );
-}
-
-export function useFilterSettingsController(): FilterSettingsController {
-  const context = useContext(FilterSettingsControllerContext);
-  if (!context) {
-    throw new Error(
-      'useFilterSettingsController must be used within FilterSettingsControllerProvider',
-    );
-  }
-  return context;
 }
