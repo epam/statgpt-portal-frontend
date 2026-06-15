@@ -50,7 +50,7 @@ export default defineConfig({
           dest: '',
         },
         {
-          src: 'src/scss/styles-tailwind.scss',
+          src: path.resolve(__dirname, 'src/scss/styles-tailwind.scss'),
           dest: '',
         },
       ],
