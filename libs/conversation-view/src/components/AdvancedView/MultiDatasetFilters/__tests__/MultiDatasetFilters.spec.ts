@@ -27,6 +27,7 @@ const mockCallbacks: {
   onToggleDataset: ((urn: string, enabled: boolean) => void) | null;
   disabledDatasetUrns: Set<string> | null;
   onClearAllDatasets: (() => void) | null;
+  onClearAllFilters: (() => void) | null;
   controller: any | null;
   applyDisabled: boolean | undefined;
 } = {
@@ -39,6 +40,7 @@ const mockCallbacks: {
   onToggleDataset: null,
   disabledDatasetUrns: null,
   onClearAllDatasets: null,
+  onClearAllFilters: null,
   controller: null,
   applyDisabled: undefined,
 };
@@ -217,6 +219,7 @@ jest.mock('../../Filters/FiltersModal/ModalFooter', () => {
     default: (props: any) => {
       mockCallbacks.onApply = props.onApply;
       mockCallbacks.onClose = props.onClose;
+      mockCallbacks.onClearAllFilters = props.onClearAllFilters;
       mockCallbacks.applyDisabled = props.applyDisabled;
       return R.createElement('button', {
         'data-testid': 'apply-button',
@@ -317,6 +320,7 @@ beforeEach(() => {
   mockCallbacks.onToggleDataset = null;
   mockCallbacks.disabledDatasetUrns = null;
   mockCallbacks.onClearAllDatasets = null;
+  mockCallbacks.onClearAllFilters = null;
   mockCallbacks.controller = null;
   mockCallbacks.applyDisabled = undefined;
   jest.clearAllMocks();
@@ -361,6 +365,17 @@ const flushPromises = async () => {
     await Promise.resolve();
     await Promise.resolve();
   });
+};
+
+const createDeferred = <T>() => {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+
+  return { promise, resolve, reject };
 };
 
 const openModal = async () => {
@@ -964,6 +979,89 @@ describe('MultiDatasetFilters', () => {
         getSelectedIds(getControllerFilter(COMMON_COUNTRY_FILTER_ID)),
       ).toEqual(['FR']);
     });
+
+    it('keeps filter values loading until all tracked constraints requests finish', async () => {
+      const initialCountryFilter: Filter = {
+        id: COMMON_COUNTRY_FILTER_ID,
+        title: 'Country',
+        filterType: 'dataset',
+        datasetUrn: DATASET_A_URN,
+        dimensionValues: [
+          { id: 'FR', name: 'France', isSelectedValue: true },
+          { id: 'DE', name: 'Germany', isSelectedValue: false },
+        ],
+      };
+      const updatedCountryFilter: Filter = {
+        ...initialCountryFilter,
+        dimensionValues: initialCountryFilter.dimensionValues?.map((value) =>
+          value.id === 'DE' ? { ...value, isSelectedValue: true } : value,
+        ),
+      };
+      const updatedConstraints = [{ id: 'updated-a' }];
+      const firstDeferred = createDeferred<unknown>();
+      const secondDeferred = createDeferred<unknown>();
+
+      mockIsStructureDataMapsReady.mockReturnValue(true);
+      mockGetFiltersPreselectedByDataQueries.mockReturnValue([
+        initialCountryFilter,
+      ]);
+      mockBuildFiltersMap.mockImplementation((filters: Filter[]) =>
+        buildDatasetFilterMap(filters),
+      );
+      mockGetFiltersByConstraints.mockImplementation(flattenFiltersMap);
+
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, defaultProps));
+        await Promise.resolve();
+      });
+      await openModal();
+
+      expect(mockCallbacks.controller?.state.isValuesLoading).toBe(false);
+
+      mockHasUncachedConstraintRequests.mockReturnValue(true);
+      mockGetConstraintsRequests
+        .mockReturnValueOnce([firstDeferred.promise])
+        .mockReturnValueOnce([secondDeferred.promise]);
+      mockGetConstraintsMapFromSettledResults.mockReturnValue(
+        new Map([[DATASET_A_URN, updatedConstraints]]),
+      );
+
+      await act(async () => {
+        mockCallbacks.updateSelectedFilterValues?.(updatedCountryFilter);
+        await Promise.resolve();
+      });
+
+      expect(mockCallbacks.controller?.state.isValuesLoading).toBe(true);
+
+      await act(async () => {
+        mockCallbacks.updateSelectedFilterValues?.(updatedCountryFilter);
+        await Promise.resolve();
+      });
+
+      expect(mockCallbacks.controller?.state.isValuesLoading).toBe(true);
+
+      await act(async () => {
+        firstDeferred.resolve({
+          urn: DATASET_A_URN,
+          data: { data: { dataConstraints: updatedConstraints } },
+        });
+        await firstDeferred.promise;
+      });
+      await flushPromises();
+
+      expect(mockCallbacks.controller?.state.isValuesLoading).toBe(true);
+
+      await act(async () => {
+        secondDeferred.resolve({
+          urn: DATASET_A_URN,
+          data: { data: { dataConstraints: updatedConstraints } },
+        });
+        await secondDeferred.promise;
+      });
+      await flushPromises();
+
+      expect(mockCallbacks.controller?.state.isValuesLoading).toBe(false);
+    });
   });
 
   describe('dataset disable state', () => {
@@ -1050,6 +1148,75 @@ describe('MultiDatasetFilters', () => {
       });
 
       expect(mockCallbacks.disabledDatasetUrns?.size).toBe(0);
+    });
+
+    it('clears filters and disabled datasets together through onClearAllFilters', async () => {
+      const initialCountryFilter: Filter = {
+        id: COMMON_COUNTRY_FILTER_ID,
+        title: 'Country',
+        filterType: 'dataset',
+        datasetUrn: DATASET_A_URN,
+        dimensionValues: [
+          { id: 'FR', name: 'France', isSelectedValue: true },
+          { id: 'DE', name: 'Germany', isSelectedValue: false },
+        ],
+      };
+      const propsWithDisabled = {
+        ...defaultProps,
+        dataQueries: [
+          { urn: DATASET_A_URN, disabled: true } as DataQuery,
+          { urn: DATASET_B_URN } as DataQuery,
+        ],
+      };
+
+      mockIsStructureDataMapsReady.mockReturnValue(true);
+      mockGetFiltersPreselectedByDataQueries.mockReturnValue([
+        initialCountryFilter,
+      ]);
+      mockBuildFiltersMap.mockImplementation((filters: Filter[]) =>
+        buildDatasetFilterMap(filters),
+      );
+      mockGetFiltersByConstraints.mockImplementation(flattenFiltersMap);
+
+      await act(async () => {
+        render(createElement(MultiDatasetFilters, propsWithDisabled));
+        await Promise.resolve();
+      });
+      await openModal();
+
+      expect(mockCallbacks.disabledDatasetUrns?.has(DATASET_A_URN)).toBe(true);
+      expect(
+        getSelectedIds(getControllerFilter(COMMON_COUNTRY_FILTER_ID)),
+      ).toEqual(['FR']);
+
+      await act(async () => {
+        mockCallbacks.onClearAllFilters?.();
+        await Promise.resolve();
+      });
+      await flushPromises();
+
+      const latestBuildFilters = mockBuildFiltersMap.mock.calls[
+        mockBuildFiltersMap.mock.calls.length - 1
+      ][0] as Filter[];
+
+      expect(
+        getSelectedIds(
+          latestBuildFilters.find(
+            (filter) => filter.id === COMMON_COUNTRY_FILTER_ID,
+          ),
+        ),
+      ).toEqual([]);
+      expect(
+        getSelectedIds(getControllerFilter(COMMON_COUNTRY_FILTER_ID)),
+      ).toEqual([]);
+      expect(mockCallbacks.disabledDatasetUrns?.size).toBe(0);
+      expect(mockGetConstraintsRequests).toHaveBeenLastCalledWith(
+        propsWithDisabled.dataQueries,
+        expect.any(Map),
+        propsWithDisabled.actions,
+        expect.any(Object),
+        expect.any(Array),
+      );
     });
 
     it('passes updatedDataQueries with disabled:true to onMultipleDataFiltersChange on apply', async () => {

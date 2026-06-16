@@ -51,6 +51,12 @@ export interface FilterSettingsHierarchy {
   onExpandHierarchyNode?: (filterKey: string, nodeId: string) => void;
 }
 
+/**
+ * The single structured prop the orchestration passes to `FilterSettings`,
+ * replacing 20+ individual props. Grouped by role — current `state`, static
+ * `options`, `handlers`, and `hierarchy` — and produced identically by both
+ * filter modes, so the unified `useFilters` returns one shape regardless of mode.
+ */
 export interface FilterSettingsController {
   state: FilterSettingsState;
   options: FilterSettingsOptions;

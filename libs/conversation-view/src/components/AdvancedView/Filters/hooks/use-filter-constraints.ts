@@ -1,30 +1,56 @@
 'use client';
 
 import { DataConstraints } from '@epam/statgpt-sdmx-toolkit';
-import { Locale } from '@epam/statgpt-shared-toolkit';
+import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import { Dispatch, SetStateAction, useCallback, useState } from 'react';
-import { Filter, FiltersProps } from '../../../../models/filters';
+import { Filter } from '../../../../models/filters';
 import {
   isSameFilter,
   updateFiltersWithDisabledOption,
   updateFiltersWithSelectedItem,
 } from '../../../../utils/filters';
-import { getFilledFilters } from '../../../../utils/get-filled-filters';
-import { cleanIncompatibleFilters } from '../../../../utils/incompatible-filters';
-import { getSingleDatasetConstraintsRequest } from '../../../../utils/single-dataset-filters';
 import { useFilterValuesLoading } from './use-filter-values-loading';
 
 type SetFilters = (filters: Filter[]) => void;
 type SetBooleanLoading = (isLoading: boolean) => void;
-type ConstraintsRef = { current: DataConstraints[] };
 
-interface UseSingleDatasetFilterConstraintsParams {
-  actions?: FiltersProps['actions'];
-  attachmentUrn?: string;
-  dimensions?: FiltersProps['dimensions'];
-  structures?: FiltersProps['structures'];
-  constraintsRef: ConstraintsRef;
-  locale?: string;
+/**
+ * Mode-specific constraint operations injected into the shared
+ * {@link useFilterConstraints} skeleton. The single-dataset flow works on a
+ * flat `DataConstraints[]`; the multi-dataset flow works on a per-dataset map.
+ * `TResult` is the opaque per-call constraints payload each mode produces.
+ */
+export interface FilterConstraintsStrategy<TResult> {
+  /**
+   * Fire the constraint request(s) for `filters`. `shouldTrackLoading` drives
+   * the shared loading counter. `targetDataQueries` narrows the request set on
+   * the delete path (multi-dataset only; ignored by single-dataset).
+   */
+  startFetch: (
+    filters: Filter[],
+    targetDataQueries?: DataQuery[],
+  ) => { promise: Promise<TResult>; shouldTrackLoading: boolean };
+  /** Constraints payload to use when a request fails. */
+  fallbackResult: (filters: Filter[]) => TResult;
+  /** Drop values no longer supported by the fetched constraints. */
+  cleanIncompatible: (
+    filters: Filter[],
+    result: TResult,
+    changedFilter: Filter,
+  ) => { filters: Filter[]; changed: boolean };
+  /** Fill `filters` with the fetched constraints. */
+  fill: (filters: Filter[], result: TResult) => Filter[];
+  /** Persist the fetched constraints into the mode-specific ref. */
+  commit: (result: TResult) => void;
+  /** Constraints to rebuild the hierarchy tree with after a change. */
+  getRebuildConstraints: (
+    changedFilter: Filter,
+    result: TResult,
+  ) => DataConstraints[] | undefined;
+}
+
+interface UseFilterConstraintsParams<TResult> {
+  strategy: FilterConstraintsStrategy<TResult>;
   modalFilters: Filter[];
   setModalFilters: SetFilters;
   setSelectedFilter: Dispatch<SetStateAction<Filter | undefined>>;
@@ -34,21 +60,19 @@ interface UseSingleDatasetFilterConstraintsParams {
   ) => void;
 }
 
-export const useSingleDatasetFilterConstraints = ({
-  actions,
-  attachmentUrn,
-  dimensions,
-  structures,
-  constraintsRef,
-  locale,
+/**
+ * Shared constraint-fetching control flow for both filter modes. The async
+ * skeleton (request → optionally clean-and-recurse → fill/commit → catch/finally)
+ * is identical across single- and multi-dataset; the mode-specific primitives
+ * arrive through `strategy`.
+ */
+export const useFilterConstraints = <TResult>({
+  strategy,
   modalFilters,
   setModalFilters,
   setSelectedFilter,
   rebuildHierarchyTree,
-}: UseSingleDatasetFilterConstraintsParams) => {
-  const [initialModalConstraints, setInitialModalConstraints] = useState<
-    DataConstraints[]
-  >([]);
+}: UseFilterConstraintsParams<TResult>) => {
   const [isConstraintsLoading, setIsConstraintsLoading] = useState<boolean>();
   const [isDisableFilterValues, setIsDisableFilterValues] = useState<boolean>();
   const {
@@ -56,26 +80,6 @@ export const useSingleDatasetFilterConstraints = ({
     startLoading,
     finishLoading,
   } = useFilterValuesLoading();
-
-  const rememberInitialModalConstraints = useCallback(() => {
-    setInitialModalConstraints(constraintsRef.current);
-  }, [constraintsRef]);
-
-  const restoreInitialModalConstraints = useCallback(() => {
-    constraintsRef.current = initialModalConstraints;
-  }, [constraintsRef, initialModalConstraints]);
-
-  const getFilledFiltersByConstraints = useCallback(
-    (filters: Filter[], constraints: DataConstraints[]) =>
-      getFilledFilters(
-        filters,
-        dimensions,
-        structures,
-        constraints,
-        locale as Locale,
-      ),
-    [dimensions, locale, structures],
-  );
 
   const updateSelectedFilterFromFilledFilters = useCallback(
     (filledFilters: Filter[], changedFilter: Filter) => {
@@ -101,34 +105,20 @@ export const useSingleDatasetFilterConstraints = ({
       setLoading?: SetBooleanLoading,
       changedFilter?: Filter,
     ) => {
-      const { request, shouldTrackLoading } =
-        getSingleDatasetConstraintsRequest(
-          actions,
-          attachmentUrn ?? '',
-          filters,
-        );
+      const { promise, shouldTrackLoading } = strategy.startFetch(filters);
 
       if (shouldTrackLoading) {
         startLoading();
       }
 
-      request
-        .then((constraints) => {
-          const newConstraints = constraints?.data?.dataConstraints || [];
-
+      promise
+        .then((result) => {
           if (changedFilter) {
             const { filters: cleanedFilters, changed } =
-              cleanIncompatibleFilters(
-                filters,
-                dimensions,
-                structures,
-                newConstraints,
-                changedFilter,
-                locale as Locale,
-              );
+              strategy.cleanIncompatible(filters, result, changedFilter);
 
             if (changed) {
-              constraintsRef.current = newConstraints;
+              strategy.commit(result);
               setLoading?.(true);
               setIsDisableFilterValues(true);
               handleFiltersWithConstraints(
@@ -141,23 +131,24 @@ export const useSingleDatasetFilterConstraints = ({
             }
           }
 
-          const filledFilters = getFilledFiltersByConstraints(
-            filters,
-            newConstraints,
-          );
+          const filledFilters = strategy.fill(filters, result);
 
-          constraintsRef.current = newConstraints;
+          strategy.commit(result);
           setLoading?.(false);
           setFilters(filledFilters);
           if (changedFilter) {
             updateSelectedFilterFromFilledFilters(filledFilters, changedFilter);
-            rebuildHierarchyTree(changedFilter, newConstraints);
+            rebuildHierarchyTree(
+              changedFilter,
+              strategy.getRebuildConstraints(changedFilter, result),
+            );
           }
         })
         .catch(() => {
-          const filledFilters = getFilledFiltersByConstraints(filters, []);
+          const result = strategy.fallbackResult(filters);
+          const filledFilters = strategy.fill(filters, result);
 
-          constraintsRef.current = [];
+          strategy.commit(result);
           setLoading?.(false);
           setFilters(filledFilters);
           if (changedFilter) {
@@ -172,27 +163,18 @@ export const useSingleDatasetFilterConstraints = ({
         });
     },
     [
-      actions,
-      attachmentUrn,
-      constraintsRef,
-      dimensions,
       finishLoading,
-      getFilledFiltersByConstraints,
-      locale,
       rebuildHierarchyTree,
       startLoading,
-      structures,
+      strategy,
       updateSelectedFilterFromFilledFilters,
     ],
   );
 
   const updateViewAfterDelete = useCallback(
-    (dataConstraints: DataConstraints[], filtersToUpdate: Filter[]) => {
-      const filledFilters = getFilledFiltersByConstraints(
-        filtersToUpdate,
-        dataConstraints,
-      );
-      constraintsRef.current = dataConstraints;
+    (filtersToUpdate: Filter[], result: TResult) => {
+      const filledFilters = strategy.fill(filtersToUpdate, result);
+      strategy.commit(result);
 
       setSelectedFilter(
         (previousSelectedFilter) =>
@@ -203,39 +185,32 @@ export const useSingleDatasetFilterConstraints = ({
       setModalFilters(filledFilters);
       setIsDisableFilterValues(false);
     },
-    [
-      constraintsRef,
-      getFilledFiltersByConstraints,
-      setModalFilters,
-      setSelectedFilter,
-    ],
+    [setModalFilters, setSelectedFilter, strategy],
   );
 
   const handleFiltersDelete = useCallback(
-    (filtersToUpdate: Filter[]) => {
+    (filtersToUpdate: Filter[], targetDataQueries?: DataQuery[]) => {
       setIsDisableFilterValues(true);
       setModalFilters(updateFiltersWithDisabledOption(filtersToUpdate));
 
-      const { request, shouldTrackLoading } =
-        getSingleDatasetConstraintsRequest(
-          actions,
-          attachmentUrn ?? '',
-          filtersToUpdate,
-        );
+      const { promise, shouldTrackLoading } = strategy.startFetch(
+        filtersToUpdate,
+        targetDataQueries,
+      );
 
       if (shouldTrackLoading) {
         startLoading();
       }
 
-      request
-        .then((constraints) => {
-          updateViewAfterDelete(
-            constraints?.data?.dataConstraints || [],
-            filtersToUpdate,
-          );
+      promise
+        .then((result) => {
+          updateViewAfterDelete(filtersToUpdate, result);
         })
         .catch(() => {
-          updateViewAfterDelete([], filtersToUpdate);
+          updateViewAfterDelete(
+            filtersToUpdate,
+            strategy.fallbackResult(filtersToUpdate),
+          );
         })
         .finally(() => {
           if (shouldTrackLoading) {
@@ -244,11 +219,10 @@ export const useSingleDatasetFilterConstraints = ({
         });
     },
     [
-      actions,
-      attachmentUrn,
       finishLoading,
       setModalFilters,
       startLoading,
+      strategy,
       updateViewAfterDelete,
     ],
   );
@@ -284,7 +258,5 @@ export const useSingleDatasetFilterConstraints = ({
     handleFiltersWithConstraints,
     handleFiltersDelete,
     updateSelectedFilterValues,
-    rememberInitialModalConstraints,
-    restoreInitialModalConstraints,
   };
 };

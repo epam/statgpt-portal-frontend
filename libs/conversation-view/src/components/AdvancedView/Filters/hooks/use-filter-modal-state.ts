@@ -30,6 +30,12 @@ interface UseFilterModalStateParams {
   loadAvailableHierarchies: (filter: Filter) => void | Promise<void>;
 }
 
+/**
+ * Modal state shared by both filter modes (modal/applied filters, selected
+ * filter, time option). The two modes are identical except for two `multi`-only
+ * concerns: the dataset-disable sets, and resetting `selectedTimeOption` when
+ * the modal opens — single-dataset keeps the last time option across reopens.
+ */
 export const useFilterModalState = ({
   mode,
   modalState,

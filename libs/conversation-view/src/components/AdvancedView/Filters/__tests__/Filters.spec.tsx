@@ -230,6 +230,17 @@ const flushPromises = async () => {
   });
 };
 
+const createDeferred = <T,>() => {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+
+  return { promise, resolve, reject };
+};
+
 const renderFilters = async (
   props: Partial<FiltersProps> = {},
 ): Promise<FiltersProps> => {
@@ -516,6 +527,145 @@ describe('Filters', () => {
     expect(mockGetSingleDatasetConstraintsRequest).toHaveBeenCalledTimes(2);
     expect(mockCleanIncompatibleFilters).toHaveBeenCalledTimes(2);
     expect(getSelectedIds(getControllerFilter('COUNTRY'))).toEqual(['FR']);
+  });
+
+  it('keeps filter values loading until all tracked constraints requests finish', async () => {
+    await renderFilters();
+    await openModal();
+
+    const firstDeferred = createDeferred<{
+      data: { dataConstraints: DataConstraints[] };
+    }>();
+    const secondDeferred = createDeferred<{
+      data: { dataConstraints: DataConstraints[] };
+    }>();
+    const countryFilter = getControllerFilter('COUNTRY') as Filter;
+    const updatedCountryFilter = {
+      ...countryFilter,
+      dimensionValues: countryFilter.dimensionValues?.map((value) =>
+        value.id === 'DE' ? { ...value, isSelectedValue: true } : value,
+      ),
+    };
+
+    expect(mockCallbacks.controller?.state.isValuesLoading).toBe(false);
+
+    mockGetSingleDatasetConstraintsRequest
+      .mockReturnValueOnce({
+        request: firstDeferred.promise,
+        shouldTrackLoading: true,
+        filters: [updatedCountryFilter],
+      })
+      .mockReturnValueOnce({
+        request: secondDeferred.promise,
+        shouldTrackLoading: true,
+        filters: [updatedCountryFilter],
+      });
+
+    await act(async () => {
+      mockCallbacks.controller?.handlers.updateSelectedFilterValues?.(
+        updatedCountryFilter,
+      );
+      await Promise.resolve();
+    });
+
+    expect(mockCallbacks.controller?.state.isValuesLoading).toBe(true);
+
+    await act(async () => {
+      mockCallbacks.controller?.handlers.updateSelectedFilterValues?.(
+        updatedCountryFilter,
+      );
+      await Promise.resolve();
+    });
+
+    expect(mockCallbacks.controller?.state.isValuesLoading).toBe(true);
+
+    await act(async () => {
+      firstDeferred.resolve({
+        data: { dataConstraints: UPDATED_CONSTRAINTS },
+      });
+      await firstDeferred.promise;
+    });
+    await flushPromises();
+
+    expect(mockCallbacks.controller?.state.isValuesLoading).toBe(true);
+
+    await act(async () => {
+      secondDeferred.resolve({
+        data: { dataConstraints: UPDATED_CONSTRAINTS },
+      });
+      await secondDeferred.promise;
+    });
+    await flushPromises();
+
+    expect(mockCallbacks.controller?.state.isValuesLoading).toBe(false);
+  });
+
+  it('fills filters with empty constraints when single constraints request fails', async () => {
+    const props = await renderFilters();
+    await openModal();
+
+    const deferred = createDeferred<{
+      data: { dataConstraints: DataConstraints[] };
+    }>();
+    const countryFilter = getControllerFilter('COUNTRY') as Filter;
+    const updatedCountryFilter = {
+      ...countryFilter,
+      dimensionValues: countryFilter.dimensionValues?.map((value) =>
+        value.id === 'DE' ? { ...value, isSelectedValue: true } : value,
+      ),
+    };
+
+    mockGetSingleDatasetConstraintsRequest.mockReturnValueOnce({
+      request: deferred.promise,
+      shouldTrackLoading: false,
+      filters: [updatedCountryFilter],
+    });
+    mockGetFilledFilters.mockImplementation(
+      (
+        filters: Filter[],
+        _dimensions: FiltersProps['dimensions'],
+        _structures: FiltersProps['structures'],
+        constraints: DataConstraints[],
+      ) =>
+        cloneFilters(filters).map((filter) => ({
+          ...filter,
+          dimensionValues: constraints.length ? filter.dimensionValues : [],
+          isDisabled: false,
+        })),
+    );
+
+    await act(async () => {
+      mockCallbacks.controller?.handlers.updateSelectedFilterValues?.(
+        updatedCountryFilter,
+      );
+      deferred.reject(new Error('constraints failed'));
+      await Promise.resolve();
+    });
+    await flushPromises();
+
+    expect(
+      mockGetFilledFilters.mock.calls[
+        mockGetFilledFilters.mock.calls.length - 1
+      ][3],
+    ).toEqual([]);
+    expect(getControllerFilter('COUNTRY')?.dimensionValues).toEqual([]);
+
+    await act(async () => {
+      mockCallbacks.onApply?.();
+      await Promise.resolve();
+    });
+    await flushPromises();
+
+    expect(props.onFiltersChange).toHaveBeenCalledWith(
+      expect.anything(),
+      [],
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'COUNTRY',
+          dimensionValues: [],
+        }),
+      ]),
+    );
   });
 
   it('drops unapplied modal edits after close and reopen', async () => {
