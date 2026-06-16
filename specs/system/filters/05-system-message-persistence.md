@@ -99,10 +99,11 @@ message is appended. See the Invariants section.
 
 ### When is this called?
 
-Both single-dataset (`Filters.tsx`) and multi-dataset (`MultiDatasetFilters.tsx`)
-filter components call `updateMessagesWithSystemMessage` inside their filter-change
-callbacks, then call `updateConversation()` with the updated message list. This
-triggers an API call that persists the conversation to the backend.
+For both filter modes, the mode's `buildSystemMessage` strategy
+(`use-single-filter-strategy.ts` / `use-multi-filter-strategy.ts`) calls
+`updateMessagesWithSystemMessage`, and the shared `useFilterSystemMessage` hook
+(`use-filter-system-message.ts`) then calls `updateConversation()` with the updated
+message list. This triggers an API call that persists the conversation to the backend.
 
 ---
 

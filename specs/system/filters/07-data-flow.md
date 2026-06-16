@@ -35,11 +35,14 @@ structure (dimension labels, codelist, hierarchy).
 
 ### Phase 2 — Structure and constraint loading
 
-**Single-dataset** (`Filters.tsx`): a `useEffect` triggers on
-`dimensions / structures / structureDimensions`. It calls `getDatasetFilters()`
-to build the skeleton `Filter[]` with no values selected, then immediately
-starts `handleFiltersWithConstraints()` which fires `getConstraints()` and awaits
-the response. Until the response arrives the filter UI shows a loading state.
+**Single-dataset**: the shared `useFilterInitialization` effect
+(`Filters/hooks/use-filter-initialization.ts`) re-runs when the single strategy's
+`prepareInit` identity changes (i.e. on `dimensions / structures /
+structureDimensions`). `prepareInit` (`use-single-filter-strategy.ts`) builds the
+skeleton `Filter[]` with no values selected, then the shared init skeleton
+immediately runs `handleFiltersWithConstraints()` (`use-filter-constraints.ts`)
+which fires the constraints request via the strategy's `startFetch` and awaits the
+response. Until the response arrives the filter UI shows a loading state.
 
 **Multi-dataset** (`AttachmentsDataMultipleQueries` context): three async steps
 run in sequence:
@@ -80,7 +83,8 @@ Once structure data is ready, `getFilledDatasetFiltersMap()` replaces skeleton
 values as selected (see `02-single-dataset-filters.md` section 2).
 
 **Disabled-dataset preselection suppression (multi-dataset):** Before calling
-`getFiltersPreselectedByDataQueries()`, `MultiDatasetFilters` builds a
+`getFiltersPreselectedByDataQueries()`, the multi strategy's `prepareInit`
+(`use-multi-filter-strategy.ts`) builds a
 `dataQueriesForMerge` list where every disabled dataset's `filters` are replaced with
 empty-selection `QueryFilter[]` for its indicator dimensions (all codes, none
 selected). This prevents a disabled dataset's saved filter selections from
@@ -89,11 +93,19 @@ the disabled dataset had selected would otherwise appear pre-checked in the merg
 Frequency picker. The original `DataQuery.filters` are not mutated; they are
 preserved intact and used when the dataset is re-enabled.
 
-**One-time gate**: both `Filters.tsx` and `MultiDatasetFilters.tsx` guard
-preselection with a `useRef(false)` flag (`isPreselectedFromDataQuery`). Preselection
-runs exactly once — the first time structure data is ready. If dimensions or
-structures change afterwards (dataset swap), the flag prevents preselection from
-overwriting any edits the user has already made in the modal.
+**One-time gate (single-dataset)**: the single strategy guards preselection with a
+`useRef(false)` flag (`isPreselectedFromDataQuery` in
+`use-single-filter-strategy.ts`). Its `prepareInit` returns `skip` once the flag is
+set, and the shared `useFilterInitialization` calls `markInitialized` after the first
+run. Preselection runs exactly once — the first time structure data is ready. If
+dimensions or structures change afterwards (dataset swap), the flag prevents
+preselection from overwriting any edits the user has already made in the modal.
+
+Multi-dataset has no such ref: its `prepareInit` (`use-multi-filter-strategy.ts`)
+returns `pending` until `isStructureDataReady`, then `ready` whenever its inputs
+change, so the shared init skeleton re-derives preselection on later input changes
+rather than freezing it. The disabled-dataset suppression above is what keeps that
+re-derivation from leaking a disabled dataset's saved selections.
 
 At this point the filter UI is ready: values are populated, prior selections are
 restored, and the modal can be opened.
@@ -123,15 +135,17 @@ modal and the new state being saved to the backend.
 ### Apply button disabled state
 
 The Apply button is disabled when the working modal state is identical to the last
-committed state. `Filters.tsx` computes this via
-`isEqual(getFiltersChangeParams(modalFilters), getFiltersChangeParams(appliedFilters))`.
-`MultiDatasetFilters.tsx` additionally compares `disabledDatasetUrns` against
+committed state. The shared `useFilterApply` (`use-filter-apply.ts`) delegates the
+check to the strategy's `getIsFiltersUnchanged`: single
+(`use-single-filter-strategy.ts`) computes it via
+`isEqual(getQueryFilters(modalFilters), getQueryFilters(appliedFilters))`; multi
+(`use-multi-filter-strategy.ts`) additionally compares `disabledDatasetUrns` against
 `appliedDisabledUrns` (a snapshot of the disabled set taken when the modal opened).
 The button is also disabled while constraints are loading (`isConstraintsLoading`) or
 filter values are being refreshed (`isDisableFilterValues`). Steps 1–3 below only
 execute when the button is enabled.
 
-`getFiltersChangeParams` serialises to `{ filterKey, timeFilter }` — query-relevant
+`getQueryFilters` serialises to `{ filterKey, timeFilter }` — query-relevant
 fields only. UI-only state such as `isSelectedFilter` (set by
 `updateFiltersWithSelectedItem` on modal open) is not included, so the comparison
 correctly returns "unchanged" right after the modal opens before the user touches
@@ -139,13 +153,15 @@ anything.
 
 ### Step 1 — Serialise selections to QueryFilter[]
 
-`onApply()` in `Filters.tsx` calls `getQueryFilters()` which internally calls
+On apply, the single strategy's `runApply` (`use-single-filter-strategy.ts`) calls
+`getQueryFilters()` which internally calls
 `buildQueryFiltersCore()` → `setDataQueryFilters()`. Each selected dimension becomes
 a `QueryFilter` with `operator: 'in'` and the selected code IDs. Time period becomes
 `operator: 'between'` with `MM-DD-YYYY` formatted dates. See
 `02-single-dataset-filters.md` section 4.
 
-For multi-dataset, `onApply()` in `MultiDatasetFilters.tsx` first calls
+For multi-dataset, the multi strategy's `runApply` (`use-multi-filter-strategy.ts`)
+first calls
 `buildFiltersMap()` to expand shared filters back to per-dataset native IDs, then
 `getCompatibleDatasetUrns()` to exclude datasets whose filter selections are
 incompatible. Incompatible datasets' filters are marked `isExcluded: true`.
@@ -155,19 +171,21 @@ result map after expansion. This means disabled datasets are absent from
 `filtersParamsMap`, so their `DataQuery.filters` are not overwritten — the `...q`
 spread in `updatedDataQueries` preserves the original saved selections.
 
-After compatibility filtering, `onApply()` merges `disabledDatasetUrns` — the
+After compatibility filtering, `runApply` merges `disabledDatasetUrns` — the
 in-modal working `Set<string>` tracking which datasets the user has toggled off —
 into `updatedDataQueries`. Each `DataQuery` whose `urn` is in the set has
 `disabled: true` written onto it; all others have `disabled: false` written explicitly.
 This merge happens before both `onMultipleDataFiltersChange` and `addSystemMessage` are called.
-`addSystemMessage` receives `disabledDatasetUrns` as an explicit argument from
-`onApply` and recomputes `updatedDataQueries` internally from it.
+`addSystemMessage` (the callback from `useFilterSystemMessage`) receives
+`disabledDatasetUrns` as an explicit argument from `onApply` (`use-filter-apply.ts`)
+and recomputes `updatedDataQueries` internally from it.
 
 ### Step 2 — Build and persist the system message
 
-`onFiltersChange` / `onMultipleDataFiltersChange` is called with the serialised
-filters. Inside the callback, `updateMessagesWithSystemMessage()` rebuilds the tail
-of the message list:
+`runApply` invokes `onFiltersChange` / `onMultipleDataFiltersChange` with the
+serialised filters. Separately, on apply the shared `useFilterSystemMessage`
+(`use-filter-system-message.ts`) runs the strategy's `buildSystemMessage`, which
+calls `updateMessagesWithSystemMessage()` to rebuild the tail of the message list:
 
 - If the last message is already a `Role.System` message, it is replaced
 - Otherwise the new system message is appended
@@ -248,8 +266,9 @@ saved none, Dataset B's filter values are all marked selected so the shared pick
 shows a consistent state. See `02-single-dataset-filters.md` section 2 (Multi-dataset
 variant).
 
-The `isPreselectedFromDataQuery` ref gate fires the same way as during cold open:
-exactly once.
+For single-dataset, the `isPreselectedFromDataQuery` ref gate
+(`use-single-filter-strategy.ts`) fires the same way as during cold open: exactly
+once. Multi-dataset re-derives preselection as in cold open (no ref gate).
 
 ---
 
@@ -259,8 +278,8 @@ exactly once.
 |---|---|---|
 | `DataQuery[]` (saved selections) | Conversation message (backend) | Survives reload |
 | `Filter[]` (UI model) | React state | Component lifetime |
-| `constraintsRef` | `useRef` | Component lifetime; updated async |
-| `isPreselectedFromDataQuery` | `useRef` | Component lifetime; write-once |
+| `constraintsRef` (single) / `constraintsMapRef` (multi) | `useRef` | Component lifetime; updated async |
+| `isPreselectedFromDataQuery` (single-dataset) | `useRef` | Component lifetime; write-once |
 | `structureDataMaps` | React context | Component lifetime |
 | Request cache (`resolvedRequests`) | Module-level `Map` | Page session (never evicted) |
 | `DatasetDimensionsMetadataMap` | React context (server-injected) | Page session |
