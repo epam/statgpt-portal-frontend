@@ -2,6 +2,7 @@
 import { defineConfig, UserConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
+import * as fs from 'fs';
 import * as path from 'path';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import svgr from 'vite-plugin-svgr';
@@ -49,12 +50,21 @@ export default defineConfig({
           src: '../../LICENSE',
           dest: '',
         },
-        {
-          src: 'src/scss/styles-tailwind.scss',
-          dest: '',
-        },
       ],
     }),
+    {
+      name: 'copy-styles-tailwind',
+      apply: 'build',
+      closeBundle() {
+        fs.copyFileSync(
+          path.resolve(__dirname, 'src/scss/styles-tailwind.scss'),
+          path.resolve(
+            __dirname,
+            '../../dist/libs/ui-components/styles-tailwind.scss',
+          ),
+        );
+      },
+    },
   ],
 
   // Uncomment this if you are using workers.
