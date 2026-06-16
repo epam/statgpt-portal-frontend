@@ -58,7 +58,10 @@ export default defineConfig({
       closeBundle() {
         fs.copyFileSync(
           path.resolve(__dirname, 'src/scss/styles-tailwind.scss'),
-          path.resolve(__dirname, '../../dist/libs/ui-components/styles-tailwind.scss'),
+          path.resolve(
+            __dirname,
+            '../../dist/libs/ui-components/styles-tailwind.scss',
+          ),
         );
       },
     },
