@@ -30,6 +30,23 @@ interface UseFilterModalStateParams {
   loadAvailableHierarchies: (filter: Filter) => void | Promise<void>;
 }
 
+export interface UseFilterModalStateResult {
+  modalFilters: Filter[];
+  setModalFilters: Dispatch<SetStateAction<Filter[]>>;
+  appliedFilters: Filter[];
+  setAppliedFilters: Dispatch<SetStateAction<Filter[]>>;
+  selectedFilter: Filter | undefined;
+  setSelectedFilter: Dispatch<SetStateAction<Filter | undefined>>;
+  selectedFilterValues: Filter[];
+  selectedTimeOption: string | number | undefined;
+  disabledDatasetUrns: Set<string>;
+  appliedDisabledUrns: Set<string>;
+  onSelectDisplayMode: (filter?: Filter, displayMode?: string) => void;
+  onClearAllDatasets: () => void;
+  onToggleDataset: (urn: string, enabled: boolean) => void;
+  onTimePeriodChange: (value: string | number) => void;
+}
+
 /**
  * Modal state shared by both filter modes (modal/applied filters, selected
  * filter, time option). The two modes are identical except for two `multi`-only
@@ -176,20 +193,5 @@ export const useFilterModalState = ({
     onClearAllDatasets,
     onToggleDataset,
     onTimePeriodChange,
-  } satisfies {
-    modalFilters: Filter[];
-    setModalFilters: Dispatch<SetStateAction<Filter[]>>;
-    appliedFilters: Filter[];
-    setAppliedFilters: Dispatch<SetStateAction<Filter[]>>;
-    selectedFilter: Filter | undefined;
-    setSelectedFilter: Dispatch<SetStateAction<Filter | undefined>>;
-    selectedFilterValues: Filter[];
-    selectedTimeOption: string | number | undefined;
-    disabledDatasetUrns: Set<string>;
-    appliedDisabledUrns: Set<string>;
-    onSelectDisplayMode: (filter?: Filter, displayMode?: string) => void;
-    onClearAllDatasets: () => void;
-    onToggleDataset: (urn: string, enabled: boolean) => void;
-    onTimePeriodChange: (value: string | number) => void;
-  };
+  } satisfies UseFilterModalStateResult;
 };

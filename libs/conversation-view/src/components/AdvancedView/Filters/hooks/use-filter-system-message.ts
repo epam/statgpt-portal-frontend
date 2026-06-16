@@ -1,29 +1,47 @@
 'use client';
 
+import type { Conversation } from '@epam/ai-dial-shared';
+import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import { useCallback, useEffect, useRef } from 'react';
-import { Filter, FilterMode, FiltersProps } from '../../../../models/filters';
-import { getUpdatedDataQueries } from '../../../../utils/get-updated-data-queries';
-import { setDataQueryFiltersMap } from '../../../../utils/multiple-filters';
-import { setDataQueryFilters } from '../../../../utils/query-filters';
-import { updateMessagesWithSystemMessage } from '../../../../utils/system-message';
+import { FiltersProps } from '../../../../models/filters';
+import { SystemMessageFilters } from './use-filter-apply';
+
+/**
+ * Mode-specific system-message builder injected into the shared
+ * {@link useFilterSystemMessage} skeleton. Given the current conversation and the
+ * applied filters, it returns the conversation updated with the new system message
+ * (or `null` when there is no conversation) plus the data queries to persist. The
+ * single-dataset flow works on a flat `Filter[]`; the multi-dataset flow works on
+ * a per-dataset map and additionally folds in `disabledDatasetUrns`.
+ */
+export interface FilterSystemMessageStrategy {
+  buildSystemMessage: (
+    conversation: Conversation | null,
+    systemMessageFilters: SystemMessageFilters,
+    disabledDatasetUrns: Set<string>,
+  ) => { conversation: Conversation | null; nextDataQueries: DataQuery[] };
+}
 
 interface UseFilterSystemMessageParams {
-  mode: FilterMode;
-  attachmentsDataQuery?: FiltersProps['attachmentsDataQuery'];
+  buildSystemMessage: FilterSystemMessageStrategy['buildSystemMessage'];
   conversation?: FiltersProps['conversation'];
   conversationKey: string;
-  dataQueries?: FiltersProps['dataQueries'];
   setConversation?: FiltersProps['setConversation'];
   updateConversation: FiltersProps['updateConversation'];
   updateDataQueries?: FiltersProps['updateDataQueries'];
 }
 
+/**
+ * Shared system-message persistence for both filter modes: snapshot the current
+ * conversation off a ref, delegate message + data-query construction to the
+ * mode-specific `buildSystemMessage`, then persist the result (local conversation
+ * state, data queries, and the remote conversation). No per-mode branching lives
+ * here — all of it is encapsulated in `buildSystemMessage`.
+ */
 export const useFilterSystemMessage = ({
-  mode,
-  attachmentsDataQuery,
+  buildSystemMessage,
   conversation,
   conversationKey,
-  dataQueries,
   setConversation,
   updateConversation,
   updateDataQueries,
@@ -36,85 +54,27 @@ export const useFilterSystemMessage = ({
 
   return useCallback(
     async (
-      filtersOrMap: Filter[] | Map<string, Filter[]>,
+      systemMessageFilters: SystemMessageFilters,
       disabledDatasetUrns?: Set<string>,
     ) => {
-      const currentConversation = conversationRef.current;
-      let updatedConversationWithSystemMessage = currentConversation ?? null;
-
-      if (mode === 'multi') {
-        const filtersMap = filtersOrMap as Map<string, Filter[]>;
-        const disabledUrns = disabledDatasetUrns ?? new Set<string>();
-        const updatedDataQueries = dataQueries?.map((q) => ({
-          ...q,
-          disabled: disabledUrns.has(q.urn),
-        }));
-        const enabledDataQueries = updatedDataQueries?.filter(
-          (q) => !q.disabled,
+      const { conversation: updatedConversation, nextDataQueries } =
+        buildSystemMessage(
+          conversationRef.current ?? null,
+          systemMessageFilters,
+          disabledDatasetUrns ?? new Set<string>(),
         );
-        const dataQueryFiltersMap = setDataQueryFiltersMap(
-          enabledDataQueries,
-          filtersMap,
-        );
-        updatedConversationWithSystemMessage = currentConversation
-          ? {
-              ...currentConversation,
-              messages: updateMessagesWithSystemMessage(
-                currentConversation.messages,
-                updatedDataQueries,
-                dataQueryFiltersMap,
-              ),
-            }
-          : null;
 
-        setConversation?.(updatedConversationWithSystemMessage);
-
-        updateDataQueries?.(
-          updatedDataQueries?.map((q) => ({
-            ...q,
-            filters: q.disabled
-              ? (q.filters ?? [])
-              : (dataQueryFiltersMap.get(q.urn) ?? []),
-          })) ?? [],
-        );
-      } else {
-        const filters = filtersOrMap as Filter[];
-        const dataQueryFilters = setDataQueryFilters(filters);
-        updatedConversationWithSystemMessage = currentConversation
-          ? {
-              ...currentConversation,
-              messages: updateMessagesWithSystemMessage(
-                currentConversation.messages,
-                dataQueries,
-                void 0,
-                dataQueryFilters,
-                attachmentsDataQuery,
-              ),
-            }
-          : null;
-
-        setConversation?.(updatedConversationWithSystemMessage);
-
-        updateDataQueries?.(
-          getUpdatedDataQueries(
-            dataQueries,
-            void 0,
-            dataQueryFilters,
-            attachmentsDataQuery,
-          ),
-        );
-      }
+      setConversation?.(updatedConversation);
+      updateDataQueries?.(nextDataQueries);
 
       await updateConversation(decodeURI(conversationKey), {
-        name: updatedConversationWithSystemMessage?.name,
-        messages: updatedConversationWithSystemMessage?.messages || [],
+        name: updatedConversation?.name,
+        messages: updatedConversation?.messages || [],
       });
     },
     [
-      mode,
-      attachmentsDataQuery,
+      buildSystemMessage,
       conversationKey,
-      dataQueries,
       setConversation,
       updateConversation,
       updateDataQueries,

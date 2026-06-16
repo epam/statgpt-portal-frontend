@@ -24,7 +24,10 @@ import {
   useFilterInitialization,
 } from './use-filter-initialization';
 import { useFilterModalState } from './use-filter-modal-state';
-import { useFilterSystemMessage } from './use-filter-system-message';
+import {
+  FilterSystemMessageStrategy,
+  useFilterSystemMessage,
+} from './use-filter-system-message';
 
 /**
  * Everything mode-specific about a filter flow, bundled behind one object so the
@@ -37,6 +40,11 @@ export interface FilterStrategy<TResult> {
   constraints: FilterConstraintsStrategy<TResult>;
   /** Apply operations consumed by the shared apply skeleton. */
   apply: FilterApplyStrategy;
+  /**
+   * Builds the mode-specific system message + persisted data queries, consumed
+   * by the shared system-message skeleton on apply.
+   */
+  buildSystemMessage: FilterSystemMessageStrategy['buildSystemMessage'];
   /** Initialization behavior consumed by the shared init skeleton. */
   init: FilterInitStrategy;
   getConstraintsForFilter: (filter: Filter) => DataConstraints[] | undefined;
@@ -69,7 +77,6 @@ export const useFilters = <TResult>(
     actions,
     buttonProps,
     modalProps,
-    attachmentsDataQuery,
     dataQueries,
     locale,
     timeRangeOptions,
@@ -87,6 +94,7 @@ export const useFilters = <TResult>(
     mode,
     constraints,
     apply,
+    buildSystemMessage,
     init,
     getConstraintsForFilter,
     getCodelistUrnForFilter,
@@ -182,11 +190,9 @@ export const useFilters = <TResult>(
   }, [closeModal, restore]);
 
   const addSystemMessage = useFilterSystemMessage({
-    mode,
-    attachmentsDataQuery,
+    buildSystemMessage,
     conversation,
     conversationKey,
-    dataQueries,
     setConversation,
     updateConversation,
     updateDataQueries,

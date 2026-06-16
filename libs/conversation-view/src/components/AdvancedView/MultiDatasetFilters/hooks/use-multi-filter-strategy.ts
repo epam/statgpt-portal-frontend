@@ -1,5 +1,6 @@
 'use client';
 
+import type { Conversation } from '@epam/ai-dial-shared';
 import {
   DataConstraints,
   DatasetDimensionsMetadataMap,
@@ -13,7 +14,10 @@ import isEqual from 'lodash/isEqual';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Filter, FiltersProps } from '../../../../models/filters';
 import { StructureDataMaps } from '../../../../models/structure-data';
-import { FilterApplyStrategy } from '../../Filters/hooks/use-filter-apply';
+import {
+  FilterApplyStrategy,
+  SystemMessageFilters,
+} from '../../Filters/hooks/use-filter-apply';
 import { FilterConstraintsStrategy } from '../../Filters/hooks/use-filter-constraints';
 import {
   FilterInitResult,
@@ -34,7 +38,9 @@ import {
   hasUncachedConstraintRequests,
   isStructureDataMapsReady,
   mergeConstraintsMaps,
+  setDataQueryFiltersMap,
 } from '../../../../utils/multiple-filters';
+import { updateMessagesWithSystemMessage } from '../../../../utils/system-message';
 import { useMultiDatasetDisplayDataQueries } from './use-multi-dataset-display-data-queries';
 
 type ConstraintsMap = Map<string, DataConstraints[] | undefined>;
@@ -351,6 +357,46 @@ export const useMultiFilterStrategy = ({
     ],
   );
 
+  const buildSystemMessage = useCallback(
+    (
+      conversation: Conversation | null,
+      systemMessageFilters: SystemMessageFilters,
+      disabledDatasetUrns: Set<string>,
+    ) => {
+      const filtersMap = systemMessageFilters as Map<string, Filter[]>;
+      const updatedDataQueries = dataQueries?.map((q) => ({
+        ...q,
+        disabled: disabledDatasetUrns.has(q.urn),
+      }));
+      const enabledDataQueries = updatedDataQueries?.filter((q) => !q.disabled);
+      const dataQueryFiltersMap = setDataQueryFiltersMap(
+        enabledDataQueries,
+        filtersMap,
+      );
+      const updatedConversation = conversation
+        ? {
+            ...conversation,
+            messages: updateMessagesWithSystemMessage(
+              conversation.messages,
+              updatedDataQueries,
+              dataQueryFiltersMap,
+            ),
+          }
+        : null;
+      return {
+        conversation: updatedConversation,
+        nextDataQueries:
+          updatedDataQueries?.map((q) => ({
+            ...q,
+            filters: q.disabled
+              ? (q.filters ?? [])
+              : (dataQueryFiltersMap.get(q.urn) ?? []),
+          })) ?? [],
+      };
+    },
+    [dataQueries],
+  );
+
   const prepareInit = useCallback((): FilterInitResult => {
     if (!isStructureDataReady) {
       return { status: 'pending' };
@@ -457,6 +503,7 @@ export const useMultiFilterStrategy = ({
     mode: 'multi',
     constraints,
     apply,
+    buildSystemMessage,
     init,
     getConstraintsForFilter,
     getCodelistUrnForFilter,

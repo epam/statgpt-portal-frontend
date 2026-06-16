@@ -1,5 +1,6 @@
 'use client';
 
+import type { Conversation } from '@epam/ai-dial-shared';
 import {
   DataConstraints,
   getTimeSeriesCount,
@@ -9,15 +10,20 @@ import isEqual from 'lodash/isEqual';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Filter, FiltersProps } from '../../../../models/filters';
 import { getFilledFilters } from '../../../../utils/get-filled-filters';
+import { getUpdatedDataQueries } from '../../../../utils/get-updated-data-queries';
 import { getSourceArtefactUrnForDatasetFilter } from '../../../../utils/hierarchy-request-context';
 import { cleanIncompatibleFilters } from '../../../../utils/incompatible-filters';
-import { getQueryFilters } from '../../../../utils/query-filters';
+import {
+  getQueryFilters,
+  setDataQueryFilters,
+} from '../../../../utils/query-filters';
 import {
   getCodelistUrnForDatasetFilter,
   getSingleDatasetConstraintsRequest,
   getSingleDatasetFiltersPreselectedByDataQuery,
 } from '../../../../utils/single-dataset-filters';
-import { FilterApplyStrategy } from './use-filter-apply';
+import { updateMessagesWithSystemMessage } from '../../../../utils/system-message';
+import { FilterApplyStrategy, SystemMessageFilters } from './use-filter-apply';
 import { FilterConstraintsStrategy } from './use-filter-constraints';
 import {
   FilterInitResult,
@@ -28,6 +34,7 @@ import { FilterStrategy } from './use-filters';
 interface UseSingleFilterStrategyParams {
   actions?: FiltersProps['actions'];
   attachmentsDataQuery?: FiltersProps['attachmentsDataQuery'];
+  dataQueries?: FiltersProps['dataQueries'];
   dimensions?: FiltersProps['dimensions'];
   structureDimensions?: FiltersProps['structureDimensions'];
   structures?: FiltersProps['structures'];
@@ -45,6 +52,7 @@ interface UseSingleFilterStrategyParams {
 export const useSingleFilterStrategy = ({
   actions,
   attachmentsDataQuery,
+  dataQueries,
   dimensions,
   structureDimensions,
   structures,
@@ -147,6 +155,38 @@ export const useSingleFilterStrategy = ({
     [dimensions, onFiltersChange],
   );
 
+  const buildSystemMessage = useCallback(
+    (
+      conversation: Conversation | null,
+      systemMessageFilters: SystemMessageFilters,
+    ) => {
+      const filters = systemMessageFilters as Filter[];
+      const dataQueryFilters = setDataQueryFilters(filters);
+      const updatedConversation = conversation
+        ? {
+            ...conversation,
+            messages: updateMessagesWithSystemMessage(
+              conversation.messages,
+              dataQueries,
+              void 0,
+              dataQueryFilters,
+              attachmentsDataQuery,
+            ),
+          }
+        : null;
+      return {
+        conversation: updatedConversation,
+        nextDataQueries: getUpdatedDataQueries(
+          dataQueries,
+          void 0,
+          dataQueryFilters,
+          attachmentsDataQuery,
+        ),
+      };
+    },
+    [attachmentsDataQuery, dataQueries],
+  );
+
   const prepareInit = useCallback((): FilterInitResult => {
     if (isPreselectedFromDataQuery.current || !structures) {
       return { status: 'skip' };
@@ -230,6 +270,7 @@ export const useSingleFilterStrategy = ({
     mode: 'single',
     constraints,
     apply,
+    buildSystemMessage,
     init,
     getConstraintsForFilter,
     getCodelistUrnForFilter,

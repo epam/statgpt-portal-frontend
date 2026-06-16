@@ -15,6 +15,7 @@ export const useSingleDatasetFilters = (
   const strategy = useSingleFilterStrategy({
     actions: props.actions,
     attachmentsDataQuery: props.attachmentsDataQuery,
+    dataQueries: props.dataQueries,
     dimensions: props.dimensions,
     structureDimensions: props.structureDimensions,
     structures: props.structures,
