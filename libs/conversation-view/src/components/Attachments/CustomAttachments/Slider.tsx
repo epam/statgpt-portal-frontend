@@ -8,6 +8,7 @@ import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-elem
 import { OnboardingElements } from '../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../context/OnboardingContext';
 import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
+import { useIsMobile } from '@epam/statgpt-ui-components';
 
 const MAX_SLIDER_WIDTH = 200;
 const BASE_ITEM_WIDTH = 8;
@@ -29,6 +30,7 @@ const Slider: FC<Props> = ({
   onNext,
 }) => {
   const { titles } = useConversationViewStyles();
+  const isMobile = useIsMobile(768);
   const navRef = useRef<HTMLDivElement | null>(null);
   const [tooltipTitle, setTooltipTitle] = useState<string>('');
   const [tooltipDescription, setTooltipDescription] = useState<string>('');
@@ -71,40 +73,61 @@ const Slider: FC<Props> = ({
       : 0;
   const itemWidth =
     totalCount > 0 ? Math.max(fullWidth / totalCount, MIN_ITEM_WIDTH) : 0;
+  const itemWidthPercentage = totalCount > 0 ? 100 / totalCount : 0;
 
   return (
-    <div className="flex w-full flex-row items-center justify-center gap-2">
+    <div
+      className={classNames(
+        'flex w-full flex-row items-center justify-center gap-2',
+        isMobile && 'min-w-0',
+      )}
+    >
       <div
         className={classNames(
-          'h-[20px] w-[20px] cursor-pointer',
+          'size-[20px] shrink-0 cursor-pointer',
           currentIndex === 0 ? 'text-neutrals-700' : 'text-primary',
         )}
         onClick={onPrev}
       >
         {icons?.[ChartingIcon.PREVIOUS]}
       </div>
-      <div className="flex flex-col items-center gap-1 pt-[20px]">
+      <div
+        className={classNames(
+          'flex flex-col items-center gap-1 pt-[20px]',
+          isMobile && 'min-w-0 flex-1',
+        )}
+      >
         <div
-          className="relative h-[4px] rounded-full bg-neutral-300"
-          style={{
-            width: `${fullWidth}px`,
-          }}
+          className={classNames(
+            'relative h-[4px] rounded-full bg-neutral-300',
+            isMobile && 'w-full',
+          )}
+          style={
+            isMobile
+              ? { maxWidth: `${MAX_SLIDER_WIDTH}px` }
+              : { width: `${fullWidth}px` }
+          }
         >
           <div
             className="absolute h-full rounded-full bg-primary"
             style={{
               left: `${leftShiftPercentage}%`,
-              width: `${itemWidth}px`,
+              width: isMobile ? `${itemWidthPercentage}%` : `${itemWidth}px`,
             }}
           />
         </div>
-        <h5 className="text-neutrals-800">
+        <h5
+          className={classNames(
+            'text-neutrals-800',
+            isMobile && 'max-w-full truncate',
+          )}
+        >
           {currentIndex + 1}/{totalCount}
         </h5>
       </div>
       <div
         className={classNames(
-          'h-[20px] w-[20px]  cursor-pointer',
+          'size-[20px] shrink-0 cursor-pointer',
           currentIndex + 1 === totalCount
             ? 'text-neutrals-700'
             : 'text-primary',

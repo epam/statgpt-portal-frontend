@@ -62,7 +62,7 @@ const FilterValues: FC<Props> = ({
   selectHierarchicalNodes,
   expandHierarchicalValue,
 }) => {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(768);
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const isLoading = isValuesLoading || isHierarchyLoading;
   if (!filterValues && !isLoading) return null;
@@ -85,7 +85,10 @@ const FilterValues: FC<Props> = ({
       className={classNames(
         'relative',
         isDisableValues && 'pointer-events-none opacity-[0.7]',
-        isScrollable ? 'flex h-full min-h-0 flex-col' : 'flex flex-col',
+        isScrollable
+          ? 'flex h-full min-h-0 flex-col mobile:h-auto'
+          : 'flex flex-col',
+        isLoading && 'min-h-12',
       )}
     >
       {shouldShowHeader && (
@@ -107,7 +110,9 @@ const FilterValues: FC<Props> = ({
       )}
       <div
         className={classNames(
-          isScrollable ? 'min-h-0 flex-1 overflow-auto' : 'overflow-visible',
+          isScrollable
+            ? 'min-h-0 flex-1 overflow-auto mobile:flex-none'
+            : 'overflow-visible',
           isLoading && 'pointer-events-none opacity-[0.7]',
         )}
         style={
@@ -124,7 +129,7 @@ const FilterValues: FC<Props> = ({
             selectHierarchicalNodes={selectHierarchicalNodes}
             expandHierarchicalValue={expandHierarchicalValue}
           />
-        ) : !isVirtualized ? (
+        ) : !isVirtualized || isMobile ? (
           <div className="flex flex-col gap-y-1">
             {values.map((filterValue) => (
               <CheckboxRow

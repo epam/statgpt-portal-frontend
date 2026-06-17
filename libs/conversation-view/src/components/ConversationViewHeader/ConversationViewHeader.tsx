@@ -27,7 +27,7 @@ const ConversationViewHeader: FC<Props> = ({
     <>
       <header
         className={classNames(
-          'bg-white border-b px-6 py-2 border-gray-200 flex justify-between items-center sm:hidden',
+          'bg-white border-b px-6 py-2 border-gray-200 flex justify-between items-center mobile:px-1',
           'conversation-view-header',
         )}
       >
