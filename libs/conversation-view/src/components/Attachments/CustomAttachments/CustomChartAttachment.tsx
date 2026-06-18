@@ -3,7 +3,11 @@
 import { CustomChartAttachmentType } from '../../../models/attachments';
 import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { scheduleDeferredWork } from '../../../utils/deferred-work';
-import { Loader, useIsMobile } from '@epam/statgpt-ui-components';
+import {
+  Loader,
+  MOBILE_BREAKPOINT,
+  useIsMobile,
+} from '@epam/statgpt-ui-components';
 import { ChartingData, ChartUnit } from '../../../models/charting';
 import { ChartingIcon } from '../../../types/charting-icon';
 import ChartSidebar from './ChartSidebar';
@@ -45,7 +49,7 @@ export const CustomChartAttachment: FC<Props> = ({
   limitationInfoContentClassName,
 }) => {
   const { titles } = useConversationViewStyles();
-  const isNarrowChart = useIsMobile(768);
+  const isNarrowChart = useIsMobile(MOBILE_BREAKPOINT);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [chartingData, setChartingData] = useState<ChartingData>();
   const [flatUnits, setFlatUnits] = useState<FlatChartUnit[]>([]);

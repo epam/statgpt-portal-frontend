@@ -44,7 +44,11 @@ import {
   I18nKeys,
   LogOutI18nKeys,
 } from '../../constants/i18n-keys';
-import { Button, useIsMobile } from '@epam/statgpt-ui-components';
+import {
+  Button,
+  MOBILE_BREAKPOINT,
+  useIsMobile,
+} from '@epam/statgpt-ui-components';
 import { useConversationList } from '../../context/ConversationListContext';
 import {
   getConversationNavPath,
@@ -70,7 +74,7 @@ const ConversationListWrapper = ({
   const router = useRouter();
   const { id }: { id: string[] } = useParams();
   const { isOpenedAdvancedView, setIsOpenedAdvancedView } = useAdvancedView();
-  const isMobile = useIsMobile(768);
+  const isMobile = useIsMobile(MOBILE_BREAKPOINT);
   const {
     conversations,
     sharedConversations,

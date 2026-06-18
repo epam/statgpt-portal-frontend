@@ -2,7 +2,12 @@
 
 import { CrossDatasetGridAttachmentType } from '../../../models/attachments';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Loader, SERIES_LIMIT, useIsMobile } from '@epam/statgpt-ui-components';
+import {
+  Loader,
+  MOBILE_BREAKPOINT,
+  SERIES_LIMIT,
+  useIsMobile,
+} from '@epam/statgpt-ui-components';
 import type { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { GridData } from '../../../types/data-grid/grid-data';
@@ -50,7 +55,7 @@ const CrossDatasetGridAttachment: FC<Props> = ({
   const [rowData, setRowData] = useState<GridData[]>([]);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>();
   const [gridHeight, setGridHeight] = useState<number>(400);
-  const isMobile = useIsMobile(768);
+  const isMobile = useIsMobile(MOBILE_BREAKPOINT);
   const gridApiRef = useRef<GridApi | null>(null);
   const prevColIdsRef = useRef<string[]>([]);
 

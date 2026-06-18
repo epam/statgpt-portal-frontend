@@ -8,7 +8,7 @@ import { getTooltipDataByElement } from '../../../utils/get-tooltip-data.by-elem
 import { OnboardingElements } from '../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../context/OnboardingContext';
 import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
-import { useIsMobile } from '@epam/statgpt-ui-components';
+import { MOBILE_BREAKPOINT, useIsMobile } from '@epam/statgpt-ui-components';
 
 const MAX_SLIDER_WIDTH = 200;
 const BASE_ITEM_WIDTH = 8;
@@ -30,7 +30,7 @@ const Slider: FC<Props> = ({
   onNext,
 }) => {
   const { titles } = useConversationViewStyles();
-  const isMobile = useIsMobile(768);
+  const isMobile = useIsMobile(MOBILE_BREAKPOINT);
   const navRef = useRef<HTMLDivElement | null>(null);
   const [tooltipTitle, setTooltipTitle] = useState<string>('');
   const [tooltipDescription, setTooltipDescription] = useState<string>('');

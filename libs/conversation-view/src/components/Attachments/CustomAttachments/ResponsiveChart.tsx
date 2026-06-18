@@ -16,7 +16,7 @@ import type {
 import type ReactEChartsRef from 'echarts-for-react';
 import { estimateLegendItemWidth } from '../../../utils/attachments/charting/chart-legend-width';
 import { cloneDeep } from 'lodash';
-import { useIsMobile } from '@epam/statgpt-ui-components';
+import { MOBILE_BREAKPOINT, useIsMobile } from '@epam/statgpt-ui-components';
 
 interface Props {
   option: EChartsOption;
@@ -30,7 +30,7 @@ const MOBILE_AXIS_LABEL_WIDTH = 52;
 
 const ResponsiveEChart: FC<Props> = ({ option, style }) => {
   const chartRef = useRef<ReactEChartsRef>(null);
-  const isMobileChart = useIsMobile(768);
+  const isMobileChart = useIsMobile(MOBILE_BREAKPOINT);
   const [adjustedOption, setAdjustedOption] = useState<EChartsOption>(option);
 
   useEffect(() => {

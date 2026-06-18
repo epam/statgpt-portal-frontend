@@ -106,6 +106,7 @@ import {
   Alert,
   AlertType,
   LimitMessages,
+  MOBILE_BREAKPOINT,
   useIsMobile,
 } from '@epam/statgpt-ui-components';
 import WelcomeView from '../WelcomeView/WelcomeView';
@@ -124,7 +125,7 @@ const ConversationViewWrapper: FC<Props> = ({
   const router = useRouter();
   const { isOpenedAdvancedView } = useAdvancedView();
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
-  const isMobile = useIsMobile(768);
+  const isMobile = useIsMobile(MOBILE_BREAKPOINT);
   const { setConversations } = useConversationList();
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [currentDataQuery, setCurrentDataQuery] = useState<

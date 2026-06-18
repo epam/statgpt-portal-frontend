@@ -14,7 +14,11 @@ import FilterTreeView from './FilterTreeView';
 import { getFilterValuesTree } from '../../../../../utils/filters';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import CheckboxRow from './CheckboxRow';
-import { Loader, useIsMobile } from '@epam/statgpt-ui-components';
+import {
+  Loader,
+  MOBILE_BREAKPOINT,
+  useIsMobile,
+} from '@epam/statgpt-ui-components';
 import { StructuralData } from '@epam/statgpt-sdmx-toolkit';
 import { useConversationViewFeatureToggles } from '../../../../../context/ConversationViewFeatureTogglesContext';
 import { getDatasetNameFromFilters } from '../../../../../utils/multiple-filters';
@@ -62,7 +66,7 @@ const FilterValues: FC<Props> = ({
   selectHierarchicalNodes,
   expandHierarchicalValue,
 }) => {
-  const isMobile = useIsMobile(768);
+  const isMobile = useIsMobile(MOBILE_BREAKPOINT);
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const isLoading = isValuesLoading || isHierarchyLoading;
   if (!filterValues && !isLoading) return null;

@@ -33,7 +33,11 @@ import { getDataQueries } from '../../../utils/attachments/parse-data-query';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import { MetadataSettings } from '../../../models/metadata';
-import { Loader, useIsMobile } from '@epam/statgpt-ui-components';
+import {
+  Loader,
+  MOBILE_BREAKPOINT,
+  useIsMobile,
+} from '@epam/statgpt-ui-components';
 import MessageStages from '../MessageStages/MessageStages';
 import { AttachmentInfo } from '../../../models/attachments';
 import { getAttachmentInfoList } from '../../../utils/attachments-details';
@@ -194,7 +198,7 @@ const Message: FC<Props> = ({
     titles,
   );
   const { isOpenedAdvancedView } = useAdvancedView();
-  const isMobile = useIsMobile(768);
+  const isMobile = useIsMobile(MOBILE_BREAKPOINT);
   const shouldRenderMessageIconColumn = !isMobile;
   const {
     attachments: sharedCrossDatasetAttachments,
