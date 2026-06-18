@@ -3,7 +3,11 @@
 import { CustomChartAttachmentType } from '../../../models/attachments';
 import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { scheduleDeferredWork } from '../../../utils/deferred-work';
-import { Loader } from '@epam/statgpt-ui-components';
+import {
+  Loader,
+  MOBILE_BREAKPOINT,
+  useIsMobile,
+} from '@epam/statgpt-ui-components';
 import { ChartingData, ChartUnit } from '../../../models/charting';
 import { ChartingIcon } from '../../../types/charting-icon';
 import ChartSidebar from './ChartSidebar';
@@ -45,6 +49,7 @@ export const CustomChartAttachment: FC<Props> = ({
   limitationInfoContentClassName,
 }) => {
   const { titles } = useConversationViewStyles();
+  const isNarrowChart = useIsMobile(MOBILE_BREAKPOINT);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [chartingData, setChartingData] = useState<ChartingData>();
   const [flatUnits, setFlatUnits] = useState<FlatChartUnit[]>([]);
@@ -173,12 +178,21 @@ export const CustomChartAttachment: FC<Props> = ({
               </div>
               <div
                 className={classNames(
-                  'chart-area overflow-hidden flex flex-row gap-4 h-full ',
-                  fixHeight && 'max-h-[400px] min-h-[400px]',
-                  !fixHeight && 'min-h-[300px]',
+                  'chart-area flex gap-4 h-full',
+                  isNarrowChart
+                    ? 'flex-col overflow-auto'
+                    : 'flex-row overflow-hidden',
+                  isNarrowChart && 'min-h-[500px]',
+                  !isNarrowChart && fixHeight && 'max-h-[400px] min-h-[400px]',
+                  !isNarrowChart && !fixHeight && 'min-h-[300px]',
                 )}
               >
-                <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+                <div
+                  className={classNames(
+                    'flex min-h-0 min-w-0 flex-1 flex-col',
+                    isNarrowChart && 'min-h-[360px] w-full',
+                  )}
+                >
                   {selectedGroupTitle && (
                     <div className="mb-1 flex items-center gap-1">
                       <DatasetIcon className="size-4 shrink-0 text-neutrals-1000" />
@@ -188,14 +202,21 @@ export const CustomChartAttachment: FC<Props> = ({
                     </div>
                   )}
                   <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4">
-                    <ResponsiveEChart
-                      option={selectedUnit.config}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        minHeight: 0,
-                      }}
-                    />
+                    <div
+                      className={classNames(
+                        'min-h-0 min-w-0 flex-1',
+                        isNarrowChart && 'min-h-[280px]',
+                      )}
+                    >
+                      <ResponsiveEChart
+                        option={selectedUnit.config}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          minHeight: 0,
+                        }}
+                      />
+                    </div>
                     {selectedUnit.limitedByRowsAmountTo && (
                       <ChartLimitationInfo
                         limitAmount={selectedUnit.limitedByRowsAmountTo}
@@ -217,6 +238,7 @@ export const CustomChartAttachment: FC<Props> = ({
                 </div>
                 <ChartSidebar
                   dimensionsInfo={selectedUnit.dimensions}
+                  isNarrow={isNarrowChart}
                 ></ChartSidebar>
               </div>
             </>

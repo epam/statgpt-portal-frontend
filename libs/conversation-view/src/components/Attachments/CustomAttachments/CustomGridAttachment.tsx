@@ -2,12 +2,18 @@
 
 import { CustomGridAttachment } from '../../../models/attachments';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Loader, SERIES_LIMIT } from '@epam/statgpt-ui-components';
+import {
+  Loader,
+  MOBILE_BREAKPOINT,
+  SERIES_LIMIT,
+  useIsMobile,
+} from '@epam/statgpt-ui-components';
 import type { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { GridData } from '../../../types/data-grid/grid-data';
 import { getGridHeight } from '../../../utils/attachments/data-grid/grid-height';
 import {
+  applyMobileColumnWidth,
   CHART_CELL_RENDER,
   CHART_COLUMN_ID,
   GRID_HEADER_HEIGHT,
@@ -31,6 +37,7 @@ interface Props {
   isDataLoading?: boolean;
   isChartColumnVisible?: boolean;
   fixHeight?: boolean;
+  fillHeight?: boolean;
   externalLink?: string;
   showLimitMessage?: (p: boolean) => void;
   onApiReady?: (api: GridApi) => void;
@@ -41,6 +48,7 @@ export const CustomDataGridAttachment: FC<Props> = ({
   isDataLoading,
   isChartColumnVisible,
   fixHeight,
+  fillHeight,
   externalLink,
   showLimitMessage,
   onApiReady,
@@ -50,6 +58,7 @@ export const CustomDataGridAttachment: FC<Props> = ({
   const [rowData, setRowData] = useState<GridData[]>([]);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>();
   const [gridHeight, setGridHeight] = useState<number>(400);
+  const isMobile = useIsMobile(MOBILE_BREAKPOINT);
 
   const gridRef = useRef<HTMLDivElement | null>(null);
   const [tooltipTitle, setTooltipTitle] = useState<string>('');
@@ -66,14 +75,14 @@ export const CustomDataGridAttachment: FC<Props> = ({
         if (col.colId === CHART_COLUMN_ID) {
           return { ...col, hide: !isChartColumnVisible };
         }
-        return col;
+        return applyMobileColumnWidth(col, isMobile);
       });
 
       setRowData(attachment.grid_data.data);
       setColumnDefs(columns);
       setIsLoading(false);
     }
-  }, [attachment.grid_data, isChartColumnVisible]);
+  }, [attachment.grid_data, isChartColumnVisible, isMobile]);
 
   useEffect(() => {
     if (rowData) {
@@ -177,6 +186,7 @@ export const CustomDataGridAttachment: FC<Props> = ({
       <GridContainer
         ref={gridRef}
         fixHeight={fixHeight}
+        fillHeight={fillHeight}
         gridHeight={gridHeight}
       >
         {memoizedGrid}

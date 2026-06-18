@@ -203,7 +203,7 @@ const FiltersValuesPanel: FC<Props> = ({
       ) : (
         <div
           className={classNames(
-            'flex flex-col py-2 h-full flex-1 min-w-0 sm:border-0',
+            'flex h-full min-w-0 flex-1 flex-col py-2 mobile:h-auto mobile:flex-none mobile:border-0',
             'filter-values-container',
           )}
         >
@@ -212,7 +212,7 @@ const FiltersValuesPanel: FC<Props> = ({
             onChange={onSearchQueryChange}
             searchIconSize={filterValuesProps?.searchIconSize}
           />
-          <div className="body-2 mt-3 flex min-h-0 flex-1 flex-col overflow-auto">
+          <div className="body-2 mt-3 flex min-h-0 flex-1 flex-col overflow-auto mobile:flex-none mobile:overflow-visible">
             {shouldUseGlobalSearch ? (
               <>
                 {selectedFilter && (
