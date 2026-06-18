@@ -8,9 +8,15 @@ interface Props {
   stages?: Stage[];
   expandIcon?: ReactNode;
   processingTitle?: string;
+  prefixIcon?: ReactNode;
 }
 
-const MessageStages: FC<Props> = ({ stages, expandIcon, processingTitle }) => {
+const MessageStages: FC<Props> = ({
+  stages,
+  expandIcon,
+  processingTitle,
+  prefixIcon,
+}) => {
   const [isExpanded, setIsExpanded] = useState<boolean>();
   const [currentStage, setCurrentStage] = useState<Stage>();
   const stagesContainerRef = useRef<HTMLDivElement | null>(null);
@@ -71,10 +77,12 @@ const MessageStages: FC<Props> = ({ stages, expandIcon, processingTitle }) => {
       <div
         className={classNames(
           'message-stages-header inline-flex max-w-full items-center cursor-pointer',
+          Boolean(prefixIcon) && 'gap-2',
           !currentStage?.name && 'default-header',
         )}
         onClick={toggleStagesExpand}
       >
+        {prefixIcon}
         <p className="message-stages-title truncate">
           {currentStage?.name || processingTitle || 'Processing...'}
         </p>

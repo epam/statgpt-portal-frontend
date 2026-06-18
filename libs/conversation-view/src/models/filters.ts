@@ -48,6 +48,8 @@ export interface SharedFilter extends FilterBase {
 
 export type Filter = DatasetFilter | SharedFilter;
 
+export type FilterMode = 'single' | 'multi';
+
 export interface FilterValueSource {
   datasetUrn?: string;
   id: string;
