@@ -59,7 +59,7 @@ const Header: FC<Props> = ({
   return (
     <header
       className={classNames(
-        'bg-white px-6 py-4 flex justify-between items-center sm:px-0',
+        'bg-white px-6 py-4 flex justify-between items-center mobile:px-1',
         'advanced-view-header',
       )}
     >

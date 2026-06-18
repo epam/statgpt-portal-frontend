@@ -102,7 +102,13 @@ import { Conversation } from '@epam/ai-dial-shared';
 import { signOut } from 'next-auth/react';
 import { getSignInLink } from '../../constants/auth';
 import { wrapWithAuthHandler } from '../../utils/auth/requests-wrapper';
-import { Alert, AlertType, LimitMessages } from '@epam/statgpt-ui-components';
+import {
+  Alert,
+  AlertType,
+  LimitMessages,
+  MOBILE_BREAKPOINT,
+  useIsMobile,
+} from '@epam/statgpt-ui-components';
 import WelcomeView from '../WelcomeView/WelcomeView';
 
 interface Props {
@@ -119,6 +125,7 @@ const ConversationViewWrapper: FC<Props> = ({
   const router = useRouter();
   const { isOpenedAdvancedView } = useAdvancedView();
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
+  const isMobile = useIsMobile(MOBILE_BREAKPOINT);
   const { setConversations } = useConversationList();
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [currentDataQuery, setCurrentDataQuery] = useState<
@@ -148,8 +155,8 @@ const ConversationViewWrapper: FC<Props> = ({
   }, [conversationKey]);
 
   useEffect(() => {
-    if (!isOpenedAdvancedView) setIsChatCollapsed(false);
-  }, [isOpenedAdvancedView]);
+    setIsChatCollapsed(isOpenedAdvancedView && isMobile);
+  }, [isOpenedAdvancedView, isMobile]);
 
   const handleConversationNotFound = useCallback(() => {
     setIsConversationNotFound(true);
