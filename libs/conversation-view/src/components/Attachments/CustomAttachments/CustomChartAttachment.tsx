@@ -159,6 +159,17 @@ export const CustomChartAttachment: FC<Props> = ({
     setChartIndex((prevV) => Math.max(prevV - 1, 0));
   }, []);
 
+  const chartLayoutClass = isNarrowChart
+    ? 'flex-col overflow-auto'
+    : 'flex-row overflow-hidden';
+
+  const chartHeightClass = (() => {
+    if (fillHeight) return 'flex-1 min-h-0';
+    if (isNarrowChart) return 'h-full min-h-[500px]';
+    if (fixHeight) return 'h-full max-h-[400px] min-h-[400px]';
+    return 'h-full min-h-[300px]';
+  })();
+
   if (isLoading || isDataLoading) {
     return <Loader />;
   }
@@ -182,20 +193,8 @@ export const CustomChartAttachment: FC<Props> = ({
               <div
                 className={classNames(
                   'chart-area flex gap-4',
-                  isNarrowChart
-                    ? 'flex-col overflow-auto'
-                    : 'flex-row overflow-hidden',
-                  fillHeight && 'flex-1 min-h-0',
-                  !fillHeight && 'h-full',
-                  isNarrowChart && 'min-h-[500px]',
-                  !isNarrowChart &&
-                    !fillHeight &&
-                    fixHeight &&
-                    'max-h-[400px] min-h-[400px]',
-                  !isNarrowChart &&
-                    !fillHeight &&
-                    !fixHeight &&
-                    'min-h-[300px]',
+                  chartLayoutClass,
+                  chartHeightClass,
                 )}
               >
                 <div
