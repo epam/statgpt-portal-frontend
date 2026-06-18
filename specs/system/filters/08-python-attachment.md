@@ -153,8 +153,9 @@ The cross-dataset variant (`AttachmentsDataMultipleQueries`) passes **no** `data
 
 `invokePythonAttachment` passes `dataQueries` to the Python API without transformation
 with respect to the `disabled` flag — the flag is included in the payload automatically
-if it is set. The caller (`onApply` in `MultiDatasetFilters`) supplies the updated
-`dataQueries` with `disabled` flags already set before calling `invokePythonAttachment`.
+if it is set. The caller (the multi strategy's `runApply` in
+`use-multi-filter-strategy.ts`) supplies the updated `dataQueries` with `disabled`
+flags already set before calling `invokePythonAttachment`.
 
 ---
 
