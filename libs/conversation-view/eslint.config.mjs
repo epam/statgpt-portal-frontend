@@ -24,6 +24,7 @@ export default [
             '@vitejs/plugin-react',
             '@testing-library/jest-dom',
             'vite-plugin-dts',
+            '@storybook/react-vite',
           ],
         },
       ],
