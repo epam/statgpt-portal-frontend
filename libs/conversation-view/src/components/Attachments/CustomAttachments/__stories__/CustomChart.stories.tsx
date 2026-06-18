@@ -1,11 +1,11 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/react-vite';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
-import { CustomChartAttachment } from './CustomChartAttachment';
-import { CustomChartAttachmentType } from '../../../models/attachments';
-import { ChartUnit } from '../../../models/charting';
-import { ChartingIcon } from '../../../types/charting-icon';
-import { ConversationViewStylesProvider } from '../../../context/ConversationViewStylesContext';
-import { OnboardingProvider } from '../../../context/OnboardingContext';
+import { CustomChartAttachment } from '../CustomChartAttachment';
+import { CustomChartAttachmentType } from '../../../../models/attachments';
+import { ChartUnit } from '../../../../models/charting';
+import { ChartingIcon } from '../../../../types/charting-icon';
+import { ConversationViewStylesProvider } from '../../../../context/ConversationViewStylesContext';
+import { OnboardingProvider } from '../../../../context/OnboardingContext';
 
 const withProviders: Decorator = (Story) => (
   <ConversationViewStylesProvider>
