@@ -206,7 +206,7 @@ export const CustomChartAttachment: FC<Props> = ({
                 >
                   {selectedGroupTitle && (
                     <div className="mb-1 flex items-center gap-1">
-                      <DatasetIcon className="text-neutrals-1000 size-4 shrink-0" />
+                      <DatasetIcon className="size-4 shrink-0 text-neutrals-1000" />
                       <h4 className="text-neutrals-1000">
                         {selectedGroupTitle}
                       </h4>
