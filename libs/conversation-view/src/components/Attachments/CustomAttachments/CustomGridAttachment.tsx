@@ -31,6 +31,7 @@ interface Props {
   isDataLoading?: boolean;
   isChartColumnVisible?: boolean;
   fixHeight?: boolean;
+  fillHeight?: boolean;
   externalLink?: string;
   showLimitMessage?: (p: boolean) => void;
   onApiReady?: (api: GridApi) => void;
@@ -41,6 +42,7 @@ export const CustomDataGridAttachment: FC<Props> = ({
   isDataLoading,
   isChartColumnVisible,
   fixHeight,
+  fillHeight,
   externalLink,
   showLimitMessage,
   onApiReady,
@@ -177,6 +179,7 @@ export const CustomDataGridAttachment: FC<Props> = ({
       <GridContainer
         ref={gridRef}
         fixHeight={fixHeight}
+        fillHeight={fillHeight}
         gridHeight={gridHeight}
       >
         {memoizedGrid}

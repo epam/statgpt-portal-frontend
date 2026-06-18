@@ -78,6 +78,19 @@ export const Loading: Story = {
   },
 };
 
+export const FillHeight: Story = {
+  name: 'Fill Height',
+  render: (args) => (
+    <div style={{ height: 150, maxWidth: 640 }}>
+      <CustomDataGridAttachment {...args} />
+    </div>
+  ),
+  args: {
+    attachment: manyRowsAttachment,
+    fillHeight: true,
+  },
+};
+
 export const FixedHeight: Story = {
   name: 'Fixed Height (400px cap)',
   args: {
@@ -86,8 +99,8 @@ export const FixedHeight: Story = {
   },
 };
 
-export const NoHeightCap: Story = {
-  name: 'No Height Cap',
+export const FullCalculatedHeight: Story = {
+  name: 'Full Calculated Height',
   args: {
     attachment: manyRowsAttachment,
     fixHeight: false,
