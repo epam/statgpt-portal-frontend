@@ -64,6 +64,10 @@ export default [
       'react/react-in-jsx-scope': 'off',
       'react/jsx-uses-react': 'off',
       'react/prop-types': 'off',
+      // Guardrails for sonatype-2017-0717 (react-dom XSS via prop spreading):
+      // forbid raw HTML injection and flag prop spreading for review.
+      'react/no-danger': 'error',
+      'react/jsx-props-no-spreading': 'warn',
       'react-hooks/exhaustive-deps': 'error',
       'no-redeclare': 'off',
       '@typescript-eslint/triple-slash-reference': 'off',
