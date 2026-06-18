@@ -24,12 +24,14 @@ import {
 import { OnboardingElements } from '../../../constants/onboarding-elements';
 import ResponsiveEChart from './ResponsiveChart';
 import DatasetIcon from '../../../assets/icons/dataset.svg';
+
 interface Props {
   attachment: CustomChartAttachmentType;
   icons?: Record<ChartingIcon, ReactNode>;
   openAdvancedView?: () => void;
   isDataLoading?: boolean;
   fixHeight?: boolean;
+  fillHeight?: boolean;
   limitationInfoPrefixIcon?: ReactNode;
   limitationInfoContentClassName?: string;
 }
@@ -45,6 +47,7 @@ export const CustomChartAttachment: FC<Props> = ({
   isDataLoading,
   openAdvancedView,
   fixHeight = true,
+  fillHeight,
   limitationInfoPrefixIcon,
   limitationInfoContentClassName,
 }) => {
@@ -178,13 +181,21 @@ export const CustomChartAttachment: FC<Props> = ({
               </div>
               <div
                 className={classNames(
-                  'chart-area flex gap-4 h-full',
+                  'chart-area flex gap-4',
                   isNarrowChart
                     ? 'flex-col overflow-auto'
                     : 'flex-row overflow-hidden',
+                  fillHeight && 'flex-1 min-h-0',
+                  !fillHeight && 'h-full',
                   isNarrowChart && 'min-h-[500px]',
-                  !isNarrowChart && fixHeight && 'max-h-[400px] min-h-[400px]',
-                  !isNarrowChart && !fixHeight && 'min-h-[300px]',
+                  !isNarrowChart &&
+                    !fillHeight &&
+                    fixHeight &&
+                    'max-h-[400px] min-h-[400px]',
+                  !isNarrowChart &&
+                    !fillHeight &&
+                    !fixHeight &&
+                    'min-h-[300px]',
                 )}
               >
                 <div
@@ -195,7 +206,7 @@ export const CustomChartAttachment: FC<Props> = ({
                 >
                   {selectedGroupTitle && (
                     <div className="mb-1 flex items-center gap-1">
-                      <DatasetIcon className="size-4 shrink-0 text-neutrals-1000" />
+                      <DatasetIcon className="text-neutrals-1000 size-4 shrink-0" />
                       <h4 className="text-neutrals-1000">
                         {selectedGroupTitle}
                       </h4>
