@@ -137,3 +137,14 @@ export const FixedHeight: Story = {
     fixHeight: true,
   },
 };
+
+export const NarrowCard: Story = {
+  name: 'Narrow Card (mobile, fixHeight)',
+  args: {
+    attachment: multiUnitAttachment,
+    fixHeight: true,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile2' },
+  },
+};
