@@ -24,12 +24,14 @@ import {
 import { OnboardingElements } from '../../../constants/onboarding-elements';
 import ResponsiveEChart from './ResponsiveChart';
 import DatasetIcon from '../../../assets/icons/dataset.svg';
+
 interface Props {
   attachment: CustomChartAttachmentType;
   icons?: Record<ChartingIcon, ReactNode>;
   openAdvancedView?: () => void;
   isDataLoading?: boolean;
   fixHeight?: boolean;
+  fillHeight?: boolean;
   limitationInfoPrefixIcon?: ReactNode;
   limitationInfoContentClassName?: string;
 }
@@ -45,6 +47,7 @@ export const CustomChartAttachment: FC<Props> = ({
   isDataLoading,
   openAdvancedView,
   fixHeight = true,
+  fillHeight,
   limitationInfoPrefixIcon,
   limitationInfoContentClassName,
 }) => {
@@ -156,6 +159,17 @@ export const CustomChartAttachment: FC<Props> = ({
     setChartIndex((prevV) => Math.max(prevV - 1, 0));
   }, []);
 
+  const chartLayoutClass = isNarrowChart
+    ? 'flex-col overflow-auto'
+    : 'flex-row overflow-hidden';
+
+  const chartHeightClass = (() => {
+    if (fillHeight) return 'flex-1 min-h-0';
+    if (isNarrowChart) return 'h-full min-h-[500px]';
+    if (fixHeight) return 'h-full max-h-[400px] min-h-[400px]';
+    return 'h-full min-h-[300px]';
+  })();
+
   if (isLoading || isDataLoading) {
     return <Loader />;
   }
@@ -178,13 +192,9 @@ export const CustomChartAttachment: FC<Props> = ({
               </div>
               <div
                 className={classNames(
-                  'chart-area flex gap-4 h-full',
-                  isNarrowChart
-                    ? 'flex-col overflow-auto'
-                    : 'flex-row overflow-hidden',
-                  isNarrowChart && 'min-h-[500px]',
-                  !isNarrowChart && fixHeight && 'max-h-[400px] min-h-[400px]',
-                  !isNarrowChart && !fixHeight && 'min-h-[300px]',
+                  'chart-area flex gap-4',
+                  chartLayoutClass,
+                  chartHeightClass,
                 )}
               >
                 <div

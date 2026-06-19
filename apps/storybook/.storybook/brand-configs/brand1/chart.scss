@@ -1,0 +1,26 @@
+.chart-attachment {
+  &-title {
+    @apply h4;
+  }
+
+  .chart-area {
+    @apply border border-neutrals-500 rounded mt-4 px-3 py-5;
+  }
+}
+
+.single-chart-popup {
+  @apply pb-5;
+
+  &-heading {
+    @apply text-base font-bold;
+  }
+
+  &-content {
+    @apply p-6;
+    @apply border-t border-t-neutrals-500;
+  }
+
+  .sidebar {
+    @apply w-[320px];
+  }
+}
