@@ -200,7 +200,8 @@ export const CustomChartAttachment: FC<Props> = ({
                 <div
                   className={classNames(
                     'flex min-h-0 min-w-0 flex-1 flex-col',
-                    isNarrowChart && 'min-h-[360px] w-full',
+                    isNarrowChart && 'w-full',
+                    isNarrowChart && !fillHeight && 'min-h-[360px]',
                   )}
                 >
                   {selectedGroupTitle && (
@@ -215,7 +216,7 @@ export const CustomChartAttachment: FC<Props> = ({
                     <div
                       className={classNames(
                         'min-h-0 min-w-0 flex-1',
-                        isNarrowChart && 'min-h-[280px]',
+                        isNarrowChart && !fillHeight && 'min-h-[280px]',
                       )}
                     >
                       <ResponsiveEChart
