@@ -1,3 +1,27 @@
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/open-sans-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/open-sans-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/open-sans-700.woff2') format('woff2');
+}
+
 /*
  * Undo the app stylesheet's full-screen body reset so Storybook docs can scroll.
  * Unlayered rules have higher cascade priority than @layer base, so no !important needed.
@@ -6,4 +30,11 @@ html,
 body {
   overflow: auto;
   height: auto;
+}
+
+body,
+#storybook-root {
+  font-family: 'Open Sans', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
