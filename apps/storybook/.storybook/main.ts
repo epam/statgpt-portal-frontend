@@ -20,6 +20,7 @@ const config: StorybookConfig = {
   },
   staticDirs: [
     { from: './themes', to: '/brand-themes' },
+    { from: '../public/fonts', to: '/fonts' },
     { from: '../brand-assets/brand1', to: '/brand-assets/brand1' },
   ],
   async viteFinal(baseConfig) {
