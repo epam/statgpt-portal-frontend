@@ -43,6 +43,7 @@ import AttachmentsViewModePanel from './AttachmentsViewModePanel';
 import AttachmentsContentRenderer from './AttachmentsContentRenderer';
 import { DownloadAlert } from './DownloadAlert/DownloadAlert';
 import { useAttachmentDownloadFlow } from './useAttachmentDownloadFlow';
+import { mergeClasses } from '../../utils/mergeClasses';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 interface Props {
@@ -67,13 +68,15 @@ interface Props {
   filters?: DatasetQueryFilters;
   selectDataset?: (datasetUrn?: string) => void;
   onAdvancedViewOpen?: () => void;
+  hideDownloadButton?: boolean;
+  containerClassName?: string;
   isTableSettingsOpen?: boolean;
   onTableSettingsOpen?: () => void;
   onTableSettingsClose?: () => void;
   onGridApiReady?: (api: GridApi) => void;
 }
 
-const AttachmentRenderer: FC<Props> = ({
+export const AttachmentRenderer: FC<Props> = ({
   attachments,
   actions,
   isSystemAttachments,
@@ -91,6 +94,8 @@ const AttachmentRenderer: FC<Props> = ({
   filters,
   selectDataset,
   onAdvancedViewOpen,
+  hideDownloadButton,
+  containerClassName,
   isTableSettingsOpen,
   onTableSettingsOpen,
   onTableSettingsClose,
@@ -106,8 +111,6 @@ const AttachmentRenderer: FC<Props> = ({
   const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
   const [selectedAttachmentIndex, setSelectedAttachmentIndex] =
     useState<number>(0);
-  const [selectedAttachment, setSelectedAttachment] =
-    useState<Attachment | null>(null);
 
   const { isOpenedAdvancedView, setIsOpenedAdvancedView } = useAdvancedView();
   const [modalState, setModalState] = useState(PopUpState.Closed);
@@ -151,9 +154,7 @@ const AttachmentRenderer: FC<Props> = ({
     onAdvancedViewOpen,
   ]);
 
-  useEffect(() => {
-    setSelectedAttachment(attachments[selectedAttachmentIndex] || null);
-  }, [attachments, selectedAttachmentIndex]);
+  const selectedAttachment = attachments[selectedAttachmentIndex] || null;
 
   useEffect(() => {
     setShowLoading(
@@ -249,6 +250,9 @@ const AttachmentRenderer: FC<Props> = ({
 
   if (!attachments || attachments.length === 0) return null;
 
+  const shouldShowLoader =
+    (!isOpenedAdvancedView && showLoading) || !!isDataLoading;
+
   return (
     <>
       {isOpenedAdvancedView && !isShowAttachments ? (
@@ -260,13 +264,24 @@ const AttachmentRenderer: FC<Props> = ({
         />
       ) : (
         <div
-          className={classNames(
+          className={mergeClasses(
             `space-y-3 max-w-full max-h-full h-full`,
             !isOpenedAdvancedView && !isSystemAttachments ? 'pt-5' : 'pt-0',
             `flex flex-col pb-1`,
+            containerClassName,
           )}
         >
-          {!isOpenedAdvancedView && showLoading ? (
+          {!isOpenedAdvancedView &&
+            enabledDatasets?.length != null &&
+            enabledDatasets?.length > 0 && (
+              <DatasetTabs
+                datasets={enabledDatasets}
+                initialSelectedDatasetUrn={initialSelectedDatasetUrn}
+                locale={locale}
+                selectDataset={selectDataset}
+              />
+            )}
+          {shouldShowLoader ? (
             <Loader />
           ) : (
             <>
@@ -282,16 +297,6 @@ const AttachmentRenderer: FC<Props> = ({
                   dataQueries={dataQueries}
                 />
               )}
-              {!isOpenedAdvancedView &&
-                enabledDatasets?.length != null &&
-                enabledDatasets?.length > 0 && (
-                  <DatasetTabs
-                    datasets={enabledDatasets}
-                    initialSelectedDatasetUrn={initialSelectedDatasetUrn}
-                    locale={locale}
-                    selectDataset={selectDataset}
-                  />
-                )}
               {showLimitMessage && (
                 <RequestLimitMessage
                   limitMessages={limitMessages}
@@ -323,6 +328,7 @@ const AttachmentRenderer: FC<Props> = ({
                     limitMessages={limitMessages}
                     onSelectedAttachmentChange={selectAttachment}
                     onDownloadClick={() => setModalState(PopUpState.Opened)}
+                    hideDownloadButton={hideDownloadButton}
                     showAdvancedView={showAdvancedView}
                     onOpenAdvancedView={onOpenAdvancedView}
                     isTableSettingsOpen={isTableSettingsOpen}
@@ -344,36 +350,34 @@ const AttachmentRenderer: FC<Props> = ({
                   )}
                 </div>
               </div>
+              <>
+                {modalState === PopUpState.Opened && (
+                  <DownloadSettings
+                    onCloseModal={onCloseModal}
+                    onDownloadStart={startDownload}
+                    isDownloadInProgress={isDownloadRunning}
+                    dataQuery={currentDataQuery}
+                    datasetName={selectedAttachment?.title || ''}
+                    locale={locale}
+                    type={downloadType}
+                    dimensions={dimensions}
+                    filters={filters}
+                    urn={currentDataQuery?.urn}
+                    titles={attachmentsStyles?.downloadTitles}
+                    rowCount={downloadRowCount}
+                    collapsible={attachmentsStyles?.downloadCollapsible}
+                    downloadDatasets={downloadDatasets}
+                    limitMessages={limitMessages}
+                    showLimitMessage={showLimitMessage}
+                    externalLink={externalLink}
+                  />
+                )}
+                <DownloadAlert {...downloadAlertProps} />
+              </>
             </>
           )}
-          <>
-            {modalState === PopUpState.Opened && (
-              <DownloadSettings
-                onCloseModal={onCloseModal}
-                onDownloadStart={startDownload}
-                isDownloadInProgress={isDownloadRunning}
-                dataQuery={currentDataQuery}
-                datasetName={selectedAttachment?.title || ''}
-                locale={locale}
-                type={downloadType}
-                dimensions={dimensions}
-                filters={filters}
-                urn={currentDataQuery?.urn}
-                titles={attachmentsStyles?.downloadTitles}
-                rowCount={downloadRowCount}
-                collapsible={attachmentsStyles?.downloadCollapsible}
-                downloadDatasets={downloadDatasets}
-                limitMessages={limitMessages}
-                showLimitMessage={showLimitMessage}
-                externalLink={externalLink}
-              />
-            )}
-            <DownloadAlert {...downloadAlertProps} />
-          </>
         </div>
       )}
     </>
   );
 };
-
-export default AttachmentRenderer;

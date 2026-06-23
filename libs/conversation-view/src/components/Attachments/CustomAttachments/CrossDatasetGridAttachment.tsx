@@ -2,12 +2,18 @@
 
 import { CrossDatasetGridAttachmentType } from '../../../models/attachments';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Loader, SERIES_LIMIT } from '@epam/statgpt-ui-components';
+import {
+  Loader,
+  MOBILE_BREAKPOINT,
+  SERIES_LIMIT,
+  useIsMobile,
+} from '@epam/statgpt-ui-components';
 import type { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { GridData } from '../../../types/data-grid/grid-data';
 import { getGridHeight } from '../../../utils/attachments/data-grid/grid-height';
 import {
+  applyMobileColumnWidth,
   CHART_CELL_RENDER,
   CHART_COLUMN_ID,
   GRID_HEADER_HEIGHT,
@@ -49,6 +55,7 @@ const CrossDatasetGridAttachment: FC<Props> = ({
   const [rowData, setRowData] = useState<GridData[]>([]);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>();
   const [gridHeight, setGridHeight] = useState<number>(400);
+  const isMobile = useIsMobile(MOBILE_BREAKPOINT);
   const gridApiRef = useRef<GridApi | null>(null);
   const prevColIdsRef = useRef<string[]>([]);
 
@@ -60,13 +67,13 @@ const CrossDatasetGridAttachment: FC<Props> = ({
         if (col.colId === CHART_COLUMN_ID) {
           return { ...col, hide: !isChartColumnVisible };
         }
-        return col;
+        return applyMobileColumnWidth(col, isMobile);
       });
       setRowData(attachment.gridContent.data);
       setColumnDefs(columns);
       setIsLoading(false);
     }
-  }, [attachment.gridContent, isChartColumnVisible]);
+  }, [attachment.gridContent, isChartColumnVisible, isMobile]);
 
   useEffect(() => {
     if (rowData) {
@@ -153,4 +160,4 @@ const CrossDatasetGridAttachment: FC<Props> = ({
   );
 };
 
-export default CrossDatasetGridAttachment;
+export { CrossDatasetGridAttachment };

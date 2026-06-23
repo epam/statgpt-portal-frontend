@@ -8,177 +8,19 @@ permissions:
   contents: write
   packages: write
   security-events: write
-  id-token: write # For trusted publishing to npmjs registry
+  id-token: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  IMAGE_NAME: "epam/statgpt-portal-frontend"
-
 jobs:
-  test:
-    uses: epam/ai-dial-ci/.github/workflows/node_test.yml@4.4.0
-    with:
-      bypass-checks: false
-      format-checks-enabled: true
-      format-checks-bypassed: false
-      style-checks-enabled: true
-      style-checks-bypassed: false
-      code-checks-enabled: true
-      code-checks-bypassed: false
-      ort-enabled: true
-      ort-bypassed: false
-      ort-version: "85.0.0" # HACK: pin ORT version due to java.util.NoSuchElementException in 85.1.0
-      ort-config-repository: "https://github.com/oss-review-toolkit/ort-config.git"
-      ort-config-revision: "5650fed55a20397b9abb9017a0c6bb674dc8481d"
-      node-version: "24"
-      runs-on: '["ubuntu-24.04"]'
-
-  calculate_version:
-    runs-on: ubuntu-24.04
-    outputs:
-      next-version: ${{ steps.semantic_versioning.outputs.next-version }}
-      latest-stable-tag: ${{ steps.semantic_versioning.outputs.latest-stable-tag }}
-      is-release-candidate: ${{ steps.semantic_versioning.outputs.is-release-candidate }}
-      is-release: ${{ steps.semantic_versioning.outputs.is-release }}
-      is-latest: ${{ steps.semantic_versioning.outputs.is-latest }}
-      release-line: ${{ steps.semantic_versioning.outputs.release-line }}
-      changelog-mode: ${{ steps.semantic_versioning.outputs.changelog-mode }}
-    steps:
-      - uses: epam/ai-dial-ci/actions/semantic_versioning@4.4.0
-        id: semantic_versioning
-        with:
-          promote: true
-
   release:
-    runs-on: ubuntu-24.04
-    needs: [test, calculate_version]
-    permissions:
-      contents: write
-      packages: write
-      security-events: write
-      id-token: write
-
-    steps:
-      - name: Maximize build space
-        uses: nepalevov/maximize-build-space@046c48361370e2f3fa758bd2f10c6ce29109ef62 # v1.1.0
-        if: false # Maximize build space by removing unwanted software if set to true
-        with:
-          remove-dotnet: "true"
-          remove-android: "true"
-          remove-haskell: "true"
-          remove-codeql: "true"
-          remove-large-packages: "true"
-          remove-cached-tools: "true"
-          remove-swapfile: "true"
-          remove-java: "true"
-          remove-swift: "true"
-          remove-julia: "true"
-          remove-browsers: "true"
-          remove-cloud-tools: "true"
-          remove-kubernetes-tools: "true"
-          remove-powershell: "true"
-          remove-container-tools: "true"
-          remove-rust: "true"
-          remove-python: "true"
-          remove-node: "true"
-          remove-go: "true"
-          remove-ruby: "true"
-          docker-cleanup: "true"
-          set-tmpdir: "true"
-
-      - uses: epam/ai-dial-ci/actions/generate_release_notes@4.4.0
-        with:
-          latest-tag: ${{ needs.calculate_version.outputs.latest-stable-tag }}
-          use-merge-base: ${{ needs.calculate_version.outputs.changelog-mode == 'merge-base' }}
-
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          lfs: true
-          token: ${{ secrets.ACTIONS_BOT_TOKEN }}
-
-      - uses: epam/ai-dial-ci/actions/node_prepare@4.4.0
-        with:
-          node-version: "24"
-          clean-install: true
-          registry-url: "https://registry.npmjs.org"
-
-      - name: Set version
-        shell: bash
-        run: |
-          npm version ${{ needs.calculate_version.outputs.next-version }} --no-git-tag-version --allow-same-version
-
-      - uses: ./.github/actions/build_docker
-        with:
-          ghcr-username: ${{ github.actor }}
-          ghcr-password: ${{ secrets.ACTIONS_BOT_TOKEN }}
-          dockerhub-username: ${{ secrets.DOCKERHUB_LOGIN }}
-          dockerhub-password: ${{ secrets.DOCKERHUB_TOKEN }}
-          image-name: ghcr.io/${{ env.IMAGE_NAME }}
-          image-tag: ${{ startsWith(github.ref, 'refs/heads/release-') && needs.calculate_version.outputs.next-version || 'development' }}
-          push-enabled: false
-          trivy-enabled: true
-          bypass-checks: false
-          trivy-severity: "CRITICAL,HIGH"
-          trivy-severity-for-sarif: "CRITICAL,HIGH"
-          trivy-limit-severities-for-sarif: true
-          platforms: "linux/amd64"
-          image-extra-aliases: |
-            ${{ env.IMAGE_NAME }}:${{ startsWith(github.ref, 'refs/heads/release-') && needs.calculate_version.outputs.next-version || 'development' }}
-            ${{ startsWith(github.ref, 'refs/heads/release-') && needs.calculate_version.outputs.is-latest == 'true' && format('{0}:{1}', env.IMAGE_NAME, 'latest') || '' }}
-            ${{ startsWith(github.ref, 'refs/heads/release-') && needs.calculate_version.outputs.is-latest == 'true' && format('{0}/{1}:{2}', 'ghcr.io', env.IMAGE_NAME, 'latest') || '' }}
-
-      - name: Publish packages to npmjs
-        shell: bash
-        run: |
-          #!/bin/bash
-          PACKAGE_NAME=$(node -p "require('./package.json').name")
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" &>/dev/null; then
-            echo "Version $PACKAGE_NAME@$PACKAGE_VERSION already published, skipping"; exit 0
-          fi
-          if node -e "process.exit(require('./package.json').scripts?.['build:publishable'] ? 0 : 1)"; then
-            npm run build:publishable
-          else
-            npm run build
-          fi
-          publish_with_tag() {
-            local tag="$1"
-            if node -e "process.exit(require('./package.json').scripts?.['publish:npm'] ? 0 : 1)"; then
-              npm run publish:npm -- --tag "$tag"
-            else
-              npm publish --tag "$tag"
-            fi
-          }
-          if [ "$IS_DEVELOPMENT" = "true" ]; then
-            publish_with_tag "development"
-          elif [ "$IS_RELEASE_CANDIDATE" = "true" ]; then
-            publish_with_tag "$RELEASE_LINE-rc"
-          elif [ "$IS_RELEASE" = "true" ]; then
-            if [ "$IS_LATEST" = "true" ]; then
-              publish_with_tag "latest"
-            else
-              publish_with_tag "release-$RELEASE_LINE"
-            fi
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          IS_DEVELOPMENT: ${{ github.ref == 'refs/heads/development' }}
-          IS_RELEASE_CANDIDATE: ${{ needs.calculate_version.outputs.is-release-candidate == 'true' }}
-          IS_RELEASE: ${{ needs.calculate_version.outputs.is-release == 'true' }}
-          IS_LATEST: ${{ needs.calculate_version.outputs.is-latest == 'true' }}
-          RELEASE_LINE: ${{ needs.calculate_version.outputs.release-line }}
-
-      - uses: epam/ai-dial-ci/actions/publish_tag_release@4.4.0
-        if: ${{ startsWith(github.ref, 'refs/heads/release-') }}
-        with:
-          git-user-name: ${{ vars.ACTIONS_BOT_NAME || 'statgpt-actions' }}
-          git-user-email: ${{ vars.ACTIONS_BOT_EMAIL || '231008922+statgpt-actions@users.noreply.github.com' }}
-          tag-version: ${{ needs.calculate_version.outputs.next-version }}
-          changelog-file: "/tmp/my_changelog" # Comes from generate_release_notes step
-          draft-stable-releases: true
-          extra-commit-command: |
-            git add package.json package-lock.json
-            git commit -m '[skip ci] Update version' || true # Upstream branch may already be updated
+    uses: epam/ai-dial-ci/.github/workflows/node_release.yml@4.5.0
+    with:
+      promote: true
+      docker-build-enabled: false
+      publish-enabled: true
+      draft-stable-releases: true
+      node-version: "24"
+    secrets: inherit

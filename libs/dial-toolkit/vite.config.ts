@@ -5,6 +5,23 @@ import dts from 'vite-plugin-dts';
 import * as path from 'path';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+import packageJson from './package.json';
+
+const { dependencies, peerDependencies } = {
+  dependencies: {},
+  peerDependencies: {},
+  ...packageJson,
+};
+
+const externalDependencies = [
+  ...Object.keys(dependencies),
+  ...Object.keys(peerDependencies),
+];
+
+const isExternalDependency = (id: string) =>
+  externalDependencies.some(
+    (dependency) => id === dependency || id.startsWith(`${dependency}/`),
+  );
 
 export default defineConfig({
   root: __dirname,
@@ -45,6 +62,10 @@ export default defineConfig({
       // Change this to the formats you want to support.
       // Don't forget to update your package.json as well.
       formats: ['es', 'cjs'],
+    },
+    rollupOptions: {
+      // External packages that should not be bundled into your library.
+      external: isExternalDependency,
     },
   },
 } as UserConfig);

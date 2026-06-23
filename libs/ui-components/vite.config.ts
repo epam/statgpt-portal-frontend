@@ -2,11 +2,28 @@
 import { defineConfig, UserConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
+import * as fs from 'fs';
 import * as path from 'path';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import svgr from 'vite-plugin-svgr';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
-import { dependencies } from './package.json';
+import packageJson from './package.json';
+
+const { dependencies, peerDependencies } = {
+  dependencies: {},
+  peerDependencies: {},
+  ...packageJson,
+};
+
+const externalDependencies = [
+  ...Object.keys(dependencies),
+  ...Object.keys(peerDependencies),
+];
+
+const isExternalDependency = (id: string) =>
+  externalDependencies.some(
+    (dependency) => id === dependency || id.startsWith(`${dependency}/`),
+  );
 
 export default defineConfig({
   root: __dirname,
@@ -33,12 +50,21 @@ export default defineConfig({
           src: '../../LICENSE',
           dest: '',
         },
-        {
-          src: 'src/scss/styles-tailwind.scss',
-          dest: '',
-        },
       ],
     }),
+    {
+      name: 'copy-styles-tailwind',
+      apply: 'build',
+      closeBundle() {
+        fs.copyFileSync(
+          path.resolve(__dirname, 'src/scss/styles-tailwind.scss'),
+          path.resolve(
+            __dirname,
+            '../../dist/libs/ui-components/styles-tailwind.scss',
+          ),
+        );
+      },
+    },
   ],
 
   // Uncomment this if you are using workers.
@@ -65,13 +91,7 @@ export default defineConfig({
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: [
-        'react',
-        'react-dom',
-        'react/jsx-runtime',
-        'flatpickr',
-        ...Object.keys(dependencies),
-      ],
+      external: isExternalDependency,
     },
   },
 } as UserConfig);

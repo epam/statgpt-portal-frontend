@@ -95,8 +95,17 @@ update because you cannot verify every line number.
 |---|---|
 | `libs/shared-toolkit/src/models/data-query.ts` | `DataQuery`, `QueryFilter` types |
 | `libs/conversation-view/src/models/filters.ts` | `Filter`, `SharedFilter`, `FilterValue` types |
+| `libs/conversation-view/src/components/AdvancedView/Filters/hooks/use-filters.ts` | Shared filter orchestration + `FilterStrategy` interface (both modes) |
+| `libs/conversation-view/src/components/AdvancedView/Filters/hooks/use-single-filter-strategy.ts` | Single-dataset filter strategy (constraints/apply/init/system-message primitives) |
+| `libs/conversation-view/src/components/AdvancedView/MultiDatasetFilters/hooks/use-multi-filter-strategy.ts` | Multi-dataset filter strategy (constraints/apply/init/system-message primitives) |
+| `libs/conversation-view/src/components/AdvancedView/Filters/hooks/use-filter-constraints.ts` | Shared constraint-fetch control flow (request → clean-and-recurse → fill/commit) |
+| `libs/conversation-view/src/components/AdvancedView/Filters/hooks/use-filter-apply.ts` | Shared apply control flow + `getIsFiltersUnchanged` gate |
+| `libs/conversation-view/src/components/AdvancedView/Filters/hooks/use-filter-initialization.ts` | Shared one-time/pending preselect skeleton |
+| `libs/conversation-view/src/components/AdvancedView/Filters/hooks/use-filter-modal-state.ts` | Shared modal/applied filter state, dataset-disable sets |
+| `libs/conversation-view/src/components/AdvancedView/Filters/hooks/use-filter-system-message.ts` | Shared system-message persistence skeleton |
+| `libs/conversation-view/src/components/AdvancedView/Filters/FiltersModal/FiltersModalShell.tsx` | Shared modal shell consuming the unified `FiltersModalShellProps` |
 | `libs/sdmx-toolkit/src/models/structural-metadata/constraints.ts` | `DataConstraints`, `CubeRegion` types |
-| `libs/sdmx-toolkit/src/models/datasets-metadata.ts` | `DatasetDimensionsMetadataMap`, `DimensionConfig` |
+| `libs/sdmx-toolkit/src/models/datasets-metadata.ts` | `DatasetDimensionsMetadataMap`, `DimensionConfig`, `DatasetLastUpdatedMap` |
 | `libs/sdmx-toolkit/src/models/dataset-dimensions-scheme.ts` | `DatasetDimensionsScheme` |
 | `libs/conversation-view/src/utils/filters.ts` | Single-dataset filter utilities |
 | `libs/conversation-view/src/utils/multiple-filters.ts` | Multi-dataset merging, constraint fetching (1500+ lines — the core) |

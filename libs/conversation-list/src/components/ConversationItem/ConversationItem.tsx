@@ -80,7 +80,7 @@ const ConversationItem: FC<Props> = ({
 
         <h3
           className={classNames(
-            'truncate font-semibold text-neutrals-1000 sm:body-2',
+            'truncate pb-px -mb-px font-semibold text-neutrals-1000 sm:body-2',
             'conversation-item-text',
             selectedConversationId === conversation?.id
               ? 'conversation-item-text-active'

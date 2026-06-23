@@ -1,6 +1,8 @@
-import withAuth from 'next-auth/middleware';
+import { getToken } from 'next-auth/jwt';
 import { createI18nMiddleware } from 'next-international/middleware';
 import { NextRequest, NextResponse } from 'next/server';
+import { getSignInLink } from './constants/auth';
+import { getAuthSecret, getSessionCookieName } from './utils/auth/auth-cookie';
 import { getIsEnableAuthToggle } from './utils/auth/get-auth-toggle';
 
 const locales = ['en'] as const;
@@ -60,7 +62,7 @@ const CSPMiddleware = (request: Request): NextResponse => {
   return response;
 };
 
-export const I18MiddlewareWithCSP = (req: NextRequest) => {
+const I18MiddlewareWithCSP = (req: NextRequest) => {
   const i18nResponse = I18nMiddleware(req);
   if (i18nResponse instanceof NextResponse) {
     const cspResponse = CSPMiddleware(req);
@@ -74,12 +76,34 @@ export const I18MiddlewareWithCSP = (req: NextRequest) => {
   }
 };
 
-async function middlewareFn(req: NextRequest) {
+async function proxyFn(req: NextRequest) {
   return I18MiddlewareWithCSP(req);
 }
 
-const middleware = getIsEnableAuthToggle()
-  ? withAuth(middlewareFn)
-  : middlewareFn;
+// Lightweight enforcement backstop: decode the session JWT and bounce
+// unauthenticated requests to sign-in before running i18n/CSP.
+// Refreshable-but-expired sessions have no `error` yet and are allowed through
+// so the server components can refresh them.
+async function authProxyFn(req: NextRequest) {
+  const token = await getToken({
+    req,
+    cookieName: getSessionCookieName(),
+    secret: getAuthSecret(),
+  });
 
-export default middleware;
+  const isInvalidSession =
+    token == null || (token as { error?: unknown }).error != null;
+
+  if (isInvalidSession) {
+    const callbackUrl = `${req.nextUrl.pathname}${req.nextUrl.search}`;
+    const signInUrl = new URL(getSignInLink(callbackUrl), req.nextUrl.origin);
+
+    return NextResponse.redirect(signInUrl);
+  }
+
+  return proxyFn(req);
+}
+
+const proxy = getIsEnableAuthToggle() ? authProxyFn : proxyFn;
+
+export default proxy;

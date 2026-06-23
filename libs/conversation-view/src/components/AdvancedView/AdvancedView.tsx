@@ -127,12 +127,14 @@ export const AdvancedView: FC<Props> = ({
   conversationRef.current = props.filtersProps.conversation;
 
   const handleCodeAttachmentUpdated = useCallback(
-    (newRawAttachment: Attachment) => {
+    (newRawAttachment: Attachment, datasetUrn?: string) => {
       const conversation = conversationRef.current;
       if (!conversation) return;
       const updatedMessages = replacePythonAttachment(
         conversation.messages as Message[],
         newRawAttachment,
+        undefined,
+        datasetUrn,
       );
       if (!updatedMessages) return;
       const updatedConversation = {
@@ -176,6 +178,7 @@ export const AdvancedView: FC<Props> = ({
     handleCodeAttachmentUpdated,
     skipSingleDatasetConstraintsLoading,
   );
+  const shouldRenderDatasetInfo = shouldShowDatasetInfo && !!dataset;
   const {
     structureDataMaps,
     crossDatasetAttachments,
@@ -224,15 +227,17 @@ export const AdvancedView: FC<Props> = ({
     setCrossDatasetAttachmentsState,
     structureDataMaps,
   ]);
-  const [isFiltering, setIsFiltering] = useState<boolean>();
   const [filters, setFilters] = useState<DatasetQueryFilters>({
     filterKey: null,
     timeFilter: null,
   });
-  const isDataLoading = useMemo(
-    () => (isCrossDatasetModeOn ? isLoadingCrossDsGridData : isLoadingGridData),
-    [isCrossDatasetModeOn, isLoadingCrossDsGridData, isLoadingGridData],
-  );
+  const [isFiltering, setIsFiltering] = useState<boolean>();
+  const isDataLoading = isCrossDatasetModeOn
+    ? isLoadingCrossDsGridData
+    : isLoadingGridData;
+  const attachments = isCrossDatasetModeOn
+    ? crossDatasetAttachments
+    : dataSetAttachments;
 
   const handleFiltersChange = useCallback(
     (
@@ -343,7 +348,7 @@ export const AdvancedView: FC<Props> = ({
                   <Loader />
                 ) : (
                   <>
-                    {shouldShowDatasetInfo && (
+                    {shouldRenderDatasetInfo && (
                       <DatasetInfo
                         {...datasetInfoOptions}
                         locale={locale}
@@ -358,7 +363,8 @@ export const AdvancedView: FC<Props> = ({
                     <div
                       className={classNames(
                         'flex flex-1 min-h-0 overflow-auto',
-                        shouldShowDatasetInfo && 'border-t border-neutrals-500',
+                        shouldRenderDatasetInfo &&
+                          'border-t border-neutrals-500',
                       )}
                     >
                       <div
@@ -370,11 +376,7 @@ export const AdvancedView: FC<Props> = ({
                         <DataDetails
                           {...props}
                           actions={actions}
-                          attachments={
-                            isCrossDatasetModeOn
-                              ? crossDatasetAttachments
-                              : dataSetAttachments
-                          }
+                          attachments={attachments}
                           attachmentsDataQuery={
                             attachmentsProps.currentDataQuery
                           }

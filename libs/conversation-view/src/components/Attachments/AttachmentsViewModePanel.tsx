@@ -38,6 +38,7 @@ interface Props {
   limitMessages?: LimitMessages;
   onSelectedAttachmentChange: (index: number) => void;
   onDownloadClick: () => void;
+  hideDownloadButton?: boolean;
   showAdvancedView?: boolean;
   onOpenAdvancedView?: () => void;
   isTableSettingsOpen?: boolean;
@@ -54,6 +55,7 @@ const AttachmentsViewModePanel: FC<Props> = ({
   limitMessages,
   onSelectedAttachmentChange,
   onDownloadClick,
+  hideDownloadButton,
   showAdvancedView,
   onOpenAdvancedView,
   isTableSettingsOpen,
@@ -107,6 +109,7 @@ const AttachmentsViewModePanel: FC<Props> = ({
     );
 
   const shouldShowDownloadButton =
+    !hideDownloadButton &&
     !!selectedAttachment &&
     (isCustomGridAttachment(selectedAttachment) ||
       isCrossDatasetGrid(selectedAttachment));

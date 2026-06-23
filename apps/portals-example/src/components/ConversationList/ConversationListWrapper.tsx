@@ -44,11 +44,16 @@ import {
   I18nKeys,
   LogOutI18nKeys,
 } from '../../constants/i18n-keys';
-import { Button } from '@epam/statgpt-ui-components';
+import {
+  Button,
+  MOBILE_BREAKPOINT,
+  useIsMobile,
+} from '@epam/statgpt-ui-components';
 import { useConversationList } from '../../context/ConversationListContext';
 import {
   getConversationNavPath,
   getConversationId,
+  getConversationIdFromResourceUrl,
   ApiResponse,
 } from '@epam/statgpt-shared-toolkit';
 import { getSignInLink } from '../../constants/auth';
@@ -69,6 +74,7 @@ const ConversationListWrapper = ({
   const router = useRouter();
   const { id }: { id: string[] } = useParams();
   const { isOpenedAdvancedView, setIsOpenedAdvancedView } = useAdvancedView();
+  const isMobile = useIsMobile(MOBILE_BREAKPOINT);
   const {
     conversations,
     sharedConversations,
@@ -78,6 +84,10 @@ const ConversationListWrapper = ({
   const locale = useCurrentLocale();
   const { data: session } = useSession();
   const { isStreaming } = useChatMessages();
+  const selectedConversationId = useMemo(
+    () => getConversationId(id, locale),
+    [id, locale],
+  );
 
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -109,8 +119,14 @@ const ConversationListWrapper = ({
               sourceUrl,
               destinationUrl,
             );
+          const sourceConversationId =
+            getConversationIdFromResourceUrl(sourceUrl);
 
-          if (response.success && navPath) {
+          if (
+            response.success &&
+            navPath &&
+            sourceConversationId === selectedConversationId
+          ) {
             router.replace(
               `/${locale}${ApplicationRoute.Conversations}/${navPath}`,
             );
@@ -120,7 +136,7 @@ const ConversationListWrapper = ({
         },
       ),
     }),
-    [authHandler, locale, router],
+    [authHandler, locale, router, selectedConversationId],
   );
 
   const titles: ConversationListTitles = {
@@ -150,8 +166,12 @@ const ConversationListWrapper = ({
   }, [isCollapsed, setIsCollapsed]);
 
   useEffect(() => {
-    setIsCollapsed(isOpenedAdvancedView);
-  }, [isOpenedAdvancedView]);
+    if (isOpenedAdvancedView) {
+      setIsCollapsed(true);
+    } else if (!isMobile) {
+      setIsCollapsed(false);
+    }
+  }, [isOpenedAdvancedView, isMobile, setIsCollapsed]);
 
   const handleConversationSelect = useCallback(
     (folderId: string, conversationKey: string) => {
@@ -234,7 +254,7 @@ const ConversationListWrapper = ({
     <aside
       className={classNames(
         'bg-neutrals-200 h-full flex flex-col justify-between min-w-0 relative',
-        isCollapsed ? 'w-[64px]' : 'w-[362px]',
+        isCollapsed ? 'w-[64px]' : 'w-[362px] mobile:w-full',
       )}
     >
       <div className="flex h-[calc(100%-108px)] flex-col sm:h-[calc(100%-80px)]">
@@ -322,7 +342,7 @@ const ConversationListWrapper = ({
             setConversations={setConversations}
             setSharedConversations={setSharedConversations}
             isCollapsed={isCollapsed}
-            selectedConversationId={getConversationId(id, locale)}
+            selectedConversationId={selectedConversationId}
             conversationStyles={{
               titles,
               isSmallModalButton: true,

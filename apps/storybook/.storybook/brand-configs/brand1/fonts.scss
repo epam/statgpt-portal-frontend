@@ -1,0 +1,85 @@
+.h1 {
+  font-size: 38px;
+  line-height: 42px;
+  @apply font-normal;
+}
+
+.h2 {
+  font-size: 16px;
+  line-height: 24px;
+  @apply font-bold;
+}
+
+.h3 {
+  font-size: 14px;
+  line-height: 16px;
+  @apply font-semibold;
+}
+
+.h4 {
+  font-size: 12px;
+  line-height: 16px;
+  @apply font-semibold;
+}
+
+.h5 {
+  font-size: 10px;
+  line-height: 16px;
+  @apply font-semibold;
+}
+
+.body-1 {
+  font-size: 16px;
+  line-height: 24px;
+  @apply font-normal;
+}
+
+.body-2 {
+  font-size: 14px;
+  line-height: 20px;
+  @apply font-normal;
+}
+
+.body-3 {
+  font-size: 12px;
+  line-height: 16px;
+  @apply font-normal;
+}
+
+.caption {
+  font-size: 10px;
+  line-height: 16px;
+  @apply font-normal;
+}
+
+#storybook-root {
+  h1 {
+    font-size: 38px;
+    line-height: 42px;
+    @apply font-normal;
+  }
+
+  h2 {
+    font-size: 16px;
+    line-height: 24px;
+    @apply font-bold;
+  }
+
+  h3 {
+    font-size: 14px;
+    line-height: 16px;
+    @apply font-semibold;
+  }
+
+  h4 {
+    font-size: 12px;
+    line-height: 16px;
+    @apply font-semibold;
+  }
+
+  h5 {
+    font-size: 10px;
+    line-height: 16px;
+    @apply font-semibold;
+  }
+}

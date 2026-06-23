@@ -11,6 +11,7 @@ module.exports = {
         md: { max: '1023px' },
         'md-min': { min: '1024px' },
         'sm-explorer': { max: '998px' },
+        mobile: { max: '768px' },
         sm: { max: '719px' },
         'sm-min': { min: '720px' },
         xs: { max: '428px' },

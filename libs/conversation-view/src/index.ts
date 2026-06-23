@@ -60,3 +60,14 @@ export {
   CrossDatasetAttachmentsProvider,
   useCrossDatasetAttachments,
 } from './context/CrossDatasetAttachmentsContext';
+
+export { AttachmentRenderer } from './components/Attachments/AttachmentRenderer';
+export { CustomChartAttachment } from './components/Attachments/CustomAttachments/CustomChartAttachment';
+export { CustomDataGridAttachment } from './components/Attachments/CustomAttachments/CustomGridAttachment';
+export { CrossDatasetGridAttachment } from './components/Attachments/CustomAttachments/CrossDatasetGridAttachment';
+export type {
+  ChartingData,
+  ChartUnit,
+  ChartUnitGroup,
+} from './models/charting';
+export type { GridData } from './types/data-grid/grid-data';

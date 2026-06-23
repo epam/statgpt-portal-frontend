@@ -9,28 +9,42 @@ repeated here.
 
 ## Preselection runs exactly once — even if structural data changes
 
-`Filters.tsx` and `MultiDatasetFilters.tsx` guard the initial preselection step
-with a `useRef(false)` flag:
+**Single-dataset only.** The single strategy guards the initial preselection step
+with a `useRef(false)` flag, exposed to the shared init skeleton through the
+`FilterInitStrategy` contract:
 
 ```ts
+// use-single-filter-strategy.ts
 const isPreselectedFromDataQuery = useRef(false);
 
-useEffect(() => {
-  if (!isPreselectedFromDataQuery.current) {
-    // ... call getFiltersPreselectedByDataQuery / getFiltersPreselectedByDataQueries
-    isPreselectedFromDataQuery.current = true;
-  }
-}, [dimensions, structures, structureDimensions, attachmentsDataQuery, ...]);
+const prepareInit = useCallback((): FilterInitResult => {
+  if (isPreselectedFromDataQuery.current || !structures) return { status: 'skip' };
+  // ... build filters via getSingleDatasetFiltersPreselectedByDataQuery
+  return { status: 'ready', filters };
+}, [/* dimensions, structures, structureDimensions, attachmentsDataQuery, ... */]);
+
+const markInitialized = useCallback(() => {
+  isPreselectedFromDataQuery.current = true;
+}, []);
 ```
 
-The flag prevents structural data changes — dimensions reloading, a dataset swap —
-from overwriting user edits in the modal. The consequence is that if datasets are
-swapped after the first render, the old preselection stays. This is intentional; the
-gate is load-bearing.
+The shared `useFilterInitialization` (`use-filter-initialization.ts`) calls
+`prepareInit`; on a `ready` result it dispatches the constraints request and then
+calls `markInitialized`. The flag prevents structural data changes — dimensions
+reloading, a dataset swap — from overwriting user edits in the modal. The
+consequence is that if datasets are swapped after the first render, the old
+preselection stays. This is intentional; the gate is load-bearing.
 
 If you add a new trigger that should re-run preselection, you must reset the ref
 explicitly. Removing the guard entirely causes user edits to be discarded on every
-re-render that touches the dependency list.
+re-render that touches `prepareInit`'s dependency list.
+
+**Multi-dataset has no such ref.** Its `prepareInit` (`use-multi-filter-strategy.ts`)
+returns `pending` until `isStructureDataReady`, then `ready` whenever its inputs
+change — so the shared init skeleton re-derives preselection on later input changes.
+Disabled-dataset suppression (see `07-data-flow.md`, Phase 3) is what keeps this
+re-derivation from leaking a disabled dataset's saved selections into the merged
+picker.
 
 ---
 
@@ -66,15 +80,26 @@ passes `true` expecting different behavior — there is none.
 
 ## Modal close restores constraints to open-time snapshot, not live state
 
-When the filter modal opens, the current `constraintsRef.current` value is captured
-into `initialModalConstraints` state. When the modal closes without applying, the
-ref is restored to that snapshot:
+The mode strategy snapshots the constraints ref while the modal is open
+(`remember`) and restores the ref to that snapshot when the modal closes without
+applying (`restore`); the shared `useFilters` wires `restore` into `onCloseModal`.
+Single-dataset snapshots `constraintsRef` (a flat `DataConstraints[]`);
+multi-dataset snapshots `constraintsMapRef` (the per-dataset map):
 
 ```ts
-const onCloseModal = useCallback(() => {
+// use-single-filter-strategy.ts (multi mirrors this with constraintsMapRef)
+const remember = useCallback(() => {
+  setInitialModalConstraints(constraintsRef.current);
+}, []);
+const restore = useCallback(() => {
   constraintsRef.current = initialModalConstraints; // restored to open-time value
-  setModalState(PopUpState.Closed);
 }, [initialModalConstraints]);
+
+// use-filters.ts
+const onCloseModal = useCallback(() => {
+  restore();
+  closeModal();
+}, [closeModal, restore]);
 ```
 
 This means: if the user opens the modal, changes a filter (triggering a new
@@ -113,8 +138,8 @@ the relevant dataset are present, since they arrive in wave 2.
 
 ## Incompatible datasets are marked, not removed
 
-When `onApply()` in `MultiDatasetFilters.tsx` finds that some datasets are
-incompatible with the current shared filter selections, it does not remove those
+When the multi strategy's `runApply` (`use-multi-filter-strategy.ts`) finds that some
+datasets are incompatible with the current shared filter selections, it does not remove those
 datasets from the filters map. Instead, it marks their dimension-level filters as
 `isExcluded: true`:
 
@@ -132,7 +157,7 @@ per-dimension filter signals exclusion. See `01-domain-model.md` for the
 
 ### Compatibility must be checked against the disabled-aware filters, not `modalFilters`
 
-`onApply` computes `compatibleUrns` via `getCompatibleDatasetUrns`. It must pass
+`runApply` computes `compatibleUrns` via `getCompatibleDatasetUrns`. It must pass
 `appliedFilters` — the merged set rebuilt by `getFiltersByConstraints` *after*
 `buildFiltersMap` has dropped disabled datasets — **not** the raw `modalFilters`.
 
@@ -164,6 +189,24 @@ hierarchy tree is stored for the shared COUNTRY filter. The hierarchy loaded las
 (whichever dataset's lazy-load completes last) wins. This is intentional — the
 merged picker shows a unified tree — but it means you cannot retrieve per-dataset
 hierarchy state for a shared dimension.
+
+---
+
+## `flushToGrid` alone does not render the grid
+
+`flushToGrid` in `AttachmentsDataMultipleQueries.tsx` writes data into
+`structureDataMaps` state, but the effect that actually builds the grid attachment
+is gated on `!isLoadingGridData` (the condition at the top of the large `useEffect`
+in the same file). If `isLoadingGridData` is still `true` when `flushToGrid` runs,
+the state update lands silently and nothing visible changes.
+
+Any early-flush call — such as the `DATASET_FETCH_DEADLINE_MS` deadline — must also
+call `setIsLoadingGridData(false)` in the same batch, otherwise the flush is a
+no-op from the user's perspective. The deadline only clears loading when there are
+completed results to show (`completedResults.size > 0`); if nothing has arrived yet
+the spinner is intentionally preserved. This will need revisiting when a partial
+loading indicator is introduced, since that feature requires showing a
+partially-built grid while loading is still technically in progress.
 
 ---
 

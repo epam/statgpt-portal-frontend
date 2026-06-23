@@ -19,7 +19,7 @@ import { useConversationViewStyles } from '../../../context/ConversationViewStyl
 import classNames from 'classnames';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
-import AttachmentRenderer from '../../Attachments/AttachmentRenderer';
+import { AttachmentRenderer } from '../../Attachments/AttachmentRenderer';
 import MessageContent from '../MessageContent';
 import { useAttachmentsData } from '../../../context/AttachmentsData';
 import { useDatasets } from '../../../context/Datasets';
@@ -33,7 +33,11 @@ import { getDataQueries } from '../../../utils/attachments/parse-data-query';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import { MetadataSettings } from '../../../models/metadata';
-import { Loader } from '@epam/statgpt-ui-components';
+import {
+  Loader,
+  MOBILE_BREAKPOINT,
+  useIsMobile,
+} from '@epam/statgpt-ui-components';
 import MessageStages from '../MessageStages/MessageStages';
 import { AttachmentInfo } from '../../../models/attachments';
 import { getAttachmentInfoList } from '../../../utils/attachments-details';
@@ -194,6 +198,8 @@ const Message: FC<Props> = ({
     titles,
   );
   const { isOpenedAdvancedView } = useAdvancedView();
+  const isMobile = useIsMobile(MOBILE_BREAKPOINT);
+  const shouldRenderMessageIconColumn = !isMobile;
   const {
     attachments: sharedCrossDatasetAttachments,
     dataQueriesKey: crossDatasetDataQueriesKey,
@@ -323,32 +329,56 @@ const Message: FC<Props> = ({
     previousMessage,
   ]);
 
-  const getMessageIcon = useCallback(() => {
-    if (
-      !isUser &&
-      messageStyles?.systemMessageIcon &&
-      !(isOpenedAdvancedView && !isCurrentMessageStreaming)
-    ) {
-      return (
-        <div
-          className={classNames(
-            'flex-shrink-0 rounded-full flex items-center justify-center w-[44px] h-[44px]',
-            isCurrentMessageStreaming
-              ? 'text-white absolute'
-              : 'text-neutrals-400',
-          )}
-        >
-          {messageStyles.systemMessageIcon}
-        </div>
-      );
-    }
-    return null;
-  }, [
-    isUser,
-    messageStyles?.systemMessageIcon,
-    isOpenedAdvancedView,
-    isCurrentMessageStreaming,
-  ]);
+  const getMessageIcon = useCallback(
+    (variant: 'column' | 'inline' = 'column') => {
+      if (
+        !isUser &&
+        messageStyles?.systemMessageIcon &&
+        !(isOpenedAdvancedView && !isCurrentMessageStreaming)
+      ) {
+        const isInlineIcon = variant === 'inline';
+
+        return (
+          <div
+            className={classNames(
+              'flex-shrink-0 rounded-full flex items-center justify-center',
+              isInlineIcon
+                ? 'size-[44px] overflow-visible [&_svg]:size-[44px]'
+                : 'w-[44px] h-[44px]',
+              isCurrentMessageStreaming && !isInlineIcon
+                ? 'text-white absolute'
+                : 'text-neutrals-400',
+            )}
+          >
+            {messageStyles.systemMessageIcon}
+          </div>
+        );
+      }
+      return null;
+    },
+    [
+      isUser,
+      messageStyles?.systemMessageIcon,
+      isOpenedAdvancedView,
+      isCurrentMessageStreaming,
+    ],
+  );
+  const mobileMessageIcon = isMobile ? getMessageIcon('inline') : null;
+  const mobileMessageHeaderPrefix =
+    isMobile && (mobileMessageIcon != null || isCurrentMessageStreaming) ? (
+      <>
+        {mobileMessageIcon}
+        {isCurrentMessageStreaming && <Loader />}
+      </>
+    ) : null;
+  const hasMessageStages =
+    !isUser && !isOpenedAdvancedView && !!message?.custom_content?.stages;
+  const shouldRenderMobileIconWithContent =
+    isMobile &&
+    !hasMessageStages &&
+    !isCurrentMessageStreaming &&
+    !isEditing &&
+    mobileMessageIcon != null;
 
   const attachmentRendererMemoized = useMemo(
     () => (
@@ -440,10 +470,12 @@ const Message: FC<Props> = ({
           isUser && !isEditing ? 'max-w-full' : 'w-full',
         )}
       >
-        <div className="relative mr-2">
-          {getMessageIcon()}
-          {isCurrentMessageStreaming && <Loader />}
-        </div>
+        {shouldRenderMessageIconColumn && (
+          <div className="relative mr-2">
+            {getMessageIcon()}
+            {isCurrentMessageStreaming && <Loader />}
+          </div>
+        )}
         <div className="min-w-0 flex-1">
           <div
             className={classNames(
@@ -452,19 +484,29 @@ const Message: FC<Props> = ({
               isUser && (isEditing ? 'w-[100%] ml-0' : 'ml-12'),
             )}
           >
-            {!isUser &&
-            !isOpenedAdvancedView &&
-            message?.custom_content?.stages ? (
+            {hasMessageStages ? (
               <MessageStages
                 stages={message?.custom_content?.stages}
                 expandIcon={expandStagesIcon}
                 processingTitle={messageStyles?.processingTitle}
+                prefixIcon={mobileMessageHeaderPrefix}
               />
             ) : (
               isCurrentMessageStreaming && (
-                <p className="body-1 loading-message text-neutrals-700">
-                  {titles?.loading}
-                </p>
+                <>
+                  {isMobile ? (
+                    <div className="flex items-center gap-2">
+                      {mobileMessageHeaderPrefix}
+                      <p className="body-1 loading-message text-neutrals-700">
+                        {titles?.loading}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="body-1 loading-message text-neutrals-700">
+                      {titles?.loading}
+                    </p>
+                  )}
+                </>
               )
             )}
 
@@ -475,6 +517,13 @@ const Message: FC<Props> = ({
                 onEditApply={onEditApply}
                 editMessageTitles={editMessageTitles}
               />
+            ) : shouldRenderMobileIconWithContent ? (
+              <div className="flex items-start gap-2">
+                {mobileMessageIcon}
+                <div className="min-w-0 flex-1">
+                  <MessageContent content={message.content} />
+                </div>
+              </div>
             ) : (
               <MessageContent content={message.content} />
             )}

@@ -3,7 +3,11 @@
 import { CustomChartAttachmentType } from '../../../models/attachments';
 import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { scheduleDeferredWork } from '../../../utils/deferred-work';
-import { Loader } from '@epam/statgpt-ui-components';
+import {
+  Loader,
+  MOBILE_BREAKPOINT,
+  useIsMobile,
+} from '@epam/statgpt-ui-components';
 import { ChartingData, ChartUnit } from '../../../models/charting';
 import { ChartingIcon } from '../../../types/charting-icon';
 import ChartSidebar from './ChartSidebar';
@@ -20,12 +24,14 @@ import {
 import { OnboardingElements } from '../../../constants/onboarding-elements';
 import ResponsiveEChart from './ResponsiveChart';
 import DatasetIcon from '../../../assets/icons/dataset.svg';
+
 interface Props {
   attachment: CustomChartAttachmentType;
   icons?: Record<ChartingIcon, ReactNode>;
   openAdvancedView?: () => void;
   isDataLoading?: boolean;
   fixHeight?: boolean;
+  fillHeight?: boolean;
   limitationInfoPrefixIcon?: ReactNode;
   limitationInfoContentClassName?: string;
 }
@@ -35,16 +41,18 @@ interface FlatChartUnit {
   groupTitle?: string;
 }
 
-const CustomChartAttachment: FC<Props> = ({
+export const CustomChartAttachment: FC<Props> = ({
   attachment,
   icons,
   isDataLoading,
   openAdvancedView,
   fixHeight = true,
+  fillHeight,
   limitationInfoPrefixIcon,
   limitationInfoContentClassName,
 }) => {
   const { titles } = useConversationViewStyles();
+  const isNarrowChart = useIsMobile(MOBILE_BREAKPOINT);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [chartingData, setChartingData] = useState<ChartingData>();
   const [flatUnits, setFlatUnits] = useState<FlatChartUnit[]>([]);
@@ -151,6 +159,17 @@ const CustomChartAttachment: FC<Props> = ({
     setChartIndex((prevV) => Math.max(prevV - 1, 0));
   }, []);
 
+  const chartLayoutClass = isNarrowChart
+    ? 'flex-col overflow-auto'
+    : 'flex-row overflow-hidden';
+
+  const chartHeightClass = (() => {
+    if (fillHeight) return 'flex-1 min-h-0';
+    if (isNarrowChart) return 'h-full min-h-[500px]';
+    if (fixHeight) return 'h-full max-h-[400px] min-h-[400px]';
+    return 'h-full min-h-[300px]';
+  })();
+
   if (isLoading || isDataLoading) {
     return <Loader />;
   }
@@ -173,12 +192,18 @@ const CustomChartAttachment: FC<Props> = ({
               </div>
               <div
                 className={classNames(
-                  'chart-area overflow-hidden flex flex-row gap-4 h-full ',
-                  fixHeight && 'max-h-[400px] min-h-[400px]',
-                  !fixHeight && 'min-h-[300px]',
+                  'chart-area flex gap-4',
+                  chartLayoutClass,
+                  chartHeightClass,
                 )}
               >
-                <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+                <div
+                  className={classNames(
+                    'flex min-h-0 min-w-0 flex-1 flex-col',
+                    isNarrowChart && 'w-full',
+                    isNarrowChart && !fillHeight && 'min-h-[360px]',
+                  )}
+                >
                   {selectedGroupTitle && (
                     <div className="mb-1 flex items-center gap-1">
                       <DatasetIcon className="size-4 shrink-0 text-neutrals-1000" />
@@ -188,14 +213,21 @@ const CustomChartAttachment: FC<Props> = ({
                     </div>
                   )}
                   <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4">
-                    <ResponsiveEChart
-                      option={selectedUnit.config}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        minHeight: 0,
-                      }}
-                    />
+                    <div
+                      className={classNames(
+                        'min-h-0 min-w-0 flex-1',
+                        isNarrowChart && !fillHeight && 'min-h-[280px]',
+                      )}
+                    >
+                      <ResponsiveEChart
+                        option={selectedUnit.config}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          minHeight: 0,
+                        }}
+                      />
+                    </div>
                     {selectedUnit.limitedByRowsAmountTo && (
                       <ChartLimitationInfo
                         limitAmount={selectedUnit.limitedByRowsAmountTo}
@@ -217,6 +249,7 @@ const CustomChartAttachment: FC<Props> = ({
                 </div>
                 <ChartSidebar
                   dimensionsInfo={selectedUnit.dimensions}
+                  isNarrow={isNarrowChart}
                 ></ChartSidebar>
               </div>
             </>
@@ -226,5 +259,3 @@ const CustomChartAttachment: FC<Props> = ({
     </div>
   );
 };
-
-export default CustomChartAttachment;

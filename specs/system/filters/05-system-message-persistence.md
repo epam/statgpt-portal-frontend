@@ -78,13 +78,19 @@ Updates the message list with the freshly built system message:
 
 1. Check if the **last** message has `role === Role.System` — if so, note it as
    the old system message (to be replaced); otherwise the new message is appended
-2. If the old system message exists, scan its attachments for a Python codeblock
-   attachment (`type: 'text/markdown'` with a ` ```python ` fence). If found, carry
-   it forward to the new system message so the Python attachment is not silently
-   lost when the user changes filters.
+2. Collect **all** Python codeblock attachments (`type: 'text/markdown'` with a
+   ` ```python ` fence) to carry onto the new system message
+   (`collectCarriedPythonAttachments`). The per-dataset originals live on the
+   **assistant response**, while subsequent Applies persist updated versions on the
+   system message. The assistant originals form the base set, and the previous system
+   message's Python attachments overlay them — keyed by title, which embeds the dataset
+   urn — so updated versions win and no dataset's sample is silently lost in
+   single-dataset (multi-tab) mode. (Sourcing only from the previous system message
+   would drop every dataset's sample on the first Apply, since the originals are still
+   on the assistant message at that point.)
 3. Slice off the old system message (if any), call `prepareSystemMessage()` to
-   build the new one, re-attach the Python codeblock if one was found, then push
-   the new system message.
+   build the new one, re-attach the carried Python attachments, then push the new
+   system message.
 
 The removal only fires when the last message is already a system message. If the last
 message is a user or assistant message (e.g. after the user sent a follow-up), the
@@ -93,10 +99,11 @@ message is appended. See the Invariants section.
 
 ### When is this called?
 
-Both single-dataset (`Filters.tsx`) and multi-dataset (`MultiDatasetFilters.tsx`)
-filter components call `updateMessagesWithSystemMessage` inside their filter-change
-callbacks, then call `updateConversation()` with the updated message list. This
-triggers an API call that persists the conversation to the backend.
+For both filter modes, the mode's `buildSystemMessage` strategy
+(`use-single-filter-strategy.ts` / `use-multi-filter-strategy.ts`) calls
+`updateMessagesWithSystemMessage`, and the shared `useFilterSystemMessage` hook
+(`use-filter-system-message.ts`) then calls `updateConversation()` with the updated
+message list. This triggers an API call that persists the conversation to the backend.
 
 ---
 

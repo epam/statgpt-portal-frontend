@@ -1,0 +1,35 @@
+:root {
+  --primary: #414fff;
+  --white: #ffffff;
+  --blackout: #090d13b3;
+  --neutrals-1000: #2b2b2d;
+  --neutrals-900: #3f404a;
+  --neutrals-800: #757575;
+  --neutrals-700: #89898b;
+  --neutrals-600: #cfcfcf;
+  --neutrals-500: #dddfe8;
+  --neutrals-400: #e9eef6;
+  --neutrals-300: #f0f4f8;
+  --neutrals-200: #f3f5ff;
+  --neutrals-100: #f3f6fb;
+  --hues-900: #0d2282;
+  --hues-800: #354487;
+  --hues-600: #9da4ff;
+  --hues-400: #b1b7ff;
+  --hues-200: #cbd0ff;
+  --hues-100: #dfe6ff;
+  --accent-700: #0094ff;
+  --accent-300: #90a1ff;
+  --semantic-error: #d6323e;
+  --semantic-error-light: #fbeaec;
+  --semantic-warning: #d4c000;
+  --semantic-warning-light: #fbf9e5;
+  --semantic-success: #00cc6f;
+  --gradients-light: #73e1e5;
+  --gradients-middle: #414fff;
+  --gradients-dark: #6843e9;
+  --white10: #ffffff1a;
+  --neutrals-300-10: #f0f4f81a;
+  --highlight: #bedaff;
+  --loader-image-url: url('/brand-assets/brand1/loader.svg');
+}

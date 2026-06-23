@@ -1,29 +1,29 @@
-@use 'tailwind';
-@use 'scroll';
-@use 'buttons';
-@use 'input';
-@use 'fonts';
-@use 'grid';
-@use 'loader';
-@use 'calendar';
-@use 'attachments-container';
-@use 'dataset-tabs';
-@use 'dataset-tabs-cross-dataset-mode';
-@use 'messages';
-@use 'conversation-list';
-@use 'share';
-@use 'metadata';
-@use 'download';
-@use 'advance-view';
-@use 'alert';
-@use 'chart-attachment';
+@use './tailwind';
+@use './scroll';
+@use './buttons';
+@use './input';
+@use './fonts';
+@use './grid';
+@use './loader';
+@use './calendar';
+@use './attachments-container';
+@use './dataset-tabs';
+@use './dataset-tabs-cross-dataset-mode';
+@use './messages';
+@use './conversation-list';
+@use './share';
+@use './metadata';
+@use './download';
+@use './advance-view';
+@use './alert';
+@use './chart-attachment';
 @use '../../../../libs/ui-components/src/scss/styles-tailwind';
 
 @import 'flatpickr/dist/themes/light.css';
 
 @layer base {
   body {
-    font-family: var(--open-sans);
+    font-family: var(--font-open-sans), Arial, sans-serif;
   }
 }
 

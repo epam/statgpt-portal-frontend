@@ -12,6 +12,8 @@ export const CELL_PADDING_0 = 'padding-0';
 export const DEFAULT_GRID_COLUMN_WITH = 200;
 export const GRID_COLUMN_FLEX = { flex: 1, minWidth: DEFAULT_GRID_COLUMN_WITH };
 export const CHART_COLUMN_WIDTH = GRID_HEADER_HEIGHT;
+export const MOBILE_GRID_COLUMN_WIDTH = 100;
+export const FIXED_GRID_COLUMN_MAX_WIDTH = 64;
 
 export const OBSERVATION_VALUE_CELL_RENDER = 'observationValueCell';
 export const METADATA_CELL_RENDER = 'metadataCell';
@@ -82,6 +84,28 @@ export function getChartColumn(
       action,
     },
   };
+}
+
+export function applyMobileColumnWidth(col: ColDef, isMobile: boolean): ColDef {
+  if (
+    isMobile &&
+    col.cellRenderer !== METADATA_CELL_RENDER &&
+    (typeof col.maxWidth !== 'number' ||
+      col.maxWidth > FIXED_GRID_COLUMN_MAX_WIDTH)
+  ) {
+    return {
+      ...col,
+      width: Math.min(
+        col.width ?? MOBILE_GRID_COLUMN_WIDTH,
+        MOBILE_GRID_COLUMN_WIDTH,
+      ),
+      minWidth: Math.min(
+        col.minWidth ?? MOBILE_GRID_COLUMN_WIDTH,
+        MOBILE_GRID_COLUMN_WIDTH,
+      ),
+    };
+  }
+  return { ...col };
 }
 
 export function getCrossDatasetMetadataColumn(

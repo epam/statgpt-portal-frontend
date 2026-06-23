@@ -4,7 +4,6 @@ import { FC, useMemo, useCallback } from 'react';
 import { ICellRendererParams } from 'ag-grid-community';
 import {
   Data,
-  getLastUpdatedTime,
   getStructureComponentsMap,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
@@ -18,6 +17,7 @@ import { useConversationViewFeatureToggles } from '../../../context/Conversation
 import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
 import { useConversationViewSidePanelOptional } from '../../ConversationView/SidePanel/ConversationViewSidePanelContext';
 import { useAdvancedView } from '../../../context/AdvancedViewContext';
+import { useDatasetDimensionsMetadataMap } from '../../../context/DatasetDimensionsMetadataMapContext';
 import { getDateFormattedValue } from '../../../utils/date-format';
 import { getExternalLinkFromContext } from './helpers/get-external-link-from-context';
 
@@ -36,6 +36,7 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
   const { isOpenedAdvancedView } = useAdvancedView();
   const sidePanel = useConversationViewSidePanelOptional();
   const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
+  const { getDatasetLastUpdated } = useDatasetDimensionsMetadataMap();
 
   const urn: string | undefined = params?.data?.dataset?.urn;
   const externalLink = getExternalLinkFromContext(params?.context, urn);
@@ -47,11 +48,11 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
     const dataflow = structures?.dataflows?.[0];
     if (!dataflow) return undefined;
     const lastUpdatedDate = getDateFormattedValue(
-      getLastUpdatedTime(dataflow),
+      getDatasetLastUpdated(dataflow),
       params.locale,
     );
     return getDatasetInfoData(dataflow, lastUpdatedDate, params.locale, titles);
-  }, [structures, params.locale, titles]);
+  }, [structures, params.locale, titles, getDatasetLastUpdated]);
 
   const metadata = useMemo(
     () =>

@@ -10,6 +10,7 @@ import {
 } from '../../../../utils/attachments/metadata';
 import { ICellRendererParams } from 'ag-grid-community';
 import {
+  Dataflow,
   getLastUpdatedTime,
   getStructureComponentsMap,
   StructuralData,
@@ -33,6 +34,9 @@ export type ObservationMetadataContent = ReturnType<
 export const getObservationMetadataContent = (
   params: ObservationValueCellRendererParams,
   obsAttributes: NonNullable<ReturnType<typeof getObsAttributesFromParams>>,
+  getDatasetLastUpdated: (
+    dataset: Dataflow | null | undefined,
+  ) => string | undefined = getLastUpdatedTime,
 ) => {
   const dataSetData = getDataSetData(params);
   const structureComponentsMap = getStructureComponentsMap(dataSetData);
@@ -73,7 +77,7 @@ export const getObservationMetadataContent = (
     : [];
   const dataset = dataSetData?.dataflows?.[0];
   const lastUpdatedDate = getDateFormattedValue(
-    getLastUpdatedTime(dataset),
+    getDatasetLastUpdated(dataset),
     params?.locale,
   );
   const sidePanelDatasetInfo = getDatasetInfoData(
