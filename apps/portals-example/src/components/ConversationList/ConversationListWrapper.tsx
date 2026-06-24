@@ -166,9 +166,9 @@ const ConversationListWrapper = ({
   }, [isCollapsed, setIsCollapsed]);
 
   useEffect(() => {
-    if (isOpenedAdvancedView) {
+    if (isOpenedAdvancedView || isMobile) {
       setIsCollapsed(true);
-    } else if (!isMobile) {
+    } else {
       setIsCollapsed(false);
     }
   }, [isOpenedAdvancedView, isMobile, setIsCollapsed]);
@@ -178,10 +178,13 @@ const ConversationListWrapper = ({
       if (isOpenedAdvancedView) {
         setIsOpenedAdvancedView(false);
       }
+      if (isMobile) {
+        setIsCollapsed(true);
+      }
       const navPath = getConversationNavPath(folderId, conversationKey);
       router.push(`/${locale}${ApplicationRoute.Conversations}/${navPath}`);
     },
-    [locale, isOpenedAdvancedView, router, setIsOpenedAdvancedView],
+    [locale, isOpenedAdvancedView, isMobile, router, setIsOpenedAdvancedView],
   );
 
   const handleSelectedConversationRemove = useCallback(() => {
