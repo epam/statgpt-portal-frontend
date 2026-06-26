@@ -9,7 +9,7 @@
 import mainPackageJson from '../package.json' with { type: 'json' };
 
 import devkit from '@nx/devkit';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import minimist from 'minimist';
 import path from 'path';
@@ -147,4 +147,4 @@ try {
 }
 
 // Execute "npm publish" to publish
-execSync(`npm publish --access public --tag ${tag} --dry-run ${dry}`);
+execFileSync('npm', ['publish', '--access', 'public', '--tag', tag, '--dry-run', String(dry)]);
