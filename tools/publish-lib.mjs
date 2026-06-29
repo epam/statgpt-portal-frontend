@@ -11,9 +11,9 @@ import mainPackageJson from '../package.json' with { type: 'json' };
 import devkit from '@nx/devkit';
 import { execFileSync } from 'child_process';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import minimist from 'minimist';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { parseArgs } from 'util';
 
 const PREFIX = '@epam/statgpt';
 
@@ -32,11 +32,19 @@ function invariant(condition, message) {
 
 // Executing publish script: node path/to/publish.mjs {name} --version {version} --tag {tag}
 // Default "tag" to "next" so we won't publish the "latest" tag by accident.
-let params = minimist(process.argv);
-let version = params.version;
-const dry = params.dry === 'true';
-const tag = params.tag || 'next';
-const name = params['_'][2];
+const { values, positionals } = parseArgs({
+  args: process.argv.slice(2),
+  options: {
+    version: { type: 'string' },
+    dry: { type: 'string' },
+    tag: { type: 'string' },
+  },
+  allowPositionals: true,
+});
+let version = values.version;
+const dry = values.dry === 'true';
+const tag = values.tag || 'next';
+const name = positionals[0];
 
 console.info(
   `\nPublish run with next values:\nname=${name}\nversion=${version}\ndry=${dry}\ntag=${tag}\n`,
