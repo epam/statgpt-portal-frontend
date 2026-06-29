@@ -25,6 +25,7 @@ function mockApi(
     applyColumnState: jest.fn(),
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
+    isDestroyed: jest.fn(() => false),
     ...overrides,
   } as unknown as GridApi;
 }

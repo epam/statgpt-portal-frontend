@@ -9,6 +9,16 @@ import {
   useIsMobile,
 } from '@epam/statgpt-ui-components';
 import type { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
+import {
+  ModuleRegistry,
+  ClientSideRowModelModule,
+  TooltipModule,
+  ValueCacheModule,
+  ColumnApiModule,
+  CellStyleModule,
+  EventApiModule,
+  RenderApiModule,
+} from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { GridData } from '../../../types/data-grid/grid-data';
 import { getGridHeight } from '../../../utils/attachments/data-grid/grid-height';
@@ -29,6 +39,18 @@ import ChartCellRenderer from '../GridCellRenderers/ChartCellRenderer';
 import MergedDimensionCellRenderer from '../GridCellRenderers/MergedDimensionCellRenderer';
 import DatasetDetailCellRenderer from '../GridCellRenderers/DatasetDetailCellRenderer';
 import GridContainer from './GridContainer';
+
+ModuleRegistry.registerModules([
+  ClientSideRowModelModule,
+  TooltipModule,
+  ValueCacheModule,
+  ColumnApiModule,
+  CellStyleModule,
+  EventApiModule,
+  RenderApiModule,
+]);
+
+const DEFAULT_COL_DEF: ColDef = { cellDataType: false };
 
 interface Props {
   attachment: CrossDatasetGridAttachmentType;
@@ -69,6 +91,7 @@ const CrossDatasetGridAttachment: FC<Props> = ({
         }
         return applyMobileColumnWidth(col, isMobile);
       });
+
       setRowData(attachment.gridContent.data);
       setColumnDefs(columns);
       setIsLoading(false);
@@ -130,6 +153,7 @@ const CrossDatasetGridAttachment: FC<Props> = ({
   const memoizedGrid = useMemo(
     () => (
       <AgGridReact
+        defaultColDef={DEFAULT_COL_DEF}
         headerHeight={GRID_HEADER_HEIGHT}
         rowHeight={GRID_ROW_HEIGHT}
         rowData={rowData}
