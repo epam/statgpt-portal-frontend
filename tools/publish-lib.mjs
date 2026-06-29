@@ -147,4 +147,12 @@ try {
 }
 
 // Execute "npm publish" to publish
-execFileSync('npm', ['publish', '--access', 'public', '--tag', tag, '--dry-run', String(dry)]);
+execFileSync('npm', [
+  'publish',
+  '--access',
+  'public',
+  '--tag',
+  tag,
+  '--dry-run',
+  String(dry),
+]);
