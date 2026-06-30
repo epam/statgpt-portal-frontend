@@ -65,9 +65,14 @@ export { AttachmentRenderer } from './components/Attachments/AttachmentRenderer'
 export { CustomChartAttachment } from './components/Attachments/CustomAttachments/CustomChartAttachment';
 export { CustomDataGridAttachment } from './components/Attachments/CustomAttachments/CustomGridAttachment';
 export { CrossDatasetGridAttachment } from './components/Attachments/CustomAttachments/CrossDatasetGridAttachment';
+export { buildCrossDatasetGridContent } from './utils/attachments/cross-dataset-grid/build-cross-dataset-grid-attachment';
+export { CrossDatasetGridViewMode } from './components/AdvancedView/TableSettings/types';
+export { buildCrossDatasetChartingData } from './utils/attachments/charting/cross-dataset-chart-data';
+export { isChartingDataPlottable } from './utils/attachments/charting/chart-data';
 export type {
   ChartingData,
   ChartUnit,
   ChartUnitGroup,
 } from './models/charting';
 export type { GridData } from './types/data-grid/grid-data';
+export type { CrossDatasetGridAttachmentType } from './models/attachments';

@@ -54,6 +54,25 @@ export function buildCrossDatasetGridAttachment(
   };
 }
 
+/**
+ * Builds the `{ data, columns }` grid content for a cross-dataset grid from
+ * parsed SDMX structures and data messages.
+ *
+ * All map params are keyed by dataset URN; `dataQueries` selects which datasets
+ * to include and in what order. Entries with no matching structure or data
+ * message are skipped.
+ *
+ * @param structuresMap - Parsed structure metadata per dataset URN.
+ * @param dataMessagesMap - Raw SDMX-JSON data message per dataset URN.
+ * @param datasetDimensionsSchemesMap - Dimension-role scheme per URN; drives dimension column grouping (`undefined` entries fall back to degraded labelling).
+ * @param dataQueries - Datasets to render, in order; matched to the maps by `urn`.
+ * @param locale - Locale used to resolve localized names.
+ * @param formattingSettings - Optional number formatting for observation values.
+ * @param chartStyles - Optional styling for the sparkline chart column.
+ * @param titles - Optional column header label overrides.
+ * @param gridViewMode - Dimension display mode; defaults to compact.
+ * @returns AG Grid `columns` and row `data` for `CrossDatasetGridAttachment`.
+ */
 export function buildCrossDatasetGridContent(
   structuresMap: Map<string, StructuralData | undefined>,
   dataMessagesMap: Map<string, DataMessage | null>,
