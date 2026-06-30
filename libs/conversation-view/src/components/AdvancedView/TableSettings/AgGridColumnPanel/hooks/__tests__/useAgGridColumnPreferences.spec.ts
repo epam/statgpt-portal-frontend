@@ -16,6 +16,7 @@ function mockApi(overrides: Partial<Record<string, jest.Mock>> = {}) {
     setColumnGroupState: jest.fn(),
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
+    isDestroyed: jest.fn(() => false),
     ...overrides,
   } as unknown as GridApi;
 }

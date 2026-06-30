@@ -9,6 +9,16 @@ import {
   useIsMobile,
 } from '@epam/statgpt-ui-components';
 import type { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
+import {
+  ModuleRegistry,
+  ClientSideRowModelModule,
+  TooltipModule,
+  ValueCacheModule,
+  ColumnApiModule,
+  CellStyleModule,
+  EventApiModule,
+  RenderApiModule,
+} from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { GridData } from '../../../types/data-grid/grid-data';
 import { getGridHeight } from '../../../utils/attachments/data-grid/grid-height';
@@ -31,6 +41,18 @@ import { OnboardingElements } from '../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../context/OnboardingContext';
 import { OnboardingFileSchema } from '@epam/statgpt-shared-toolkit';
 import GridContainer from './GridContainer';
+
+ModuleRegistry.registerModules([
+  ClientSideRowModelModule,
+  TooltipModule,
+  ValueCacheModule,
+  ColumnApiModule,
+  CellStyleModule,
+  EventApiModule,
+  RenderApiModule,
+]);
+
+const DEFAULT_COL_DEF: ColDef = { cellDataType: false };
 
 interface Props {
   attachment: CustomGridAttachment;
@@ -161,6 +183,7 @@ export const CustomDataGridAttachment: FC<Props> = ({
     () => (
       <AgGridReact
         onGridReady={handleGridReady}
+        defaultColDef={DEFAULT_COL_DEF}
         headerHeight={GRID_HEADER_HEIGHT}
         rowHeight={GRID_ROW_HEIGHT}
         rowData={rowData}

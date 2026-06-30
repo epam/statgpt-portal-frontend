@@ -5,11 +5,27 @@ import { FC, useEffect, useMemo, useState } from 'react';
 import { Loader, SERIES_LIMIT } from '@epam/statgpt-ui-components';
 import { convertToGridData } from '../../../utils/attachments/convert-to-grid-data';
 import type { ColDef } from 'ag-grid-community';
+import {
+  ModuleRegistry,
+  ClientSideRowModelModule,
+  TooltipModule,
+  ColumnAutoSizeModule,
+  CellStyleModule,
+} from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { AttachmentsActions } from '../../../models/actions';
 import { GridData } from '../../../types/data-grid/grid-data';
 import { GRID_HEADER_HEIGHT, GRID_ROW_HEIGHT } from '../../../constants/grid';
 import { getGridHeight } from '../../../utils/attachments/data-grid/grid-height';
+
+ModuleRegistry.registerModules([
+  ClientSideRowModelModule,
+  TooltipModule,
+  ColumnAutoSizeModule,
+  CellStyleModule,
+]);
+
+const DEFAULT_COL_DEF: ColDef = { cellDataType: false };
 
 interface Props {
   attachment: Attachment;
@@ -64,6 +80,7 @@ const GridAttachment: FC<Props> = ({
         rowHeight={GRID_ROW_HEIGHT}
         rowData={rowData}
         columnDefs={columnDefs}
+        defaultColDef={DEFAULT_COL_DEF}
         enableCellTextSelection
         domLayout="normal"
         tooltipShowDelay={0}

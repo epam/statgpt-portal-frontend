@@ -30,6 +30,9 @@ export function useAgGridColumnGridListeners(
     }
 
     return () => {
+      if (api.isDestroyed()) {
+        return;
+      }
       for (const eventName of COLUMN_SYNC_EVENTS) {
         api.removeEventListener(eventName, listener);
       }

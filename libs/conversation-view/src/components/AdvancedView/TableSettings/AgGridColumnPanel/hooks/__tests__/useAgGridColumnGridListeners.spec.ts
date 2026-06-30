@@ -15,6 +15,7 @@ function mockApi() {
   return {
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
+    isDestroyed: jest.fn(() => false),
   } as unknown as GridApi;
 }
 
