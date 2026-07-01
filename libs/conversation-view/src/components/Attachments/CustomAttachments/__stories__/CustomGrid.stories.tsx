@@ -1,11 +1,8 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/react-vite';
-import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import { CustomDataGridAttachment } from '../CustomGridAttachment';
 import { CustomGridAttachment } from '../../../../models/attachments';
 import { ConversationViewStylesProvider } from '../../../../context/ConversationViewStylesContext';
 import { OnboardingProvider } from '../../../../context/OnboardingContext';
-
-ModuleRegistry.registerModules([AllCommunityModule]);
 
 const withProviders: Decorator = (Story) => (
   <ConversationViewStylesProvider>

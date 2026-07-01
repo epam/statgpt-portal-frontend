@@ -32,7 +32,7 @@ import AttachmentDetails from './AttachmentDetails/AttachmentDetails';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
 import AttachmentCollapsed from './AttachmentCollapsed';
 import { AttachmentsActions } from '../../models/actions';
-import { AllCommunityModule, GridApi, ModuleRegistry } from 'ag-grid-community';
+import type { GridApi } from 'ag-grid-community';
 import DownloadSettings from '@statgpt/download-panel/src/components/DownloadSettings/DownloadSettings';
 import { DownloadDatasetItem } from '@statgpt/download-panel/src/models/download-dataset-item';
 import { useConversationViewStyles } from '../../context/ConversationViewStylesContext';
@@ -45,7 +45,6 @@ import { DownloadAlert } from './DownloadAlert/DownloadAlert';
 import { useAttachmentDownloadFlow } from './useAttachmentDownloadFlow';
 import { mergeClasses } from '../../utils/mergeClasses';
 
-ModuleRegistry.registerModules([AllCommunityModule]);
 interface Props {
   attachments: (
     | Attachment
