@@ -30,6 +30,20 @@ export function createCrossDatasetChartingDataResolver(
   };
 }
 
+/**
+ * Builds `ChartingData` for a cross-dataset chart from parsed SDMX structures
+ * and data messages, producing one chart group per dataset.
+ *
+ * All map params are keyed by dataset URN; `dataQueries` selects which datasets
+ * to include and in what order.
+ *
+ * @param structuresMap - Parsed structure metadata per dataset URN.
+ * @param dataMessagesMap - Raw SDMX-JSON data message per dataset URN.
+ * @param dataQueries - Datasets to render, in order; matched to the maps by `urn`.
+ * @param locale - Locale used to resolve localized names.
+ * @param chartStyles - Optional chart styling.
+ * @returns Charting data for `CustomChartAttachment`.
+ */
 export function buildCrossDatasetChartingData(
   structuresMap: Map<string, StructuralData | undefined>,
   dataMessagesMap: Map<string, DataMessage | null>,
