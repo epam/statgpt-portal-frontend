@@ -43,6 +43,7 @@ export type { ConversationViewStyles } from './context/ConversationViewStylesCon
 
 export {
   ConversationViewSidePanelProvider,
+  ConversationViewSidePanelOutlet,
   useConversationViewSidePanelOptional,
 } from './components/ConversationView/SidePanel/ConversationViewSidePanelContext';
 export type {
