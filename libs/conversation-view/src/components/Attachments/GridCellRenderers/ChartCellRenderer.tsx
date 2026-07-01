@@ -1,3 +1,5 @@
+'use client';
+
 import SingleLineChart from '../SingleLineChart';
 import { MetadataSettings } from '../../../models/metadata';
 import { Data, StructuralData } from '@epam/statgpt-sdmx-toolkit';
