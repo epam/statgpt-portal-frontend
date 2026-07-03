@@ -2,6 +2,7 @@
 
 import { CrossDatasetGridAttachmentType } from '../../../models/attachments';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import classNames from 'classnames';
 import {
   Loader,
   MOBILE_BREAKPOINT,
@@ -172,7 +173,26 @@ const CrossDatasetGridAttachment: FC<Props> = ({
   );
 
   if (isLoading || isDataLoading) {
-    return <Loader />;
+    // Reserve the grid box height while loading. The height class must sit
+    // inside a flex-column so `min-height` is a main-axis size and reserves
+    // space; as a direct flex-row child of the content renderer it would be a
+    // cross-axis size and overflow, collapsing the attachment.
+    return (
+      <div className="size-full">
+        <div className="flex size-full flex-col">
+          <div
+            className={classNames(
+              'flex items-center justify-center',
+              fixHeight
+                ? 'h-full max-h-[400px] min-h-[400px]'
+                : 'h-full min-h-[300px]',
+            )}
+          >
+            <Loader />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

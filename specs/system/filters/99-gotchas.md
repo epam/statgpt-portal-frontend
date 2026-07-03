@@ -1,6 +1,6 @@
 # Gotchas
 
-This document is for developers who have already read specs 01–10 and are about to
+This document is for developers who have already read specs 01–11 and are about to
 touch the filter system. Everything here is either absent from the other specs or
 only briefly mentioned. If a behavior is fully explained elsewhere, it is not
 repeated here.
@@ -221,3 +221,35 @@ The practical effect: if a user opens a conversation, sets filters, then changes
 filters back to a previous combination, the constraint response from the first visit
 is returned instantly from cache. A browser refresh is the only way to force fresh
 constraint data.
+
+---
+
+## `min-height` only reserves space on the flex main axis
+
+An attachment's loading placeholder (`CustomChartAttachment`, `CustomGridAttachment`,
+`CrossDatasetGridAttachment`) reserves its box height with a `min-h-[400px]`-style class
+so the attachment does not collapse while the view builds. That class **only reserves
+layout space when the element is a flex-column item** (main axis). The content is rendered
+inside `AttachmentsContentRenderer`'s root, which is a flex **row** — so a placeholder
+placed there directly gets `min-height` interpreted as a **cross-axis** size: when the
+row's height is constrained the element **overflows instead of pushing the layout**, and
+the attachment collapses anyway.
+
+The fix (and the reason the rendered chart never had this problem) is to nest the
+reserved-height element inside a flex column:
+
+```tsx
+<div className="size-full">
+  <div className="flex size-full flex-col">     {/* main axis is vertical */}
+    <div className={classNames('flex items-center justify-center', heightClass)}>
+      <Loader />
+    </div>
+  </div>
+</div>
+```
+
+The rendered chart's `chart-area` (`min-h-[400px]`) already lives inside
+`flex size-full flex-col`, which is why it holds height while a flat loader collapsed.
+Symptom before the fix: switching a tab (e.g. Code samples → Chart) collapses the
+attachment during the async chart build, shrinking the document and jumping the
+conversation up. See `11-attachment-view-switching.md`.

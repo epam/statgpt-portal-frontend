@@ -73,6 +73,11 @@ deferring the build past the current render. `charting_data` (the pre-built form
 used when chart data arrives serialized from the backend; `getChartingData` is used
 for the live in-session path.
 
+While the build runs, `CustomChartAttachment` renders a height-reserving `<Loader/>`
+placeholder so the attachment does not collapse and jump the conversation. See
+`11-attachment-view-switching.md` for the placeholder structure and the scroll-position
+lock applied when switching tabs.
+
 `createCrossDatasetChartingDataResolver()` follows the same closure pattern for the
 multi-dataset case.
 
