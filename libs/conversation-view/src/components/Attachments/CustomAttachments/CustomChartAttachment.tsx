@@ -171,7 +171,26 @@ export const CustomChartAttachment: FC<Props> = ({
   })();
 
   if (isLoading || isDataLoading) {
-    return <Loader />;
+    // Reserve the chart box height while it builds asynchronously. The height
+    // class must sit inside a flex-column (same structure as the rendered chart
+    // below) so `min-height` is a main-axis size and actually reserves space.
+    // As a direct flex-row child of the content renderer it would instead be a
+    // cross-axis size and overflow, collapsing the attachment and jumping the
+    // conversation.
+    return (
+      <div className="chart-attachment size-full">
+        <div className="flex size-full flex-col gap-4">
+          <div
+            className={classNames(
+              'flex items-center justify-center',
+              chartHeightClass,
+            )}
+          >
+            <Loader />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -26,7 +26,7 @@ import {
   CustomChartAttachmentType,
   CustomGridAttachment,
 } from '../../models/attachments';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import AttachmentDetails from './AttachmentDetails/AttachmentDetails';
 import { useAdvancedView } from '../../context/AdvancedViewContext';
@@ -43,6 +43,7 @@ import AttachmentsViewModePanel from './AttachmentsViewModePanel';
 import AttachmentsContentRenderer from './AttachmentsContentRenderer';
 import { DownloadAlert } from './DownloadAlert/DownloadAlert';
 import { useAttachmentDownloadFlow } from './useAttachmentDownloadFlow';
+import { useViewModeScrollAnchor } from './useViewModeScrollAnchor';
 import { mergeClasses } from '../../utils/mergeClasses';
 
 interface Props {
@@ -117,6 +118,14 @@ export const AttachmentRenderer: FC<Props> = ({
   const [showLimitMessage, setShowLimitMessage] = useState(false);
   const downloadType = DownloadTypeOptions.DATA_IN_TABLE;
 
+  // Lock the scroll position across a visualization switch so the conversation
+  // content and the tabs/buttons row stay fixed on screen (see hook docs).
+  const contentColumnRef = useRef<HTMLDivElement>(null);
+  const { captureAnchor } = useViewModeScrollAnchor(
+    contentColumnRef,
+    !isOpenedAdvancedView,
+  );
+
   const enabledDatasets = useMemo(() => {
     if (!isCrossDatasetModeOn || !dataQueries?.some((q) => q.disabled)) {
       return datasets;
@@ -135,6 +144,7 @@ export const AttachmentRenderer: FC<Props> = ({
   }, [datasets, dataQueries, isCrossDatasetModeOn]);
 
   const selectAttachment = (index: number) => {
+    captureAnchor();
     setSelectedAttachmentIndex(index);
   };
 
@@ -316,7 +326,10 @@ export const AttachmentRenderer: FC<Props> = ({
                   'attachments-wrapper h-full min-h-0',
                 )}
               >
-                <div className="flex h-full max-w-full flex-col items-center gap-4">
+                <div
+                  ref={contentColumnRef}
+                  className="flex h-full max-w-full flex-col items-center gap-4"
+                >
                   <AttachmentsViewModePanel
                     attachments={attachments}
                     selectedAttachmentIndex={selectedAttachmentIndex}
