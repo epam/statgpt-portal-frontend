@@ -11,6 +11,8 @@ All logic lives in:
 - `libs/conversation-view/src/utils/query-filters.ts` (`buildDataQueryWithMergedFilters`)
 - `libs/conversation-view/src/context/AttachmentsData.tsx` (single-dataset trigger)
 - `libs/conversation-view/src/context/AttachmentsDataMultipleQueries.tsx` (multi-dataset trigger)
+- `apps/portals-example/src/app/api/python-attachment/route.ts` (server route, retry)
+- `libs/shared-toolkit/src/utils/retry-with-backoff.ts` (generic retry utility)
 
 ---
 
@@ -83,6 +85,26 @@ third argument controlling how UI filters are resolved to the dataset:
    `onCodeAttachmentUpdated()` callback delivers the markdown attachment to
    `ConversationView`, which calls `replacePythonAttachment()` to write it into the
    message list and then `updateConversation()` to persist to the backend.
+
+---
+
+## Server-Side Retry
+
+`getPythonAttachment(dataQueries)` calls the Next.js route at
+`apps/portals-example/src/app/api/python-attachment/route.ts`, which proxies to a
+backend endpoint that intermittently fails with a transient error. The route wraps
+the proxied call with `retryWithBackoff` (`@epam/statgpt-shared-toolkit`,
+`libs/shared-toolkit/src/utils/retry-with-backoff.ts`): up to 2 retries, exponential
+backoff starting at 300ms, retrying unconditionally on any thrown error (safe here
+because the call has no side effects). Each retried attempt is logged via
+`apiLogger.warn`; a fully exhausted failure still surfaces through the existing
+`createErrorResponse` path as an `error` log and an error response.
+
+This retry is entirely server-side — the browser sends one request to
+`/api/python-attachment` and receives one (possibly delayed) response. It is
+transparent to `invokePythonAttachment` and the stale-request protection below,
+which is unaffected: a delayed response from a superseded request is discarded the
+same way regardless of whether the delay came from retries or normal latency.
 
 ---
 
