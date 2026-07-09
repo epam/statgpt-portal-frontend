@@ -5,11 +5,16 @@ import {
   DEFAULT_TICK_COLOR,
 } from '../../../constants/charting-default-colors';
 import { ChartingTooltipFormatterParams } from '../../../models/charting';
+import {
+  defaultFormatNumbers,
+  formatNumberBySign,
+} from '@epam/statgpt-shared-toolkit';
 
 export function buildChartConfig(
   timePeriods: string[],
   series: Record<string, string | unknown>[],
   styles?: ChartingStyles,
+  formattingSettings = defaultFormatNumbers,
 ): EChartsOption {
   const config: EChartsOption = {
     animation: false,
@@ -21,8 +26,21 @@ export function buildChartConfig(
 
         params.forEach((item: ChartingTooltipFormatterParams) => {
           if (item.value !== null && item.value !== undefined) {
+            const isNumeric =
+              typeof item.value === 'number' ||
+              (typeof item.value === 'string' &&
+                item.value.trim() !== '' &&
+                !Number.isNaN(Number(item.value)));
+            const displayValue = isNumeric
+              ? formatNumberBySign(String(item.value), formattingSettings)
+              : item.value;
             result +=
-              item.marker + ' ' + item.seriesName + ': ' + item.value + '<br/>';
+              item.marker +
+              ' ' +
+              item.seriesName +
+              ': ' +
+              displayValue +
+              '<br/>';
           }
         });
         return result;

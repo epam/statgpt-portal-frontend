@@ -7,7 +7,7 @@ import {
   StructuralData,
   TimeSeries,
 } from '@epam/statgpt-sdmx-toolkit';
-import { DataQuery } from '@epam/statgpt-shared-toolkit';
+import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 
 import { getConvertedData } from './get-converted-data';
 import { GridData } from '../../../types/data-grid/grid-data';
@@ -26,6 +26,7 @@ export function getRowsData(
   locale: string,
   chartStyles?: ChartingStyles,
   options: GetRowsDataOptions = {},
+  formattingSettings?: FormatNumbersType,
 ): GridData[] {
   const timeSeries: TimeSeries[] = data == null ? [] : getParsedResponse(data);
   const dimensions = getDimensions(structures)?.dimensions || [];
@@ -43,6 +44,7 @@ export function getRowsData(
     dataQuery,
     locale,
     chartStyles,
+    formattingSettings,
   );
 }
 
@@ -53,6 +55,7 @@ function extendDataWithChart(
   dataQuery: DataQuery | undefined,
   locale: string,
   chartStyles?: ChartingStyles,
+  formattingSettings?: FormatNumbersType,
 ): GridData[] {
   const timePeriods = getTimePeriods(data);
   const sortedTimePeriods = timePeriods.sort((a, b) => sortPeriods(a, b));
@@ -67,6 +70,7 @@ function extendDataWithChart(
           dataQuery,
           locale,
           chartStyles,
+          formattingSettings,
         ),
     };
   });

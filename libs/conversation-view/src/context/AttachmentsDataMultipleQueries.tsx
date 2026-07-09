@@ -413,6 +413,7 @@ export function useAttachmentsDataMultipleQueries(
         visibleDataQueries,
         locale,
         chartStyles,
+        formattingSettings,
       );
       setCrossDatasetChartAttachment((prev) => ({
         ...prev,
@@ -438,6 +439,7 @@ export function useAttachmentsDataMultipleQueries(
     compatibleDataQueries,
     locale,
     chartStyles,
+    formattingSettings,
     isLoadingGridData,
     activeDatasetUrns,
   ]);
