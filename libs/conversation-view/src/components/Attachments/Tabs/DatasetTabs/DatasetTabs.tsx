@@ -3,8 +3,6 @@
 import { Dataflow } from '@epam/statgpt-sdmx-toolkit';
 import { FC } from 'react';
 import DatasetTabsDefaultMode from './DatasetTabsDefaultMode';
-import DatasetTabsCrossMode from './DatasetTabsCrossMode';
-import { useConversationViewFeatureToggles } from '../../../../context/ConversationViewFeatureTogglesContext';
 
 export interface DatasetTabsProps {
   datasets?: Dataflow[];
@@ -19,11 +17,6 @@ const DatasetTabs: FC<DatasetTabsProps> = ({
   initialSelectedDatasetUrn,
   selectDataset,
 }) => {
-  const { isCrossDatasetModeOn } = useConversationViewFeatureToggles();
-  if (isCrossDatasetModeOn) {
-    return <DatasetTabsCrossMode datasets={datasets} locale={locale} />;
-  }
-
   return (
     <DatasetTabsDefaultMode
       datasets={datasets}
