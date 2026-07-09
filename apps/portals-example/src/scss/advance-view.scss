@@ -6,6 +6,14 @@
     svg {
       @apply text-primary;
     }
+
+    &:disabled {
+      @apply border-neutrals-800;
+
+      svg {
+        @apply text-neutrals-800;
+      }
+    }
   }
 
   &-button-divider {

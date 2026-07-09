@@ -43,6 +43,7 @@ interface Props {
   onOpenAdvancedView?: () => void;
   isTableSettingsOpen?: boolean;
   onTableSettingsOpen?: () => void;
+  disabled?: boolean;
 }
 
 const AttachmentsViewModePanel: FC<Props> = ({
@@ -60,6 +61,7 @@ const AttachmentsViewModePanel: FC<Props> = ({
   onOpenAdvancedView,
   isTableSettingsOpen,
   onTableSettingsOpen,
+  disabled,
 }) => {
   const { isTableSettingsFeatureEnabled } = useConversationViewFeatureToggles();
   const { isOpenedAdvancedView } = useAdvancedView();
@@ -159,6 +161,7 @@ const AttachmentsViewModePanel: FC<Props> = ({
             )}
             onClick={onDownloadClick}
             iconBefore={downloadIcon}
+            disabled={disabled}
           />
         )}
         {shouldShowDownloadButton && shouldShowAdvancedViewButton && (
@@ -172,12 +175,13 @@ const AttachmentsViewModePanel: FC<Props> = ({
               textClassName="ml-1 h4 md:hidden"
               iconBefore={attachmentsStyles?.openAdvancedViewIcon}
               onClick={onOpenAdvancedView}
+              disabled={disabled}
             />
           </div>
         )}
         {shouldShowColumnsButton && (
           <Button
-            disabled={isTableSettingsOpen}
+            disabled={isTableSettingsOpen || disabled}
             buttonClassName="text-button-tertiary !p-0 !h-6"
             textClassName="ml-1 h4"
             iconBefore={
@@ -211,6 +215,7 @@ const AttachmentsViewModePanel: FC<Props> = ({
           description={tooltipDescription}
           onReferenceClick={onOpenAdvancedView}
           shouldCloseTooltip={isOpenedAdvancedView}
+          disabled={disabled}
         />
       )}
     </div>

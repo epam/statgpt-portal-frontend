@@ -62,6 +62,7 @@ interface Props {
   externalLinksMap?: Map<string, string>;
   showLimitMessage?: (p: boolean) => void;
   onApiReady?: (api: GridApi) => void;
+  onGridRenderedChange?: (isRendered: boolean) => void;
 }
 
 const CrossDatasetGridAttachment: FC<Props> = ({
@@ -73,8 +74,10 @@ const CrossDatasetGridAttachment: FC<Props> = ({
   externalLinksMap,
   showLimitMessage,
   onApiReady,
+  onGridRenderedChange,
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isGridRendered, setIsGridRendered] = useState<boolean>(false);
   const [rowData, setRowData] = useState<GridData[]>([]);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>();
   const [gridHeight, setGridHeight] = useState<number>(400);
@@ -83,8 +86,13 @@ const CrossDatasetGridAttachment: FC<Props> = ({
   const prevColIdsRef = useRef<string[]>([]);
 
   useEffect(() => {
+    onGridRenderedChange?.(isGridRendered);
+  }, [isGridRendered, onGridRenderedChange]);
+
+  useEffect(() => {
     if (attachment.gridContent == null) {
       setIsLoading(true);
+      setIsGridRendered(false);
     } else {
       const columns = attachment.gridContent.columns.map((col) => {
         if (col.colId === CHART_COLUMN_ID) {
@@ -135,6 +143,10 @@ const CrossDatasetGridAttachment: FC<Props> = ({
     [onApiReady],
   );
 
+  const handleFirstDataRendered = useCallback(() => {
+    setIsGridRendered(true);
+  }, []);
+
   const gridContext = useMemo(
     () => ({ externalLink, externalLinksMap }),
     [externalLink, externalLinksMap],
@@ -167,9 +179,17 @@ const CrossDatasetGridAttachment: FC<Props> = ({
         components={gridComponents}
         valueCache
         onGridReady={handleGridReady}
+        onFirstDataRendered={handleFirstDataRendered}
       />
     ),
-    [rowData, columnDefs, gridContext, gridComponents, handleGridReady],
+    [
+      rowData,
+      columnDefs,
+      gridContext,
+      gridComponents,
+      handleGridReady,
+      handleFirstDataRendered,
+    ],
   );
 
   if (isLoading || isDataLoading) {

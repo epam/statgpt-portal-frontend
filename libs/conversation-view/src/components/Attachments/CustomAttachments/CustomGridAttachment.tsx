@@ -64,6 +64,7 @@ interface Props {
   externalLink?: string;
   showLimitMessage?: (p: boolean) => void;
   onApiReady?: (api: GridApi) => void;
+  onGridRenderedChange?: (isRendered: boolean) => void;
 }
 
 export const CustomDataGridAttachment: FC<Props> = ({
@@ -75,9 +76,11 @@ export const CustomDataGridAttachment: FC<Props> = ({
   externalLink,
   showLimitMessage,
   onApiReady,
+  onGridRenderedChange,
 }) => {
   const { titles } = useConversationViewStyles();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isGridRendered, setIsGridRendered] = useState<boolean>(false);
   const [rowData, setRowData] = useState<GridData[]>([]);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>();
   const [gridHeight, setGridHeight] = useState<number>(400);
@@ -91,8 +94,13 @@ export const CustomDataGridAttachment: FC<Props> = ({
     useOnboarding();
 
   useEffect(() => {
+    onGridRenderedChange?.(isGridRendered);
+  }, [isGridRendered, onGridRenderedChange]);
+
+  useEffect(() => {
     if (attachment.grid_data == null) {
       setIsLoading(true);
+      setIsGridRendered(false);
     } else {
       const columns = attachment.grid_data.columns.map((col) => {
         if (col.colId === CHART_COLUMN_ID) {
@@ -170,6 +178,10 @@ export const CustomDataGridAttachment: FC<Props> = ({
     [onApiReady],
   );
 
+  const handleFirstDataRendered = useCallback(() => {
+    setIsGridRendered(true);
+  }, []);
+
   const gridContext = useMemo(() => ({ externalLink }), [externalLink]);
   const gridComponents = useMemo(
     () => ({
@@ -196,9 +208,17 @@ export const CustomDataGridAttachment: FC<Props> = ({
         tooltipShowMode="whenTruncated"
         components={gridComponents}
         valueCache
+        onFirstDataRendered={handleFirstDataRendered}
       />
     ),
-    [rowData, columnDefs, handleGridReady, gridContext, gridComponents],
+    [
+      rowData,
+      columnDefs,
+      handleGridReady,
+      handleFirstDataRendered,
+      gridContext,
+      gridComponents,
+    ],
   );
 
   if (isLoading || isDataLoading) {
