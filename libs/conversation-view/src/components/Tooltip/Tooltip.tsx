@@ -26,6 +26,7 @@ interface Props {
   shouldCloseTooltip?: boolean;
   shouldMoveToNextStep?: boolean;
   supressReferenceClick?: boolean;
+  disabled?: boolean;
 }
 
 export const Tooltip: FC<Props> = ({
@@ -36,6 +37,7 @@ export const Tooltip: FC<Props> = ({
   shouldCloseTooltip,
   shouldMoveToNextStep,
   supressReferenceClick,
+  disabled,
 }) => {
   const [open, setOpen] = useState<boolean>(true);
   const [isClosed, setIsClosed] = useState(false);
@@ -96,6 +98,8 @@ export const Tooltip: FC<Props> = ({
   }, [shouldCloseTooltip, close, isClosed]);
 
   const onOverlayItemClick = () => {
+    if (disabled) return;
+
     if (onReferenceClick) {
       onReferenceClick?.();
 

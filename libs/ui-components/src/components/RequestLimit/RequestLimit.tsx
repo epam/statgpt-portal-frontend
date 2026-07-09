@@ -27,6 +27,7 @@ interface Props {
   isDownload?: boolean;
   showAdvancedViewButton?: boolean;
   onAdvancedViewClick?: () => void;
+  advancedViewDisabled?: boolean;
   query?: string;
 }
 
@@ -35,6 +36,7 @@ export const RequestLimitMessage: FC<Props> = ({
   isDownload,
   showAdvancedViewButton,
   onAdvancedViewClick,
+  advancedViewDisabled,
   query,
 }) => {
   return (
@@ -82,8 +84,17 @@ export const RequestLimitMessage: FC<Props> = ({
 
       {showAdvancedViewButton && (
         <span
-          onClick={() => onAdvancedViewClick?.()}
-          className="h4 flex cursor-pointer items-center gap-x-[4px] text-primary"
+          onClick={() => {
+            if (advancedViewDisabled) return;
+            onAdvancedViewClick?.();
+          }}
+          aria-disabled={advancedViewDisabled}
+          className={classNames(
+            'h4 flex items-center gap-x-[4px] text-primary',
+            advancedViewDisabled
+              ? 'cursor-not-allowed opacity-50'
+              : 'cursor-pointer',
+          )}
         >
           {limitMessages?.editIcon}
           {limitMessages?.refineInAdvancedView}

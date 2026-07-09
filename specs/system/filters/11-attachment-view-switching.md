@@ -16,6 +16,8 @@ Key files:
 - `libs/conversation-view/src/components/Attachments/CustomAttachments/CustomGridAttachment.tsx`
 - `libs/conversation-view/src/components/Attachments/CustomAttachments/CrossDatasetGridAttachment.tsx`
 - `libs/conversation-view/src/components/Attachments/CustomAttachments/GridContainer.tsx`
+- `libs/conversation-view/src/components/Tooltip/Tooltip.tsx`
+- `libs/ui-components/src/components/RequestLimit/RequestLimit.tsx`
 
 ---
 
@@ -117,6 +119,108 @@ reason. See `99-gotchas.md` → "min-height only reserves space on the flex main
 
 ---
 
+## Action-Readiness Gating (Download / Advanced View / Table Settings)
+
+`isDataLoading`/`isLoading` (above) only cover the **upstream** fetch — for
+`CrossDatasetGridAttachment` and `CustomGridAttachment` that means the SDMX data (and,
+in cross-dataset mode, the merge step) arriving. Once that flips to `false`, AG Grid still
+has to do its own first paint of the row model, which is not instantaneous for a large
+grid. Without a separate signal for that, `AttachmentsViewModePanel`'s Download/Advanced
+View buttons — and every other UI entry point that opens Advanced View or Table Settings —
+were clickable during that gap.
+
+### The `isGridRendered` signal
+
+Both grid attachments track a second, local `isGridRendered` boolean, distinct from
+`isLoading`:
+
+```tsx
+// CustomGridAttachment.tsx / CrossDatasetGridAttachment.tsx
+const [isGridRendered, setIsGridRendered] = useState(false);
+
+useEffect(() => {
+  if (attachment.grid_data /* or gridContent */ == null) {
+    setIsLoading(true);
+    setIsGridRendered(false);   // reset alongside isLoading
+  } else {
+    ...
+    setIsLoading(false);
+  }
+}, [...]);
+
+const handleFirstDataRendered = useCallback(() => setIsGridRendered(true), []);
+// <AgGridReact ... onFirstDataRendered={handleFirstDataRendered} />
+```
+
+`isGridRendered` is only ever cleared in the same branch that sets `isLoading = true`,
+which forces the `isLoading || isDataLoading` early return — unmounting `AgGridReact`
+entirely. Because of that coupling, every loading cycle necessarily remounts a fresh
+`AgGridReact` instance, so `onFirstDataRendered` (which AG Grid only fires once per
+instance) reliably refires on each cycle rather than staying permanently `false`.
+
+### Propagation to the toolbar
+
+`isGridRendered` bubbles up via an `onGridRenderedChange` callback prop:
+
+```
+CrossDatasetGridAttachment / CustomGridAttachment
+  → onGridRenderedChange
+    → AttachmentsContentRenderer (passthrough)
+      → AttachmentRenderer: setIsGridRendered(...)
+```
+
+`AttachmentRenderer` combines it with `isDataLoading` and the selected attachment's type:
+
+```tsx
+const isGridTypeAttachmentSelected =
+  !!selectedAttachment &&
+  (isCustomGridAttachment(selectedAttachment) || isCrossDatasetGrid(selectedAttachment));
+
+const areActionsDisabled =
+  !!isDataLoading || (isGridTypeAttachmentSelected && !isGridRendered);
+```
+
+`areActionsDisabled` is passed to `AttachmentsViewModePanel` as `disabled`, which sets the
+native `disabled` attribute (not just a style) on the Download, Advanced View, and Table
+Settings buttons — the buttons stay mounted throughout, so there is no additional
+mount/unmount jump beyond the existing loading placeholder.
+
+### Other entry points into the same actions
+
+Two other UI elements call the same "open Advanced View" handler outside
+`AttachmentsViewModePanel`'s own button, and both needed the same gate wired in
+separately:
+
+- **`RequestLimitMessage`**'s "refine in advanced view" text link (rendered directly by
+  `AttachmentRenderer`, not by `AttachmentsViewModePanel`) takes an `advancedViewDisabled`
+  prop, fed the same `areActionsDisabled`. It no-ops the click and dims the link
+  (`cursor-not-allowed opacity-50`) instead of leaving it fully interactive-looking.
+- **`Tooltip`**'s onboarding overlay (`FloatingPortal`-rendered click-catcher shown over the
+  highlighted Advanced View button during the onboarding walkthrough) calls
+  `onReferenceClick` directly, bypassing the button's own `disabled` attribute since it
+  isn't clicking the button. `Tooltip` takes a `disabled` prop that short-circuits
+  `onOverlayItemClick` before it fires `onReferenceClick`; the tooltip's own close (✕)
+  button is unaffected, so onboarding isn't stuck if the grid is slow to render.
+
+### Known limitation — single grid per message
+
+`isGridRendered` is only reset when `attachment.gridContent`/`grid_data` transitions
+through `null` (a real loading dip). If a message ever renders **two** grid-type
+attachments and the user switches from one to another whose data is already resolved (no
+loading dip in between — e.g. served from a shared cache), `AgGridReact` never
+unmounts/remounts for that switch, so `onFirstDataRendered` won't refire and
+`isGridRendered` carries over stale from the previous attachment. The toolbar would read
+"ready" slightly before AG Grid finishes applying the new attachment's `rowData`.
+
+This is not reachable today — a message renders at most one grid-type attachment (the
+rest are Chart/Code sample/etc.), so there is never a second grid attachment to switch to.
+If that assumption changes (e.g. multiple grids per message), this reset logic needs to
+key off attachment identity rather than `gridContent == null`, and likely switch the
+readiness signal to `onModelUpdated` (which fires on every row-model change, not just the
+first paint) since the grid instance would no longer remount on every switch.
+
+---
+
 ## Scroll-Position Lock
 
 Even with no collapse, switching between views of different heights (e.g. a short grid → a
@@ -192,3 +296,11 @@ the at-the-bottom + shorter case.
 - Tab switching is local state in `AttachmentRenderer`; it must not trigger a
   `messages`/`isStreaming` change, or `ChatMessages`' `scrollToBottom` effect would fire and
   override the lock.
+- `isGridRendered` must only be cleared in the same branch that sets `isLoading = true`
+  (attachment's grid content going `null`). Clearing it anywhere else without also forcing
+  `AgGridReact` to unmount/remount would leave no path back to `true`, since
+  `onFirstDataRendered` only fires once per grid instance.
+- Any new entry point that opens Advanced View or Table Settings from outside
+  `AttachmentsViewModePanel` must be wired to the same `areActionsDisabled`/`disabled` gate
+  — `RequestLimitMessage`'s link and the onboarding `Tooltip` overlay both needed this after
+  the gate was introduced; a bypass there defeats the button-level gating entirely.

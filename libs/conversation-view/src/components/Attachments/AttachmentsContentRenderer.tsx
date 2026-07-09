@@ -35,6 +35,7 @@ interface Props {
   onOpenAdvancedView?: () => void;
   showLimitMessage: (p: boolean) => void;
   onGridApiReady?: (api: GridApi) => void;
+  onGridRenderedChange?: (isRendered: boolean) => void;
 }
 
 const AttachmentsContentRenderer: FC<Props> = ({
@@ -48,6 +49,7 @@ const AttachmentsContentRenderer: FC<Props> = ({
   onOpenAdvancedView,
   showLimitMessage,
   onGridApiReady,
+  onGridRenderedChange,
 }) => {
   return (
     <div className="flex min-h-0 w-full flex-1 justify-center">
@@ -73,6 +75,7 @@ const AttachmentsContentRenderer: FC<Props> = ({
           fixHeight={!isOpenedAdvancedView}
           showLimitMessage={showLimitMessage}
           onApiReady={onGridApiReady}
+          onGridRenderedChange={onGridRenderedChange}
           externalLink={externalLink}
         />
       )}
@@ -84,6 +87,7 @@ const AttachmentsContentRenderer: FC<Props> = ({
           fixHeight={!isOpenedAdvancedView}
           showLimitMessage={showLimitMessage}
           onApiReady={onGridApiReady}
+          onGridRenderedChange={onGridRenderedChange}
           externalLink={externalLink}
           externalLinksMap={externalLinksMap}
         />

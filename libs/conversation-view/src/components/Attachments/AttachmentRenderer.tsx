@@ -116,6 +116,7 @@ export const AttachmentRenderer: FC<Props> = ({
   const [modalState, setModalState] = useState(PopUpState.Closed);
   const [showLoading, setShowLoading] = useState<boolean>(false);
   const [showLimitMessage, setShowLimitMessage] = useState(false);
+  const [isGridRendered, setIsGridRendered] = useState(false);
   const downloadType = DownloadTypeOptions.DATA_IN_TABLE;
 
   // Lock the scroll position across a visualization switch so the conversation
@@ -165,6 +166,14 @@ export const AttachmentRenderer: FC<Props> = ({
 
   const selectedAttachment = attachments[selectedAttachmentIndex] || null;
 
+  const isGridTypeAttachmentSelected =
+    !!selectedAttachment &&
+    (isCustomGridAttachment(selectedAttachment) ||
+      isCrossDatasetGrid(selectedAttachment));
+
+  const areActionsDisabled =
+    !!isDataLoading || (isGridTypeAttachmentSelected && !isGridRendered);
+
   useEffect(() => {
     setShowLoading(
       isDataSetAttachments && (datasets == null || datasets?.length == 0),
@@ -185,6 +194,10 @@ export const AttachmentRenderer: FC<Props> = ({
   const onCloseModal = useCallback(() => {
     setModalState(PopUpState.Closed);
   }, [setModalState]);
+
+  const handleGridRenderedChange = useCallback((isRendered: boolean) => {
+    setIsGridRendered(isRendered);
+  }, []);
 
   const isExternalLinkIncludeFilters =
     attachmentsConfig?.isExternaLinkIncludeFilters;
@@ -315,6 +328,7 @@ export const AttachmentRenderer: FC<Props> = ({
                     showAdvancedView
                   }
                   onAdvancedViewClick={onOpenAdvancedView}
+                  advancedViewDisabled={areActionsDisabled}
                   query={externalLink}
                 />
               )}
@@ -345,6 +359,7 @@ export const AttachmentRenderer: FC<Props> = ({
                     onOpenAdvancedView={onOpenAdvancedView}
                     isTableSettingsOpen={isTableSettingsOpen}
                     onTableSettingsOpen={onTableSettingsOpen}
+                    disabled={areActionsDisabled}
                   />
                   {selectedAttachment != null && (
                     <AttachmentsContentRenderer
@@ -356,6 +371,7 @@ export const AttachmentRenderer: FC<Props> = ({
                       onOpenAdvancedView={onOpenAdvancedView}
                       showLimitMessage={setShowLimitMessage}
                       onGridApiReady={onGridApiReady}
+                      onGridRenderedChange={handleGridRenderedChange}
                       externalLink={externalLink}
                       externalLinksMap={externalLinksMap}
                     />
