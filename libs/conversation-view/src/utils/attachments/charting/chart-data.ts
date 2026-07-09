@@ -12,7 +12,7 @@ import {
   FREQUENCY_DIMENSION_ID,
   Periods,
 } from '@epam/statgpt-sdmx-toolkit';
-import { DataQuery } from '@epam/statgpt-shared-toolkit';
+import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 
 import { getRowsData } from '../data-grid/rows-data';
 import { ChartingStyles } from '../../../models/attachments-styles';
@@ -55,6 +55,7 @@ export function buildChartData(
   dataQuery: DataQuery | undefined,
   locale: string,
   styles?: ChartingStyles,
+  formattingSettings?: FormatNumbersType,
 ): ChartingData {
   const rows = getRowsData(data, structures, dataQuery, locale, styles, {
     includeChartData: false,
@@ -75,7 +76,15 @@ export function buildChartData(
 
   return {
     units: units.map((unit) =>
-      buildUnit(unit, structures, dataQuery, sortedTimePeriods, locale, styles),
+      buildUnit(
+        unit,
+        structures,
+        dataQuery,
+        sortedTimePeriods,
+        locale,
+        styles,
+        formattingSettings,
+      ),
     ),
   };
 }
@@ -86,6 +95,7 @@ export function createChartDataResolver(
   dataQuery: DataQuery | undefined,
   locale: string,
   styles?: ChartingStyles,
+  formattingSettings?: FormatNumbersType,
 ): () => ChartingData {
   let cachedChartingData: ChartingData | undefined;
 
@@ -96,6 +106,7 @@ export function createChartDataResolver(
       dataQuery,
       locale,
       styles,
+      formattingSettings,
     );
 
     return cachedChartingData;
@@ -109,6 +120,7 @@ export function buildSingleLineUnit(
   dataQuery: DataQuery | undefined,
   locale: string,
   styles?: ChartingStyles,
+  formattingSettings?: FormatNumbersType,
 ): ChartUnit {
   return buildUnit(
     { rows: [row] },
@@ -117,6 +129,7 @@ export function buildSingleLineUnit(
     sortedTimePeriods,
     locale,
     styles,
+    formattingSettings,
   );
 }
 
@@ -127,6 +140,7 @@ export function buildUnit(
   timePeriods: string[],
   locale: string,
   styles?: ChartingStyles,
+  formattingSettings?: FormatNumbersType,
 ): ChartUnit {
   const dimensions = getDimensionsInfo(
     unit.rows,
@@ -157,7 +171,12 @@ export function buildUnit(
     limitedByRowsAmountTo:
       unit.rows.length > MAX_LINES_PER_UNIT ? MAX_LINES_PER_UNIT : undefined,
     dimensions,
-    config: buildChartConfig(filteredTimePeriods, series, styles),
+    config: buildChartConfig(
+      filteredTimePeriods,
+      series,
+      styles,
+      formattingSettings,
+    ),
     isPlottable: hasPlottableSeries(series),
   };
 }

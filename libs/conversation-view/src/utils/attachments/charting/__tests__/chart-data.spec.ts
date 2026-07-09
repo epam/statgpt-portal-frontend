@@ -139,6 +139,7 @@ describe('buildChartData', () => {
       sortedTimePeriods,
       expect.any(Array),
       undefined,
+      undefined,
     );
   });
 });
@@ -357,6 +358,7 @@ describe('buildUnit', () => {
       ['2020-01', '2020-02'],
       expect.any(Array),
       undefined,
+      undefined,
     );
   });
 
@@ -381,6 +383,7 @@ describe('buildUnit', () => {
       ['2020-Q1'],
       expect.any(Array),
       undefined,
+      undefined,
     );
   });
 
@@ -403,6 +406,7 @@ describe('buildUnit', () => {
       ['2020', '2021'],
       expect.any(Array),
       undefined,
+      undefined,
     );
   });
 
@@ -420,6 +424,7 @@ describe('buildUnit', () => {
     expect(buildChartConfig).toHaveBeenCalledWith(
       ['2020', '2021'],
       expect.any(Array),
+      undefined,
       undefined,
     );
   });
@@ -440,6 +445,7 @@ describe('buildUnit', () => {
       ['2020'],
       expect.any(Array),
       styles,
+      undefined,
     );
   });
 

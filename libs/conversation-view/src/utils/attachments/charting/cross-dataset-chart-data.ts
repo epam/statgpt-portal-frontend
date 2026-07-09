@@ -3,7 +3,7 @@ import {
   getLocalizedName,
   StructuralData,
 } from '@epam/statgpt-sdmx-toolkit';
-import { DataQuery } from '@epam/statgpt-shared-toolkit';
+import { DataQuery, FormatNumbersType } from '@epam/statgpt-shared-toolkit';
 import { ChartingData } from '../../../models/charting';
 import { ChartingStyles } from '../../../models/attachments-styles';
 import { buildChartData } from './chart-data';
@@ -14,6 +14,7 @@ export function createCrossDatasetChartingDataResolver(
   dataQueries: DataQuery[],
   locale: string,
   chartStyles?: ChartingStyles,
+  formattingSettings?: FormatNumbersType,
 ): () => ChartingData {
   let cachedChartingData: ChartingData | undefined;
 
@@ -24,6 +25,7 @@ export function createCrossDatasetChartingDataResolver(
       dataQueries,
       locale,
       chartStyles,
+      formattingSettings,
     );
 
     return cachedChartingData;
@@ -42,6 +44,7 @@ export function createCrossDatasetChartingDataResolver(
  * @param dataQueries - Datasets to render, in order; matched to the maps by `urn`.
  * @param locale - Locale used to resolve localized names.
  * @param chartStyles - Optional chart styling.
+ * @param formattingSettings - Optional number formatting settings for tooltip values.
  * @returns Charting data for `CustomChartAttachment`.
  */
 export function buildCrossDatasetChartingData(
@@ -50,6 +53,7 @@ export function buildCrossDatasetChartingData(
   dataQueries: DataQuery[],
   locale: string,
   chartStyles?: ChartingStyles,
+  formattingSettings?: FormatNumbersType,
 ): ChartingData {
   const groups = dataQueries
     .filter((q) => !q.disabled)
@@ -72,6 +76,7 @@ export function buildCrossDatasetChartingData(
             dataQuery,
             locale,
             chartStyles,
+            formattingSettings,
           ).units,
         },
       ];

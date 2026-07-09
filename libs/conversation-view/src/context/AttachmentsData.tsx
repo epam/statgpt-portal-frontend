@@ -355,6 +355,7 @@ export function useAttachmentsData(
       dataQuery,
       locale,
       chartStyles,
+      formattingSettings,
     );
     setCustomChartAttachment((prev) => ({
       ...prev,
@@ -370,7 +371,14 @@ export function useAttachmentsData(
         setIsChartPlottable(false);
       }
     });
-  }, [structures, dataMessage, dataQuery, locale, chartStyles]);
+  }, [
+    structures,
+    dataMessage,
+    dataQuery,
+    locale,
+    chartStyles,
+    formattingSettings,
+  ]);
 
   useEffect(() => {
     if (rawAttachments?.length) {
