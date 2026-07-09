@@ -42,6 +42,14 @@ export function buildGridData(
       constraints,
       selectedTimePeriod,
     ),
-    data: getRowsData(data, structures, dataQuery, locale, chartStyles),
+    data: getRowsData(
+      data,
+      structures,
+      dataQuery,
+      locale,
+      chartStyles,
+      undefined,
+      formattingSettings,
+    ),
   };
 }

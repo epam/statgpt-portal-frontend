@@ -68,6 +68,7 @@ describe('getRowsData', () => {
       dataQuery,
       'en',
       chartStyles,
+      undefined,
     );
   });
 });
