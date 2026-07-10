@@ -516,7 +516,7 @@ const ConversationViewWrapper: FC<Props> = ({
         className={classNames(
           'flex flex-col h-full',
           isOpenedAdvancedView
-            ? 'w-[422px] border border-neutrals-400'
+            ? 'w-full sm-min:w-[422px] border border-neutrals-400'
             : 'w-full',
           isOpenedAdvancedView && isChatCollapsed && 'hidden',
         )}
