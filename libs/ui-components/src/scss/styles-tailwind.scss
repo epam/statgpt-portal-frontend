@@ -1,7 +1,9 @@
 @layer base {
   html,
   body {
-    @apply h-full w-full text-neutrals-1000 overflow-hidden;
+    @apply w-full text-neutrals-1000 overflow-hidden overscroll-none;
+    height: 100%; // fallback for browsers without dvh support
+    height: 100dvh; // tracks the real mobile viewport as the address bar shows/hides
   }
 
   input {
