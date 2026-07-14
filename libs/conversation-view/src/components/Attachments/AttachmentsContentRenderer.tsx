@@ -103,6 +103,12 @@ const AttachmentsContentRenderer: FC<Props> = ({
           limitationInfoContentClassName={
             attachmentsStyles?.limitationInfoContentClassName
           }
+          transformOption={attachmentsStyles?.chartingStyles?.transformOption}
+          contentClassName={attachmentsStyles?.chartContentClassName}
+          chartAreaClassName={attachmentsStyles?.chartAreaClassName}
+          chartBodyClassName={attachmentsStyles?.chartBodyClassName}
+          sliderClassName={attachmentsStyles?.chartSliderClassName}
+          sidebarClassName={attachmentsStyles?.chartSidebarClassName}
         />
       )}
       {isUrlAttachment(selectedAttachment) && (

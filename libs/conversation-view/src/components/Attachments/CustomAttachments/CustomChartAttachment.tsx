@@ -24,6 +24,8 @@ import {
 import { OnboardingElements } from '../../../constants/onboarding-elements';
 import ResponsiveEChart from './ResponsiveChart';
 import DatasetIcon from '../../../assets/icons/dataset.svg';
+import { mergeClasses } from '../../../utils/mergeClasses';
+import { EChartsOption } from 'echarts-for-react/src/types';
 
 interface Props {
   attachment: CustomChartAttachmentType;
@@ -34,6 +36,15 @@ interface Props {
   fillHeight?: boolean;
   limitationInfoPrefixIcon?: ReactNode;
   limitationInfoContentClassName?: string;
+  transformOption?: (
+    option: EChartsOption,
+    ctx: { isMobile: boolean },
+  ) => EChartsOption;
+  contentClassName?: string;
+  chartAreaClassName?: string;
+  chartBodyClassName?: string;
+  sliderClassName?: string;
+  sidebarClassName?: string;
 }
 
 interface FlatChartUnit {
@@ -50,6 +61,12 @@ export const CustomChartAttachment: FC<Props> = ({
   fillHeight,
   limitationInfoPrefixIcon,
   limitationInfoContentClassName,
+  transformOption,
+  contentClassName,
+  chartAreaClassName,
+  chartBodyClassName,
+  sliderClassName,
+  sidebarClassName,
 }) => {
   const { titles } = useConversationViewStyles();
   const isNarrowChart = useIsMobile(MOBILE_BREAKPOINT);
@@ -196,7 +213,12 @@ export const CustomChartAttachment: FC<Props> = ({
   return (
     <div className="chart-attachment size-full" ref={chartAttachmentRef}>
       {chartingData && (
-        <div className="flex size-full flex-col gap-4">
+        <div
+          className={mergeClasses(
+            'flex size-full flex-col gap-4',
+            contentClassName,
+          )}
+        >
           {flatUnits.length == 0 || selectedUnit == null ? (
             <h4 className="ml-1">{titles?.chartInfo || 'No data'}</h4>
           ) : (
@@ -210,10 +232,11 @@ export const CustomChartAttachment: FC<Props> = ({
                 </span>
               </div>
               <div
-                className={classNames(
+                className={mergeClasses(
                   'chart-area flex gap-4',
                   chartLayoutClass,
                   chartHeightClass,
+                  chartAreaClassName,
                 )}
               >
                 <div
@@ -231,7 +254,12 @@ export const CustomChartAttachment: FC<Props> = ({
                       </h4>
                     </div>
                   )}
-                  <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4">
+                  <div
+                    className={mergeClasses(
+                      'flex min-h-0 min-w-0 flex-1 flex-col gap-4',
+                      chartBodyClassName,
+                    )}
+                  >
                     <div
                       className={classNames(
                         'min-h-0 min-w-0 flex-1',
@@ -240,6 +268,8 @@ export const CustomChartAttachment: FC<Props> = ({
                     >
                       <ResponsiveEChart
                         option={selectedUnit.config}
+                        transformOption={transformOption}
+                        fillHeight={fillHeight}
                         style={{
                           width: '100%',
                           height: '100%',
@@ -262,6 +292,7 @@ export const CustomChartAttachment: FC<Props> = ({
                         totalCount={flatUnits.length}
                         onNext={nextChart}
                         onPrev={prevChart}
+                        className={sliderClassName}
                       ></Slider>
                     )}
                   </div>
@@ -269,6 +300,7 @@ export const CustomChartAttachment: FC<Props> = ({
                 <ChartSidebar
                   dimensionsInfo={selectedUnit.dimensions}
                   isNarrow={isNarrowChart}
+                  className={sidebarClassName}
                 ></ChartSidebar>
               </div>
             </>
