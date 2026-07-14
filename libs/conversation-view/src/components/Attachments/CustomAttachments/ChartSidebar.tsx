@@ -2,19 +2,21 @@
 
 import { FC } from 'react';
 import { DimensionInfo } from '../../../models/charting';
-import classNames from 'classnames';
+import { mergeClasses } from '../../../utils/mergeClasses';
 
 interface Props {
   dimensionsInfo: DimensionInfo[];
   isNarrow?: boolean;
+  className?: string;
 }
 
-const ChartSidebar: FC<Props> = ({ dimensionsInfo, isNarrow }) => {
+const ChartSidebar: FC<Props> = ({ dimensionsInfo, isNarrow, className }) => {
   return (
     <div
-      className={classNames(
+      className={mergeClasses(
         'sidebar flex min-h-0 flex-col gap-3 overflow-auto',
         isNarrow ? 'max-h-[120px] w-full shrink-0' : 'w-[176px]',
+        className,
       )}
     >
       {dimensionsInfo.map((dim) => (

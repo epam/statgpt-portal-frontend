@@ -21,6 +21,11 @@ import { MOBILE_BREAKPOINT, useIsMobile } from '@epam/statgpt-ui-components';
 interface Props {
   option: EChartsOption;
   style?: CSSProperties;
+  fillHeight?: boolean;
+  transformOption?: (
+    option: EChartsOption,
+    ctx: { isMobile: boolean },
+  ) => EChartsOption;
 }
 
 const MOBILE_LEGEND_HEIGHT = 44;
@@ -28,15 +33,28 @@ const MOBILE_GRID_BOTTOM = 56;
 const MOBILE_CHART_HEIGHT = 280;
 const MOBILE_AXIS_LABEL_WIDTH = 52;
 
-const ResponsiveEChart: FC<Props> = ({ option, style }) => {
+const ResponsiveEChart: FC<Props> = ({
+  option,
+  style,
+  fillHeight,
+  transformOption,
+}) => {
   const chartRef = useRef<ReactEChartsRef>(null);
   const isMobileChart = useIsMobile(MOBILE_BREAKPOINT);
   const [adjustedOption, setAdjustedOption] = useState<EChartsOption>(option);
 
   useEffect(() => {
-    setAdjustedOption(getBaseOption(option, isMobileChart));
-  }, [option, isMobileChart]);
+    setAdjustedOption(getBaseOption(option, isMobileChart, transformOption));
+  }, [option, isMobileChart, transformOption]);
 
+  /**
+   * Measures the actually rendered legend and sets grid.bottom to fit it, on
+   * desktop, regardless of transformOption — legend row count depends on
+   * item count/label length/container width, none of which a consumer can
+   * know in advance, so this stays library-owned rather than guessable.
+   * transformOption still applies afterwards on top of this: it can style
+   * the legend/axis (colors, fonts) but not override this measurement.
+   */
   const adjustGrid = useCallback(() => {
     const chart = chartRef.current?.getEchartsInstance?.() as
       | ECharts
@@ -92,16 +110,23 @@ const ResponsiveEChart: FC<Props> = ({ option, style }) => {
       lazyUpdate={false}
       ref={chartRef}
       option={adjustedOption}
-      style={getChartStyle(style, isMobileChart)}
+      style={getChartStyle(style, isMobileChart, fillHeight)}
     />
   );
 };
 
+/**
+ * fillHeight already means "trust the parent's own height" on the
+ * surrounding CustomChartAttachment layout (it skips that component's fixed
+ * mobile min-heights) — the fixed mobile pixel height here would otherwise
+ * silently override that intent and leave dead space in a taller parent.
+ */
 function getChartStyle(
   style: CSSProperties | undefined,
   isMobileChart: boolean,
+  fillHeight?: boolean,
 ): CSSProperties | undefined {
-  if (!isMobileChart) {
+  if (!isMobileChart || fillHeight) {
     return style;
   }
 
@@ -115,9 +140,18 @@ function getChartStyle(
 function getBaseOption(
   option: EChartsOption,
   isMobileChart: boolean,
+  transformOption?: (
+    option: EChartsOption,
+    ctx: { isMobile: boolean },
+  ) => EChartsOption,
 ): EChartsOption {
   const nextOption = cloneDeep(option);
-  return isMobileChart ? applyMobileChartOption(nextOption) : nextOption;
+  const baseOption = isMobileChart
+    ? applyMobileChartOption(nextOption)
+    : nextOption;
+  return transformOption
+    ? transformOption(baseOption, { isMobile: isMobileChart })
+    : baseOption;
 }
 
 function applyMobileChartOption(option: EChartsOption): EChartsOption {

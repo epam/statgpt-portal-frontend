@@ -9,6 +9,7 @@ import { OnboardingElements } from '../../../constants/onboarding-elements';
 import { useOnboarding } from '../../../context/OnboardingContext';
 import { useConversationViewStyles } from '../../../context/ConversationViewStylesContext';
 import { MOBILE_BREAKPOINT, useIsMobile } from '@epam/statgpt-ui-components';
+import { mergeClasses } from '../../../utils/mergeClasses';
 
 const MAX_SLIDER_WIDTH = 200;
 const BASE_ITEM_WIDTH = 8;
@@ -20,6 +21,7 @@ interface Props {
   icons?: Record<ChartingIcon, ReactNode>;
   onPrev: () => void;
   onNext: () => void;
+  className?: string;
 }
 
 const Slider: FC<Props> = ({
@@ -28,6 +30,7 @@ const Slider: FC<Props> = ({
   icons,
   onPrev,
   onNext,
+  className,
 }) => {
   const { titles } = useConversationViewStyles();
   const isMobile = useIsMobile(MOBILE_BREAKPOINT);
@@ -77,9 +80,10 @@ const Slider: FC<Props> = ({
 
   return (
     <div
-      className={classNames(
+      className={mergeClasses(
         'flex w-full flex-row items-center justify-center gap-2',
         isMobile && 'min-w-0',
+        className,
       )}
     >
       <div
@@ -99,7 +103,7 @@ const Slider: FC<Props> = ({
       >
         <div
           className={classNames(
-            'relative h-[4px] rounded-full bg-neutral-300',
+            'relative h-[4px] rounded-full bg-neutrals-300',
             isMobile && 'w-full',
           )}
           style={
