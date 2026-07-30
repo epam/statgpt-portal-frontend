@@ -319,12 +319,12 @@ export const ConversationWelcome: FC<Props> = ({
               )}
             >
               {titleIcon}
-              <h1 className="sm:h2 text-hues-800 text-center">
+              <h1 className="sm:h2 text-center text-hues-800">
                 {welcomeText ?? titles?.welcomeTitle ?? 'How can I help you?'}
               </h1>
             </div>
             {welcomeDescription && (
-              <p className="body-1 text-neutrals-900 mb-6 mt-3 max-w-[784px] text-center">
+              <p className="body-1 mb-6 mt-3 max-w-[784px] text-center text-neutrals-900">
                 {welcomeDescription}
               </p>
             )}
