@@ -52,6 +52,18 @@ export type {
 } from './components/ConversationView/SidePanel/ConversationViewSidePanelContext';
 
 export {
+  SidePanelCustomizationProvider,
+  useSidePanelCustomizationConfig,
+} from './components/ConversationView/SidePanel/SidePanelCustomizationContext';
+export type { SidePanelCustomizationConfig } from './components/ConversationView/SidePanel/SidePanelCustomizationContext';
+
+export {
+  DatasetInfoDetailsProvider,
+  useDatasetInfoDetailsConfig,
+} from './components/AdvancedView/Metadata/SidePanel/DatasetInfoDetailsContext';
+export type { DatasetInfoDetailsConfig } from './components/AdvancedView/Metadata/SidePanel/DatasetInfoDetailsContext';
+
+export {
   ConversationViewFeatureTogglesProvider,
   useConversationViewFeatureToggles,
 } from './context/ConversationViewFeatureTogglesContext';
