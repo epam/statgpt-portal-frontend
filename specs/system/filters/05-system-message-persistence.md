@@ -70,6 +70,11 @@ in `attachment.data` as a JSON string. `disabled` is always written as an explic
 Existing conversations that pre-date this field will restore with `disabled` absent; the
 restore path treats absence as `false` — no migration is needed.
 
+`filters` is never omitted, even for a disabled dataset missing from `queryFiltersMap`
+(multi-dataset mode only maps enabled datasets). Missing values fall back to the dataset's
+own saved `filters`, then to `[]` — never `undefined`, which `JSON.stringify` would otherwise
+drop from the payload and the backend would then reject as unparseable.
+
 ### `updateMessagesWithSystemMessage()`
 
 `libs/conversation-view/src/utils/system-message.ts:40`
