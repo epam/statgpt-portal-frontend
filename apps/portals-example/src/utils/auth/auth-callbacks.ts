@@ -121,8 +121,7 @@ export const callbacks = {
   jwt: async (options) => {
     if (options.account) {
       const profile = options.profile as
-        | (Profile & { job_title?: string })
-        | undefined;
+        (Profile & { job_title?: string }) | undefined;
 
       return {
         ...options.token,

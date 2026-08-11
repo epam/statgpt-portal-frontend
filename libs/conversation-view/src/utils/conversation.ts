@@ -12,8 +12,7 @@ export const updateConversationErrorContext = (
   const currentCustomViewState = conversation.customViewState ?? {};
   const currentAppViewState =
     (currentCustomViewState[CUSTOM_VIEW_STATE_KEY] as
-      | CustomViewState
-      | undefined) ?? {};
+      CustomViewState | undefined) ?? {};
 
   return {
     ...conversation,
