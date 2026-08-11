@@ -63,6 +63,55 @@ describe('prepareSystemMessage', () => {
       expect(data.disabled).toBe(false);
     });
   });
+
+  describe('multi-dataset filters for a dataset missing from queryFiltersMap', () => {
+    it('falls back to the DataQuery own filters when the map has no entry for it', () => {
+      const existingFilters = [{ id: 'REF_AREA', values: ['AU'] }];
+      const dataQueries: DataQuery[] = [
+        {
+          urn: 'TEST:DS(1.0)',
+          disabled: true,
+          metadata: BASE_METADATA,
+          filters: existingFilters as any,
+        },
+      ];
+      const queryFiltersMap = new Map();
+
+      const message = prepareSystemMessage(
+        undefined,
+        undefined,
+        dataQueries,
+        undefined,
+        queryFiltersMap,
+      );
+      const data = JSON.parse(
+        (message.custom_content!.attachments![0] as any).data,
+      );
+
+      expect(data.filters).toEqual(existingFilters);
+    });
+
+    it('defaults to an empty array (never omits the key) when the map has no entry and the DataQuery has no filters either', () => {
+      const dataQueries: DataQuery[] = [
+        { urn: 'TEST:DS(1.0)', disabled: true, metadata: BASE_METADATA },
+      ];
+      const queryFiltersMap = new Map();
+
+      const message = prepareSystemMessage(
+        undefined,
+        undefined,
+        dataQueries,
+        undefined,
+        queryFiltersMap,
+      );
+      const data = JSON.parse(
+        (message.custom_content!.attachments![0] as any).data,
+      );
+
+      expect(data.filters).toEqual([]);
+      expect('filters' in data).toBe(true);
+    });
+  });
 });
 
 describe('updateMessagesWithSystemMessage', () => {

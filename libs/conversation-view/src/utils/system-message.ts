@@ -56,8 +56,10 @@ export const prepareSystemMessage = (
               urn: dataQuery?.urn,
               metadata: dataQuery?.metadata,
               filters: queryFiltersMap
-                ? queryFiltersMap?.get(dataQuery?.urn)
-                : singleDataQueryFilters,
+                ? (queryFiltersMap?.get(dataQuery?.urn) ??
+                  dataQuery?.filters ??
+                  [])
+                : (singleDataQueryFilters ?? []),
               disabled: !!dataQuery?.disabled,
             }),
           };
