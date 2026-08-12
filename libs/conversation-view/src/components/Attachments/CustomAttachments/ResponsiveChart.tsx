@@ -57,8 +57,7 @@ const ResponsiveEChart: FC<Props> = ({
    */
   const adjustGrid = useCallback(() => {
     const chart = chartRef.current?.getEchartsInstance?.() as
-      | ECharts
-      | undefined;
+      ECharts | undefined;
     if (!chart || isMobileChart) return;
 
     const chartEl = chart.getDom();

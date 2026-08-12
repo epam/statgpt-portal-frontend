@@ -26,9 +26,7 @@ import { Tooltip } from '../Tooltip/Tooltip';
 
 interface Props {
   attachments: (
-    | Attachment
-    | CustomGridAttachment
-    | CustomChartAttachmentType
+    Attachment | CustomGridAttachment | CustomChartAttachmentType
   )[];
   selectedAttachmentIndex: number;
   selectedAttachment: Attachment | null;

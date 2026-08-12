@@ -1,6 +1,5 @@
 type LinkifiedPart =
-  | { type: 'text'; value: string }
-  | { type: 'link'; value: string };
+  { type: 'text'; value: string } | { type: 'link'; value: string };
 
 // Common punctuation that often follows a URL in prose and shouldn't be part of the link.
 const TRAILING_PUNCTUATION = new Set([
