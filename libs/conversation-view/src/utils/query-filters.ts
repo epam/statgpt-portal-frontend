@@ -17,13 +17,11 @@ import { getSelectedFilterValues } from './filters';
 import { getFiltersForQueryContext } from './multiple-filters';
 
 export const getQueryTimeSeriesFilters = (filters: Filter[]): QueryFilter[] =>
-  filters.map(
-    (filter): QueryFilter => ({
-      componentCode: filter.id || '',
-      operator: QueryFilterType.IN,
-      values: filter.dimensionValues?.map((v) => v.id) || [],
-    }),
-  );
+  filters.map((filter): QueryFilter => ({
+    componentCode: filter.id || '',
+    operator: QueryFilterType.IN,
+    values: filter.dimensionValues?.map((v) => v.id) || [],
+  }));
 
 export const getTimeQueryFilterFromAttachment = (
   dataQuery: DataQuery,

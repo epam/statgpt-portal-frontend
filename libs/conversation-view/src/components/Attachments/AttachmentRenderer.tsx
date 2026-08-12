@@ -48,9 +48,7 @@ import { mergeClasses } from '../../utils/mergeClasses';
 
 interface Props {
   attachments: (
-    | Attachment
-    | CustomGridAttachment
-    | CustomChartAttachmentType
+    Attachment | CustomGridAttachment | CustomChartAttachmentType
   )[];
   actions: AttachmentsActions;
   isSystemAttachments?: boolean;

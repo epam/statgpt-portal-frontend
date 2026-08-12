@@ -23,10 +23,7 @@ export interface Urn {
 }
 
 export type DimensionTypeKey =
-  | 'NON_INDICATOR'
-  | 'INDICATOR'
-  | 'TIME_PERIOD'
-  | (string & {});
+  'NON_INDICATOR' | 'INDICATOR' | 'TIME_PERIOD' | (string & {});
 
 export type SubtypeKey = 'FREQUENCY' | 'REGION';
 

@@ -11,9 +11,7 @@ import {
 import { ConversationViewSidePanel } from './ConversationViewSidePanel';
 
 export type ConversationViewSidePanelScope =
-  | 'conversation'
-  | 'advanced'
-  | 'any';
+  'conversation' | 'advanced' | 'any';
 
 export type ConversationViewSidePanelConfig = {
   id: string;

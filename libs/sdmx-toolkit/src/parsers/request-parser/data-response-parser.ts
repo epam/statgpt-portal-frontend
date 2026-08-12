@@ -187,8 +187,7 @@ const getTimeSeriesValues = (
           structure.attributes?.observation || [],
           (i) =>
             (ser as AttributeIndexValue[])[i + observationLength] as
-              | string
-              | number,
+              string | number,
         ),
         dimensionAtObservation: OBSERVATION_KEY,
       },

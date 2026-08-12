@@ -17,8 +17,7 @@ import { CrossDatasetGridViewMode } from '../types';
  * back to its default label rendering for all items.
  */
 export function useDatasetScopedColumnRenderLabel():
-  | ((item: { id: string; label: string }) => ReactNode)
-  | undefined {
+  ((item: { id: string; label: string }) => ReactNode) | undefined {
   const { dataQueries, structuresMap, locale, gridViewMode } =
     useTableSettingsContext();
   const dimensionsCtx = useDatasetDimensionsMetadataMapOptional();
