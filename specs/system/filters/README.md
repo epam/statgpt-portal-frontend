@@ -86,6 +86,7 @@ update because you cannot verify every line number.
 | [09-applied-filters-display.md](./09-applied-filters-display.md) | How changed filters appear in the chat view — structural hydration and shared vs per-dataset rendering |
 | [10-chart-attachments.md](./10-chart-attachments.md) | Lazy resolver, unit splitting by dimension uniqueness, series grouping, and filter-driven chart rebuild |
 | [11-attachment-view-switching.md](./11-attachment-view-switching.md) | Switching between Data/Chart/Code tabs — loading-state height reservation and scroll-position lock |
+| [12-download.md](./12-download.md) | How applied filter/query state reaches a download request, for single- and multi-dataset modes |
 | [99-gotchas.md](./99-gotchas.md) | Sharp edges and non-obvious behaviours across the filter system |
 
 ---
@@ -122,8 +123,13 @@ update because you cannot verify every line number.
 | `libs/conversation-view/src/utils/attachments/charting/split-for-units.ts` | Row grouping into `ChartUnit[]` |
 | `libs/conversation-view/src/utils/attachments/charting/chart-config-building.ts` | ECharts option assembly |
 | `libs/conversation-view/src/models/charting.ts` | `ChartingData`, `ChartUnit`, `ChartUnitGroup` types |
-| `libs/conversation-view/src/components/Attachments/AttachmentRenderer.tsx` | Attachment tab container; wires the view-switch scroll anchor |
+| `libs/conversation-view/src/components/Attachments/AttachmentRenderer.tsx` | Attachment tab container; wires the view-switch scroll anchor and resolves the download query (single vs. multi-dataset) |
 | `libs/conversation-view/src/components/Attachments/useViewModeScrollAnchor.ts` | Locks scroll position across a view-mode switch |
 | `libs/conversation-view/src/components/Attachments/CustomAttachments/CustomChartAttachment.tsx` | Chart render + loading-state height reservation |
 | `libs/conversation-view/src/components/Attachments/CustomAttachments/CustomGridAttachment.tsx` | Single-dataset grid render + loading-state height reservation |
 | `libs/conversation-view/src/components/Attachments/CustomAttachments/CrossDatasetGridAttachment.tsx` | Cross-dataset grid render + loading-state height reservation |
+| `libs/download-panel/src/components/DownloadSettings/DownloadSettings.tsx` | Download modal; branches single- vs multi-dataset request building |
+| `libs/download-panel/src/utils/get-filter.ts` | Resolves the download `filterKey`/`timeFilter` from a `DataQuery` |
+| `libs/download-panel/src/models/download-dataset-item.ts` | `DownloadDatasetItem` type (per-dataset download entry) |
+| `libs/download-panel/src/models/download-request.ts` | `DownloadRequestConfig`/`DownloadRequestItem` types |
+| `apps/portals-example/src/components/ConversationView/ConversationViewWrapper.tsx` | Owns `currentDataQuery`/`dataQueries` top-level state |
