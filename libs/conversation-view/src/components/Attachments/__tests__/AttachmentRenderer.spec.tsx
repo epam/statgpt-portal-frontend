@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { AttachmentRenderer } from '../AttachmentRenderer';
 import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
 import type { DataQuery } from '@epam/statgpt-shared-toolkit';
@@ -24,7 +24,18 @@ jest.mock('@epam/statgpt-ui-components', () => ({
 
 jest.mock(
   '@statgpt/download-panel/src/components/DownloadSettings/DownloadSettings',
-  () => ({ __esModule: true, default: () => null }),
+  () => ({
+    __esModule: true,
+    default: ({
+      dataQuery,
+    }: {
+      dataQuery?: { urn: string; filters?: unknown };
+    }) => (
+      <div data-testid="download-settings-data-query">
+        {JSON.stringify(dataQuery)}
+      </div>
+    ),
+  }),
 );
 
 jest.mock('../../../context/ConversationViewStylesContext', () => ({
@@ -58,7 +69,9 @@ jest.mock('../AttachmentCollapsed', () => ({
 }));
 jest.mock('../AttachmentsViewModePanel', () => ({
   __esModule: true,
-  default: () => null,
+  default: ({ onDownloadClick }: { onDownloadClick: () => void }) => (
+    <button data-testid="open-download" onClick={onDownloadClick} />
+  ),
 }));
 jest.mock('../AttachmentsContentRenderer', () => ({
   __esModule: true,
@@ -179,5 +192,75 @@ describe('AttachmentRenderer — DatasetTabs dataset filtering', () => {
 
     expect(screen.queryByTestId('dataset-tab-DS_A')).not.toBeInTheDocument();
     expect(screen.queryByTestId('dataset-tab-DS_B')).not.toBeInTheDocument();
+  });
+});
+
+describe('AttachmentRenderer — Download modal dataQuery freshness', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('passes the fresh dataQueries entry (matched by urn) to DownloadSettings, not the stale currentDataQuery', () => {
+    const staleCurrentDataQuery: DataQuery = {
+      urn: 'TEST:DS_A(1.0)',
+      metadata: { countryDimension: 'COUNTRY', indicatorDimensions: [] },
+      filters: [
+        { componentCode: 'COUNTRY', operator: 'EQ' as any, values: ['PL'] },
+      ],
+    } as DataQuery;
+
+    const freshDataQuery: DataQuery = {
+      urn: 'TEST:DS_A(1.0)',
+      metadata: { countryDimension: 'COUNTRY', indicatorDimensions: [] },
+      filters: [],
+    } as DataQuery;
+
+    mockFeatureToggles.mockReturnValue({ isCrossDatasetModeOn: false });
+    render(
+      <AttachmentRenderer
+        attachments={[STUB_ATTACHMENT]}
+        actions={mockActions}
+        isDataSetAttachments={true}
+        datasets={[DATASET_A as any]}
+        dataQueries={[freshDataQuery]}
+        currentDataQuery={staleCurrentDataQuery}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('open-download'));
+
+    const rendered = screen.getByTestId(
+      'download-settings-data-query',
+    ).textContent;
+    expect(rendered).toBe(JSON.stringify(freshDataQuery));
+  });
+
+  it('falls back to currentDataQuery when no matching entry exists in dataQueries', () => {
+    const staleCurrentDataQuery: DataQuery = {
+      urn: 'TEST:DS_A(1.0)',
+      metadata: { countryDimension: 'COUNTRY', indicatorDimensions: [] },
+      filters: [
+        { componentCode: 'COUNTRY', operator: 'EQ' as any, values: ['PL'] },
+      ],
+    } as DataQuery;
+
+    mockFeatureToggles.mockReturnValue({ isCrossDatasetModeOn: false });
+    render(
+      <AttachmentRenderer
+        attachments={[STUB_ATTACHMENT]}
+        actions={mockActions}
+        isDataSetAttachments={true}
+        datasets={[DATASET_A as any]}
+        dataQueries={undefined}
+        currentDataQuery={staleCurrentDataQuery}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('open-download'));
+
+    const rendered = screen.getByTestId(
+      'download-settings-data-query',
+    ).textContent;
+    expect(rendered).toBe(JSON.stringify(staleCurrentDataQuery));
   });
 });

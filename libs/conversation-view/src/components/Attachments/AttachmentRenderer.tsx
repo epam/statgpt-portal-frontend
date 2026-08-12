@@ -219,6 +219,13 @@ export const AttachmentRenderer: FC<Props> = ({
     return map;
   }, [dataQueries, isExternalLinkIncludeFilters]);
 
+  const resolvedDataQuery = useMemo(
+    () =>
+      dataQueries?.find((q) => q.urn === currentDataQuery?.urn) ??
+      currentDataQuery,
+    [dataQueries, currentDataQuery],
+  );
+
   const downloadDatasets = useMemo<DownloadDatasetItem[] | undefined>(() => {
     if (!selectedAttachment || !isCrossDatasetGrid(selectedAttachment))
       return undefined;
@@ -384,7 +391,7 @@ export const AttachmentRenderer: FC<Props> = ({
                     onCloseModal={onCloseModal}
                     onDownloadStart={startDownload}
                     isDownloadInProgress={isDownloadRunning}
-                    dataQuery={currentDataQuery}
+                    dataQuery={resolvedDataQuery}
                     datasetName={selectedAttachment?.title || ''}
                     locale={locale}
                     type={downloadType}
