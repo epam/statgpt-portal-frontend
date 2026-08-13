@@ -8,6 +8,7 @@ attachment does not collapse while the new view builds) and the **scroll-positio
 (so the conversation and the tabs/buttons row stay fixed on screen across the switch).
 
 Key files:
+- `libs/conversation-view/src/components/ChatMessages/Message/Message.tsx`
 - `libs/conversation-view/src/components/Attachments/AttachmentRenderer.tsx`
 - `libs/conversation-view/src/components/Attachments/AttachmentsContentRenderer.tsx`
 - `libs/conversation-view/src/components/Attachments/AttachmentsViewModePanel.tsx`
@@ -18,6 +19,26 @@ Key files:
 - `libs/conversation-view/src/components/Attachments/CustomAttachments/GridContainer.tsx`
 - `libs/conversation-view/src/components/Tooltip/Tooltip.tsx`
 - `libs/ui-components/src/components/RequestLimit/RequestLimit.tsx`
+
+---
+
+## Raw table attachments (`application/dial-ttyd-table`) are always prepended
+
+Besides Data/Chart/Code, a message can carry raw `TABLE`-type attachments BE
+generates directly (e.g. a "pick a value" disambiguation table for a dimension the
+query left unspecified — BE attaches one per missing dimension). `Message.tsx`
+always prepends these (`baseGridAttachments`) ahead of the computed Data/cross-dataset
+tabs, so they win the default `selectedAttachmentIndex = 0` tab instead of being
+dropped whenever a real dataset query also exists.
+
+Two things worth knowing:
+- These tabs don't go through `isGridRendered`/`areActionsDisabled` gating at all —
+  they're rendered by the plain `GridAttachment` component, not
+  `CustomGridAttachment`/`CrossDatasetGridAttachment`, so Download/Advanced
+  View/Table Settings buttons stay keyed only to the computed grid tabs.
+- If a query is missing more than one dimension, BE can attach one table per
+  dimension, and their relative order — and therefore which one wins the default
+  tab — is not guaranteed stable across identical queries.
 
 ---
 
