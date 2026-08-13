@@ -83,6 +83,22 @@ export const ConversationList: FC<Props> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isExpandedSearch, setIsExpandedSearch] = useState<boolean>(false);
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
+    new Set(),
+  );
+
+  const toggleGroupCollapse = useCallback((groupLabel: string) => {
+    setCollapsedGroups((previousValue) => {
+      const nextValue = new Set(previousValue);
+      if (nextValue.has(groupLabel)) {
+        nextValue.delete(groupLabel);
+      } else {
+        nextValue.add(groupLabel);
+      }
+      return nextValue;
+    });
+  }, []);
+
   const {
     getConversations,
     getSharedConversations,
@@ -273,6 +289,8 @@ export const ConversationList: FC<Props> = ({
                         groupedConversations={conversations}
                         handleConversationClick={handleConversationClick}
                         selectedConversationId={selectedConversationId}
+                        isCollapsed={collapsedGroups.has(groupLabel)}
+                        onToggleCollapse={() => toggleGroupCollapse(groupLabel)}
                       />
                     ),
                 )
