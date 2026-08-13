@@ -8,7 +8,9 @@
   "include": [
     "jest.config.js",
     "src/**/*.test.ts",
+    "src/**/*.test.tsx",
     "src/**/*.spec.ts",
+    "src/**/*.spec.tsx",
     "src/**/*.d.ts"
   ]
 }

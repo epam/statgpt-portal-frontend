@@ -1,7 +1,7 @@
 'use client';
 
 import { ConversationInfo } from '@epam/ai-dial-shared';
-import { FC, useCallback, useState } from 'react';
+import { FC } from 'react';
 import classNames from 'classnames';
 import {
   getLabelByGroup,
@@ -16,6 +16,8 @@ interface Props {
   groupedConversations: ConversationInfo[];
   selectedConversationId?: string;
   isDisabled?: boolean;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
   handleConversationClick: (folder: string, conversationId: string) => void;
 }
 
@@ -25,31 +27,28 @@ const ConversationsGroup: FC<Props> = ({
   groupLabel,
   groupedConversations,
   isDisabled,
+  isCollapsed,
+  onToggleCollapse,
 }) => {
   const { titles } = useConversationStyles();
-  const [isGroupCollapsed, setIsGroupCollapsed] = useState<boolean>(false);
-
-  const toggleGroupCollapse = useCallback(() => {
-    setIsGroupCollapsed((previousValue) => !previousValue);
-  }, [setIsGroupCollapsed]);
 
   return (
     <div key={groupLabel}>
       <div
         className="conversation-group-items-title mb-3 inline-flex cursor-pointer items-center gap-1 text-neutrals-700"
-        onClick={toggleGroupCollapse}
+        onClick={onToggleCollapse}
       >
         <IconCaretRightFilled
           className={classNames(
             'w-3 h-3 conversation-group-items-arrow',
-            isGroupCollapsed ? 'rotate-[90deg]' : 'rotate-0',
+            isCollapsed ? 'rotate-[90deg]' : 'rotate-0',
           )}
         />
         <span className="body-3 conversation-group-items-title-text">
           {getLabelByGroup(groupLabel, titles)}
         </span>
       </div>
-      {!isGroupCollapsed && (
+      {!isCollapsed && (
         <div
           className={classNames(
             'flex flex-col gap-y-3',
