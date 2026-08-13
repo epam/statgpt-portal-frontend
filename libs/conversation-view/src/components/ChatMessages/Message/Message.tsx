@@ -384,13 +384,14 @@ const Message: FC<Props> = ({
     () => (
       <AttachmentRenderer
         actions={actions}
-        attachments={
-          isDataSetAttachments
+        attachments={[
+          ...baseGridAttachments,
+          ...(isDataSetAttachments
             ? isCrossDatasetModeOn
               ? visibleCrossDatasetAttachments
               : dataSetAttachments
-            : baseGridAttachments
-        }
+            : []),
+        ]}
         onAdvancedViewOpen={onAdvancedViewOpen}
         isDataSetAttachments={isDataSetAttachments}
         datasets={datasets}
