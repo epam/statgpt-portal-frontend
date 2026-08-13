@@ -28,12 +28,6 @@ import SignOut from '../../../public/images/sign-out.svg';
 import ContactSupport from '../../../public/images/contact-support.svg';
 
 import { SHARE_CONVERSATION_PROPS } from '../../constants/share-conversation';
-import { getFileBlobApi } from '../../app/api/files/client';
-import {
-  getConversationsApi,
-  getConversationApi,
-} from '../../app/api/conversations/client';
-import { getSharedConversationsApi } from '../../app/api/share/client';
 import { ApplicationRoute } from '../../types/application-routes';
 import { useCurrentLocale, useI18n } from '../../locales/client';
 import {
@@ -53,15 +47,9 @@ import { useConversationList } from '../../context/ConversationListContext';
 import {
   getConversationNavPath,
   getConversationId,
-  getConversationIdFromResourceUrl,
-  ApiResponse,
 } from '@epam/statgpt-shared-toolkit';
-import { getSignInLink } from '../../constants/auth';
-import { wrapWithAuthHandler } from '../../utils/auth/requests-wrapper';
 import { signOut, useSession } from 'next-auth/react';
-import { ConversationInfo } from '@epam/ai-dial-shared';
-import { renameConversationAndSyncContent as renameConversationAndSyncContentFlow } from '../../utils/conversation/rename-conversation-and-sync-content';
-import { deleteConversationAndAttachments } from '../../utils/conversation/delete-conversation-and-attachments';
+import { useConversationListActions } from './useConversationListActions';
 
 interface ConversationListWrapperProps {
   clientContactSupportUrl?: string;
@@ -91,52 +79,9 @@ const ConversationListWrapper = ({
 
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const authHandler = useCallback(
-    <Args extends any[], T>(
-      action: (...args: Args) => Promise<ApiResponse<T>>,
-    ): ((...args: Args) => Promise<T>) => {
-      return wrapWithAuthHandler(action, () => {
-        router.push(getSignInLink(window.location.href));
-      });
-    },
-    [router],
-  );
-
-  const actions = useMemo(
-    () => ({
-      getConversations: authHandler(getConversationsApi),
-      getSharedConversations: authHandler(getSharedConversationsApi),
-      deleteConversation: authHandler(deleteConversationAndAttachments),
-      getConversation: authHandler(getConversationApi),
-      getFileBlob: authHandler(getFileBlobApi),
-      renameConversation: authHandler(
-        async (
-          sourceUrl: string,
-          destinationUrl: string,
-        ): Promise<ApiResponse<void | ConversationInfo>> => {
-          const { navPath, response } =
-            await renameConversationAndSyncContentFlow(
-              sourceUrl,
-              destinationUrl,
-            );
-          const sourceConversationId =
-            getConversationIdFromResourceUrl(sourceUrl);
-
-          if (
-            response.success &&
-            navPath &&
-            sourceConversationId === selectedConversationId
-          ) {
-            router.replace(
-              `/${locale}${ApplicationRoute.Conversations}/${navPath}`,
-            );
-          }
-
-          return response;
-        },
-      ),
-    }),
-    [authHandler, locale, router, selectedConversationId],
+  const { actions, authHandler } = useConversationListActions(
+    selectedConversationId,
+    locale,
   );
 
   const titles: ConversationListTitles = {
