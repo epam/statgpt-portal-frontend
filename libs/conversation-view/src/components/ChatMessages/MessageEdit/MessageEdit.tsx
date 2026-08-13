@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useEffect, useRef } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useAdvancedView } from '../../../context/AdvancedViewContext';
 import { Button } from '@epam/statgpt-ui-components';
@@ -23,22 +23,37 @@ const MessageEdit: FC<Props> = ({
 }) => {
   const { isOpenedAdvancedView } = useAdvancedView();
   const textRef = useRef<HTMLTextAreaElement>(null);
+  const [isUnchanged, setIsUnchanged] = useState(true);
 
   useEffect(() => {
     const textarea = textRef.current;
-    onInput();
+    resizeTextarea();
     if (textarea) {
       textarea.focus();
       textarea.setSelectionRange(textarea.value.length, textarea.value.length);
     }
   }, []);
 
-  const onInput = () => {
+  const resizeTextarea = () => {
     const textarea = textRef.current;
     if (textarea) {
       textarea.style.height = 'auto';
       textarea.style.height = textarea.scrollHeight + 'px';
     }
+  };
+
+  const onInput = () => {
+    resizeTextarea();
+    setIsUnchanged((textRef.current?.value || '').trim() === content.trim());
+  };
+
+  const handleSubmit = () => {
+    const text = textRef.current?.value || '';
+    if (text.trim() === content.trim()) {
+      onCancel();
+      return;
+    }
+    onEditApply(text);
   };
 
   return (
@@ -72,7 +87,8 @@ const MessageEdit: FC<Props> = ({
           buttonClassName="text-button-primary small-icon-button"
           title={editMessageTitles?.send}
           isSmallButton
-          onClick={() => onEditApply(textRef.current?.value || '')}
+          disabled={isUnchanged}
+          onClick={handleSubmit}
         />
       </div>
     </div>
