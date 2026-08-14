@@ -81,6 +81,7 @@ export const ConversationList: FC<Props> = ({
   const [groupedConversations, setGroupedConversations] =
     useState<GroupedConversations>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isExpandedSearch, setIsExpandedSearch] = useState<boolean>(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
@@ -135,6 +136,7 @@ export const ConversationList: FC<Props> = ({
         console.error('Error loading conversation', err as object);
       } finally {
         setIsLoading(false);
+        setHasLoadedOnce(true);
       }
     }
 
@@ -225,7 +227,7 @@ export const ConversationList: FC<Props> = ({
     setSearchQuery('');
   }, [setIsExpandedSearch]);
 
-  return isLoading ? (
+  return isLoading && !hasLoadedOnce ? (
     <Loader />
   ) : (
     <ConversationListActionsProvider
@@ -260,43 +262,42 @@ export const ConversationList: FC<Props> = ({
           </div>
         )}
         <div className="scroll-hidden-container mt-4 flex min-h-0 flex-1 flex-col">
-          {!isCollapsed ? (
-            <div
-              className={classNames(
-                'flex flex-col pr-4',
-                isSearchConversations ? 'gap-y-1' : 'gap-y-6',
-              )}
-            >
-              {conversations?.length === 0 &&
-              sharedConversations?.length === 0 ? (
-                <NoConversations />
-              ) : isSearchConversations ? (
-                <ConversationsSearchResult
-                  conversations={[...sharedConversations, ...conversations]}
-                  searchQuery={searchQuery}
-                  selectedConversationId={selectedConversationId}
-                  handleConversationClick={handleConversationClick}
-                  isDisabled={isStreaming}
-                />
-              ) : (
-                Object.entries(groupedConversations).map(
-                  ([groupLabel, conversations]) =>
-                    conversations?.length > 0 && (
-                      <ConversationsGroup
-                        isDisabled={isStreaming}
-                        key={groupLabel}
-                        groupLabel={groupLabel}
-                        groupedConversations={conversations}
-                        handleConversationClick={handleConversationClick}
-                        selectedConversationId={selectedConversationId}
-                        isCollapsed={collapsedGroups.has(groupLabel)}
-                        onToggleCollapse={() => toggleGroupCollapse(groupLabel)}
-                      />
-                    ),
-                )
-              )}
-            </div>
-          ) : null}
+          <div
+            className={classNames(
+              'flex flex-col pr-4',
+              isSearchConversations ? 'gap-y-1' : 'gap-y-6',
+              isCollapsed && 'hidden',
+            )}
+          >
+            {conversations?.length === 0 &&
+            sharedConversations?.length === 0 ? (
+              <NoConversations />
+            ) : isSearchConversations ? (
+              <ConversationsSearchResult
+                conversations={[...sharedConversations, ...conversations]}
+                searchQuery={searchQuery}
+                selectedConversationId={selectedConversationId}
+                handleConversationClick={handleConversationClick}
+                isDisabled={isStreaming}
+              />
+            ) : (
+              Object.entries(groupedConversations).map(
+                ([groupLabel, conversations]) =>
+                  conversations?.length > 0 && (
+                    <ConversationsGroup
+                      isDisabled={isStreaming}
+                      key={groupLabel}
+                      groupLabel={groupLabel}
+                      groupedConversations={conversations}
+                      handleConversationClick={handleConversationClick}
+                      selectedConversationId={selectedConversationId}
+                      isCollapsed={collapsedGroups.has(groupLabel)}
+                      onToggleCollapse={() => toggleGroupCollapse(groupLabel)}
+                    />
+                  ),
+              )
+            )}
+          </div>
         </div>
         {children}
       </ConversationStylesContext.Provider>
