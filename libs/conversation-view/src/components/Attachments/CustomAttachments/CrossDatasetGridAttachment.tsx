@@ -63,6 +63,10 @@ interface Props {
   showLimitMessage?: (p: boolean) => void;
   onApiReady?: (api: GridApi) => void;
   onGridRenderedChange?: (isRendered: boolean) => void;
+  /** Overrides the shared `GRID_ROW_HEIGHT` default for this grid instance only. */
+  rowHeight?: number;
+  /** Overrides the shared `GRID_HEADER_HEIGHT` default for this grid instance only. */
+  headerHeight?: number;
 }
 
 const CrossDatasetGridAttachment: FC<Props> = ({
@@ -75,6 +79,8 @@ const CrossDatasetGridAttachment: FC<Props> = ({
   showLimitMessage,
   onApiReady,
   onGridRenderedChange,
+  rowHeight = GRID_ROW_HEIGHT,
+  headerHeight = GRID_HEADER_HEIGHT,
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isGridRendered, setIsGridRendered] = useState<boolean>(false);
@@ -109,12 +115,12 @@ const CrossDatasetGridAttachment: FC<Props> = ({
 
   useEffect(() => {
     if (rowData) {
-      setGridHeight(getGridHeight(rowData.length));
+      setGridHeight(getGridHeight(rowData.length, rowHeight, headerHeight));
       showLimitMessage?.(rowData.length >= SERIES_LIMIT);
     } else {
       showLimitMessage?.(false);
     }
-  }, [rowData, showLimitMessage]);
+  }, [rowData, rowHeight, headerHeight, showLimitMessage]);
 
   useEffect(() => {
     if (!columnDefs || !gridApiRef.current) return;
@@ -167,8 +173,8 @@ const CrossDatasetGridAttachment: FC<Props> = ({
     () => (
       <AgGridReact
         defaultColDef={DEFAULT_COL_DEF}
-        headerHeight={GRID_HEADER_HEIGHT}
-        rowHeight={GRID_ROW_HEIGHT}
+        headerHeight={headerHeight}
+        rowHeight={rowHeight}
         rowData={rowData}
         enableCellTextSelection
         columnDefs={columnDefs}
@@ -189,6 +195,8 @@ const CrossDatasetGridAttachment: FC<Props> = ({
       gridComponents,
       handleGridReady,
       handleFirstDataRendered,
+      rowHeight,
+      headerHeight,
     ],
   );
 

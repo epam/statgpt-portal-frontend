@@ -3,6 +3,10 @@ import { act, render } from '@testing-library/react';
 import type { GridReadyEvent } from 'ag-grid-community';
 import { CrossDatasetGridAttachment } from '../CrossDatasetGridAttachment';
 import { CrossDatasetGridAttachmentType } from '../../../../models/attachments';
+import {
+  GRID_HEADER_HEIGHT,
+  GRID_ROW_HEIGHT,
+} from '../../../../constants/grid';
 
 jest.mock('ag-grid-community', () => ({
   ModuleRegistry: { registerModules: jest.fn() },
@@ -18,12 +22,16 @@ jest.mock('ag-grid-community', () => ({
 let capturedGridProps: {
   onGridReady?: (event: GridReadyEvent) => void;
   onFirstDataRendered?: () => void;
+  rowHeight?: number;
+  headerHeight?: number;
 } = {};
 
 jest.mock('ag-grid-react', () => ({
   AgGridReact: (props: {
     onGridReady?: (event: GridReadyEvent) => void;
     onFirstDataRendered?: () => void;
+    rowHeight?: number;
+    headerHeight?: number;
   }) => {
     capturedGridProps = props;
     return <div data-testid="ag-grid-stub" />;
@@ -123,5 +131,25 @@ describe('CrossDatasetGridAttachment', () => {
     );
 
     expect(onGridRenderedChange).toHaveBeenLastCalledWith(false);
+  });
+
+  it('defaults rowHeight/headerHeight to the shared grid constants', () => {
+    render(<CrossDatasetGridAttachment attachment={buildAttachment()} />);
+
+    expect(capturedGridProps.rowHeight).toBe(GRID_ROW_HEIGHT);
+    expect(capturedGridProps.headerHeight).toBe(GRID_HEADER_HEIGHT);
+  });
+
+  it('passes through custom rowHeight/headerHeight when provided', () => {
+    render(
+      <CrossDatasetGridAttachment
+        attachment={buildAttachment()}
+        rowHeight={44}
+        headerHeight={44}
+      />,
+    );
+
+    expect(capturedGridProps.rowHeight).toBe(44);
+    expect(capturedGridProps.headerHeight).toBe(44);
   });
 });
