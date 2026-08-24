@@ -16,7 +16,9 @@ describe('getGridHeight', () => {
   });
 
   it('returns just the header height and scroll gap for zero rows', () => {
-    expect(getGridHeight(0)).toBe(GRID_HEADER_HEIGHT + GRID_HORIZONTAL_SCROLL_GAP);
+    expect(getGridHeight(0)).toBe(
+      GRID_HEADER_HEIGHT + GRID_HORIZONTAL_SCROLL_GAP,
+    );
   });
 
   it('uses a custom row height when passed', () => {
@@ -32,6 +34,8 @@ describe('getGridHeight', () => {
   });
 
   it('uses both custom row and header heights when passed', () => {
-    expect(getGridHeight(2, 44, 44)).toBe(2 * 44 + 44 + GRID_HORIZONTAL_SCROLL_GAP);
+    expect(getGridHeight(2, 44, 44)).toBe(
+      2 * 44 + 44 + GRID_HORIZONTAL_SCROLL_GAP,
+    );
   });
 });
