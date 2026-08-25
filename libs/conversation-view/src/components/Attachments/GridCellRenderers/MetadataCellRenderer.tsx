@@ -12,6 +12,7 @@ import { IconButton } from '@epam/statgpt-ui-components';
 
 import { ICellRendererParams } from 'ag-grid-community';
 import MetadataIcon from '../../../assets/icons/metadata.svg';
+import { useMetadataCellIconConfig } from './MetadataCellIconContext';
 import Metadata from '../../AdvancedView/Metadata/Metadata';
 import SidePanelMetadataContent from '../../AdvancedView/Metadata/SidePanel/SidePanelMetadataContent';
 import { getExternalLinkFromContext } from './helpers/get-external-link-from-context';
@@ -59,6 +60,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
   const sidePanel = useConversationViewSidePanelOptional();
   const { isMetadataInSidePanel } = useConversationViewFeatureToggles();
   const { getDatasetLastUpdated } = useDatasetDimensionsMetadataMap();
+  const metadataCellIconConfig = useMetadataCellIconConfig();
   const [isMetadataClosed, setIsMetadataClosed] = useState(false);
   const rowUrn = params?.data?.dataset?.urn as string | undefined;
   const externalLink = getExternalLinkFromContext(params?.context, rowUrn);
@@ -221,7 +223,9 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
         <IconButton
           title={titles?.metadata || 'View details'}
           buttonClassName="!text-neutrals-1000 !border-none !p-1"
-          icon={<MetadataIcon className="size-5" />}
+          icon={
+            metadataCellIconConfig?.icon ?? <MetadataIcon className="size-5" />
+          }
           onClick={openMetadata}
         />
       </div>
