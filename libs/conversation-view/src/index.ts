@@ -64,6 +64,12 @@ export {
 export type { DatasetInfoDetailsConfig } from './components/AdvancedView/Metadata/SidePanel/DatasetInfoDetailsContext';
 
 export {
+  MetadataCellIconProvider,
+  useMetadataCellIconConfig,
+} from './components/Attachments/GridCellRenderers/MetadataCellIconContext';
+export type { MetadataCellIconConfig } from './components/Attachments/GridCellRenderers/MetadataCellIconContext';
+
+export {
   ConversationViewFeatureTogglesProvider,
   useConversationViewFeatureToggles,
 } from './context/ConversationViewFeatureTogglesContext';
