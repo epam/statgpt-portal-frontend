@@ -2,6 +2,11 @@
   "name": "@epam/statgpt-dial-toolkit",
   "version": "0.0.1",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/epam/statgpt-portal-frontend.git",
+    "directory": "libs/dial-toolkit"
+  },
   "exports": {
     ".": {
       "import": "./index.mjs",

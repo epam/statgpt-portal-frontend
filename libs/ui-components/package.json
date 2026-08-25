@@ -2,6 +2,11 @@
   "name": "@epam/statgpt-ui-components",
   "version": "0.0.1",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/epam/statgpt-portal-frontend.git",
+    "directory": "libs/ui-components"
+  },
   "sideEffects": false,
   "dependencies": {
     "@epam/statgpt-shared-toolkit": "*"
