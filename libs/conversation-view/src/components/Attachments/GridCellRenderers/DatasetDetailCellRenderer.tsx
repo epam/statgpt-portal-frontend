@@ -20,6 +20,7 @@ import { useAdvancedView } from '../../../context/AdvancedViewContext';
 import { useDatasetDimensionsMetadataMap } from '../../../context/DatasetDimensionsMetadataMapContext';
 import { getDateFormattedValue } from '../../../utils/date-format';
 import { getExternalLinkFromContext } from './helpers/get-external-link-from-context';
+import { MetadataIndicatorWithHitArea } from './helpers/MetadataIndicatorWithHitArea';
 
 interface DatasetDetailCellRendererParams extends ICellRendererParams {
   structuresMap: Map<string, StructuralData | undefined>;
@@ -93,11 +94,10 @@ const DatasetDetailCellRenderer: FC<DatasetDetailCellRendererParams> = (
   ]);
 
   return (
-    <div className="relative size-full p-2">
+    <div className="p-2">
       {params.valueFormatted ?? params.value}
       {showIndicator && (
-        <div
-          className="metadata-indicator"
+        <MetadataIndicatorWithHitArea
           title={titles?.metadata || 'View details'}
           onClick={openMetadata}
         />

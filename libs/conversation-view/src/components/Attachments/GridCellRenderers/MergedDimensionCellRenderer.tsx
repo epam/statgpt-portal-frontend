@@ -29,6 +29,7 @@ import { useTableSettingsContextOptional } from '../../AdvancedView/TableSetting
 import { getDimensionValue } from '../../../utils/attachments/cross-dataset-grid/dimensions-columns';
 import { applyDimensionKeyCustomization } from '../../AdvancedView/TableSettings/helpers/crossDatasetEnrichment';
 import { getExternalLinkFromContext } from './helpers/get-external-link-from-context';
+import { MetadataIndicatorWithHitArea } from './helpers/MetadataIndicatorWithHitArea';
 
 interface MergedDimensionCellRendererParams extends ICellRendererParams {
   structuresMap: Map<string, StructuralData | undefined>;
@@ -59,6 +60,12 @@ function getPanelTitle(colId: string, titles?: ConversationViewTitles): string {
 
 const METADATA_SIDE_PANEL_ID = 'merged-dimension-metadata-side-panel';
 
+/**
+ * Renders per-dimension values with a metadata indicator in the corner; see
+ * `MetadataIndicatorWithHitArea` for how that indicator is positioned and
+ * why it doesn't need the root wrapper below to be `relative`/`absolute`.
+ * @param params - ag-grid cell renderer params for this column.
+ */
 const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
   params,
 ) => {
@@ -160,11 +167,10 @@ const MergedDimensionCellRenderer: FC<MergedDimensionCellRendererParams> = (
   ]);
 
   return (
-    <div className="relative size-full p-2">
+    <div className="p-2">
       {displayValue}
       {showTriangle && (
-        <div
-          className="metadata-indicator"
+        <MetadataIndicatorWithHitArea
           title={titles?.metadata || 'View details'}
           onClick={openMetadata}
         />

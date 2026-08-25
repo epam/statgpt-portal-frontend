@@ -3,6 +3,7 @@ import { FC, useCallback, useState } from 'react';
 import Metadata from '../../AdvancedView/Metadata/Metadata';
 import SidePanelMetadataContent from '../../AdvancedView/Metadata/SidePanel/SidePanelMetadataContent';
 import { getExternalLinkFromContext } from './helpers/get-external-link-from-context';
+import { MetadataIndicatorWithHitArea } from './helpers/MetadataIndicatorWithHitArea';
 import { getObsAttributesFromParams } from '../../../utils/attachments/metadata';
 import { useConversationViewFeatureToggles } from '../../../context/ConversationViewFeatureTogglesContext';
 import { useConversationViewSidePanelOptional } from '../../ConversationView/SidePanel/ConversationViewSidePanelContext';
@@ -80,13 +81,12 @@ const ObservationValueCellWithMetadata: FC<
 
   return (
     <>
-      <div className="relative size-full p-2 text-end">
+      <div className="p-2 text-end">
         {params?.valueFormatted || params?.value}
-        <div
-          className="metadata-indicator"
+        <MetadataIndicatorWithHitArea
           title={titles?.metadata || 'View details'}
           onClick={openMetadata}
-        ></div>
+        />
       </div>
       {metadataContent && (
         <Metadata
