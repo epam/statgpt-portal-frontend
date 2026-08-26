@@ -6,6 +6,7 @@ import { CrossDatasetGridAttachmentType } from '../../../../models/attachments';
 import {
   GRID_HEADER_HEIGHT,
   GRID_ROW_HEIGHT,
+  METADATA_CELL_RENDER,
 } from '../../../../constants/grid';
 
 jest.mock('ag-grid-community', () => ({
@@ -24,6 +25,12 @@ let capturedGridProps: {
   onFirstDataRendered?: () => void;
   rowHeight?: number;
   headerHeight?: number;
+  columnDefs?: Array<{
+    colId?: string;
+    cellRenderer?: string;
+    width?: number;
+    maxWidth?: number;
+  }>;
 } = {};
 
 jest.mock('ag-grid-react', () => ({
@@ -32,6 +39,12 @@ jest.mock('ag-grid-react', () => ({
     onFirstDataRendered?: () => void;
     rowHeight?: number;
     headerHeight?: number;
+    columnDefs?: Array<{
+      colId?: string;
+      cellRenderer?: string;
+      width?: number;
+      maxWidth?: number;
+    }>;
   }) => {
     capturedGridProps = props;
     return <div data-testid="ag-grid-stub" />;
@@ -47,7 +60,15 @@ jest.mock('@epam/statgpt-ui-components', () => ({
 
 const GRID_CONTENT = {
   data: [{ id: '1' }],
-  columns: [{ colId: 'id', field: 'id' }],
+  columns: [
+    {
+      colId: 'metadata',
+      cellRenderer: METADATA_CELL_RENDER,
+      width: 32,
+      maxWidth: 32,
+    },
+    { colId: 'id', field: 'id' },
+  ],
 };
 
 function buildAttachment(
@@ -151,5 +172,30 @@ describe('CrossDatasetGridAttachment', () => {
 
     expect(capturedGridProps.rowHeight).toBe(44);
     expect(capturedGridProps.headerHeight).toBe(44);
+  });
+
+  it('leaves the metadata column at its default 32px width when metadataColumnWidth is not provided', () => {
+    render(<CrossDatasetGridAttachment attachment={buildAttachment()} />);
+
+    const metadataCol = capturedGridProps.columnDefs?.find(
+      (col) => col.cellRenderer === METADATA_CELL_RENDER,
+    );
+    expect(metadataCol?.width).toBe(32);
+    expect(metadataCol?.maxWidth).toBe(32);
+  });
+
+  it('overrides the metadata column width/maxWidth when metadataColumnWidth is provided', () => {
+    render(
+      <CrossDatasetGridAttachment
+        attachment={buildAttachment()}
+        metadataColumnWidth={44}
+      />,
+    );
+
+    const metadataCol = capturedGridProps.columnDefs?.find(
+      (col) => col.cellRenderer === METADATA_CELL_RENDER,
+    );
+    expect(metadataCol?.width).toBe(44);
+    expect(metadataCol?.maxWidth).toBe(44);
   });
 });

@@ -67,6 +67,8 @@ interface Props {
   rowHeight?: number;
   /** Overrides the shared `GRID_HEADER_HEIGHT` default for this grid instance only. */
   headerHeight?: number;
+  /** Overrides the metadata column's fixed 32px `width`/`maxWidth` for this grid instance only. */
+  metadataColumnWidth?: number;
 }
 
 const CrossDatasetGridAttachment: FC<Props> = ({
@@ -81,6 +83,7 @@ const CrossDatasetGridAttachment: FC<Props> = ({
   onGridRenderedChange,
   rowHeight = GRID_ROW_HEIGHT,
   headerHeight = GRID_HEADER_HEIGHT,
+  metadataColumnWidth,
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isGridRendered, setIsGridRendered] = useState<boolean>(false);
@@ -104,6 +107,16 @@ const CrossDatasetGridAttachment: FC<Props> = ({
         if (col.colId === CHART_COLUMN_ID) {
           return { ...col, hide: !isChartColumnVisible };
         }
+        if (
+          col.cellRenderer === METADATA_CELL_RENDER &&
+          metadataColumnWidth != null
+        ) {
+          return {
+            ...col,
+            width: metadataColumnWidth,
+            maxWidth: metadataColumnWidth,
+          };
+        }
         return applyMobileColumnWidth(col, isMobile);
       });
 
@@ -111,7 +124,12 @@ const CrossDatasetGridAttachment: FC<Props> = ({
       setColumnDefs(columns);
       setIsLoading(false);
     }
-  }, [attachment.gridContent, isChartColumnVisible, isMobile]);
+  }, [
+    attachment.gridContent,
+    isChartColumnVisible,
+    isMobile,
+    metadataColumnWidth,
+  ]);
 
   useEffect(() => {
     if (rowData) {

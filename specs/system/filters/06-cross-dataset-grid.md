@@ -38,7 +38,7 @@ Left to right, as produced by `buildCrossDatasetGridColumns`:
 
 | Column group | Source | Notes |
 |---|---|---|
-| Metadata | `getCrossDatasetMetadataColumn` | Fixed left-anchor column |
+| Metadata | `getCrossDatasetMetadataColumn` | Fixed left-anchor column, 32px wide. Excluded from `applyMobileColumnWidth`'s mobile clamp; `CrossDatasetGridAttachment`'s `metadataColumnWidth` prop overrides its `width`/`maxWidth` for this grid instance only, applied in `CrossDatasetGridAttachment`'s own column-mapping effect (not baked into the column def itself) |
 | Agency | dataset info | String from structural metadata |
 | Dataset name | dataset info | Human-readable dataset title |
 | Country / Region | `dimensions-columns.ts` | One column; value dispatched by row urn |

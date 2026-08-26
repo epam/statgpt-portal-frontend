@@ -219,7 +219,7 @@ const MetadataCellRenderer = (params: MetadataCellRendererParams) => {
 
   return (
     <>
-      <div ref={iconRef}>
+      <div ref={iconRef} className="flex w-full justify-center">
         <IconButton
           title={titles?.metadata || 'View details'}
           buttonClassName="!text-neutrals-1000 !border-none !p-1"
