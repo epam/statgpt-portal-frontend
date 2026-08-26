@@ -143,11 +143,12 @@ export const WithData: Story = {
 };
 
 export const TallRows: Story = {
-  name: 'Tall Rows (custom 44px row height)',
+  name: 'Tall Rows (44px row height + metadata column width)',
   render: renderWithClickableTriangle,
   args: {
     attachment: sampleAttachment,
     rowHeight: 44,
     headerHeight: 44,
+    metadataColumnWidth: 44,
   },
 };
