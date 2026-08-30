@@ -161,23 +161,23 @@ describe('AttachmentRenderer — DatasetTabs dataset filtering', () => {
     jest.clearAllMocks();
   });
 
-  it('passes only enabled datasets to DatasetTabs in cross-dataset mode', () => {
+  it('hides DatasetTabs entirely in cross-dataset mode', () => {
     renderComponent([QUERY_A, QUERY_B], true);
 
-    expect(screen.getByTestId('dataset-tab-DS_A')).toBeInTheDocument();
+    expect(screen.queryByTestId('dataset-tab-DS_A')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('dataset-tab-DS_B')).not.toBeInTheDocument();
+  });
+
+  it('hides DatasetTabs entirely in cross-dataset mode even when no dataQueries are disabled', () => {
+    const allEnabled: DataQuery[] = [QUERY_A, { ...QUERY_B, disabled: false }];
+    renderComponent(allEnabled, true);
+
+    expect(screen.queryByTestId('dataset-tab-DS_A')).not.toBeInTheDocument();
     expect(screen.queryByTestId('dataset-tab-DS_B')).not.toBeInTheDocument();
   });
 
   it('passes all datasets to DatasetTabs when not in cross-dataset mode', () => {
     renderComponent([QUERY_A, QUERY_B], false);
-
-    expect(screen.getByTestId('dataset-tab-DS_A')).toBeInTheDocument();
-    expect(screen.getByTestId('dataset-tab-DS_B')).toBeInTheDocument();
-  });
-
-  it('passes all datasets when no dataQueries are disabled', () => {
-    const allEnabled: DataQuery[] = [QUERY_A, { ...QUERY_B, disabled: false }];
-    renderComponent(allEnabled, true);
 
     expect(screen.getByTestId('dataset-tab-DS_A')).toBeInTheDocument();
     expect(screen.getByTestId('dataset-tab-DS_B')).toBeInTheDocument();

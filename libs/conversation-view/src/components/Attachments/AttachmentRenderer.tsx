@@ -298,7 +298,8 @@ export const AttachmentRenderer: FC<Props> = ({
             containerClassName,
           )}
         >
-          {!isOpenedAdvancedView &&
+          {!isCrossDatasetModeOn &&
+            !isOpenedAdvancedView &&
             enabledDatasets?.length != null &&
             enabledDatasets?.length > 0 && (
               <DatasetTabs
