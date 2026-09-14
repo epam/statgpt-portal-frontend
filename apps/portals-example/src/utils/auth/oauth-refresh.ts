@@ -1,4 +1,15 @@
 import { TokenSet } from '@auth/core/types';
+import { REFRESH_FETCH_TIMEOUT_MS } from './refresh-token-timing';
+
+export class OAuthRefreshError extends Error {
+  code?: string;
+
+  constructor(message: string, code?: string) {
+    super(message);
+    this.name = 'OAuthRefreshError';
+    this.code = code;
+  }
+}
 
 type RefreshProviderConfig = {
   clientId?: string;
@@ -96,9 +107,10 @@ const getRefreshProviderConfig = (
   }
 };
 
-const discoverTokenEndpoint = async (issuer: string) => {
+const discoverTokenEndpoint = async (issuer: string, signal: AbortSignal) => {
   const response = await fetch(
     `${trimTrailingSlash(issuer)}/.well-known/openid-configuration`,
+    { signal },
   );
 
   if (!response.ok) {
@@ -124,45 +136,63 @@ export const refreshOAuthToken = async (
     throw new Error(`Refresh provider ${providerId} is not configured`);
   }
 
-  const tokenEndpoint =
-    config.tokenEndpoint ??
-    (config.issuer ? await discoverTokenEndpoint(config.issuer) : undefined);
+  // One shared deadline for the whole call (discovery + exchange combined),
+  // not restarted per fetch — see refresh-token-timing.ts for why this must
+  // stay smaller than the caller's own wait timeout.
+  const signal = AbortSignal.timeout(REFRESH_FETCH_TIMEOUT_MS);
 
-  if (!tokenEndpoint) {
-    throw new Error(`Token endpoint is not configured for ${providerId}`);
+  try {
+    const tokenEndpoint =
+      config.tokenEndpoint ??
+      (config.issuer
+        ? await discoverTokenEndpoint(config.issuer, signal)
+        : undefined);
+
+    if (!tokenEndpoint) {
+      throw new Error(`Token endpoint is not configured for ${providerId}`);
+    }
+
+    const body = new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      client_id: config.clientId,
+      client_secret: config.clientSecret,
+    });
+
+    const response = await fetch(tokenEndpoint, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+      },
+      body,
+      signal,
+    });
+
+    const tokens = (await response.json()) as TokenSet & {
+      error?: string;
+      error_description?: string;
+    };
+
+    if (!response.ok) {
+      throw new OAuthRefreshError(
+        tokens.error_description ??
+          tokens.error ??
+          `Failed to refresh ${providerId} access token`,
+        tokens.error,
+      );
+    }
+
+    if (!tokens.expires_at && tokens.expires_in) {
+      tokens.expires_at = Math.floor(Date.now() / 1000) + tokens.expires_in;
+    }
+
+    return tokens;
+  } catch (error: unknown) {
+    if (signal.aborted) {
+      console.error(
+        `Refresh request to ${providerId} timed out after ${REFRESH_FETCH_TIMEOUT_MS}ms`,
+      );
+    }
+    throw error;
   }
-
-  const body = new URLSearchParams({
-    grant_type: 'refresh_token',
-    refresh_token: refreshToken,
-    client_id: config.clientId,
-    client_secret: config.clientSecret,
-  });
-
-  const response = await fetch(tokenEndpoint, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/x-www-form-urlencoded',
-    },
-    body,
-  });
-
-  const tokens = (await response.json()) as TokenSet & {
-    error?: string;
-    error_description?: string;
-  };
-
-  if (!response.ok) {
-    throw new Error(
-      tokens.error_description ??
-        tokens.error ??
-        `Failed to refresh ${providerId} access token`,
-    );
-  }
-
-  if (!tokens.expires_at && tokens.expires_in) {
-    tokens.expires_at = Math.floor(Date.now() / 1000) + tokens.expires_in;
-  }
-
-  return tokens;
 };

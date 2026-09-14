@@ -4,18 +4,18 @@ import { NextAuthConfig, Profile } from 'next-auth';
 import { Token, UserSession } from '../../models/auth';
 import { logTokenExpiration } from './log-token-info';
 import NextClient, { RefreshToken } from './nextauth-client';
-import { refreshOAuthToken } from './oauth-refresh';
-
-const waitRefreshTokenTimeout = 5;
+import { OAuthRefreshError, refreshOAuthToken } from './oauth-refresh';
+import { WAIT_REFRESH_TOKEN_TIMEOUT_MS } from './refresh-token-timing';
 
 /**
  * Takes a token, and returns a new token with updated
  * `accessToken` and `accessTokenExpires`. If an error occurs,
  * returns the old token and an error property
  */
-async function refreshAccessToken(token: Token) {
+export async function refreshAccessToken(token: Token) {
   const displayedTokenSub =
     process.env.SHOW_TOKEN_SUB === 'true' ? token.sub : '******';
+  let hasAcquiredLock = false;
 
   try {
     // Ensure the token contains provider information
@@ -28,9 +28,13 @@ async function refreshAccessToken(token: Token) {
     while (true) {
       const refresh = NextClient.getRefreshToken(token.userId);
       if (!refresh || !refresh.isRefreshing) {
-        const localToken: RefreshToken = refresh || {
+        // refresh may be {isRefreshing: false, ...} from a finished cycle — a
+        // truthy value, so `refresh || {isRefreshing: true, token}` would silently
+        // keep isRefreshing: false instead of acquiring the lock. Only carry over
+        // refresh.token; isRefreshing must always be set to true explicitly.
+        const localToken: RefreshToken = {
           isRefreshing: true,
-          token,
+          token: refresh?.token ?? token,
         };
         console.log(
           `Refreshing token: expires - ${new Date(Number(localToken.token?.accessTokenExpires))}, now - ${new Date(
@@ -45,15 +49,16 @@ async function refreshAccessToken(token: Token) {
         }
 
         NextClient.setIsRefreshTokenStart(token.userId, localToken);
+        hasAcquiredLock = true;
         break;
       }
 
       await NextClient.delay();
       msWaiting += 50;
 
-      if (msWaiting >= waitRefreshTokenTimeout * 1000) {
+      if (msWaiting >= WAIT_REFRESH_TOKEN_TIMEOUT_MS) {
         throw new Error(
-          `Waiting more than ${waitRefreshTokenTimeout} seconds for refreshing token`,
+          `Waiting more than ${WAIT_REFRESH_TOKEN_TIMEOUT_MS / 1000} seconds for refreshing token`,
         );
       }
     }
@@ -110,9 +115,23 @@ async function refreshAccessToken(token: Token) {
       `Error when refreshing token: ${(error as Error).message}. Sub: ${displayedTokenSub}`,
     );
 
+    // A call that never acquired the lock (e.g. it threw before entering the
+    // acquire branch, or gave up waiting for another caller's refresh) must
+    // not release a lock it never held — that lock may still be legitimately
+    // held by the call that's actually mid-refresh.
+    if (hasAcquiredLock) {
+      NextClient.setIsRefreshTokenStart(token.userId, {
+        isRefreshing: false,
+        token: undefined,
+      });
+    }
+
+    const isTerminal =
+      error instanceof OAuthRefreshError && error.code === 'invalid_grant';
+
     return {
       ...token,
-      error: 'RefreshAccessTokenError',
+      error: isTerminal ? 'RefreshTokenExpired' : 'RefreshAccessTokenError',
     };
   }
 }

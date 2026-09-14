@@ -50,6 +50,7 @@ import {
 } from '@epam/statgpt-shared-toolkit';
 import { signOut, useSession } from 'next-auth/react';
 import { useConversationListActions } from './useConversationListActions';
+import { useSignOutOnSessionError } from '../../utils/auth/useSignOutOnSessionError';
 
 interface ConversationListWrapperProps {
   clientContactSupportUrl?: string;
@@ -71,6 +72,7 @@ const ConversationListWrapper = ({
   } = useConversationList();
   const locale = useCurrentLocale();
   const { data: session } = useSession();
+  useSignOutOnSessionError();
   const { isStreaming } = useChatMessages();
   const selectedConversationId = useMemo(
     () => getConversationId(id, locale),
