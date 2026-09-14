@@ -1,5 +1,15 @@
 import { TokenSet } from '@auth/core/types';
 
+export class OAuthRefreshError extends Error {
+  code?: string;
+
+  constructor(message: string, code?: string) {
+    super(message);
+    this.name = 'OAuthRefreshError';
+    this.code = code;
+  }
+}
+
 type RefreshProviderConfig = {
   clientId?: string;
   clientSecret?: string;
@@ -153,10 +163,11 @@ export const refreshOAuthToken = async (
   };
 
   if (!response.ok) {
-    throw new Error(
+    throw new OAuthRefreshError(
       tokens.error_description ??
         tokens.error ??
         `Failed to refresh ${providerId} access token`,
+      tokens.error,
     );
   }
 

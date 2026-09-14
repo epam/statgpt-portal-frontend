@@ -4,7 +4,7 @@ import { NextAuthConfig, Profile } from 'next-auth';
 import { Token, UserSession } from '../../models/auth';
 import { logTokenExpiration } from './log-token-info';
 import NextClient, { RefreshToken } from './nextauth-client';
-import { refreshOAuthToken } from './oauth-refresh';
+import { OAuthRefreshError, refreshOAuthToken } from './oauth-refresh';
 
 const waitRefreshTokenTimeout = 5;
 
@@ -13,7 +13,7 @@ const waitRefreshTokenTimeout = 5;
  * `accessToken` and `accessTokenExpires`. If an error occurs,
  * returns the old token and an error property
  */
-async function refreshAccessToken(token: Token) {
+export async function refreshAccessToken(token: Token) {
   const displayedTokenSub =
     process.env.SHOW_TOKEN_SUB === 'true' ? token.sub : '******';
 
@@ -110,9 +110,17 @@ async function refreshAccessToken(token: Token) {
       `Error when refreshing token: ${(error as Error).message}. Sub: ${displayedTokenSub}`,
     );
 
+    NextClient.setIsRefreshTokenStart(token.userId, {
+      isRefreshing: false,
+      token: undefined,
+    });
+
+    const isTerminal =
+      error instanceof OAuthRefreshError && error.code === 'invalid_grant';
+
     return {
       ...token,
-      error: 'RefreshAccessTokenError',
+      error: isTerminal ? 'RefreshTokenExpired' : 'RefreshAccessTokenError',
     };
   }
 }
