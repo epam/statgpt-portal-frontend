@@ -124,21 +124,23 @@
     "vite-plugin-dts": "5.0.2",
     "vite-plugin-static-copy": "^4.1.1",
     "vite-plugin-svgr": "^5.2.0",
-    "vitest": "4.1.8"
+    "vitest": "4.1.11"
   },
   "overrides": {
     "axios": "1.18.1",
-    "dompurify": "3.4.12",
+    "dompurify": "3.4.13",
     "esbuild": "0.28.1",
     "form-data": "4.0.6",
     "postcss": "8.5.23",
-    "sharp": "0.35.3",
+    "sharp": "0.35.4",
     "tmp": "0.2.7",
     "undici": "7.29.0",
     "brace-expansion": "5.0.9",
     "minimatch": "10.2.3",
     "nanoid": "3.3.18",
     "less": "4.8.1",
+    "smol-toml": "1.7.1",
+    "adm-zip": "0.6.1",
     "sockjs": {
       "uuid": "11.1.1"
     }
