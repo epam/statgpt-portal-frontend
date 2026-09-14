@@ -65,7 +65,8 @@ describe('refreshOAuthToken', () => {
     );
   });
 
-  it('passes an abort signal to both the discovery and token-exchange fetch calls', async () => {
+  it('bounds the discovery and token-exchange fetch calls to a single shared 15s abort timeout', async () => {
+    const timeoutSpy = jest.spyOn(AbortSignal, 'timeout');
     mockTokenExchange(
       jsonResponse(200, { access_token: 'a', expires_in: 100 }),
     );
@@ -75,7 +76,17 @@ describe('refreshOAuthToken', () => {
     const calls = (global.fetch as jest.Mock).mock.calls;
     expect(calls).toHaveLength(2);
     expect(calls[0][1]?.signal).toBeInstanceOf(AbortSignal);
-    expect(calls[1][1]?.signal).toBeInstanceOf(AbortSignal);
+    // Both fetch calls must share the SAME signal instance — a combined
+    // budget for the whole operation, not a fresh timeout restarted per
+    // call (which would double the effective worst case).
+    expect(calls[1][1]?.signal).toBe(calls[0][1]?.signal);
+    // Asserting instanceof AbortSignal alone would also pass for an
+    // unrelated or near-instant timeout — pin the actual duration by
+    // checking what AbortSignal.timeout() was called with.
+    expect(timeoutSpy).toHaveBeenCalledTimes(1);
+    expect(timeoutSpy).toHaveBeenCalledWith(15_000);
+
+    timeoutSpy.mockRestore();
   });
 
   it('throws an OAuthRefreshError carrying the provider error code for invalid_grant', async () => {

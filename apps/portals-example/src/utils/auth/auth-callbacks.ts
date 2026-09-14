@@ -5,8 +5,7 @@ import { Token, UserSession } from '../../models/auth';
 import { logTokenExpiration } from './log-token-info';
 import NextClient, { RefreshToken } from './nextauth-client';
 import { OAuthRefreshError, refreshOAuthToken } from './oauth-refresh';
-
-const waitRefreshTokenTimeout = 5;
+import { WAIT_REFRESH_TOKEN_TIMEOUT_MS } from './refresh-token-timing';
 
 /**
  * Takes a token, and returns a new token with updated
@@ -57,9 +56,9 @@ export async function refreshAccessToken(token: Token) {
       await NextClient.delay();
       msWaiting += 50;
 
-      if (msWaiting >= waitRefreshTokenTimeout * 1000) {
+      if (msWaiting >= WAIT_REFRESH_TOKEN_TIMEOUT_MS) {
         throw new Error(
-          `Waiting more than ${waitRefreshTokenTimeout} seconds for refreshing token`,
+          `Waiting more than ${WAIT_REFRESH_TOKEN_TIMEOUT_MS / 1000} seconds for refreshing token`,
         );
       }
     }

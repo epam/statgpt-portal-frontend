@@ -142,7 +142,7 @@ describe('refreshAccessToken', () => {
 
       // This call throws before ever reaching the acquire branch (missing
       // providerId) — the same shape of early-throw as the wait-loop's
-      // "Waiting more than 5 seconds..." timeout, which also throws before
+      // "Waiting more than N seconds..." timeout, which also throws before
       // the throwing call has ever acquired the lock itself. Either way, it
       // must not release a lock it never held.
       await refreshAccessToken(baseToken({ providerId: '' }));
