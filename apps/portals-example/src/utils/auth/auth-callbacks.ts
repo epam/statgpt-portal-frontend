@@ -16,6 +16,7 @@ const waitRefreshTokenTimeout = 5;
 export async function refreshAccessToken(token: Token) {
   const displayedTokenSub =
     process.env.SHOW_TOKEN_SUB === 'true' ? token.sub : '******';
+  let hasAcquiredLock = false;
 
   try {
     // Ensure the token contains provider information
@@ -49,6 +50,7 @@ export async function refreshAccessToken(token: Token) {
         }
 
         NextClient.setIsRefreshTokenStart(token.userId, localToken);
+        hasAcquiredLock = true;
         break;
       }
 
@@ -114,10 +116,16 @@ export async function refreshAccessToken(token: Token) {
       `Error when refreshing token: ${(error as Error).message}. Sub: ${displayedTokenSub}`,
     );
 
-    NextClient.setIsRefreshTokenStart(token.userId, {
-      isRefreshing: false,
-      token: undefined,
-    });
+    // A call that never acquired the lock (e.g. it threw before entering the
+    // acquire branch, or gave up waiting for another caller's refresh) must
+    // not release a lock it never held — that lock may still be legitimately
+    // held by the call that's actually mid-refresh.
+    if (hasAcquiredLock) {
+      NextClient.setIsRefreshTokenStart(token.userId, {
+        isRefreshing: false,
+        token: undefined,
+      });
+    }
 
     const isTerminal =
       error instanceof OAuthRefreshError && error.code === 'invalid_grant';

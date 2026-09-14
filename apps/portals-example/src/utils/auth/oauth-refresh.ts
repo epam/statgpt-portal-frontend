@@ -106,9 +106,16 @@ const getRefreshProviderConfig = (
   }
 };
 
+// Guards against an IdP that accepts the connection but never responds —
+// without this, refreshAccessToken()'s catch block (which releases the
+// per-user refresh lock) never runs, reproducing the stuck-lock bug via a
+// hang instead of an explicit error response.
+const FETCH_TIMEOUT_MS = 10_000;
+
 const discoverTokenEndpoint = async (issuer: string) => {
   const response = await fetch(
     `${trimTrailingSlash(issuer)}/.well-known/openid-configuration`,
+    { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) },
   );
 
   if (!response.ok) {
@@ -155,6 +162,7 @@ export const refreshOAuthToken = async (
       'content-type': 'application/x-www-form-urlencoded',
     },
     body,
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
 
   const tokens = (await response.json()) as TokenSet & {

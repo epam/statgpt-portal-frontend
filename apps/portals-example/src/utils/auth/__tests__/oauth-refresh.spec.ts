@@ -65,6 +65,19 @@ describe('refreshOAuthToken', () => {
     );
   });
 
+  it('passes an abort signal to both the discovery and token-exchange fetch calls', async () => {
+    mockTokenExchange(
+      jsonResponse(200, { access_token: 'a', expires_in: 100 }),
+    );
+
+    await refreshOAuthToken('azure-ad-b2c', 'old-refresh-token');
+
+    const calls = (global.fetch as jest.Mock).mock.calls;
+    expect(calls).toHaveLength(2);
+    expect(calls[0][1]?.signal).toBeInstanceOf(AbortSignal);
+    expect(calls[1][1]?.signal).toBeInstanceOf(AbortSignal);
+  });
+
   it('throws an OAuthRefreshError carrying the provider error code for invalid_grant', async () => {
     mockTokenExchange(
       jsonResponse(400, {

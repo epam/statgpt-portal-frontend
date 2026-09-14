@@ -131,6 +131,24 @@ describe('refreshAccessToken', () => {
 
       expect(maxConcurrentCalls).toBe(1);
     });
+
+    it("does not clobber another call's held lock when this call fails before ever acquiring it", async () => {
+      // Simulate a different call genuinely mid-refresh for this user.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (globalThis as any)._refreshTokenMap['user-1'] = {
+        isRefreshing: true,
+        token: baseToken(),
+      };
+
+      // This call throws before ever reaching the acquire branch (missing
+      // providerId) — the same shape of early-throw as the wait-loop's
+      // "Waiting more than 5 seconds..." timeout, which also throws before
+      // the throwing call has ever acquired the lock itself. Either way, it
+      // must not release a lock it never held.
+      await refreshAccessToken(baseToken({ providerId: '' }));
+
+      expect(NextClient.getRefreshToken('user-1')?.isRefreshing).toBe(true);
+    });
   });
 
   describe('error classification', () => {
