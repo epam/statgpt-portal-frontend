@@ -28,9 +28,13 @@ export async function refreshAccessToken(token: Token) {
     while (true) {
       const refresh = NextClient.getRefreshToken(token.userId);
       if (!refresh || !refresh.isRefreshing) {
-        const localToken: RefreshToken = refresh || {
+        // refresh may be {isRefreshing: false, ...} from a finished cycle — a
+        // truthy value, so `refresh || {isRefreshing: true, token}` would silently
+        // keep isRefreshing: false instead of acquiring the lock. Only carry over
+        // refresh.token; isRefreshing must always be set to true explicitly.
+        const localToken: RefreshToken = {
           isRefreshing: true,
-          token,
+          token: refresh?.token ?? token,
         };
         console.log(
           `Refreshing token: expires - ${new Date(Number(localToken.token?.accessTokenExpires))}, now - ${new Date(

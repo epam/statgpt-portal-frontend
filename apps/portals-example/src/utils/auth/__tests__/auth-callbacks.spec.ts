@@ -84,6 +84,53 @@ describe('refreshAccessToken', () => {
 
       expect(mockRefreshOAuthToken).not.toHaveBeenCalled();
     });
+
+    it('serializes two concurrent calls for the same user on a fresh (never-refreshed) lock', async () => {
+      let concurrentCalls = 0;
+      let maxConcurrentCalls = 0;
+      mockRefreshOAuthToken.mockImplementation(async () => {
+        concurrentCalls += 1;
+        maxConcurrentCalls = Math.max(maxConcurrentCalls, concurrentCalls);
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        concurrentCalls -= 1;
+        return { access_token: 'a', expires_in: 3600 };
+      });
+
+      await Promise.all([
+        refreshAccessToken(baseToken()),
+        refreshAccessToken(baseToken()),
+      ]);
+
+      expect(maxConcurrentCalls).toBe(1);
+      expect(mockRefreshOAuthToken).toHaveBeenCalledTimes(1);
+    });
+
+    it('still serializes concurrent calls after a previous refresh cycle already completed', async () => {
+      // First cycle completes (and fails) before the concurrent pair below —
+      // this is the exact regression case: once a map entry exists with
+      // isRefreshing: false (written by either the success or failure path),
+      // the acquire branch must still re-lock to true, not reuse the stale
+      // false value and let both concurrent calls through unserialized.
+      mockRefreshOAuthToken.mockRejectedValueOnce(new Error('network blip'));
+      await refreshAccessToken(baseToken());
+
+      let concurrentCalls = 0;
+      let maxConcurrentCalls = 0;
+      mockRefreshOAuthToken.mockImplementation(async () => {
+        concurrentCalls += 1;
+        maxConcurrentCalls = Math.max(maxConcurrentCalls, concurrentCalls);
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        concurrentCalls -= 1;
+        return { access_token: 'fresh-access-token', expires_in: 3600 };
+      });
+
+      await Promise.all([
+        refreshAccessToken(baseToken()),
+        refreshAccessToken(baseToken()),
+      ]);
+
+      expect(maxConcurrentCalls).toBe(1);
+    });
   });
 
   describe('error classification', () => {
