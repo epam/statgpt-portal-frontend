@@ -1,4 +1,4 @@
-FROM node:24.21-alpine3.24 AS base
+FROM node:24.22.1-alpine3.24 AS base
 
 # Upgrade OS packages with known CVEs in the base image (openssl CVE-2026-14456,
 # zlib CVE-2026-85091). zlib is preinstalled, so `apk add` would not update it.
