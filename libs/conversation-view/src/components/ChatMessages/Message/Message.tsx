@@ -30,6 +30,7 @@ import {
   parseMessageAttachments,
 } from '../../../utils/attachments/attachment-parser';
 import { getDataQueries } from '../../../utils/attachments/parse-data-query';
+import { excludeDatasetDataTables } from '../../../utils/attachments/exclude-dataset-data-tables';
 import { DataQuery } from '@epam/statgpt-shared-toolkit';
 import { Message as MessageType } from '@epam/statgpt-dial-toolkit';
 import { MetadataSettings } from '../../../models/metadata';
@@ -273,8 +274,9 @@ const Message: FC<Props> = ({
     const attachments = parseMessageAttachments(message);
     const dataQueries = getDataQueries(attachments);
 
-    const gridAttachments = attachments.filter((attachment) =>
-      isGridAttachment(attachment),
+    const gridAttachments = excludeDatasetDataTables(
+      attachments.filter((attachment) => isGridAttachment(attachment)),
+      dataQueries,
     );
     setAttachmentsDataQueries(dataQueries);
     setBaseGridAttachments(gridAttachments);

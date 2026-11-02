@@ -9,6 +9,7 @@ attachment does not collapse while the new view builds) and the **scroll-positio
 
 Key files:
 - `libs/conversation-view/src/components/ChatMessages/Message/Message.tsx`
+- `libs/conversation-view/src/utils/attachments/exclude-dataset-data-tables.ts`
 - `libs/conversation-view/src/components/Attachments/AttachmentRenderer.tsx`
 - `libs/conversation-view/src/components/Attachments/AttachmentsContentRenderer.tsx`
 - `libs/conversation-view/src/components/Attachments/AttachmentsViewModePanel.tsx`
@@ -30,6 +31,16 @@ query left unspecified — BE attaches one per missing dimension). `Message.tsx`
 always prepends these (`baseGridAttachments`) ahead of the computed Data/cross-dataset
 tabs, so they win the default `selectedAttachmentIndex = 0` tab instead of being
 dropped whenever a real dataset query also exists.
+
+BE also attaches a raw `Data: {dataset_source_id}` table per dataset (the `custom_table`
+attachment, enabled by default). It duplicates the computed Data tab, so
+`excludeDatasetDataTables` (`utils/attachments/exclude-dataset-data-tables.ts`) removes
+any raw table whose title suffix (text after the first `": "`) equals the suffix of a
+parsed data query title (`Query (JSON): {dataset_source_id}`). Pick-list tables
+(`{dimension name} ({entity id})`) have no such suffix and are kept. With no data
+queries nothing is removed. The match relies on both attachment names being built from
+the same `{dataset_source_id}` template; if a deployment renames either template so the
+suffixes differ, the duplicate tabs reappear.
 
 Two things worth knowing:
 - These tabs don't go through `isGridRendered`/`areActionsDisabled` gating at all —
